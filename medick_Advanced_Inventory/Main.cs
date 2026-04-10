@@ -22,7 +22,7 @@ using MelonLoader;
 using UnityEngine;
 
 [assembly: MelonInfo(typeof(medick_Advanced_Inventory.AdvancedInventoryMod),
-    "medick_Advanced_Inventory", "1.1.0", "medick")]
+    "medick_Advanced_Inventory", "1.2.0", "medick")]
 [assembly: MelonGame("Eleventh Hour Games", "Last Epoch")]
 
 namespace medick_Advanced_Inventory
@@ -31,7 +31,7 @@ namespace medick_Advanced_Inventory
     {
         public override void OnInitializeMelon()
         {
-            MelonLogger.Msg("[AdvancedInventory] Loaded v1.1.0 — STASH / TRADER / STASH ALL + teleport buttons active.");
+            MelonLogger.Msg("[AdvancedInventory] Loaded v1.2.0 — STASH / TRADER / STASH ALL + collapsible teleport menu active.");
         }
     }
 }

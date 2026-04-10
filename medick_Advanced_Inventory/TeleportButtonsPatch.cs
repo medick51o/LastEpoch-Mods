@@ -1,26 +1,25 @@
 // ================================================================
-//  TeleportButtonsPatch.cs
+//  TeleportButtonsPatch.cs  — v1.2.0
 //
-//  Injects a teleport button column into the inventory panel,
-//  grouped by in-game era (timeline order):
+//  Collapsible teleport menu attached to the inventory panel.
 //
-//    DIVINE ERA   — Circle of Fortune (Observatory)
-//                   Merchant's Guild (Bazaar)
-//                   Champion's Gate (Arena)
-//    IMPERIAL ERA — Soulfire Bastion (Dungeon)
-//    RUINED ERA   — Lightless Arbor (Dungeon)
-//                   Temporal Sanctum (Dungeon)
-//    END OF TIME  — Forgotten Knights (Shattered Road)
-//                   The Woven (Haven of Silk)
-//                   The End of Time (Town)
+//  Layout:
+//    [QUICK TELEPORT tab]  ← always visible at panel left border (A)
+//    [column ←←←←←←←←←]  ← opens/closes to the left of the tab
+//
+//  Column is grouped by era (timeline order):
+//    DIVINE ERA   — Circle of Fortune, Merchant's Guild, Champion's Gate
+//    IMPERIAL ERA — Soulfire Bastion
+//    RUINED ERA   — Lightless Arbor, Temporal Sanctum
+//    END OF TIME  — Forgotten Knights, The Woven, The End of Time
+//
+//  Each era header is clickable (▼/▶) to collapse its buttons.
+//  The master tab collapses/restores the entire column.
 //
 //  Travel strategy (per button click):
 //    1. Instant travel via UIWaypointController.waypointsInMenu
-//       (all 5 era controllers are pre-populated at scene load —
-//        no need to open the map first).
-//    2. Fallback: close inventory → invoke faction's "VISIT X" button
-//       → opens map at correct era with node highlighted.
-//    3. Last resort: MapKeyDown() to open map generically.
+//    2. Fallback: close inventory → invoke faction "VISIT X" button
+//    3. Last resort: MapKeyDown()
 // ================================================================
 
 using System;
@@ -38,7 +37,7 @@ namespace medick_Advanced_Inventory
     [HarmonyPatch(typeof(EnableWovenEchoesTabIfRelevant), "Awake")]
     internal static class Patch_TeleportButtons
     {
-        private const string GUARD = "medick_Tp0";
+        private const string GUARD = "medick_TpMaster";
 
         // ── Faction data ──────────────────────────────────────────────────────
 
@@ -61,7 +60,6 @@ namespace medick_Advanced_Inventory
         };
 
         // ── Keyword to find each faction's "Visit Hub" button ─────────────────
-        // Searched case-insensitively as a substring of any Button's child text.
 
         private static readonly Dictionary<string, string> SceneToVisitKeyword = new Dictionary<string, string>
         {
@@ -83,39 +81,70 @@ namespace medick_Advanced_Inventory
             { "EoT",         "END OF"    },
             { "M_Knight",    "RUINED"    },
             { "WeaversHub",  "END OF"    },
-            { "Dun1Q10",     "RUINED"    },
             { "Dun2Q10",     "RUINED"    },
+            { "Dun1Q10",     "RUINED"    },
             { "Dun3Q10",     "IMPERIAL"  },
         };
 
         // ── Layout constants ──────────────────────────────────────────────────
         //
-        //  Single column, left side of inventory panel:
+        //  TAB  = the always-visible "QUICK TELEPORT" button at panel left border
+        //  COL  = the collapsible column that opens to the LEFT of the tab
         //
-        //  ┌──────────────────────────┐
-        //  │  6 · DIVINE ERA (note)   │
-        //  ├──────────────────────────┤
-        //  │  1 · Circle of Fortune   │
-        //  ├──────────────────────────┤
-        //  │  2 · Merchant's Guild    │
-        //  ├──────────────────────────┤
-        //  │  NEW· Champion's Gate    │
-        //  ├──────────────────────────┤
-        //  │  7 · END OF TIME (note)  │
-        //  ├──────────────────────────┤
-        //  │  4 · Forgotten Knights   │
-        //  ├──────────────────────────┤
-        //  │  5 · The Woven           │
-        //  ├──────────────────────────┤
-        //  │  3 · End of Time         │
-        //  └──────────────────────────┘
+        //  [  COL  ][ TAB ]|panel border|
+        //   COL_X    TAB_X  x=0
 
         private const float BTN_H  = 48f;
-        private const float HDR_H  = 44f;    // tall enough for 3-line era note
+        private const float HDR_H  = 44f;   // 3-line era header (restored)
         private const float GAP    = 3f;
-        private const float COL_X  = -88f;   // negative = bleeds left outside panel edge
-        private const float COL_W  = 120f;
-        private const float COL_Y  = -6f;    // down 1/4 box from previous
+        private const float COL_W  = 118f;
+        private const float COL_Y  = -4f;   // top of column (from panel top-left anchor)
+
+        // Tab sits inside the panel's left decorative border area (always visible)
+        private const float TAB_X  = 28f;   // px inside panel left anchor
+        private const float TAB_W  = 157f;
+        private const float TAB_H  = 65f;   // taller tab
+
+        // Column is to the LEFT of the tab  (28 - 3 - 118 = -93)
+        private const float COL_X  = TAB_X - GAP - COL_W;
+
+        // ── Collapse state ────────────────────────────────────────────────────
+
+        private static bool _columnOpen = true;
+
+        // One slot per era: [0]=Divine [1]=Imperial [2]=Ruined [3]=EndOfTime
+        private static readonly bool[] _eraOpen = { true, true, true, true };
+
+        // Ordered list of column items for reflow.
+        // isEraBtn=false → era header, visible whenever column is open
+        // isEraBtn=true  → faction button, visible when column open AND era open
+        private static readonly List<(RectTransform rt, bool isEraBtn, int eraIdx)> _colItems
+            = new List<(RectTransform, bool, int)>();
+
+        // UI label refs for updating arrow glyphs
+        private static TMP_Text _masterLabel;
+        private static readonly TMP_Text[] _eraArrows = new TMP_Text[4];
+
+        // Era header label strings (needed to rebuild arrow text on toggle)
+        private static readonly string[] ERA_NAMES = { "DIVINE ERA", "IMPERIAL ERA", "RUINED ERA", "END OF TIME" };
+
+        // ── Reflow ────────────────────────────────────────────────────────────
+        // Repositions all visible column items top-to-bottom from COL_Y.
+
+        private static void Reflow()
+        {
+            float y = COL_Y;
+            foreach (var item in _colItems)
+            {
+                bool show = _columnOpen && (!item.isEraBtn || _eraOpen[item.eraIdx]);
+                item.rt.gameObject.SetActive(show);
+                if (show)
+                {
+                    item.rt.anchoredPosition = new Vector2(COL_X, y);
+                    y -= item.rt.sizeDelta.y + GAP;
+                }
+            }
+        }
 
         // ─────────────────────────────────────────────────────────────────────
 
@@ -127,98 +156,45 @@ namespace medick_Advanced_Inventory
 
             try
             {
-                RectTransform panelRt = __instance.GetComponent<RectTransform>();
-                if (panelRt != null)
-                    MelonLogger.Msg($"[AdvancedInventory] Panel rect = {panelRt.rect.size}");
+                // Reset state for fresh scene / new instance
+                _colItems.Clear();
+                _listeners.Clear();
+                _columnOpen = true;
+                for (int i = 0; i < 4; i++) _eraOpen[i] = true;
 
                 TMP_FontAsset font = null;
                 try { var t = GameObject.FindObjectOfType<TMP_Text>(); if (t != null) font = t.font; } catch { }
 
-                Vector2 anc = new Vector2(0, 1);
-                float y = COL_Y;
+                // ── Master "QUICK TELEPORT" tab (always visible) ───────────────
+                MakeMasterTab(__instance.transform, font);
 
-                void NextHdr(out float yOut) { yOut = y; y -= HDR_H + GAP; }
-                void NextBtn(out float yOut) { yOut = y; y -= BTN_H  + GAP; }
+                // ── Era groups (left column, collapsible) ─────────────────────
 
-                // ── DIVINE ERA group ──────────────────────────────────────────
-                // Factions[0] = Circle of Fortune, [1] = Merchant's Guild, [2] = Champion's Gate
-                NextHdr(out float yDivHdr);
-                MakeInfoBox(__instance.transform, "medick_TpHdrDiv",
-                    "DIVINE ERA", COL_X, yDivHdr, COL_W, HDR_H, font);
+                // DIVINE ERA [0]: CoF, MG, CG
+                AddEraHeader(__instance.transform, 0, font);
+                AddFactionBtn(__instance.transform, "medick_Tp0", Factions[0], 0, font);
+                AddFactionBtn(__instance.transform, "medick_Tp1", Factions[1], 0, font);
+                AddFactionBtn(__instance.transform, "medick_Tp2", Factions[2], 0, font);
 
-                NextBtn(out float yCof);
-                var cof = Factions[0];
-                MakeButton(__instance.transform, "medick_Tp0",
-                    cof.line1, cof.line2, cof.color, cof.scene, font,
-                    anc, anc, anc, new Vector2(COL_X, yCof), new Vector2(COL_W, BTN_H));
+                // IMPERIAL ERA [1]: Soulfire Bastion
+                AddEraHeader(__instance.transform, 1, font);
+                AddFactionBtn(__instance.transform, "medick_Tp8", Factions[8], 1, font);
 
-                NextBtn(out float yMg);
-                var mg = Factions[1];
-                MakeButton(__instance.transform, "medick_Tp1",
-                    mg.line1, mg.line2, mg.color, mg.scene, font,
-                    anc, anc, anc, new Vector2(COL_X, yMg), new Vector2(COL_W, BTN_H));
+                // RUINED ERA [2]: Lightless Arbor, Temporal Sanctum
+                AddEraHeader(__instance.transform, 2, font);
+                AddFactionBtn(__instance.transform, "medick_Tp6", Factions[6], 2, font);
+                AddFactionBtn(__instance.transform, "medick_Tp7", Factions[7], 2, font);
 
-                NextBtn(out float yCg);
-                var cg = Factions[2];
-                MakeButton(__instance.transform, "medick_Tp2",
-                    cg.line1, cg.line2, cg.color, cg.scene, font,
-                    anc, anc, anc, new Vector2(COL_X, yCg), new Vector2(COL_W, BTN_H));
+                // END OF TIME [3]: FK, Woven, EoT
+                AddEraHeader(__instance.transform, 3, font);
+                AddFactionBtn(__instance.transform, "medick_Tp4", Factions[4], 3, font);
+                AddFactionBtn(__instance.transform, "medick_Tp5", Factions[5], 3, font);
+                AddFactionBtn(__instance.transform, "medick_Tp3", Factions[3], 3, font);
 
-                // ── IMPERIAL ERA group ────────────────────────────────────────
-                // Factions[8] = Soulfire Bastion
-                NextHdr(out float yImpHdr);
-                MakeInfoBox(__instance.transform, "medick_TpHdrImp",
-                    "IMPERIAL ERA", COL_X, yImpHdr, COL_W, HDR_H, font);
+                // Initial layout pass
+                Reflow();
 
-                NextBtn(out float ySb);
-                var sb = Factions[8];
-                MakeButton(__instance.transform, "medick_Tp8",
-                    sb.line1, sb.line2, sb.color, sb.scene, font,
-                    anc, anc, anc, new Vector2(COL_X, ySb), new Vector2(COL_W, BTN_H));
-
-                // ── RUINED ERA group ──────────────────────────────────────────
-                // Factions[6] = Lightless Arbor, [7] = Temporal Sanctum
-                NextHdr(out float yRuinHdr);
-                MakeInfoBox(__instance.transform, "medick_TpHdrRuin",
-                    "RUINED ERA", COL_X, yRuinHdr, COL_W, HDR_H, font);
-
-                NextBtn(out float yLa);
-                var la = Factions[6];
-                MakeButton(__instance.transform, "medick_Tp6",
-                    la.line1, la.line2, la.color, la.scene, font,
-                    anc, anc, anc, new Vector2(COL_X, yLa), new Vector2(COL_W, BTN_H));
-
-                NextBtn(out float yTs);
-                var ts = Factions[7];
-                MakeButton(__instance.transform, "medick_Tp7",
-                    ts.line1, ts.line2, ts.color, ts.scene, font,
-                    anc, anc, anc, new Vector2(COL_X, yTs), new Vector2(COL_W, BTN_H));
-
-                // ── END OF TIME group ─────────────────────────────────────────
-                // Factions[4] = Forgotten Knights, [5] = The Woven, [3] = End of Time town
-                NextHdr(out float yEotHdr);
-                MakeInfoBox(__instance.transform, "medick_TpHdrEoT",
-                    "END OF TIME", COL_X, yEotHdr, COL_W, HDR_H, font);
-
-                NextBtn(out float yFk);
-                var fk = Factions[4];
-                MakeButton(__instance.transform, "medick_Tp4",
-                    fk.line1, fk.line2, fk.color, fk.scene, font,
-                    anc, anc, anc, new Vector2(COL_X, yFk), new Vector2(COL_W, BTN_H));
-
-                NextBtn(out float yWh);
-                var wh = Factions[5];
-                MakeButton(__instance.transform, "medick_Tp5",
-                    wh.line1, wh.line2, wh.color, wh.scene, font,
-                    anc, anc, anc, new Vector2(COL_X, yWh), new Vector2(COL_W, BTN_H));
-
-                NextBtn(out float yEot);
-                var eot = Factions[3];
-                MakeButton(__instance.transform, "medick_Tp3",
-                    eot.line1, eot.line2, eot.color, eot.scene, font,
-                    anc, anc, anc, new Vector2(COL_X, yEot), new Vector2(COL_W, BTN_H));
-
-                MelonLogger.Msg("[AdvancedInventory] Teleport buttons injected (4 era groups, 9 buttons).");
+                MelonLogger.Msg("[AdvancedInventory] Collapsible teleport menu injected (v1.2.0).");
             }
             catch (Exception e)
             {
@@ -226,29 +202,97 @@ namespace medick_Advanced_Inventory
             }
         }
 
-        // ── Concurrency guard — only one TravelCoroutine at a time ───────────
-        private static bool _travelInProgress = false;
+        // ── Master tab factory ────────────────────────────────────────────────
+        // Horizontal button at panel left border, always visible.
+        // Clicking toggles the entire column on/off.
 
-        // ── Info header factory ───────────────────────────────────────────────
-        // Creates a non-clickable label box with a gold border and dark bg.
-        // Used for the "Open map if needed" notices above each column.
-
-        private static void MakeInfoBox(Transform parent, string objName,
-            string eraName,
-            float x, float y, float w, float h, TMP_FontAsset font)
+        private static void MakeMasterTab(Transform parent, TMP_FontAsset font)
         {
+            GameObject go = new GameObject(GUARD); // "medick_TpMaster"
+            go.transform.SetParent(parent, false);
+
+            RectTransform rt = go.AddComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0, 1);
+            rt.anchoredPosition = new Vector2(TAB_X, COL_Y);
+            rt.sizeDelta        = new Vector2(TAB_W, TAB_H);
+
+            Image border = go.AddComponent<Image>();
+            border.color = GOLD;
+
+            Button btn = go.AddComponent<Button>();
+            btn.targetGraphic = border;
+            ColorBlock cb = btn.colors;
+            cb.normalColor      = GOLD_DIM;
+            cb.highlightedColor = GOLD_BRIGHT;
+            cb.pressedColor     = GOLD_PRESS;
+            cb.fadeDuration     = 0.08f;
+            btn.colors          = cb;
+
+            // Dark background
+            GameObject bgGO = new GameObject("BG");
+            bgGO.transform.SetParent(go.transform, false);
+            RectTransform bgRt = bgGO.AddComponent<RectTransform>();
+            bgRt.anchorMin = Vector2.zero; bgRt.anchorMax = Vector2.one;
+            bgRt.offsetMin = new Vector2(2f, 2f); bgRt.offsetMax = new Vector2(-2f, -2f);
+            bgGO.AddComponent<Image>().color = new Color(0.06f, 0.04f, 0.10f, 1f);
+
+            // Label
+            GameObject lblGO = new GameObject("Label");
+            lblGO.transform.SetParent(go.transform, false);
+            RectTransform lrt = lblGO.AddComponent<RectTransform>();
+            lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
+            lrt.offsetMin = new Vector2(4f, 2f); lrt.offsetMax = new Vector2(-8f, -2f);
+
+            TextMeshProUGUI tmp = lblGO.AddComponent<TextMeshProUGUI>();
+            if (font != null) tmp.font = font;
+            tmp.text               = "<b><color=#FFD700>< QUICK\nTELEPORT</color></b>";
+            tmp.fontSize           = 13f;
+            tmp.alignment          = TextAlignmentOptions.Center;
+            tmp.enableWordWrapping = false;
+            tmp.overflowMode       = TextOverflowModes.Truncate;
+            _masterLabel = tmp;
+
+            Action listener = new Action(() =>
+            {
+                _columnOpen = !_columnOpen;
+                _masterLabel.text = _columnOpen
+                    ? "<b><color=#FFD700>< QUICK\nTELEPORT</color></b>"
+                    : "<b><color=#FFD700>> QUICK\nTELEPORT</color></b>";
+                Reflow();
+            });
+            _listeners.Add(listener);
+            btn.onClick.AddListener(listener);
+        }
+
+        // ── Era header factory ────────────────────────────────────────────────
+        // Clickable row with ▼/▶ glyph. Clicking collapses/restores that era's buttons.
+
+        private static void AddEraHeader(Transform parent, int eraIdx, TMP_FontAsset font)
+        {
+            string objName = $"medick_TpHdr{eraIdx}";
+            string label   = ERA_NAMES[eraIdx];
+
             GameObject go = new GameObject(objName);
             go.transform.SetParent(parent, false);
 
             RectTransform rt = go.AddComponent<RectTransform>();
             rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0, 1);
-            rt.anchoredPosition = new Vector2(x, y);
-            rt.sizeDelta        = new Vector2(w, h);
+            rt.anchoredPosition = new Vector2(COL_X, COL_Y); // Reflow sets real position
+            rt.sizeDelta        = new Vector2(COL_W, HDR_H);
 
-            // Gold border
-            go.AddComponent<Image>().color = GOLD;
+            Image border = go.AddComponent<Image>();
+            border.color = GOLD;
 
-            // Very dark inner background
+            Button btn = go.AddComponent<Button>();
+            btn.targetGraphic = border;
+            ColorBlock cb = btn.colors;
+            cb.normalColor      = GOLD_DIM;
+            cb.highlightedColor = GOLD_BRIGHT;
+            cb.pressedColor     = GOLD_PRESS;
+            cb.fadeDuration     = 0.08f;
+            btn.colors          = cb;
+
+            // Very dark background
             GameObject bgGO = new GameObject("BG");
             bgGO.transform.SetParent(go.transform, false);
             RectTransform bgRt = bgGO.AddComponent<RectTransform>();
@@ -256,10 +300,7 @@ namespace medick_Advanced_Inventory
             bgRt.offsetMin = new Vector2(2f, 2f); bgRt.offsetMax = new Vector2(-2f, -2f);
             bgGO.AddComponent<Image>().color = new Color(0.06f, 0.05f, 0.08f, 1f);
 
-            // 3-line centered label:
-            //   open map to          ← gray small
-            //   DIVINE ERA           ← gold bold  (serves as the section title)
-            //   if buttons don't work ← gray small
+            // Label "▼ DIVINE ERA"
             GameObject lblGO = new GameObject("Label");
             lblGO.transform.SetParent(go.transform, false);
             RectTransform lrt = lblGO.AddComponent<RectTransform>();
@@ -269,12 +310,52 @@ namespace medick_Advanced_Inventory
             TextMeshProUGUI tmp = lblGO.AddComponent<TextMeshProUGUI>();
             if (font != null) tmp.font = font;
             tmp.text = "<color=#777777><size=8>open map to</size></color>\n" +
-                       $"<b><color=#FFD700><size=10.5>{eraName}</size></color></b>\n" +
+                       $"<b><color=#FFD700><size=10.5>v {label}</size></color></b>\n" +
                        "<color=#777777><size=8>if buttons don't work</size></color>";
             tmp.alignment          = TextAlignmentOptions.Center;
             tmp.enableWordWrapping = false;
             tmp.overflowMode       = TextOverflowModes.Truncate;
+            _eraArrows[eraIdx]     = tmp;
+
+            int idx = eraIdx;
+            Action listener = new Action(() =>
+            {
+                _eraOpen[idx] = !_eraOpen[idx];
+                string arrow = _eraOpen[idx] ? "v" : ">";
+                _eraArrows[idx].text =
+                    "<color=#777777><size=8>open map to</size></color>\n" +
+                    $"<b><color=#FFD700><size=10.5>{arrow} {ERA_NAMES[idx]}</size></color></b>\n" +
+                    "<color=#777777><size=8>if buttons don't work</size></color>";
+                Reflow();
+            });
+            _listeners.Add(listener);
+            btn.onClick.AddListener(listener);
+
+            _colItems.Add((rt, false, eraIdx)); // header: show when column open
         }
+
+        // ── Faction button helper ─────────────────────────────────────────────
+        // Creates a button and registers it in _colItems for reflow.
+
+        private static void AddFactionBtn(Transform parent, string objName,
+            (string line1, string line2, string scene, Color color) f,
+            int eraIdx, TMP_FontAsset font)
+        {
+            Vector2 anc = new Vector2(0, 1);
+            MakeButton(parent, objName, f.line1, f.line2, f.color, f.scene, font,
+                anc, anc, anc, new Vector2(COL_X, COL_Y), new Vector2(COL_W, BTN_H));
+
+            // Find the RT we just created and register it
+            Transform t = parent.Find(objName);
+            if (t != null)
+            {
+                RectTransform rt = t.GetComponent<RectTransform>();
+                if (rt != null) _colItems.Add((rt, true, eraIdx)); // show when era open
+            }
+        }
+
+        // ── Concurrency guard — only one TravelCoroutine at a time ───────────
+        private static bool _travelInProgress = false;
 
         // ── Button factory ────────────────────────────────────────────────────
 
@@ -352,9 +433,6 @@ namespace medick_Advanced_Inventory
         }
 
         // ── Faction visit button invoker ──────────────────────────────────────
-        // Searches ALL Button objects (including inactive faction panels) for
-        // a child text element containing the keyword, then invokes onClick.
-        // This replicates exactly what "VISIT OBSERVATORY" does natively.
 
         private static bool TryInvokeFactionVisitButton(string scene)
         {
@@ -371,15 +449,9 @@ namespace medick_Advanced_Inventory
                 {
                     if (btn == null) continue;
 
-                    // Skip our own injected buttons — they're named medick_Tp0..medick_Tp4
                     string goName = btn.gameObject.name ?? "";
                     if (goName.StartsWith("medick_Tp")) continue;
 
-                    // The game's faction visit buttons say e.g. "VISIT OBSERVATORY"
-                    // or "VISIT THE OBSERVATORY". We require "VISIT" to be present so
-                    // we never accidentally match our own label text ("The Observatory").
-
-                    // Check TMP_Text children (include inactive)
                     TMP_Text[] tmps = btn.GetComponentsInChildren<TMP_Text>(true);
                     foreach (TMP_Text t in tmps)
                     {
@@ -392,7 +464,6 @@ namespace medick_Advanced_Inventory
                         return true;
                     }
 
-                    // Check legacy Text children
                     UnityEngine.UI.Text[] legacyTexts = btn.GetComponentsInChildren<UnityEngine.UI.Text>(true);
                     foreach (var t in legacyTexts)
                     {
@@ -464,23 +535,8 @@ namespace medick_Advanced_Inventory
         }
 
         // ── Waypoint finder ───────────────────────────────────────────────────
-        // ONLY uses UIWaypointController.waypointsInMenu — these are the world
-        // MAP nodes that LoadWaypointScene() actually uses for travel.
-        //
-        // FindObjectsOfType<UIWaypointStandard> returns ~175 ZONE BEACON objects
-        // (always in memory for every discovered zone). They have correct
-        // sceneNames but LoadWaypointScene() on a beacon does NOT travel —
-        // it only works on the map UI nodes created when the map is opened.
-        //
-        // Returns null if the map has never been opened this session,
-        // which correctly triggers Path 2 (faction button) or Path 3 (MapKeyDown).
-
-        // ── Waypoint finder ───────────────────────────────────────────────────
-        // Searches ALL UIWaypointControllers (one per era, 5 total) for the
-        // target scene. Observatory and Bazaar live in the Divine-era controller
-        // (~63 waypoints); EoT/M_Knight/WeaversHub live in the EoT controller
-        // (~14 waypoints). All controllers have waypointsInMenu populated at
-        // scene load — no need to open the map first.
+        // Searches ALL UIWaypointControllers (one per era, 5 total).
+        // All controllers have waypointsInMenu populated at scene load.
 
         private static UIWaypointStandard FindWaypointForScene(string targetScene)
         {
@@ -525,21 +581,7 @@ namespace medick_Advanced_Inventory
             return null;
         }
 
-        // ── Travel coroutine ─────────────────────────────────────────────────
-        //
-        //  PRIMARY goal : open the world map at the correct era with the
-        //                 destination node highlighted (exactly like the
-        //                 in-game faction "VISIT OBSERVATORY" button does).
-        //  BONUS        : if map waypoints become available, auto-travel so
-        //                 the user doesn't have to right-click.
-        //
-        //  Step 1  — close inventory (MapKeyDown is blocked while open)
-        //  Step 2A — invoke the faction's own "VISIT X" button (preferred)
-        //             → map opens to correct era, node highlighted
-        //  Step 2B — fallback: MapKeyDown() + try to click era tab
-        //             → map opens, may not be on correct era
-        //  Step 3  — poll for UIWaypointController.waypointsInMenu to fill,
-        //             then call LoadWaypointScene() for auto-travel
+        // ── Travel coroutine ──────────────────────────────────────────────────
 
         private static IEnumerator TravelCoroutine(string scene)
         {
@@ -555,10 +597,7 @@ namespace medick_Advanced_Inventory
             }
             catch { }
 
-            // ── Step 1: instant travel — all 5 UIWaypointControllers are
-            // populated at scene load. Observatory/Bazaar are in the Divine-era
-            // controller; EoT/M_Knight/WeaversHub in the EoT controller.
-            // No map-open required.
+            // Step 1: instant travel via pre-populated waypoint controllers
             UIWaypointStandard wp = FindWaypointForScene(scene);
             if (wp != null)
             {
@@ -572,7 +611,7 @@ namespace medick_Advanced_Inventory
                 catch (Exception e) { MelonLogger.Warning($"[AdvancedInventory] LoadWaypointScene failed: {e.Message}"); }
             }
 
-            // ── Step 2: fallback — close inventory, open map, let user travel
+            // Step 2: fallback — close inventory, open map
             MelonLogger.Msg($"[AdvancedInventory] Waypoint not found — falling back to map open");
             try { if (UIBase.instanceExists && UIBase.instance != null) UIBase.instance.closeInventory(); }
             catch { }
