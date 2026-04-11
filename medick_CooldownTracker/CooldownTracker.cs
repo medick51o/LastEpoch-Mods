@@ -1,6 +1,13 @@
 // ================================================================
-//  medick_CooldownTracker  v4.4
+//  medick_CooldownTracker  v4.5
 //  Home key = toggle settings
+//
+//  v4.5 fixes
+//  ─────────────────────────────────────────────────────────────
+//  • Removed Patch_Start (AbilityBarIcon.Start no longer exists in
+//    current LE builds) — mod now loads cleanly alongside other mods
+//    such as Fallenstar's Improved Tooltips. Patch_Awake already
+//    handles slot registration so nothing is lost.
 //
 //  v4.4 fixes
 //  ─────────────────────────────────────────────────────────────
@@ -36,7 +43,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [assembly: MelonInfo(typeof(medick_CooldownTracker.CooldownTrackerMod),
-    "medick_CooldownTracker", "4.4.0", "medick")]
+    "medick_CooldownTracker", "4.5.0", "medick")]
 [assembly: MelonGame("Eleventh Hour Games", "Last Epoch")]
 
 namespace medick_CooldownTracker
@@ -283,7 +290,7 @@ namespace medick_CooldownTracker
                     PrefSlotLabels[m][i] = cat.CreateEntry(
                         $"SlotLabel{ModePrefPfx[m]}{i}", "",
                         $"Custom label [{ModeDispName[m]}] slot {i}");
-            MelonLogger.Msg("medick_CooldownTracker v4.4  |  Home = settings");
+            MelonLogger.Msg("medick_CooldownTracker v4.5  |  Home = settings");
         }
 
         // ── Slot registration ─────────────────────────────────────
@@ -946,13 +953,6 @@ namespace medick_CooldownTracker
 
     [HarmonyPatch(typeof(AbilityBarIcon), "Awake")]
     internal static class Patch_Awake
-    {
-        [HarmonyPostfix]
-        public static void Postfix(AbilityBarIcon __instance) =>
-            CooldownTrackerMod.RegisterSlot(__instance);
-    }
-    [HarmonyPatch(typeof(AbilityBarIcon), "Start")]
-    internal static class Patch_Start
     {
         [HarmonyPostfix]
         public static void Postfix(AbilityBarIcon __instance) =>
