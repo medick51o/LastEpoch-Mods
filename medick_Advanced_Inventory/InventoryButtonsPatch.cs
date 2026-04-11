@@ -86,9 +86,12 @@ namespace medick_Advanced_Inventory
                             UIBase.instance.openShop(true);
                     });
 
-                // Resize buttons:
-                //   Transfer & Sort (the two game-built buttons) — narrower & shorter
-                //   Our three buttons — keep current size but bump font up
+                // Resize buttons — scale relative to screen width so buttons
+                // fit correctly at any resolution (Steam Deck 1280×800 through 4K+).
+                // Reference is 1920px wide; clamp so buttons stay readable.
+                float scale = Mathf.Clamp(Screen.width / 1920f, 0.60f, 2.0f);
+                MelonLogger.Msg($"[AdvancedInventory] Screen={Screen.width}x{Screen.height}  UI scale={scale:F2}");
+
                 if (parent != null)
                 {
                     for (int i = 0; i < parent.childCount; i++)
@@ -96,21 +99,23 @@ namespace medick_Advanced_Inventory
                         GameObject child = parent.GetChild(i).gameObject;
                         bool ours = child.name.StartsWith("medick_");
                         if (ours)
-                            ResizeButton(child, 68f, 26f, 12f);   // our buttons: same box, bigger text
+                            ResizeButton(child, 68f * scale, 26f * scale, 12f * scale);
                         else
-                            ResizeButton(child, 55f, 22f, 10f);   // Transfer/Sort: narrower & shorter
+                            ResizeButton(child, 55f * scale, 22f * scale, 10f * scale);
                     }
                 }
 
-                // Squeeze the button bar — nearly touching
+                // Squeeze the button bar — scale spacing with resolution
                 try
                 {
                     HorizontalLayoutGroup barHlg = parent.GetComponent<HorizontalLayoutGroup>();
                     if (barHlg != null)
                     {
-                        barHlg.spacing = 1f;
-                        barHlg.padding.left  = 2;
-                        barHlg.padding.right = 2;
+                        barHlg.spacing = Mathf.Max(1f, 1f * scale);
+                        barHlg.padding.left  = Mathf.RoundToInt(2f * scale);
+                        barHlg.padding.right = Mathf.RoundToInt(2f * scale);
+                        barHlg.childForceExpandWidth = false;
+                        barHlg.childForceExpandHeight = false;
                     }
                 }
                 catch { }
