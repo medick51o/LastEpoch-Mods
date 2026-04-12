@@ -194,6 +194,10 @@ namespace medick_Advanced_Inventory
                 // Initial layout pass
                 Reflow();
 
+                // First inventory open each session — silently prime all era controllers
+                if (!_eraTabsVisited)
+                    MelonCoroutines.Start(VisitAllEraTabsCoroutine());
+
                 MelonLogger.Msg("[AdvancedInventory] Collapsible teleport menu injected (v1.2.0).");
             }
             catch (Exception e)
@@ -309,9 +313,7 @@ namespace medick_Advanced_Inventory
 
             TextMeshProUGUI tmp = lblGO.AddComponent<TextMeshProUGUI>();
             if (font != null) tmp.font = font;
-            tmp.text = "<color=#777777><size=8>open map to</size></color>\n" +
-                       $"<b><color=#FFD700><size=10.5>v {label}</size></color></b>\n" +
-                       "<color=#777777><size=8>if buttons don't work</size></color>";
+            tmp.text = $"<b><color=#FFD700><size=10.5>v {label}</size></color></b>";
             tmp.alignment          = TextAlignmentOptions.Center;
             tmp.enableWordWrapping = false;
             tmp.overflowMode       = TextOverflowModes.Truncate;
@@ -323,9 +325,7 @@ namespace medick_Advanced_Inventory
                 _eraOpen[idx] = !_eraOpen[idx];
                 string arrow = _eraOpen[idx] ? "v" : ">";
                 _eraArrows[idx].text =
-                    "<color=#777777><size=8>open map to</size></color>\n" +
-                    $"<b><color=#FFD700><size=10.5>{arrow} {ERA_NAMES[idx]}</size></color></b>\n" +
-                    "<color=#777777><size=8>if buttons don't work</size></color>";
+                    $"<b><color=#FFD700><size=10.5>{arrow} {ERA_NAMES[idx]}</size></color></b>";
                 Reflow();
             });
             _listeners.Add(listener);
@@ -356,6 +356,9 @@ namespace medick_Advanced_Inventory
 
         // ── Concurrency guard — only one TravelCoroutine at a time ───────────
         private static bool _travelInProgress = false;
+
+        // ── Era prime flag — runs once per session on first inventory open ────
+        private static bool _eraTabsVisited = false;
 
         // ── Button factory ────────────────────────────────────────────────────
 
@@ -611,21 +614,141 @@ namespace medick_Advanced_Inventory
                 catch (Exception e) { MelonLogger.Warning($"[AdvancedInventory] LoadWaypointScene failed: {e.Message}"); }
             }
 
-            // Step 2: fallback — close inventory, open map
-            MelonLogger.Msg($"[AdvancedInventory] Waypoint not found — falling back to map open");
+            // Step 2: waypoint not cached — close inventory, open map, click the correct
+            //         era tab, wait for it to populate, then try again.
+            MelonLogger.Msg($"[AdvancedInventory] Waypoint not cached — opening map to populate era for '{scene}'");
+
             try { if (UIBase.instanceExists && UIBase.instance != null) UIBase.instance.closeInventory(); }
             catch { }
-            yield return null;
+            yield return new WaitForSeconds(0.15f);
 
-            bool factionBtn = TryInvokeFactionVisitButton(scene);
-            if (!factionBtn)
+            // Open world map
+            try { if (UIBase.instanceExists && UIBase.instance != null) UIBase.instance.MapKeyDown(); }
+            catch { }
+            yield return new WaitForSeconds(0.6f); // let map finish opening
+
+            // Click the era tab that contains this scene's waypoints
+            string eraKeyword = "";
+            SceneToEra.TryGetValue(scene, out eraKeyword);
+            if (!string.IsNullOrEmpty(eraKeyword))
             {
-                try { if (UIBase.instanceExists && UIBase.instance != null) UIBase.instance.MapKeyDown(); }
-                catch { }
+                bool clicked = TryClickEraTab(eraKeyword);
+                MelonLogger.Msg($"[AdvancedInventory] Era tab '{eraKeyword}' clicked={clicked}");
+                if (clicked) yield return new WaitForSeconds(1.0f); // wait for controller to populate
             }
 
-            MelonLogger.Msg($"[AdvancedInventory] Map opened — user can right-click to travel");
+            // Try waypoint again with freshly-populated controllers
+            wp = FindWaypointForScene(scene);
+            if (wp != null)
+            {
+                try
+                {
+                    wp.LoadWaypointScene();
+                    MelonLogger.Msg($"[AdvancedInventory] Map-assisted travel → '{scene}'");
+                    _travelInProgress = false;
+                    yield break;
+                }
+                catch (Exception e) { MelonLogger.Warning($"[AdvancedInventory] Map-assisted travel failed: {e.Message}"); }
+            }
+
+            // Step 3: last resort — faction visit button (leaves map open on success)
+            MelonLogger.Msg($"[AdvancedInventory] Still no waypoint — trying faction button for '{scene}'");
+            bool factionBtn = TryInvokeFactionVisitButton(scene);
+            if (!factionBtn)
+                MelonLogger.Warning($"[AdvancedInventory] All travel methods exhausted for '{scene}' — map left open");
+
             _travelInProgress = false;
+        }
+
+        // ── Silent era-controller primer ──────────────────────────────────────
+        // Runs once per session on the first inventory open while in a game scene.
+        // For each UIWaypointController (one per era), we temporarily activate its
+        // full ancestor chain so OnEnable fires on the controller — this is what
+        // the game needs before LoadWaypointScene will actually work.
+        // The inventory stays open; the map never opens.
+
+        private static IEnumerator VisitAllEraTabsCoroutine()
+        {
+            // Wait until we're in a real playable scene (not character select / loading)
+            float waited = 0f;
+            while (waited < 30f)
+            {
+                bool inGame = false;
+                try
+                {
+                    string s = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name ?? "";
+                    inGame = !string.IsNullOrEmpty(s)
+                        && !s.ToLower().Contains("loading")
+                        && !s.ToLower().Contains("menu")
+                        && !s.ToLower().Contains("boot")
+                        && !s.ToLower().Contains("splash")
+                        && !s.ToLower().Contains("character");
+                }
+                catch { }
+                if (inGame) break;
+                yield return new WaitForSeconds(0.5f);
+                waited += 0.5f;
+            }
+
+            yield return new WaitForSeconds(0.5f); // let the scene settle
+
+            UIWaypointController[] all = null;
+            try { all = GameObject.FindObjectsOfType<UIWaypointController>(true); } catch { }
+
+            if (all == null || all.Length == 0)
+            {
+                MelonLogger.Warning("[AdvancedInventory] VisitEras: no controllers found");
+                _eraTabsVisited = true;
+                yield break;
+            }
+
+            MelonLogger.Msg($"[AdvancedInventory] VisitEras: priming {all.Length} era controllers silently");
+
+            foreach (UIWaypointController ctrl in all)
+            {
+                // Remember original state so we restore exactly what was there
+                bool wasActive = ctrl.gameObject.activeSelf;
+
+                // Collect every inactive ancestor from this controller up to the scene root
+                var inactiveAncestors = new System.Collections.Generic.List<GameObject>();
+                try
+                {
+                    Transform t = ctrl.transform.parent;
+                    while (t != null)
+                    {
+                        if (!t.gameObject.activeSelf)
+                            inactiveAncestors.Add(t.gameObject);
+                        t = t.parent;
+                    }
+                }
+                catch { }
+
+                // Enable root → leaf so each level is activeInHierarchy before its child
+                inactiveAncestors.Reverse();
+                foreach (var go in inactiveAncestors)
+                    try { go.SetActive(true); } catch { }
+
+                // Toggle the controller — SetActive false → true fires OnEnable
+                try
+                {
+                    if (ctrl.gameObject.activeSelf) ctrl.gameObject.SetActive(false);
+                    ctrl.gameObject.SetActive(true);
+                }
+                catch { }
+
+                yield return null; // one frame for OnEnable to complete
+
+                // Restore controller to exactly what it was before we touched it
+                try { ctrl.gameObject.SetActive(wasActive); } catch { }
+
+                // Restore ancestors back to inactive (they were all inactive when we found them)
+                inactiveAncestors.Reverse();
+                foreach (var go in inactiveAncestors)
+                    try { go.SetActive(false); } catch { }
+            }
+
+            _eraTabsVisited = true;
+            MelonLogger.Msg("[AdvancedInventory] VisitEras: all era controllers primed — teleport ready.");
         }
 
         // ── Logging ───────────────────────────────────────────────────────────
