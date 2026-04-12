@@ -1,5 +1,5 @@
 // ================================================================
-//  medick_Advanced_Inventory  v1.1
+//  medick_Advanced_Inventory  v1.3.0
 //
 //  Adds quality-of-life buttons to the inventory panel:
 //    STASH    — opens the stash from anywhere on the map
@@ -22,7 +22,7 @@ using MelonLoader;
 using UnityEngine;
 
 [assembly: MelonInfo(typeof(medick_Advanced_Inventory.AdvancedInventoryMod),
-    "medick_Advanced_Inventory", "1.2.1", "medick")]
+    "medick_Advanced_Inventory", "1.3.0", "medick")]
 [assembly: MelonGame("Eleventh Hour Games", "Last Epoch")]
 
 namespace medick_Advanced_Inventory
@@ -34,7 +34,7 @@ namespace medick_Advanced_Inventory
 
         public override void OnInitializeMelon()
         {
-            MelonLogger.Msg("[AdvancedInventory] Loaded v1.2.1 — STASH / TRADER / STASH ALL + collapsible teleport menu active.");
+            MelonLogger.Msg("[AdvancedInventory] Loaded v1.3.0 — STASH / TRADER / STASH ALL + collapsible teleport menu active.");
         }
 
         public override void OnLateUpdate()
