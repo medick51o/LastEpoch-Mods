@@ -56,6 +56,16 @@ Items on the ground show `[5A 3C 7S]` style brackets — tier number, grade lett
 
 ---
 
+## Credits & Inspiration
+
+This mod exists because **KG's Better Item Filter and Tooltips** ([war3i4i/LastEpochImprovements](https://github.com/war3i4i/LastEpochImprovements)) is no longer around — and it was my second favourite Last Epoch mod of all time. There was a void, and someone had to fill it (terribly).
+
+Massive shout out and full credit to **KillingGodVH** for the original inspiration and the open-source code that helped shape how this mod works. Several patterns and approaches in this codebase were learned from and influenced by KG's work. If you haven't seen what he built, go look — it was something else.
+
+This mod is dedicated to filling that gap, not replacing the legend. ♥
+
+---
+
 ## 🥚 Easter Egg: "To Aaron's House"
 
 There is a button at the bottom of the settings panel called **"To Aaron's House"**.
