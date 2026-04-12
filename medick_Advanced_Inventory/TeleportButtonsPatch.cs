@@ -112,21 +112,21 @@ namespace medick_Advanced_Inventory
 
         private static bool _columnOpen = true;
 
-        // One slot per era: [0]=Divine [1]=Imperial [2]=Ruined [3]=EndOfTime
-        private static readonly bool[] _eraOpen = { true, true, true, true };
+        // One slot per group: [0]=Factions [1]=Dungeons [2]=Misc
+        private static readonly bool[] _eraOpen = { true, true, true };
 
         // Ordered list of column items for reflow.
-        // isEraBtn=false → era header, visible whenever column is open
-        // isEraBtn=true  → faction button, visible when column open AND era open
+        // isEraBtn=false → group header, visible whenever column is open
+        // isEraBtn=true  → destination button, visible when column open AND group open
         private static readonly List<(RectTransform rt, bool isEraBtn, int eraIdx)> _colItems
             = new List<(RectTransform, bool, int)>();
 
         // UI label refs for updating arrow glyphs
         private static TMP_Text _masterLabel;
-        private static readonly TMP_Text[] _eraArrows = new TMP_Text[4];
+        private static readonly TMP_Text[] _eraArrows = new TMP_Text[3];
 
-        // Era header label strings (needed to rebuild arrow text on toggle)
-        private static readonly string[] ERA_NAMES = { "DIVINE ERA", "IMPERIAL ERA", "RUINED ERA", "END OF TIME" };
+        // Group header label strings
+        private static readonly string[] ERA_NAMES = { "FACTIONS", "DUNGEONS", "HUBS" };
 
         // ── Reflow ────────────────────────────────────────────────────────────
         // Repositions all visible column items top-to-bottom from COL_Y.
@@ -160,7 +160,7 @@ namespace medick_Advanced_Inventory
                 _colItems.Clear();
                 _listeners.Clear();
                 _columnOpen = true;
-                for (int i = 0; i < 4; i++) _eraOpen[i] = true;
+                for (int i = 0; i < 3; i++) _eraOpen[i] = true;
 
                 TMP_FontAsset font = null;
                 try { var t = GameObject.FindObjectOfType<TMP_Text>(); if (t != null) font = t.font; } catch { }
@@ -168,28 +168,25 @@ namespace medick_Advanced_Inventory
                 // ── Master "QUICK TELEPORT" tab (always visible) ───────────────
                 MakeMasterTab(__instance.transform, font);
 
-                // ── Era groups (left column, collapsible) ─────────────────────
+                // ── Utility groups (left column, collapsible) ─────────────────
 
-                // DIVINE ERA [0]: CoF, MG, CG
+                // FACTIONS [0]: CoF, Merchant's Guild, Forgotten Knights, The Woven
                 AddEraHeader(__instance.transform, 0, font);
-                AddFactionBtn(__instance.transform, "medick_Tp0", Factions[0], 0, font);
-                AddFactionBtn(__instance.transform, "medick_Tp1", Factions[1], 0, font);
-                AddFactionBtn(__instance.transform, "medick_Tp2", Factions[2], 0, font);
+                AddFactionBtn(__instance.transform, "medick_Tp0", Factions[0], 0, font); // Circle of Fortune
+                AddFactionBtn(__instance.transform, "medick_Tp1", Factions[1], 0, font); // Merchant's Guild
+                AddFactionBtn(__instance.transform, "medick_Tp4", Factions[4], 0, font); // Forgotten Knights
+                AddFactionBtn(__instance.transform, "medick_Tp5", Factions[5], 0, font); // The Woven
 
-                // IMPERIAL ERA [1]: Soulfire Bastion
+                // DUNGEONS [1]: Lightless Arbor, Temporal Sanctum, Soulfire Bastion
                 AddEraHeader(__instance.transform, 1, font);
-                AddFactionBtn(__instance.transform, "medick_Tp8", Factions[8], 1, font);
+                AddFactionBtn(__instance.transform, "medick_Tp6", Factions[6], 1, font); // Lightless Arbor
+                AddFactionBtn(__instance.transform, "medick_Tp7", Factions[7], 1, font); // Temporal Sanctum
+                AddFactionBtn(__instance.transform, "medick_Tp8", Factions[8], 1, font); // Soulfire Bastion
 
-                // RUINED ERA [2]: Lightless Arbor, Temporal Sanctum
+                // HUBS [2]: End of Time, Champion's Gate / Arena
                 AddEraHeader(__instance.transform, 2, font);
-                AddFactionBtn(__instance.transform, "medick_Tp6", Factions[6], 2, font);
-                AddFactionBtn(__instance.transform, "medick_Tp7", Factions[7], 2, font);
-
-                // END OF TIME [3]: FK, Woven, EoT
-                AddEraHeader(__instance.transform, 3, font);
-                AddFactionBtn(__instance.transform, "medick_Tp4", Factions[4], 3, font);
-                AddFactionBtn(__instance.transform, "medick_Tp5", Factions[5], 3, font);
-                AddFactionBtn(__instance.transform, "medick_Tp3", Factions[3], 3, font);
+                AddFactionBtn(__instance.transform, "medick_Tp3", Factions[3], 2, font); // End of Time
+                AddFactionBtn(__instance.transform, "medick_Tp2", Factions[2], 2, font); // Champion's Gate
 
                 // Initial layout pass
                 Reflow();
@@ -198,7 +195,7 @@ namespace medick_Advanced_Inventory
                 if (!_eraTabsVisited)
                     MelonCoroutines.Start(VisitAllEraTabsCoroutine());
 
-                MelonLogger.Msg("[AdvancedInventory] Collapsible teleport menu injected (v1.2.0).");
+                MelonLogger.Msg("[AdvancedInventory] Collapsible teleport menu injected (v1.3.0).");
             }
             catch (Exception e)
             {
