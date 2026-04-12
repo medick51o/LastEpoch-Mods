@@ -26,7 +26,7 @@
 // ================================================================
 
 [assembly: MelonInfo(typeof(medick_Terrible_Tooltips.TerribleTooltipsMod),
-    "Terrible Tooltips", "1.2.0", "medick")]
+    "Terrible Tooltips", "1.3.0", "medick")]
 [assembly: MelonGame("Eleventh Hour Games", "Last Epoch")]
 
 namespace medick_Terrible_Tooltips;
@@ -77,7 +77,7 @@ public partial class TerribleTooltipsMod : MelonMod
             "Ground Labels: Hold Alt to Show", "Hide ground brackets until you hold Alt (KG-style)");
 
         Category.SetFilePath("UserData/medick_Terrible_Tooltips.cfg", autoload: true);
-        MelonLogger.Msg("[Terrible Tooltips] v1.2.0 loaded.");
+        MelonLogger.Msg("[Terrible Tooltips] v1.3.0 loaded.");
     }
 
     public override void OnUpdate()
@@ -117,6 +117,27 @@ public partial class TerribleTooltipsMod : MelonMod
                     TooltipRankColors,
                     v => { TooltipRankColors.Value = v; Category.SaveToFile(); },
                     "Rank = how well an affix actually rolled within its tier. F (gray) = bottom of the range, S (pink) = near perfect roll. Same tier, very different power — ranks tell you the truth.");
+
+                // ── Color Legend ──────────────────────────────────────
+                __instance.CreateNewOption_Button(Cat,
+                    "◄─── TIER & GRADE LEGEND ───►",
+                    "Left = best, right = worst. Use this as your quick reference while checking loot.",
+                    () => { });
+
+                __instance.CreateNewOption_Button(Cat,
+                    "<color=#FF44FF>T7</color>  >  <color=#FA9E3D>T6</color>  >  <color=#A807FF>T5</color>  >  <color=#77ACFF>T4</color>  >  <color=#16FF0E>T3</color>  >  <color=#E1E1E1>T2</color>  >  <color=#DADADA>T1</color>",
+                    "Tier color reference — T1 (gray) is the weakest base tier, T7 (mythic pink) is the strongest. Higher tier = stronger possible rolls, harder to land.",
+                    () => { });
+
+                __instance.CreateNewOption_Button(Cat,
+                    "<color=#FF44FF>(PoG)</color>    <color=#FF44FF>S</color>  >  <color=#FA9E3D>A</color>  >  <color=#A807FF>B</color>  >  <color=#77ACFF>C</color>  >  <color=#DADADA>F</color>    <color=#DADADA>(RiP)</color>",
+                    "Grade rank reference — how well an affix rolled within its tier. F (gray) = bottom of the range, S (mythic pink) = near perfect. Same tier, very different power.",
+                    () => { });
+
+                __instance.CreateNewOption_Button(Cat,
+                    "◄─── TIER & GRADE LEGEND ───►",
+                    "Left = best, right = worst. Use this as your quick reference while checking loot.",
+                    () => { });
 
                 // ── Ground Labels ─────────────────────────────────────
                 __instance.CreateNewOption_EnumDropdown(Cat,
