@@ -1,0 +1,10 @@
+global using MelonLoader;
+global using HarmonyLib;
+global using Il2Cpp;
+global using Il2CppLE.UI.Controls;
+global using Il2CppTMPro;
+global using UnityEngine;
+global using UnityEngine.UI;
+global using System;
+global using System.Collections;
+global using System.Collections.Generic;

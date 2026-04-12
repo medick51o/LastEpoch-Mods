@@ -1,0 +1,90 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>medick_The_fogOFwar</AssemblyName>
+    <RootNamespace>medick_FogOfWar</RootNamespace>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- Shorthand paths -->
+  <PropertyGroup>
+    <ML>C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\net6\</ML>
+    <GM>C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\Il2CppAssemblies\</GM>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- MelonLoader + Harmony -->
+    <Reference Include="MelonLoader">
+      <HintPath>$(ML)MelonLoader.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(ML)0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>$(ML)Il2CppInterop.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Last Epoch game assemblies -->
+    <Reference Include="Il2CppLE">
+      <HintPath>$(GM)Il2CppLE.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppLE.Core">
+      <HintPath>$(GM)Il2CppLE.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppLE.UI.Controls">
+      <HintPath>$(GM)Il2CppLE.UI.Controls.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppLE.Core">
+      <HintPath>$(GM)Il2CppLE.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>$(GM)Il2Cppmscorlib.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppSystem.Core">
+      <HintPath>$(GM)Il2CppSystem.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Unity -->
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(GM)UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(GM)UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(GM)Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Localization">
+      <HintPath>$(GM)Unity.Localization.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(GM)UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Auto-copy built DLL to Last Epoch Mods folder after each build -->
+  <Target Name="CopyToMods" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath)"
+          DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\Mods\" />
+  </Target>
+
+</Project>
