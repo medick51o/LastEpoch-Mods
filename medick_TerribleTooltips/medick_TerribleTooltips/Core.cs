@@ -26,7 +26,7 @@
 // ================================================================
 
 [assembly: MelonInfo(typeof(medick_Terrible_Tooltips.TerribleTooltipsMod),
-    "Terrible Tooltips", "1.3.0", "medick")]
+    "Terrible Tooltips", "1.4.0", "medick")]
 [assembly: MelonGame("Eleventh Hour Games", "Last Epoch")]
 
 namespace medick_Terrible_Tooltips;
@@ -45,6 +45,24 @@ public partial class TerribleTooltipsMod : MelonMod
     internal static MelonPreferences_Entry<GroundLabelStyle> LabelStyle;
     internal static MelonPreferences_Entry<bool>             LabelFilterOnly;
     internal static MelonPreferences_Entry<bool>             LabelAltKey;
+
+    // Filter Rule
+    internal static MelonPreferences_Entry<FilterRuleDisplay>  ShowFilterRuleNumber;
+    internal static MelonPreferences_Entry<RuleNumberPosition> LabelRulePosition;
+
+    public enum FilterRuleDisplay
+    {
+        Off,           // nothing shown
+        NumberOnly,    // "Rule #32"
+        NumberAndName  // "Rule #32: Wanted Tier 7 (Can Edit Affixes & Item Type)"
+    }
+
+    public enum RuleNumberPosition
+    {
+        EHGDefault,  // leave wherever EHG writes it (between name and our brackets)
+        Start,       // "32 PLATED BELT [5A 1F 4C]"
+        End          // "PLATED BELT [5A 1F 4C] 32"
+    }
 
     // ── Ground label style enum ───────────────────────────────────────
     public enum GroundLabelStyle
@@ -76,8 +94,13 @@ public partial class TerribleTooltipsMod : MelonMod
         LabelAltKey     = Category.CreateEntry("GroundLabelAltKey", false,
             "Ground Labels: Hold Alt to Show", "Hide ground brackets until you hold Alt (KG-style)");
 
+        ShowFilterRuleNumber = Category.CreateEntry("ShowFilterRuleNumber", FilterRuleDisplay.Off,
+            "Tooltip: Show Filter Rule #", "Show the matched loot filter rule number inside the item tooltip on hover");
+        LabelRulePosition = Category.CreateEntry("LabelRulePosition", RuleNumberPosition.EHGDefault,
+            "Ground Label: Rule # Position", "Where to place EHG's filter rule number on the ground label (Start / End / EHGDefault)");
+
         Category.SetFilePath("UserData/medick_Terrible_Tooltips.cfg", autoload: true);
-        MelonLogger.Msg("[Terrible Tooltips] v1.3.0 loaded.");
+        MelonLogger.Msg("[Terrible Tooltips] v1.4.0 loaded.");
     }
 
     public override void OnUpdate()
@@ -147,6 +170,28 @@ public partial class TerribleTooltipsMod : MelonMod
                     LabelAltKey,
                     v => { LabelAltKey.Value = v; Category.SaveToFile(); },
                     "Brackets are hidden by default and only appear while you hold Left Alt or Right Alt. Lets you check quality on demand without cluttering the screen during normal play.");
+
+                // ── Filter Rule # ─────────────────────────────────────
+                __instance.CreateNewOption_EnumDropdown(Cat,
+                    "<color=#FF44FF>Tooltip: Show Filter Rule #</color>",
+                    "Adds the matched loot filter rule number to the item tooltip on hover. " +
+                    "Off = nothing. NumberOnly = 'Rule #69'. NumberAndName = 'Rule #69: Maxroll told me to pick this up blah blah'. " +
+                    "Works alongside Fallen Star's Improved Tooltips.",
+                    ShowFilterRuleNumber,
+                    i => { ShowFilterRuleNumber.Value = (FilterRuleDisplay)i; Category.SaveToFile(); });
+
+                __instance.CreateNewOption_EnumDropdown(Cat,
+                    "<color=#FF44FF>Ground Label: Rule # Position</color>",
+                    "Controls where EHG's filter rule number appears on the ground label relative to our tier/rank brackets. " +
+                    "See the reference box below for a visual preview of each option. " +
+                    "Only applies when Ground Label Style is not set to None.",
+                    LabelRulePosition,
+                    i => { LabelRulePosition.Value = (RuleNumberPosition)i; Category.SaveToFile(); });
+
+                __instance.CreateNewOption_Button(Cat,
+                    "DEF: BELT <color=#FA9E3D>(69)</color> [<color=#A807FF>5</color><color=#FA9E3D>A</color>]      START: <color=#FA9E3D>(69)</color> BELT [<color=#A807FF>5</color><color=#FA9E3D>A</color>]      END: BELT [<color=#A807FF>5</color><color=#FA9E3D>A</color>] <color=#FA9E3D>(69)</color>",
+                    "Visual reference for the Rule # Position setting above — the orange 69 is EHG's filter rule number, the colored brackets are Terrible Tooltips' tier/rank info. Pick whichever layout feels cleanest to you. | Note: this box is not clickable, it is just here for reference.",
+                    () => { });
 
                 // ── Easter egg ────────────────────────────────────────
                 __instance.CreateNewOption_Button(Cat,
