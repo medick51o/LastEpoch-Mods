@@ -6,7 +6,7 @@
 //  buttons next to the existing Sort button:
 //
 //    STASH     (green)  → UIBase.instance.openStash(true, false)
-//    TRADER    (gold)   → UIBase.instance.openShop(true)
+//    VENDOR    (gold)   → UIBase.instance.openShop(true)
 //    STASH ALL (red)    → moves every inventory item to stash
 // ================================================================
 
@@ -20,7 +20,7 @@ using MelonLoader;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace medick_Advanced_Inventory
+namespace medick_Terrible_Inventory
 {
     [HarmonyPatch(typeof(EnableWovenEchoesTabIfRelevant), "Awake")]
     internal static class Patch_InventoryButtons
@@ -53,15 +53,15 @@ namespace medick_Advanced_Inventory
 
                 if (sortTransform == null)
                 {
-                    MelonLogger.Warning("[AdvancedInventory] Sort button not found via any known path. Logging hierarchy (4 levels):");
+                    MelonLogger.Warning("[Terrible Inventory] Sort button not found via any known path. Logging hierarchy (4 levels):");
                     LogHierarchy(__instance.transform, 0, 4);
                     return;
                 }
 
-                MelonLogger.Msg($"[AdvancedInventory] Sort button found at path: {foundPath}");
+                MelonLogger.Msg($"[Terrible Inventory] Sort button found at path: {foundPath}");
                 GameObject sortGO = sortTransform.gameObject;
                 Transform parent = sortGO.transform.parent;
-                MelonLogger.Msg($"[AdvancedInventory] Parent='{parent?.name}' SiblingIdx={sortGO.transform.GetSiblingIndex()} ParentChildCount={parent?.childCount}");
+                MelonLogger.Msg($"[Terrible Inventory] Parent='{parent?.name}' SiblingIdx={sortGO.transform.GetSiblingIndex()} ParentChildCount={parent?.childCount}");
 
                 // Stash button (green)
                 CreateButton(sortGO, "medick_StashBtn", "STASH",
@@ -72,13 +72,13 @@ namespace medick_Advanced_Inventory
                             UIBase.instance.openStash(true, false);
                     });
 
-                // Stash All button (red) — before Trader
+                // Stash All button (red) — before Vendor
                 CreateButton(sortGO, "medick_StashAllBtn", "STASH ALL",
                     new Color(0.55f, 0.1f, 0.1f),
                     () => MelonCoroutines.Start(StashAllCoroutine()));
 
-                // Trader button (gold — opens NPC vendor shop) — last
-                CreateButton(sortGO, "medick_TraderBtn", "TRADER",
+                // Vendor button (gold — opens NPC vendor shop) — last
+                CreateButton(sortGO, "medick_VendorBtn", "VENDOR",
                     new Color(0.55f, 0.42f, 0f),
                     () =>
                     {
@@ -102,7 +102,7 @@ namespace medick_Advanced_Inventory
                 }
 
                 // Store reference so OnUpdate can keep the bar visible in controller mode
-                AdvancedInventoryMod.ButtonBar = parent;
+                TerribleInventoryMod.ButtonBar = parent;
 
                 // Squeeze the button bar — nearly touching
                 try
@@ -120,11 +120,11 @@ namespace medick_Advanced_Inventory
                 catch { }
 
                 TryCompactCurrency(__instance.transform);
-                MelonLogger.Msg("[AdvancedInventory] Buttons injected and resized successfully.");
+                MelonLogger.Msg("[Terrible Inventory] Buttons injected and resized successfully.");
             }
             catch (Exception e)
             {
-                MelonLogger.Error("[AdvancedInventory] Postfix exception: " + e);
+                MelonLogger.Error("[Terrible Inventory] Postfix exception: " + e);
             }
         }
 
@@ -210,7 +210,7 @@ namespace medick_Advanced_Inventory
             }
             catch (Exception e)
             {
-                MelonLogger.Warning("[AdvancedInventory] StashAll — could not read inventory: " + e.Message);
+                MelonLogger.Warning("[Terrible Inventory] StashAll — could not read inventory: " + e.Message);
                 yield break;
             }
 
@@ -228,7 +228,7 @@ namespace medick_Advanced_Inventory
                 yield return null;
             }
 
-            MelonLogger.Msg($"[AdvancedInventory] Stash All complete — attempted {positions.Length} items.");
+            MelonLogger.Msg($"[Terrible Inventory] Stash All complete — attempted {positions.Length} items.");
         }
 
         // ── Button resizer ────────────────────────────────────────────────────
@@ -280,7 +280,7 @@ namespace medick_Advanced_Inventory
                 Transform footer = instance.Find("Tab Contents/Items Tab/Inventory Tab Footer Base");
                 if (footer == null)
                 {
-                    MelonLogger.Warning("[AdvancedInventory] Footer not found — logging hierarchy:");
+                    MelonLogger.Warning("[Terrible Inventory] Footer not found — logging hierarchy:");
                     LogHierarchy(instance.Find("Tab Contents/Items Tab") ?? instance, 0, 3);
                     return;
                 }
@@ -289,11 +289,11 @@ namespace medick_Advanced_Inventory
                 HorizontalLayoutGroup footerHlg = footer.GetComponent<HorizontalLayoutGroup>();
                 if (footerHlg != null)
                 {
-                    MelonLogger.Msg($"[AdvancedInventory] Footer HLG spacing was {footerHlg.spacing} — setting to 4");
+                    MelonLogger.Msg($"[Terrible Inventory] Footer HLG spacing was {footerHlg.spacing} — setting to 4");
                     footerHlg.spacing = 4f;
                 }
 
-                MelonLogger.Msg("[AdvancedInventory] Footer children:");
+                MelonLogger.Msg("[Terrible Inventory] Footer children:");
                 for (int i = 0; i < footer.childCount; i++)
                 {
                     Transform c = footer.GetChild(i);
@@ -346,7 +346,7 @@ namespace medick_Advanced_Inventory
             }
             catch (Exception e)
             {
-                MelonLogger.Warning("[AdvancedInventory] TryCompactCurrency error: " + e.Message);
+                MelonLogger.Warning("[Terrible Inventory] TryCompactCurrency error: " + e.Message);
             }
         }
 

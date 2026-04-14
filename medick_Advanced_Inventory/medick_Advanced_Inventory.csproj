@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyName>medick_Advanced_Inventory</AssemblyName>
-    <RootNamespace>medick_Advanced_Inventory</RootNamespace>
+    <AssemblyName>medick_Terrible_Inventory</AssemblyName>
+    <RootNamespace>medick_Terrible_Inventory</RootNamespace>
     <Nullable>disable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>

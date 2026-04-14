@@ -1,9 +1,9 @@
 // ================================================================
-//  medick_Advanced_Inventory  v1.3.0
+//  medick_Terrible_Inventory  v1.5.0
 //
 //  Adds quality-of-life buttons to the inventory panel:
 //    STASH    — opens the stash from anywhere on the map
-//    TRADER   — opens the NPC vendor shop from anywhere
+//    VENDOR   — opens the NPC vendor shop from anywhere
 //    STASH ALL — moves all inventory items to the stash
 //
 //  Teleport column (left of inventory panel, grouped by era):
@@ -14,6 +14,7 @@
 //
 //  Built with the help of Claude (Anthropic).
 //  Inspired by war3i4i / KillingGodVH's LastEpochImprovements mod.
+//  Formerly known as medick_Advanced_Inventory.
 // ================================================================
 
 using HarmonyLib;
@@ -21,20 +22,20 @@ using Il2Cpp;
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(medick_Advanced_Inventory.AdvancedInventoryMod),
-    "medick_Advanced_Inventory", "1.4.0", "medick")]
+[assembly: MelonInfo(typeof(medick_Terrible_Inventory.TerribleInventoryMod),
+    "Terrible Inventory", "1.5.0", "medick")]
 [assembly: MelonGame("Eleventh Hour Games", "Last Epoch")]
 
-namespace medick_Advanced_Inventory
+namespace medick_Terrible_Inventory
 {
-    public class AdvancedInventoryMod : MelonMod
+    public class TerribleInventoryMod : MelonMod
     {
         // Kept alive so OnUpdate can force it visible when game hides it in controller mode
         internal static Transform ButtonBar;
 
         public override void OnInitializeMelon()
         {
-            MelonLogger.Msg("[AdvancedInventory] Loaded v1.4.0 — STASH / TRADER / STASH ALL + collapsible teleport menu active.");
+            MelonLogger.Msg("[Terrible Inventory] Loaded v1.5.0 — STASH / VENDOR / STASH ALL + collapsible teleport menu active.");
         }
 
         public override void OnLateUpdate()

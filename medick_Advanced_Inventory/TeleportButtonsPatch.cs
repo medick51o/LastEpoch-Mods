@@ -32,7 +32,7 @@ using MelonLoader;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace medick_Advanced_Inventory
+namespace medick_Terrible_Inventory
 {
     [HarmonyPatch(typeof(EnableWovenEchoesTabIfRelevant), "Awake")]
     internal static class Patch_TeleportButtons
@@ -195,11 +195,11 @@ namespace medick_Advanced_Inventory
                 if (!_eraTabsVisited)
                     MelonCoroutines.Start(VisitAllEraTabsCoroutine());
 
-                MelonLogger.Msg("[AdvancedInventory] Collapsible teleport menu injected (v1.3.0).");
+                MelonLogger.Msg("[Terrible Inventory] Collapsible teleport menu injected (v1.3.0).");
             }
             catch (Exception e)
             {
-                MelonLogger.Error("[AdvancedInventory] TeleportButtons error: " + e);
+                MelonLogger.Error("[Terrible Inventory] TeleportButtons error: " + e);
             }
         }
 
@@ -399,7 +399,7 @@ namespace medick_Advanced_Inventory
             {
                 if (_travelInProgress)
                 {
-                    MelonLogger.Msg("[AdvancedInventory] TravelCoroutine already running — ignoring click");
+                    MelonLogger.Msg("[Terrible Inventory] TravelCoroutine already running — ignoring click");
                     return;
                 }
                 MelonCoroutines.Start(TravelCoroutine(s));
@@ -443,7 +443,7 @@ namespace medick_Advanced_Inventory
             try
             {
                 Button[] allButtons = GameObject.FindObjectsOfType<Button>(true);
-                MelonLogger.Msg($"[AdvancedInventory] TryInvokeFactionVisitButton '{keyword}': searching {allButtons?.Length ?? 0} buttons");
+                MelonLogger.Msg($"[Terrible Inventory] TryInvokeFactionVisitButton '{keyword}': searching {allButtons?.Length ?? 0} buttons");
 
                 foreach (Button btn in allButtons)
                 {
@@ -459,7 +459,7 @@ namespace medick_Advanced_Inventory
                         string up = t.text.ToUpper();
                         if (!up.Contains("VISIT")) continue;
                         if (!up.Contains(keyword)) continue;
-                        MelonLogger.Msg($"[AdvancedInventory] Found faction button: '{t.text}' on '{btn.gameObject.name}' — invoking");
+                        MelonLogger.Msg($"[Terrible Inventory] Found faction button: '{t.text}' on '{btn.gameObject.name}' — invoking");
                         btn.onClick.Invoke();
                         return true;
                     }
@@ -471,17 +471,17 @@ namespace medick_Advanced_Inventory
                         string up = t.text.ToUpper();
                         if (!up.Contains("VISIT")) continue;
                         if (!up.Contains(keyword)) continue;
-                        MelonLogger.Msg($"[AdvancedInventory] Found faction button (legacy): '{t.text}' on '{btn.gameObject.name}' — invoking");
+                        MelonLogger.Msg($"[Terrible Inventory] Found faction button (legacy): '{t.text}' on '{btn.gameObject.name}' — invoking");
                         btn.onClick.Invoke();
                         return true;
                     }
                 }
 
-                MelonLogger.Warning($"[AdvancedInventory] Faction visit button for 'VISIT {keyword}' not found in {allButtons?.Length ?? 0} buttons");
+                MelonLogger.Warning($"[Terrible Inventory] Faction visit button for 'VISIT {keyword}' not found in {allButtons?.Length ?? 0} buttons");
             }
             catch (Exception e)
             {
-                MelonLogger.Warning($"[AdvancedInventory] TryInvokeFactionVisitButton error: {e.Message}");
+                MelonLogger.Warning($"[Terrible Inventory] TryInvokeFactionVisitButton error: {e.Message}");
             }
             return false;
         }
@@ -504,7 +504,7 @@ namespace medick_Advanced_Inventory
                     if (t != null && !string.IsNullOrEmpty(t.text) && t.text.ToUpper().Contains(kw))
                         candidates.Add(t.transform);
 
-                MelonLogger.Msg($"[AdvancedInventory] TryClickEraTab '{kw}': {candidates.Count} text matches");
+                MelonLogger.Msg($"[Terrible Inventory] TryClickEraTab '{kw}': {candidates.Count} text matches");
 
                 foreach (var tr in candidates)
                 {
@@ -512,9 +512,9 @@ namespace medick_Advanced_Inventory
                     for (int d = 0; d < 6 && cur != null; d++, cur = cur.parent)
                     {
                         Button b = cur.GetComponent<Button>();
-                        if (b != null) { b.onClick.Invoke(); MelonLogger.Msg($"[AdvancedInventory] Era tab Button on '{cur.name}'"); return true; }
+                        if (b != null) { b.onClick.Invoke(); MelonLogger.Msg($"[Terrible Inventory] Era tab Button on '{cur.name}'"); return true; }
                         Toggle tog = cur.GetComponent<Toggle>();
-                        if (tog != null) { tog.isOn = true; MelonLogger.Msg($"[AdvancedInventory] Era tab Toggle on '{cur.name}'"); return true; }
+                        if (tog != null) { tog.isOn = true; MelonLogger.Msg($"[Terrible Inventory] Era tab Toggle on '{cur.name}'"); return true; }
                     }
                     cur = tr;
                     for (int d = 0; d < 6 && cur != null; d++, cur = cur.parent)
@@ -523,14 +523,14 @@ namespace medick_Advanced_Inventory
                         {
                             var evd = new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current);
                             UnityEngine.EventSystems.ExecuteEvents.Execute(cur.gameObject, evd, UnityEngine.EventSystems.ExecuteEvents.pointerClickHandler);
-                            MelonLogger.Msg($"[AdvancedInventory] Era tab ExecuteEvents on '{cur.name}'");
+                            MelonLogger.Msg($"[Terrible Inventory] Era tab ExecuteEvents on '{cur.name}'");
                             return true;
                         }
                         catch { }
                     }
                 }
             }
-            catch (Exception e) { MelonLogger.Warning($"[AdvancedInventory] TryClickEraTab error: {e.Message}"); }
+            catch (Exception e) { MelonLogger.Warning($"[Terrible Inventory] TryClickEraTab error: {e.Message}"); }
             return false;
         }
 
@@ -545,11 +545,11 @@ namespace medick_Advanced_Inventory
                 UIWaypointController[] all = GameObject.FindObjectsOfType<UIWaypointController>(true);
                 if (all == null || all.Length == 0)
                 {
-                    MelonLogger.Msg("[AdvancedInventory] No UIWaypointControllers found");
+                    MelonLogger.Msg("[Terrible Inventory] No UIWaypointControllers found");
                     return null;
                 }
 
-                MelonLogger.Msg($"[AdvancedInventory] Searching {all.Length} controllers for '{targetScene}'");
+                MelonLogger.Msg($"[Terrible Inventory] Searching {all.Length} controllers for '{targetScene}'");
 
                 foreach (UIWaypointController ctrl in all)
                 {
@@ -564,7 +564,7 @@ namespace medick_Advanced_Inventory
                             if (w == null) continue;
                             if ((w.sceneName ?? "") == targetScene)
                             {
-                                MelonLogger.Msg($"[AdvancedInventory] Found '{targetScene}' in ctrl '{ctrl.gameObject.name}' ({count} wp)");
+                                MelonLogger.Msg($"[Terrible Inventory] Found '{targetScene}' in ctrl '{ctrl.gameObject.name}' ({count} wp)");
                                 return w;
                             }
                         }
@@ -572,11 +572,11 @@ namespace medick_Advanced_Inventory
                     }
                 }
 
-                MelonLogger.Msg($"[AdvancedInventory] '{targetScene}' not found in any controller");
+                MelonLogger.Msg($"[Terrible Inventory] '{targetScene}' not found in any controller");
             }
             catch (Exception e)
             {
-                MelonLogger.Warning($"[AdvancedInventory] FindWaypointForScene error: {e.Message}");
+                MelonLogger.Warning($"[Terrible Inventory] FindWaypointForScene error: {e.Message}");
             }
             return null;
         }
@@ -586,7 +586,7 @@ namespace medick_Advanced_Inventory
         private static IEnumerator TravelCoroutine(string scene)
         {
             _travelInProgress = true;
-            MelonLogger.Msg($"[AdvancedInventory] TravelCoroutine for '{scene}'");
+            MelonLogger.Msg($"[Terrible Inventory] TravelCoroutine for '{scene}'");
             yield return null;
 
             // Enable waypoints system
@@ -604,16 +604,16 @@ namespace medick_Advanced_Inventory
                 try
                 {
                     wp.LoadWaypointScene();
-                    MelonLogger.Msg($"[AdvancedInventory] Instant travel → '{scene}'");
+                    MelonLogger.Msg($"[Terrible Inventory] Instant travel → '{scene}'");
                     _travelInProgress = false;
                     yield break;
                 }
-                catch (Exception e) { MelonLogger.Warning($"[AdvancedInventory] LoadWaypointScene failed: {e.Message}"); }
+                catch (Exception e) { MelonLogger.Warning($"[Terrible Inventory] LoadWaypointScene failed: {e.Message}"); }
             }
 
             // Step 2: waypoint not cached — close inventory, open map, click the correct
             //         era tab, wait for it to populate, then try again.
-            MelonLogger.Msg($"[AdvancedInventory] Waypoint not cached — opening map to populate era for '{scene}'");
+            MelonLogger.Msg($"[Terrible Inventory] Waypoint not cached — opening map to populate era for '{scene}'");
 
             try { if (UIBase.instanceExists && UIBase.instance != null) UIBase.instance.closeInventory(); }
             catch { }
@@ -630,7 +630,7 @@ namespace medick_Advanced_Inventory
             if (!string.IsNullOrEmpty(eraKeyword))
             {
                 bool clicked = TryClickEraTab(eraKeyword);
-                MelonLogger.Msg($"[AdvancedInventory] Era tab '{eraKeyword}' clicked={clicked}");
+                MelonLogger.Msg($"[Terrible Inventory] Era tab '{eraKeyword}' clicked={clicked}");
                 if (clicked) yield return new WaitForSeconds(1.0f); // wait for controller to populate
             }
 
@@ -641,18 +641,18 @@ namespace medick_Advanced_Inventory
                 try
                 {
                     wp.LoadWaypointScene();
-                    MelonLogger.Msg($"[AdvancedInventory] Map-assisted travel → '{scene}'");
+                    MelonLogger.Msg($"[Terrible Inventory] Map-assisted travel → '{scene}'");
                     _travelInProgress = false;
                     yield break;
                 }
-                catch (Exception e) { MelonLogger.Warning($"[AdvancedInventory] Map-assisted travel failed: {e.Message}"); }
+                catch (Exception e) { MelonLogger.Warning($"[Terrible Inventory] Map-assisted travel failed: {e.Message}"); }
             }
 
             // Step 3: last resort — faction visit button (leaves map open on success)
-            MelonLogger.Msg($"[AdvancedInventory] Still no waypoint — trying faction button for '{scene}'");
+            MelonLogger.Msg($"[Terrible Inventory] Still no waypoint — trying faction button for '{scene}'");
             bool factionBtn = TryInvokeFactionVisitButton(scene);
             if (!factionBtn)
-                MelonLogger.Warning($"[AdvancedInventory] All travel methods exhausted for '{scene}' — map left open");
+                MelonLogger.Warning($"[Terrible Inventory] All travel methods exhausted for '{scene}' — map left open");
 
             _travelInProgress = false;
         }
@@ -694,12 +694,12 @@ namespace medick_Advanced_Inventory
 
             if (all == null || all.Length == 0)
             {
-                MelonLogger.Warning("[AdvancedInventory] VisitEras: no controllers found");
+                MelonLogger.Warning("[Terrible Inventory] VisitEras: no controllers found");
                 _eraTabsVisited = true;
                 yield break;
             }
 
-            MelonLogger.Msg($"[AdvancedInventory] VisitEras: priming {all.Length} era controllers silently");
+            MelonLogger.Msg($"[Terrible Inventory] VisitEras: priming {all.Length} era controllers silently");
 
             foreach (UIWaypointController ctrl in all)
             {
@@ -745,7 +745,7 @@ namespace medick_Advanced_Inventory
             }
 
             _eraTabsVisited = true;
-            MelonLogger.Msg("[AdvancedInventory] VisitEras: all era controllers primed — teleport ready.");
+            MelonLogger.Msg("[Terrible Inventory] VisitEras: all era controllers primed — teleport ready.");
         }
 
         // ── Logging ───────────────────────────────────────────────────────────
@@ -755,7 +755,7 @@ namespace medick_Advanced_Inventory
             try
             {
                 string cur = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-                MelonLogger.Msg($"[AdvancedInventory] Current scene: '{cur}'");
+                MelonLogger.Msg($"[Terrible Inventory] Current scene: '{cur}'");
             }
             catch { }
         }
