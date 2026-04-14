@@ -1,5 +1,14 @@
 // ================================================================
 //  FilterRuleTooltip.cs  —  medick_Terrible_Tooltips
+//
+//  Injects the matched loot filter rule number into the item tooltip.
+//
+//  Two-phase approach:
+//    1. Harmony postfix captures ItemDataUnpacked from
+//       SetAsItemTooltip / SetAsGroundTooltip
+//    2. MonitorUpdate (called from OnUpdate) injects the rule tag
+//       into a visible tooltip element AFTER the tooltip is fully
+//       rendered — this avoids the game overwriting our text.
 // ================================================================
 
 namespace medick_Terrible_Tooltips;
@@ -7,43 +16,107 @@ namespace medick_Terrible_Tooltips;
 public static class FilterRuleTooltip
 {
     private const string Marker = "\u200B\u200B";
+    private const string Gold   = "#FA9E3D";
 
-    // ── Patch — nested like every other patch in this mod ─────────────
-    [HarmonyPatch(typeof(TooltipItemManager), "OpenItemTooltip")]
-    [HarmonyPriority(100)]
-    internal static class Patch_OpenItemTooltip
+    private static ItemDataUnpacked s_pendingItem  = null;
+    private static bool             s_injected     = false;
+
+    // ── Harmony: inventory / stash / equipment hover ──────────────────
+    [HarmonyPatch(typeof(UITooltipItem), "SetAsItemTooltip")]
+    private static class Patch_SetAsItemTooltip
     {
-        private static void Prefix(ItemDataUnpacked data)
+        private static void Postfix(UITooltipItem __instance, ItemDataUnpacked item)
         {
-            var mode = TerribleTooltipsMod.ShowFilterRuleNumber.Value;
-            if (mode == TerribleTooltipsMod.FilterRuleDisplay.Off) return;
-            if (data == null) return;
-            try
+            if (item != null)
             {
-                string lore = "";
-                try { lore = data._loreText ?? ""; } catch { }
-
-                int mark = lore.IndexOf(Marker, StringComparison.Ordinal);
-                if (mark >= 0) lore = lore.Substring(0, mark);
-
-                if (!TryGetMatchedRule(data, out int displayNum, out Rule rule) || rule == null)
-                    return;
-
-                const string Gold = "#FA9E3D";
-                string inject;
-
-                if (mode == TerribleTooltipsMod.FilterRuleDisplay.NumberOnly)
-                    inject = $"\n<size=120%><color={Gold}>Rule #{displayNum}</color></size>";
-                else // NumberAndName
-                    inject = $"\n<color={Gold}>Rule #{displayNum}: {GetRuleName(rule)}</color>";
-
-                data._loreText = lore + Marker + inject;
+                s_pendingItem = item;
+                s_injected    = false;
             }
-            catch (Exception ex) { MelonLogger.Warning($"[TT:Tooltip] error: {ex.Message}"); }
         }
     }
 
-    // ── Rule finder ────────────────────────────────────────────────────
+    // ── Harmony: ground-label hover ───────────────────────────────────
+    [HarmonyPatch(typeof(UITooltipItem), "SetAsGroundTooltip")]
+    private static class Patch_SetAsGroundTooltip
+    {
+        private static void Postfix(UITooltipItem __instance, ItemDataUnpacked _item)
+        {
+            if (_item != null)
+            {
+                s_pendingItem = _item;
+                s_injected    = false;
+            }
+        }
+    }
+
+    // ── Called from OnUpdate — injects after tooltip is rendered ──────
+    public static void MonitorUpdate()
+    {
+        var mode = TerribleTooltipsMod.ShowFilterRuleNumber.Value;
+        if (mode == TerribleTooltipsMod.FilterRuleDisplay.Off) return;
+
+        try
+        {
+            var tooltipUI = UITooltipItem.instance;
+            if (tooltipUI == null) return;
+
+            bool active = false;
+            try { active = tooltipUI.tooltipActive; } catch { }
+
+            if (!active)
+            {
+                s_pendingItem = null;
+                s_injected    = false;
+                return;
+            }
+
+            if (s_pendingItem == null || s_injected) return;
+
+            // Check if our marker is already present anywhere
+            // (re-hover of same item where injection persisted)
+            try
+            {
+                foreach (var tmp in tooltipUI.GetComponentsInChildren<TextMeshProUGUI>())
+                {
+                    if (tmp != null && (tmp.text ?? "").Contains(Marker))
+                    { s_injected = true; return; }
+                }
+            }
+            catch { }
+
+            // ── Find the rule ─────────────────────────────────────────
+            if (!TryGetMatchedRule(s_pendingItem, out int displayNum, out Rule rule) || rule == null)
+            {
+                s_injected = true;  // don't retry
+                return;
+            }
+
+            string ruleTag;
+            if (mode == TerribleTooltipsMod.FilterRuleDisplay.NumberOnly)
+                ruleTag = $"<size=200%><color={Gold}>Rule#{displayNum}</color></size>";
+            else
+                ruleTag = $"<color={Gold}>Rule #{displayNum}: {GetRuleName(rule)}</color>";
+
+            // ── Inject into the 'requires' element (proven visible) ───
+            try
+            {
+                foreach (var tmp in tooltipUI.GetComponentsInChildren<TextMeshProUGUI>())
+                {
+                    if (tmp == null || tmp.gameObject.name != "requires") continue;
+                    if (!tmp.gameObject.activeInHierarchy) continue;
+
+                    string orig = tmp.text ?? "";
+                    tmp.text = ruleTag + Marker + "\n" + orig;
+                    s_injected = true;
+                    return;
+                }
+            }
+            catch { }
+        }
+        catch { }
+    }
+
+    // ── Rule finder ───────────────────────────────────────────────────
     private static bool TryGetMatchedRule(ItemDataUnpacked item,
                                           out int displayNum, out Rule matched)
     {
@@ -55,7 +128,6 @@ public static class FilterRuleTooltip
         var rules = filter.rules;
         if (rules == null || rules.Count == 0) return false;
 
-        // Attempt 1: filter.Match() with out params
         try
         {
             var outcome = filter.Match(item, out _, out _,
@@ -63,10 +135,13 @@ public static class FilterRuleTooltip
                                        out _, out _, out _, out _, out _);
             if (outcome != Rule.RuleOutcome.HIDE && matchingRuleNum > 0)
             {
+                // matchingRuleNum IS the display number the game uses
+                // (same number shown on ground labels).
+                // The rules array is stored in reverse UI order.
                 int idx = rules.Count - matchingRuleNum;
                 if (idx >= 0 && idx < rules.Count && rules[idx] != null)
                 {
-                    displayNum = idx + 1;
+                    displayNum = matchingRuleNum;
                     matched    = rules[idx];
                     return true;
                 }
@@ -74,7 +149,7 @@ public static class FilterRuleTooltip
         }
         catch { }
 
-        // Attempt 2: iterate rules manually
+        // Fallback: manual scan
         try
         {
             for (int i = rules.Count - 1; i >= 0; i--)
@@ -101,22 +176,5 @@ public static class FilterRuleTooltip
         try { if (!string.IsNullOrWhiteSpace(rule.nameOverride)) return rule.nameOverride; } catch { }
         try { var d = rule.GetRuleDescription(); if (!string.IsNullOrWhiteSpace(d)) return d; } catch { }
         return "Unnamed Rule";
-    }
-
-    private static string GetRuleColorHex(Rule rule)
-    {
-        try
-        {
-            foreach (string name in new[] { "labelColor", "textColor", "itemColor",
-                                            "color", "nameColor", "highlightColor" })
-            {
-                var f = rule.GetType().GetField(name);
-                if (f == null) continue;
-                if (f.GetValue(rule) is UnityEngine.Color c)
-                    return "#" + ColorUtility.ToHtmlStringRGB(c);
-            }
-        }
-        catch { }
-        return "#FA9E3D";
     }
 }

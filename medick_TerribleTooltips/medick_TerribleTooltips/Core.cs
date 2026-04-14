@@ -26,7 +26,7 @@
 // ================================================================
 
 [assembly: MelonInfo(typeof(medick_Terrible_Tooltips.TerribleTooltipsMod),
-    "Terrible Tooltips", "1.4.0", "medick")]
+    "Terrible Tooltips", "1.5.0", "medick")]
 [assembly: MelonGame("Eleventh Hour Games", "Last Epoch")]
 
 namespace medick_Terrible_Tooltips;
@@ -100,12 +100,13 @@ public partial class TerribleTooltipsMod : MelonMod
             "Ground Label: Rule # Position", "Where to place EHG's filter rule number on the ground label (Start / End / EHGDefault)");
 
         Category.SetFilePath("UserData/medick_Terrible_Tooltips.cfg", autoload: true);
-        MelonLogger.Msg("[Terrible Tooltips] v1.4.0 loaded.");
+        MelonLogger.Msg("[Terrible Tooltips] v1.5.0 loaded.");
     }
 
     public override void OnUpdate()
     {
         GroundLabels.OnUpdate();
+        FilterRuleTooltip.MonitorUpdate();
     }
 
     // ── In-game settings panel ────────────────────────────────────────

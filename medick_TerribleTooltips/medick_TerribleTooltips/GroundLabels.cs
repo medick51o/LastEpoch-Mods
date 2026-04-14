@@ -59,7 +59,7 @@ public static class GroundLabels
                 if (label.itemText == null) continue;
                 string target = altHeld ? bracketed : plain;
                 // Re-apply marker so patch doesn't re-trigger
-                label.itemText.text = (label.emphasized ? target.ToUpper() : target) + Marker;
+                SetText(label.itemText, (label.emphasized ? target.ToUpper() : target) + Marker);
                 label.sceneFollower?.calculateDimensions();
             }
             catch { }
@@ -132,8 +132,7 @@ public static class GroundLabels
         // ── Alt-key mode ──────────────────────────────────────────────
         if (TerribleTooltipsMod.LabelAltKey.Value)
         {
-            tmp.text = "";
-            tmp.text = plain + Marker;
+            SetText(tmp, plain + Marker);
             item.sceneFollower?.calculateDimensions();
 
             s_altCache.RemoveAll(e => e.label == item);
@@ -142,8 +141,7 @@ public static class GroundLabels
         }
 
         // ── Always-visible mode ───────────────────────────────────────
-        tmp.text = "";
-        tmp.text = bracketed + Marker;
+        SetText(tmp, bracketed + Marker);
         item.sceneFollower?.calculateDimensions();
     }
 
@@ -193,6 +191,20 @@ public static class GroundLabels
 
         sb.Append(']');
         return sb.ToString();
+    }
+
+    // ── Safe TMP text writer ──────────────────────────────────────────
+    // Setting .text in IL2CPP TMP triggers a full mesh rebuild which can
+    // wipe faceColor changes applied by other mods (e.g. LeHud's custom
+    // rarity colors). We snapshot the color before writing and restore it
+    // immediately after. The intermediate tmp.text = "" is also removed —
+    // writing the target string directly is sufficient and avoids a blank
+    // frame that other mods could react to.
+    private static void SetText(TextMeshProUGUI tmp, string value)
+    {
+        var savedColor = tmp.faceColor;
+        tmp.text = value;
+        tmp.faceColor = savedColor;
     }
 
     // ── Static label assembler — avoids IL2CPP closure issues with local functions ──
