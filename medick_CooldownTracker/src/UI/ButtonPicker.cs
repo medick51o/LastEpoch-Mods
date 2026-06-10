@@ -2,7 +2,9 @@ using UnityEngine;
 
 namespace medick_CooldownTracker
 {
-    // [▼] popup with the real controller glyphs, colour-coded like the pads.
+    // [▼] popup with the real controller glyphs — keycap chips on the
+    // Terrible Cooldowns design system; face buttons keep their real-world
+    // pad colours (that's semantics, not decoration).
     internal static class ButtonPicker
     {
         static readonly string[] PS5Face  = { "△", "□", "○", "✕" };
@@ -28,83 +30,76 @@ namespace medick_CooldownTracker
             var anchor = SettingsPanel.PanelRect;
 
             float pw = 228f * sc;
-            float ph = 248f * sc;
+            float ph = 224f * sc;
 
             // Prefer the right of the settings panel, fall back left, then overlap.
             float px = anchor.xMax + 10f;
             if (px + pw > Screen.width) px = anchor.x - pw - 10f;
             if (px < 0) px = anchor.x + (anchor.width - pw) * 0.5f;
             float py = Mathf.Clamp(anchor.y, 0, Mathf.Max(0, Screen.height - ph));
+            var panel = new Rect(px, py, pw, ph);
 
-            GUI.color = new Color(0.06f, 0.06f, 0.10f, 0.97f);
-            GUI.DrawTexture(new Rect(px, py, pw, ph), Texture2D.whiteTexture);
-            Styles.DrawBorder(new Rect(px, py, pw, ph), new Color(0.30f, 0.30f, 0.40f), 1);
-
-            Color hCol = effMI == 1
-                ? new Color(0.60f, 0.34f, 0.08f, 1f)    // Xbox – dark orange
-                : new Color(0.40f, 0.12f, 0.55f, 1f);   // PS5  – dark purple
-            GUI.color = hCol;
-            GUI.DrawTexture(new Rect(px, py, pw, 26f * sc), Texture2D.whiteTexture);
             GUI.color = Color.white;
-            string modeName = effMI == 1 ? "Xbox" : "PS5";
-            GUI.Label(new Rect(px + 6, py + 4, pw - 30, 18 * sc),
-                $"{modeName} buttons  —  slot {UiState.PickerSlot}",
-                Styles.Get(StyleKind.CenterBold, 10, sc, TextAnchor.MiddleLeft));
+            Theme.Box(panel, Theme.Panel);
 
-            var xR = new Rect(px + pw - 22f * sc, py + 3, 20f * sc, 20f * sc);
-            GUI.color = new Color(0.75f, 0.22f, 0.22f, 1f);
-            GUI.DrawTexture(xR, Texture2D.whiteTexture);
+            // Title bar
+            float th = 24f * sc;
+            Theme.Fill(new Rect(px + 1, py + 1, pw - 2, th - 1), Theme.Surface);
+            Theme.Fill(new Rect(px + 1, py + th - 2f, pw - 2, 2f), Theme.AccentDim);
+            float d = 6f * sc;
+            Theme.Fill(new Rect(px + 8f * sc, py + (th - d) * 0.5f, d, d), SettingsPanel.ModeDot(effMI));
+            Theme.Text9(new Rect(px + 8f * sc + d + 6f * sc, py, pw * 0.8f, th),
+                $"{(effMI == 1 ? "Xbox" : "PS5")} glyphs — slot {UiState.PickerSlot}",
+                Theme.TextHi, Mathf.RoundToInt(10 * sc), FontStyle.Bold);
+
+            float cs = 16f * sc;
             GUI.color = Color.white;
-            GUI.Label(xR, "✕", Styles.Get(StyleKind.Center, 10, sc));
-            if (GUI.Button(xR, GUIContent.none, GUIStyle.none)) { UiState.PickerSlot = -1; return; }
+            if (GUI.Button(new Rect(px + pw - cs - 5f * sc, py + (th - cs) * 0.5f, cs, cs),
+                    "✕", Theme.Button(Mathf.RoundToInt(8 * sc), danger: true)))
+            { UiState.PickerSlot = -1; return; }
 
-            float y = py + 30f * sc;
+            float y = py + th + 7f * sc;
             if (effMI == 2)
             {
-                y = Group(px, y, sc, "Face",    PS5Face,                 PS5FaceC, 34);
-                y = Group(px, y, sc, "Bumper",  new[] { "L1", "R1" },    null,     28);
-                y = Group(px, y, sc, "Trigger", new[] { "L2", "R2" },    null,     28);
-                y = Group(px, y, sc, "Stick",   new[] { "L3", "R3" },    null,     28);
-                y = Group(px, y, sc, "D-Pad",   new[] { "↑", "↓", "←", "→" }, null, 28);
-                Group(px, y, sc, "Other", new[] { "Opt", "Tpad" }, null, 28);
+                y = Group(px, y, pw, sc, "Face",    PS5Face,               PS5FaceC, 30);
+                y = Group(px, y, pw, sc, "Bumper",  new[] { "L1", "R1" },  null,     24);
+                y = Group(px, y, pw, sc, "Trigger", new[] { "L2", "R2" },  null,     24);
+                y = Group(px, y, pw, sc, "Stick",   new[] { "L3", "R3" },  null,     24);
+                y = Group(px, y, pw, sc, "D-Pad",   new[] { "↑", "↓", "←", "→" }, null, 24);
+                Group(px, y, pw, sc, "Other", new[] { "Opt", "Tpad" }, null, 24);
             }
             else
             {
-                y = Group(px, y, sc, "Face",    XboxFace,                XboxFaceC, 34);
-                y = Group(px, y, sc, "Bumper",  new[] { "LB", "RB" },    null,      28);
-                y = Group(px, y, sc, "Trigger", new[] { "LT", "RT" },    null,      28);
-                y = Group(px, y, sc, "Stick",   new[] { "LS", "RS" },    null,      28);
-                y = Group(px, y, sc, "D-Pad",   new[] { "↑", "↓", "←", "→" }, null, 28);
-                Group(px, y, sc, "Other", new[] { "Start", "Back" }, null, 28);
+                y = Group(px, y, pw, sc, "Face",    XboxFace,              XboxFaceC, 30);
+                y = Group(px, y, pw, sc, "Bumper",  new[] { "LB", "RB" },  null,      24);
+                y = Group(px, y, pw, sc, "Trigger", new[] { "LT", "RT" },  null,      24);
+                y = Group(px, y, pw, sc, "Stick",   new[] { "LS", "RS" },  null,      24);
+                y = Group(px, y, pw, sc, "D-Pad",   new[] { "↑", "↓", "←", "→" }, null, 24);
+                Group(px, y, pw, sc, "Other", new[] { "Start", "Back" }, null, 24);
             }
         }
 
-        static float Group(float px, float y, float sc,
+        static float Group(float px, float y, float pw, float sc,
             string groupName, string[] syms, Color[] colors, float btnSz)
         {
             float btnH   = btnSz * sc;
             float gap    = 4f * sc;
-            float labW   = 54f * sc;
-            float innerX = px + 6f + labW;
+            float labW   = 50f * sc;
+            float innerX = px + 8f * sc + labW;
 
-            GUI.color = new Color(0.60f, 0.60f, 0.65f);
-            GUI.Label(new Rect(px + 6, y, labW, btnH), groupName + ":",
-                Styles.Get(StyleKind.Left, 9, sc, TextAnchor.MiddleLeft));
+            Theme.Text9(new Rect(px + 8f * sc, y, labW, btnH), groupName,
+                Theme.TextMut, Mathf.RoundToInt(9 * sc));
 
             for (int i = 0; i < syms.Length; i++)
             {
-                Color c = (colors != null && i < colors.Length)
-                    ? colors[i]
-                    : new Color(0.20f, 0.20f, 0.26f, 0.95f);
                 var r = new Rect(innerX + i * (btnH + gap), y, btnH, btnH);
-                GUI.color = c;
-                GUI.DrawTexture(r, Texture2D.whiteTexture);
-                GUI.color = new Color(1f, 1f, 1f, 0.18f);
-                GUI.DrawTexture(new Rect(r.x, r.y, r.width, 1), Texture2D.whiteTexture);
                 GUI.color = Color.white;
+                bool clicked = GUI.Button(r, GUIContent.none, Theme.Button(10));
                 int fs = syms[i].Length <= 2 ? 12 : syms[i].Length <= 4 ? 9 : 7;
-                GUI.Label(r, syms[i], Styles.Get(StyleKind.Center, fs, sc));
-                if (GUI.Button(r, GUIContent.none, GUIStyle.none))
+                Theme.Text9(r, syms[i],
+                    colors != null && i < colors.Length ? colors[i] : Theme.TextHi,
+                    Mathf.RoundToInt(fs * sc), FontStyle.Bold, TextAnchor.MiddleCenter);
+                if (clicked)
                 {
                     Prefs.SetCustomLabel(ButtonLabels.GetModeIndex(), UiState.PickerSlot, syms[i]);
                     UiState.PickerSlot = -1;

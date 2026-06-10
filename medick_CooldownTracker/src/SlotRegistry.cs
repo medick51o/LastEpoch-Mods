@@ -48,12 +48,11 @@ namespace medick_CooldownTracker
             try
             {
                 int idx = icon.abilityNumber;
-                var img = icon.icon;
                 var s = new SlotData
                 {
                     SlotIndex    = idx,
                     GameBoundKey = HotkeyReader.TryRead(icon),
-                    Icon         = img != null ? img.sprite : null,
+                    Icon         = ReadSprite(icon),
                     CooldownBar  = icon.cooldownBar,
                     OnCooldown   = icon.cooldownBarActive,
                     Source       = icon,
@@ -66,8 +65,49 @@ namespace medick_CooldownTracker
                     if (at < 0) _slots.Add(s); else _slots.Insert(at, s);
                 }
                 Dbg.Log($"slot #{idx} registered (key={s.GameBoundKey ?? "?"})");
+                DumpIconHierarchy(icon, idx);
             }
             catch (Exception ex) { MelonLogger.Warning("RegisterSlot: " + ex.Message); }
+        }
+
+        // The skill artwork, preferring an override sprite when the game set one.
+        static Sprite ReadSprite(AbilityBarIcon icon)
+        {
+            var img = icon.icon;
+            if (img == null) return null;
+            var ov = img.overrideSprite;
+            return ov != null ? ov : img.sprite;
+        }
+
+        // Opt-in (DebugLog pref): list every child Image of an action-bar slot
+        // with sprite/atlas details. This is the evidence trail for icon-art
+        // issues — flip DebugLog on, load a zone, read the Melon log.
+        static void DumpIconHierarchy(AbilityBarIcon icon, int idx)
+        {
+            if (Prefs.DebugLog == null || !Prefs.DebugLog.Value) return;
+            try
+            {
+                var images = icon.GetComponentsInChildren<Image>(true);
+                MelonLogger.Msg($"[debug] slot #{idx}: {images.Length} child Image(s)");
+                foreach (var im in images)
+                {
+                    if (im == null) continue;
+                    try
+                    {
+                        var sp = im.overrideSprite != null ? im.overrideSprite : im.sprite;
+                        MelonLogger.Msg(sp != null
+                            ? $"[debug]   {im.name}: sprite={sp.name} tex={(sp.texture != null ? sp.texture.name : "?")} packed={sp.packed} rect={sp.rect} texRect={SafeTexRect(sp)}"
+                            : $"[debug]   {im.name}: no sprite");
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+        }
+
+        static string SafeTexRect(Sprite sp)
+        {
+            try { return sp.textureRect.ToString(); } catch { return "n/a"; }
         }
 
         public static void SetCooldown(AbilityBarIcon icon, bool on)
@@ -100,8 +140,10 @@ namespace medick_CooldownTracker
 
                     try
                     {
-                        if (s.Icon == null)
-                        { var img = s.Source.icon; if (img != null) s.Icon = img.sprite; }
+                        // Refresh every tick — keeps icons correct after the
+                        // player swaps a skill into an existing slot.
+                        var sp = ReadSprite(s.Source);
+                        if (sp != null) s.Icon = sp;
                         if (s.CooldownBar == null) s.CooldownBar = s.Source.cooldownBar;
 
                         if (s.CooldownBar != null)
@@ -153,6 +195,16 @@ namespace medick_CooldownTracker
             lock (_lock)
                 foreach (var s in _slots)
                     if (s.OnCooldown && s.Fill > 0.005f && Prefs.IsSlotEnabled(s.SlotIndex))
+                        buf.Add(s);
+        }
+
+        // Every enabled slot regardless of cooldown — the Move-mode preview.
+        public static void SnapshotEnabled(List<SlotData> buf)
+        {
+            buf.Clear();
+            lock (_lock)
+                foreach (var s in _slots)
+                    if (Prefs.IsSlotEnabled(s.SlotIndex))
                         buf.Add(s);
         }
     }

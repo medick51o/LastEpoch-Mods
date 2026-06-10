@@ -1,10 +1,29 @@
-# Changelog — Cooldown Tracker
+# Changelog — MedicK's Terrible Cooldowns
 
 ## v5.0.0 — 2026-06-10
 
-Ground-up engineering pass. Same mod, professional internals.
+Ground-up engineering pass and rebrand: **Cooldown Tracker** is now
+**MedicK's Terrible Cooldowns** ("Terrible Cooldowns" for short), joining
+Terrible Tooltips and Terrible Inventory. Internal name, DLL, preferences and
+the Nexus upgrade path are unchanged (`medick_CooldownTracker`).
+
+### Added
+- **Move mode** — press *Move* next to the offset sliders, drag the floating
+  icon cluster in the game view to wherever you want it, press *Lock*. The
+  sliders follow live and remain available for precision nudges. Game input
+  is blocked while moving so your character doesn't wander.
+- **Redesigned settings panel** — a real design system (dark Last-Epoch-native
+  palette, single gold accent, segmented controls, custom switches and
+  sliders, hover/focus states, branded title bar and footer) replacing the
+  grab-bag of coloured boxes and default Unity widgets.
 
 ### Fixed
+- **Real skill icons.** Sprites packed into the game's UI atlases were being
+  sampled with original-texture coordinates (`Sprite.rect`) instead of packed
+  atlas coordinates (`Sprite.textureRect`) — reading a random neighbouring
+  region of the atlas sheet. That is why earlier versions showed emblem and
+  portrait art instead of your actual skills. Icons now also refresh when you
+  swap a skill into an existing slot, and respect override sprites.
 - **No more ghost icons on the login screen.** Slots are pruned the moment their
   game objects die, destroyed-object checks now use Unity's real null semantics
   (the old `?.` checks passed dead references through), and the fallback that

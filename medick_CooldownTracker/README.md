@@ -1,19 +1,21 @@
-# Cooldown Tracker
+# MedicK's Terrible Cooldowns
 
-A [MelonLoader](https://melonwiki.xyz) mod for **Last Epoch** that floats your skill icons above your character while they're on cooldown — glance at your character, not your action bar.
+*a cooldown tracker* — **Terrible Cooldowns** for short. A [MelonLoader](https://melonwiki.xyz) mod for **Last Epoch** that floats your skill icons above your character while they're on cooldown — glance at your character, not your action bar.
 
-> Nexus Mods: [Cooldown Tracker](https://www.nexusmods.com/lastepoch/mods/26) · by medick
+> Nexus Mods: [Cooldown Tracker](https://www.nexusmods.com/lastepoch/mods/26) · by medick · internal name `medick_CooldownTracker`
 
 ## Features
 
-- **Floating overhead icons** — skill icons hover above your head while on cooldown, with a sweep fill, ready-flash border, and key label
-- **Gameplay-aware** — icons only render while a living player character is on screen; menus and the login screen stay clean
-- **Settings panel that stays put** — drag it anywhere; the position is saved and restored every session
+- **Real skill artwork, zero bundled files** — icons are read live from the game's own UI sprites in memory (atlas-aware sampling), so they always match your actual build
+- **Floating overhead icons** — hover above your head while skills cool down, with a sweep fill, ready-flash border, and key label
+- **Move mode** — press *Move* in the settings, drag the icon cluster to wherever you want it floating, press *Lock*. The offset sliders stay for precision and follow your drag live
+- **Gameplay-aware** — icons only render while a living player is on screen; menus and the login screen stay clean
+- **Settings panel that stays put** — drag it anywhere; position is saved and restored every session
 - **Live input-mode detection** — keyboard/mouse vs Xbox vs PS5, detected from real device activity, with manual override
-- **Per-mode custom labels** — Keyboard, Xbox, and PS5 label sets are stored independently (20 chars; a space stacks the label onto two lines, e.g. `Flame Ward` → `Flame` / `Ward`)
-- **[▼] Button Picker** — colour-coded controller glyph popup for Xbox & PS5 (face, bumpers, triggers, sticks, D-pad)
+- **Per-mode custom labels** — Keyboard, Xbox, and PS5 label sets stored independently (20 chars; a space stacks the label onto two lines, e.g. `Flame Ward` → `Flame` / `Ward`)
+- **[▼] Button Picker** — controller glyph popup for Xbox & PS5 with authentic face-button colours
 - **Movement lock** — optional toggle that blocks character input while the panel is open, via the game's own `EpochInputManager` (typing in a label field always blocks game hotkeys)
-- **Per-slot tracking toggles** — disable any slot; choices persist between sessions
+- **Per-slot tracking toggles** — disable any slot; choices persist
 - **Evade slot** (slot 6) fully tracked and customisable
 
 ## Controls
@@ -22,6 +24,7 @@ A [MelonLoader](https://melonwiki.xyz) mod for **Last Epoch** that floats your s
 |-------|--------|
 | `Home` | Toggle settings panel |
 | Drag title bar | Reposition panel (saved automatically) |
+| *Move* → drag icons → *Lock* | Reposition the floating icon cluster |
 
 ## Default Button Labels
 
@@ -54,16 +57,17 @@ Requires Last Epoch (with MelonLoader installed) at the default Steam path; edit
 src/
   CooldownTrackerMod.cs          MelonMod lifecycle (update loop, GUI dispatch)
   CooldownTrackerMod.Patches.cs  Harmony patches on AbilityBarIcon
-  BuildInfo.cs                   Name/version single source of truth
+  BuildInfo.cs                   Brand/version single source of truth
   Prefs.cs                       All persisted settings (MelonPreferences)
   SlotRegistry.cs                Slot state, liveness pruning, label cache
   InputDetection.cs              KB/controller detection, label resolution
   InputBlocker.cs                EpochInputManager wrapper (write-on-change)
   UI/
+    Theme.cs                     Design system: palette, textures, styles
+    Widgets.cs                   Segmented control, switch, slider, rows
     SettingsPanel.cs             Home-key panel (persisted position)
     ButtonPicker.cs              Controller glyph picker popup
-    OverheadRenderer.cs          Floating icon rendering
-    Styles.cs                    Cached GUI styles + draw helpers
+    OverheadRenderer.cs          Floating icons + Move-mode drag
     UiState.cs                   Shared GUI state
 ```
 

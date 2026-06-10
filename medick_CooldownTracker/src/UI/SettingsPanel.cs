@@ -3,34 +3,27 @@ using UnityEngine;
 
 namespace medick_CooldownTracker
 {
-    // The Home-key settings panel. Its screen position persists across
-    // sessions (PanelX/PanelY prefs) — drag it once, it stays there.
+    // The Home-key settings panel — Terrible Cooldowns design system.
+    // Screen position persists across sessions (PanelX/PanelY prefs):
+    // drag it once, it opens there forever.
     internal static class SettingsPanel
     {
-        static Rect    _rect = new(Prefs.DefaultPanelX, Prefs.DefaultPanelY, 380, 30);
+        static Rect    _rect = new(Prefs.DefaultPanelX, Prefs.DefaultPanelY, 400, 30);
         static bool    _posLoaded;
         static bool    _dragging;
         static bool    _dragMoved;
         static Vector2 _dragOff;
         static Vector2 _scroll;
+        static Rect    _closeRect;
         static readonly List<SlotData> _rows = new();
-
-        static readonly string HeaderTitle =
-            $"◈ {BuildInfo.DisplayName}  v{BuildInfo.Version}";
 
         public static Rect PanelRect => _rect;
 
-        static readonly string[] ModeBtnLabels = { "Auto", "Keyboard", "Xbox", "PS5" };
-        static readonly Color[]  ModeBtnColors =
-        {
-            new(0.20f, 0.60f, 0.28f, 1f),   // Auto     – green
-            new(0.25f, 0.45f, 0.70f, 1f),   // Keyboard – blue
-            new(0.65f, 0.38f, 0.10f, 1f),   // Xbox     – orange
-            new(0.45f, 0.15f, 0.60f, 1f),   // PS5      – purple
-        };
+        static readonly string[] ModeLabels   = { "Auto", "Keyboard", "Xbox", "PS5" };
+        static readonly string[] LayoutLabels = { "Auto", "Xbox", "PS5" };
 
-        public static Color ModeBadgeColor(int effMI) =>
-            effMI == 0 ? ModeBtnColors[1] : effMI == 1 ? ModeBtnColors[2] : ModeBtnColors[3];
+        public static Color ModeDot(int effMI) =>
+            effMI == 1 ? Theme.XboxGreen : effMI == 2 ? Theme.PsBlue : Theme.TextMut;
 
         public static void Draw()
         {
@@ -43,24 +36,35 @@ namespace medick_CooldownTracker
 
             HandleDrag();
 
-            float sc  = Mathf.Clamp(Prefs.MenuScale.Value, 0.7f, 2.0f);
-            float w   = 380f * sc;
-            float hdr = 26f  * sc;
+            float sc = Mathf.Clamp(Prefs.MenuScale.Value, 0.7f, 2.0f);
+            float w  = 400f * sc;
             int   effMI = ButtonLabels.GetModeIndex();
-            string editingFor = Prefs.ModeDispName[effMI];
 
             // ── Height budget ─────────────────────────────────────
-            float inputSect = 20f * sc + 28f * sc + (Prefs.InputMode.Value == 0 ? 48f * sc : 0f);
-            float sliders   = 5 * 36f * sc;
-            float lockRow   = 28f * sc;
-            float resetRow  = 24f * sc;
-            float sep       = 10f * sc;
+            float titleH  = 30f * sc;
+            float pad     = 10f * sc;
+            float hdrH    = 20f * sc;                       // SectionHeader advance
+            float segH    = 24f * sc + 6f * sc;
+            float autoH   = Prefs.InputMode.Value == 0
+                ? 20f * sc + 24f * sc                       // status row + layout override row
+                : 0f;
+            float sliders = 5 * 26f * sc + 26f * sc            // 5 sliders + Move row
+                + (UiState.MoveIcons ? 20f * sc : 0f);         // hint while moving
+            float behave  = 2 * 26f * sc;
+            float gapSect = 8f * sc;
             int   slotCount = SlotRegistry.Count;
-            float slotHdr   = 22f * sc;
-            float slotListH = slotCount == 0
-                ? 28f * sc
-                : Mathf.Min(slotCount * 46f * sc + 8f, 320f * sc);
-            float total = hdr + sep + inputSect + sep + sliders + lockRow + resetRow + sep + slotHdr + slotListH + 10f;
+            float rowH    = 42f * sc, rowGap = 4f * sc;
+            float listH   = slotCount == 0
+                ? 40f * sc
+                : Mathf.Min(slotCount * (rowH + rowGap), 7 * (rowH + rowGap));
+            float footH   = 22f * sc;
+
+            float total = titleH + pad
+                + hdrH + segH + autoH + gapSect
+                + hdrH + sliders + gapSect
+                + hdrH + behave + gapSect
+                + hdrH + listH
+                + pad * 0.5f + footH;
 
             _rect.width  = w;
             _rect.height = total;
@@ -68,332 +72,273 @@ namespace medick_CooldownTracker
             _rect.y = Mathf.Clamp(_rect.y, 0, Mathf.Max(0, Screen.height - total));
 
             // ── Chrome ────────────────────────────────────────────
-            GUI.color = new Color(0.06f, 0.06f, 0.10f, 0.96f);
-            GUI.DrawTexture(_rect, Texture2D.whiteTexture);
-            GUI.color = new Color(0.13f, 0.42f, 0.78f, 1f);
-            GUI.DrawTexture(new Rect(_rect.x, _rect.y, w, hdr), Texture2D.whiteTexture);
             GUI.color = Color.white;
+            Theme.Box(_rect, Theme.Panel);
 
-            GUI.Label(new Rect(_rect.x + 8, _rect.y + 3, w - 80, hdr - 4),
-                HeaderTitle, Styles.Get(StyleKind.CenterBold, 13, sc, TextAnchor.MiddleLeft));
-            GUI.Label(new Rect(_rect.x, _rect.y + 3, w - 6, hdr - 4),
-                "[Home] close", Styles.Get(StyleKind.Small, 10, sc, TextAnchor.MiddleRight));
+            DrawTitleBar(sc, w, titleH);
 
-            float y  = _rect.y + hdr + sep;
-            float lx = _rect.x + 10f;
-            float lw = w - 20f;
+            float x = _rect.x + pad;
+            float y = _rect.y + titleH + pad * 0.7f;
+            float cw = w - pad * 2f;
 
-            y = DrawInputModeSection(lx, y, lw, sc);
-            DrawSep(lx, ref y, lw, sc);
-
-            // ── Sliders ───────────────────────────────────────────
-            y = SliderRow(lx, y, lw, sc, "Icon Opacity",           Prefs.Alpha,     0.05f,   1f, "F2");
-            y = SliderRow(lx, y, lw, sc, "Icon Size (px)",         Prefs.Size,      32f,   120f, "F0");
-            y = SliderRow(lx, y, lw, sc, "Offset X (← / →)",      Prefs.OffsetX, -500f,  500f, "F0");
-            y = SliderRow(lx, y, lw, sc, "Offset Y (↑ neg = up)", Prefs.OffsetY, -600f,  200f, "F0");
-            y = SliderRow(lx, y, lw, sc, "Menu Size",              Prefs.MenuScale, 0.7f,  2.0f, "F1");
-
-            y = DrawLockRow(lx, y, lw, sc);
-            y = DrawResetRow(lx, y, lw, sc);
-            DrawSep(lx, ref y, lw, sc);
-
-            // ── Skills list ───────────────────────────────────────
-            GUI.color = new Color(0.75f, 0.85f, 1f);
-            GUI.Label(new Rect(lx, y, lw * 0.40f, 20 * sc), "SKILLS",
-                Styles.Get(StyleKind.SectionHeader, 12, sc));
-
-            Color badgeCol = ModeBadgeColor(effMI);
-            float badgeW = 75f * sc;
-            Rect  badgeR = new(_rect.x + w - 10 - badgeW, y + 1, badgeW, 18 * sc);
-            GUI.color = badgeCol; GUI.DrawTexture(badgeR, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            GUI.Label(badgeR, $"editing: {editingFor}", Styles.Get(StyleKind.Small, 9, sc));
-
-            float iSz   = 30f * sc;
-            float lblCW = 46f * sc;
-            float tfSt  = iSz + lblCW + 10f * sc;
-            float togW  = 22f * sc;
-            bool  hasPicker = effMI >= 1;
-            float picBW = hasPicker ? 24f * sc : 0f;
-
-            GUI.color = new Color(0.50f, 0.50f, 0.55f);
-            GUI.Label(new Rect(lx + tfSt, y, lw - tfSt - picBW - togW - 12f, 18 * sc),
-                hasPicker
-                    ? $"Custom Label  ({editingFor} — use [▼] to pick)"
-                    : "Custom Label  (empty = auto-default)",
-                Styles.Get(StyleKind.Small, 9, sc, TextAnchor.MiddleLeft));
-            GUI.Label(new Rect(lx + lw - togW - 4, y, togW + 4, 18 * sc), "On",
-                Styles.Get(StyleKind.Small, 9, sc, TextAnchor.MiddleCenter));
-            y += 22f * sc;
-
-            SlotRegistry.SnapshotAll(_rows);
-            if (_rows.Count == 0)
-            {
-                GUI.color = new Color(0.50f, 0.50f, 0.55f);
-                GUI.Label(new Rect(lx, y, lw, 24 * sc),
-                    "Waiting for your skill bar — load into a zone.",
-                    Styles.Get(StyleKind.Dim, 11, sc));
-                GUI.color = Color.white;
-                UiState.TextFieldActive = false;
-                return;
-            }
-
-            DrawSlotRows(lx, y, lw, sc, effMI, iSz, lblCW, togW, hasPicker, picBW, badgeCol);
-
-            // Suppress game hotkeys while a label field has keyboard focus.
-            UiState.TextFieldActive = UiState.ShowSettings && GUIUtility.keyboardControl != 0;
-            GUI.color = Color.white;
-        }
-
-        // ── Sections ──────────────────────────────────────────────
-        static float DrawInputModeSection(float lx, float y, float lw, float sc)
-        {
-            GUI.color = new Color(0.75f, 0.85f, 1f);
-            GUI.Label(new Rect(lx, y, lw, 18 * sc), "INPUT MODE",
-                Styles.Get(StyleKind.SectionHeader, 12, sc));
-            y += 20f * sc;
-
-            float bw = (lw - 3f * sc) / 4f;
-            for (int i = 0; i < 4; i++)
-            {
-                bool act = Prefs.InputMode.Value == i;
-                var r = new Rect(lx + i * (bw + sc), y, bw, 24f * sc);
-                GUI.color = act ? ModeBtnColors[i] : new Color(0.14f, 0.14f, 0.18f, 0.95f);
-                GUI.DrawTexture(r, Texture2D.whiteTexture);
-                GUI.color = act ? Color.white : new Color(0.50f, 0.50f, 0.55f);
-                GUI.Label(r, ModeBtnLabels[i], Styles.Get(StyleKind.Center, 11, sc));
-                GUI.color = Color.white;
-                if (GUI.Button(r, GUIContent.none, GUIStyle.none))
-                { Prefs.InputMode.Value = i; UiState.PickerSlot = -1; }
-            }
-            y += 28f * sc;
+            // ── INPUT ─────────────────────────────────────────────
+            Widgets.SectionHeader(x, ref y, cw, sc, "INPUT");
+            int newMode = Widgets.Segmented(new Rect(x, y, cw, 24f * sc),
+                Prefs.InputMode.Value, ModeLabels, sc);
+            if (newMode != Prefs.InputMode.Value)
+            { Prefs.InputMode.Value = newMode; UiState.PickerSlot = -1; }
+            y += 24f * sc + 6f * sc;
 
             if (Prefs.InputMode.Value == 0)
             {
-                string stTxt; Color stCol;
-                if (InputTracker.IsControllerActive)
-                {
-                    stTxt = $"● Controller detected  ({(InputTracker.DetectedLayout == CtrlLayout.PlayStation ? "PS5" : "Xbox")})";
-                    stCol = new Color(0.40f, 1.00f, 0.50f);
-                }
-                else
-                {
-                    stTxt = "● Keyboard / Mouse";
-                    stCol = new Color(0.55f, 0.80f, 1.00f);
-                }
-                GUI.color = stCol;
-                GUI.Label(new Rect(lx, y, lw, 18 * sc), stTxt, Styles.Get(StyleKind.Left, 11, sc));
-                y += 20f * sc;
+                y = InputTracker.IsControllerActive
+                    ? Widgets.StatusRow(x, y, cw, sc,
+                        $"Controller detected ({(InputTracker.DetectedLayout == CtrlLayout.PlayStation ? "PS5" : "Xbox")})",
+                        InputTracker.DetectedLayout == CtrlLayout.PlayStation ? Theme.PsBlue : Theme.XboxGreen)
+                    : Widgets.StatusRow(x, y, cw, sc, "Keyboard / Mouse", Theme.Ready);
 
-                float labW = 108f * sc;
-                GUI.color = new Color(0.60f, 0.60f, 0.65f);
-                GUI.Label(new Rect(lx, y, labW, 20 * sc), "Layout override:",
-                    Styles.Get(StyleKind.Left, 10, sc));
-                string[] lo = { "Auto", "Xbox", "PS5" };
-                Color[]  lc = { new(0.22f, 0.22f, 0.28f, 1f), ModeBtnColors[2], ModeBtnColors[3] };
-                float lbw = (lw - labW - 2f * sc) / 3f;
-                for (int i = 0; i < 3; i++)
-                {
-                    bool act = Prefs.CtrlLayout.Value == i;
-                    var lr = new Rect(lx + labW + i * (lbw + sc), y, lbw, 20f * sc);
-                    GUI.color = act ? lc[i] : new Color(0.14f, 0.14f, 0.18f, 0.95f);
-                    GUI.DrawTexture(lr, Texture2D.whiteTexture);
-                    GUI.color = act ? Color.white : new Color(0.50f, 0.50f, 0.55f);
-                    GUI.Label(lr, lo[i], Styles.Get(StyleKind.Center, 10, sc));
-                    GUI.color = Color.white;
-                    if (GUI.Button(lr, GUIContent.none, GUIStyle.none))
-                    { Prefs.CtrlLayout.Value = i; UiState.PickerSlot = -1; }
-                }
-                y += 28f * sc;
+                float labW = 110f * sc;
+                Theme.Text9(new Rect(x, y, labW, 20f * sc), "Layout override",
+                    Theme.TextMut, Mathf.RoundToInt(9 * sc));
+                int newLay = Widgets.Segmented(new Rect(x + labW, y, cw - labW, 20f * sc),
+                    Prefs.CtrlLayout.Value, LayoutLabels, sc);
+                if (newLay != Prefs.CtrlLayout.Value)
+                { Prefs.CtrlLayout.Value = newLay; UiState.PickerSlot = -1; }
+                y += 24f * sc;
             }
-            return y;
-        }
+            y += gapSect;
 
-        static float DrawLockRow(float lx, float y, float lw, float sc)
-        {
-            float togSz = 22f * sc;
-            float rowH  = 24f * sc;
-            bool  locked = Prefs.LockInput.Value;
-            GUI.color = locked
-                ? new Color(0.75f, 0.28f, 0.28f, 1f)
-                : new Color(0.15f, 0.15f, 0.20f, 0.90f);
-            GUI.DrawTexture(new Rect(lx, y, lw, rowH), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            GUI.Label(new Rect(lx + 4, y, lw - togSz - 8, rowH),
-                locked ? "Block movement while menu is open  (ON)"
-                       : "Block movement while menu is open  (OFF)",
-                Styles.Get(StyleKind.Left, 10, sc));
-            bool newLock = GUI.Toggle(
-                new Rect(lx + lw - togSz - 2, y + (rowH - togSz) * 0.5f, togSz, togSz),
-                locked, "");
-            if (newLock != locked) Prefs.LockInput.Value = newLock;
-            return y + rowH + 4f * sc;
-        }
+            // ── DISPLAY ───────────────────────────────────────────
+            Widgets.SectionHeader(x, ref y, cw, sc, "DISPLAY");
+            y = Widgets.SliderRow(x, y, cw, sc, "Icon opacity",      Prefs.Alpha,     0.05f,   1f, "F2");
+            y = Widgets.SliderRow(x, y, cw, sc, "Icon size",         Prefs.Size,      32f,   120f, "F0");
+            y = Widgets.SliderRow(x, y, cw, sc, "Horizontal offset", Prefs.OffsetX, -500f,  500f, "F0");
+            y = Widgets.SliderRow(x, y, cw, sc, "Vertical offset",   Prefs.OffsetY, -600f,  200f, "F0");
 
-        static float DrawResetRow(float lx, float y, float lw, float sc)
-        {
-            float rowH = 20f * sc;
-            var r = new Rect(lx, y, lw, rowH);
-            GUI.color = new Color(0.15f, 0.15f, 0.20f, 0.90f);
-            GUI.DrawTexture(r, Texture2D.whiteTexture);
-            GUI.color = new Color(0.65f, 0.65f, 0.72f);
-            GUI.Label(r, "Reset panel position", Styles.Get(StyleKind.Center, 10, sc));
-            GUI.color = Color.white;
-            if (GUI.Button(r, GUIContent.none, GUIStyle.none))
+            // Move mode: drag the live icon cluster instead of doing slider math.
+            {
+                float mvH = 22f * sc;
+                Theme.Text9(new Rect(x, y, cw - 80f * sc, mvH), "Icon position",
+                    Theme.Text, Mathf.RoundToInt(10 * sc));
+                GUI.color = Color.white;
+                if (GUI.Button(new Rect(x + cw - 76f * sc, y + 1f * sc, 76f * sc, mvH - 2f * sc),
+                        UiState.MoveIcons ? "Lock" : "Move",
+                        Theme.Button(Mathf.RoundToInt(9 * sc), selected: UiState.MoveIcons)))
+                {
+                    UiState.MoveIcons = !UiState.MoveIcons;
+                    if (!UiState.MoveIcons) Prefs.Save();   // just locked in a position
+                }
+                y += mvH + 4f * sc;
+                if (UiState.MoveIcons)
+                    y = Widgets.StatusRow(x, y, cw, sc,
+                        "drag the icon cluster in the game view — sliders follow", Theme.Accent);
+            }
+
+            y = Widgets.SliderRow(x, y, cw, sc, "Menu scale",        Prefs.MenuScale, 0.7f,  2.0f, "F1");
+            y += gapSect;
+
+            // ── BEHAVIOR ──────────────────────────────────────────
+            Widgets.SectionHeader(x, ref y, cw, sc, "BEHAVIOR");
+            y = Widgets.SwitchRow(x, y, cw, sc, "Block movement while menu is open", Prefs.LockInput);
+            if (Widgets.ButtonRow(x, ref y, cw, sc, "Panel position", "Reset"))
             {
                 _rect.x = Prefs.DefaultPanelX;
                 _rect.y = Prefs.DefaultPanelY;
                 SavePanelPos();
             }
-            return y + rowH + 4f * sc;
+            y += gapSect;
+
+            // ── SKILLS ────────────────────────────────────────────
+            Widgets.SectionHeader(x, ref y, cw, sc, "SKILLS",
+                $"editing: {Prefs.ModeDispName[effMI]}", ModeDot(effMI));
+
+            SlotRegistry.SnapshotAll(_rows);
+            if (_rows.Count == 0)
+            {
+                var er = new Rect(x, y, cw, 36f * sc);
+                GUI.color = Color.white;
+                Theme.Box(er, Theme.Card);
+                Theme.Text9(er, "Waiting for your skill bar — load into a zone.",
+                    Theme.TextMut, Mathf.RoundToInt(10 * sc), FontStyle.Normal, TextAnchor.MiddleCenter);
+                UiState.TextFieldActive = false;
+                DrawFooter(sc, w, footH);
+                return;
+            }
+
+            DrawSlotList(x, y, cw, sc, effMI, rowH, rowGap, listH);
+
+            // Suppress game hotkeys while a label field has keyboard focus.
+            UiState.TextFieldActive = UiState.ShowSettings && GUIUtility.keyboardControl != 0;
+
+            DrawFooter(sc, w, footH);
+            GUI.color = Color.white;
         }
 
-        static void DrawSlotRows(float lx, float y, float lw, float sc, int effMI,
-            float iSz, float lblCW, float togW, bool hasPicker, float picBW, Color badgeCol)
+        // ── Chrome pieces ─────────────────────────────────────────
+        static void DrawTitleBar(float sc, float w, float titleH)
         {
-            float scrollH = _rect.yMax - y - 6f;
-            float rowH    = 46f * sc;
-            var   vRect   = new Rect(0, 0, lw - 16f, _rows.Count * rowH + 4f);
-            _scroll = GUI.BeginScrollView(new Rect(lx, y, lw, scrollH), _scroll, vRect);
-            float vw = vRect.width;
-            float ry = 2f;
+            var bar = new Rect(_rect.x, _rect.y, w, titleH);
+            Theme.Fill(new Rect(bar.x + 1, bar.y + 1, bar.width - 2, bar.height - 1), Theme.Surface);
+            Theme.Fill(new Rect(bar.x + 1, bar.yMax - 2f, bar.width - 2, 2f), Theme.AccentDim);
 
+            Theme.Text9(new Rect(bar.x + 10f * sc, bar.y, w * 0.6f, titleH),
+                BuildInfo.DisplayName, Theme.TextHi,
+                Mathf.RoundToInt(13 * sc), FontStyle.Bold, TextAnchor.MiddleLeft, serif: true);
+
+            var titleStyle = Theme.Label(Mathf.RoundToInt(13 * sc), FontStyle.Bold, TextAnchor.MiddleLeft, true);
+            float tw = titleStyle.CalcSize(new GUIContent(BuildInfo.DisplayName)).x;
+            Theme.Text9(new Rect(bar.x + 10f * sc + tw + 8f * sc, bar.y + 1f * sc, 80f * sc, titleH),
+                "v" + BuildInfo.Version, Theme.TextMut, Mathf.RoundToInt(8 * sc));
+
+            float cs = 18f * sc;
+            _closeRect = new Rect(bar.xMax - cs - 6f * sc, bar.y + (titleH - cs) * 0.5f, cs, cs);
+            GUI.color = Color.white;
+            if (GUI.Button(_closeRect, "✕", Theme.Button(Mathf.RoundToInt(10 * sc), danger: true)))
+                Close();
+        }
+
+        static void DrawFooter(float sc, float w, float footH)
+        {
+            var f = new Rect(_rect.x + 1, _rect.yMax - footH, w - 2, footH - 1);
+            Theme.Fill(new Rect(f.x + 9f * sc, f.y, w - 20f * sc, 1f), Theme.Border);
+            Theme.Text9(new Rect(f.x + 9f * sc, f.y, w * 0.75f, footH),
+                $"{BuildInfo.OfficialName} — {BuildInfo.Tagline}",
+                Theme.TextMut, Mathf.RoundToInt(8 * sc));
+            Theme.Text9(new Rect(f.x, f.y, f.width - 8f * sc, footH),
+                "Home closes", Theme.TextMut, Mathf.RoundToInt(8 * sc),
+                FontStyle.Normal, TextAnchor.MiddleRight);
+        }
+
+        internal static void Close()
+        {
+            UiState.ShowSettings    = false;
+            UiState.PickerSlot      = -1;
+            UiState.TextFieldActive = false;
+            UiState.MoveIcons       = false;
+            InputBlocker.Restore();
+            Prefs.Save();
+        }
+
+        // ── Skill rows ────────────────────────────────────────────
+        static void DrawSlotList(float x, float y, float cw, float sc, int effMI,
+            float rowH, float rowGap, float listH)
+        {
+            float contentH = _rows.Count * (rowH + rowGap);
+            bool  scrolls  = contentH > listH + 1f;
+            var   outer    = new Rect(x, y, cw, listH);
+            var   inner    = new Rect(0, 0, cw - (scrolls ? 8f * sc : 0f), contentH);
+
+            _scroll = GUI.BeginScrollView(outer, _scroll, inner, GUIStyle.none, GUIStyle.none);
+            float ry = 0f;
             foreach (var s in _rows)
             {
-                int idx = s.SlotIndex;
-
-                // Icon preview + progress underline
-                bool drew = false;
-                try
-                {
-                    if (s.Icon != null)
-                    { GUI.color = Color.white; Styles.DrawSprite(new Rect(2, ry + 4, iSz, iSz), s.Icon); drew = true; }
-                }
-                catch { }
-                if (!drew)
-                {
-                    GUI.color = new Color(0.20f, 0.20f, 0.24f);
-                    GUI.DrawTexture(new Rect(2, ry + 4, iSz, iSz), Texture2D.whiteTexture);
-                }
-                if (s.OnCooldown && s.Fill > 0f)
-                {
-                    GUI.color = new Color(0.20f, 0.80f, 1f, 0.70f);
-                    GUI.DrawTexture(new Rect(2, ry + 4 + iSz, iSz * (1f - s.Fill), 2.5f * sc), Texture2D.whiteTexture);
-                }
-
-                // Effective label + status
-                float lbX = iSz + 8;
-                var lbSt = Styles.Get(StyleKind.CenterBold, 12, sc);
-                GUI.color = s.OnCooldown ? new Color(1f, 0.65f, 0.15f) : Color.white;
-                GUI.Label(new Rect(lbX, ry + 2, lblCW, rowH * 0.5f), s.RawLabel ?? "", lbSt);
-                GUI.color = Color.white;
-                if (s.OnCooldown)
-                {
-                    GUI.color = new Color(0.9f, 0.55f, 0.55f);
-                    GUI.Label(new Rect(lbX, ry + rowH * 0.5f, lblCW, rowH * 0.5f - 2),
-                        $"{(int)(s.Fill * 100)}%", Styles.Get(StyleKind.Left, 10, sc));
-                    GUI.color = Color.white;
-                }
-                if (idx == 6)
-                {
-                    GUI.color = new Color(0.55f, 0.75f, 0.95f);
-                    GUI.Label(new Rect(lbX, ry + rowH - 13f * sc, lblCW, 13f * sc), "evade",
-                        Styles.Get(StyleKind.Small, 8, sc));
-                    GUI.color = Color.white;
-                }
-                string curCustom = Prefs.CustomLabel(effMI, idx);
-                if (!string.IsNullOrEmpty(s.GameBoundKey) && string.IsNullOrEmpty(curCustom) && effMI == 0)
-                {
-                    GUI.color = new Color(0.35f, 0.85f, 0.45f, 0.85f);
-                    GUI.Label(new Rect(lbX, ry + rowH - 13f * sc, lblCW, 13f * sc),
-                        $"↑{s.GameBoundKey}", Styles.Get(StyleKind.Small, 9, sc));
-                    GUI.color = Color.white;
-                }
-
-                // Custom label field (per input mode)
-                float tfX = iSz + lblCW + 10f * sc;
-                float tfW = vw - tfX - (hasPicker ? picBW + 3f * sc : 0f) - togW - 8f * sc;
-                float tfY = ry + (rowH - 22f * sc) * 0.5f;
-
-                if (string.IsNullOrEmpty(curCustom))
-                {
-                    GUI.color = new Color(0.35f, 0.35f, 0.40f);
-                    GUI.Label(new Rect(tfX + 3, tfY + 1, tfW - 4, 20f * sc), "auto",
-                        Styles.Get(StyleKind.Small, 10, sc));
-                }
-                GUI.color = Color.white;
-                string next = GUI.TextField(new Rect(tfX, tfY, tfW, 22f * sc), curCustom, 20,
-                    Styles.Get(StyleKind.TextField, 11, sc));
-                if (next != curCustom) Prefs.SetCustomLabel(effMI, idx, next);
-
-                if (!string.IsNullOrEmpty(curCustom))
-                {
-                    var clR = new Rect(tfX + tfW - 18f * sc, tfY + 1, 17f * sc, 20f * sc);
-                    GUI.color = new Color(0.80f, 0.28f, 0.28f, 0.90f);
-                    GUI.DrawTexture(clR, Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-                    GUI.Label(clR, "✕", Styles.Get(StyleKind.Center, 10, sc));
-                    if (GUI.Button(clR, GUIContent.none, GUIStyle.none))
-                    {
-                        Prefs.SetCustomLabel(effMI, idx, "");
-                        if (UiState.PickerSlot == idx) UiState.PickerSlot = -1;
-                    }
-                }
-
-                // [▼] button picker (controller modes only)
-                if (hasPicker)
-                {
-                    bool picOpen = UiState.PickerSlot == idx;
-                    var  picR    = new Rect(tfX + tfW + 3f * sc, tfY, picBW, 22f * sc);
-                    GUI.color = picOpen ? badgeCol : new Color(0.20f, 0.20f, 0.26f, 0.95f);
-                    GUI.DrawTexture(picR, Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-                    GUI.Label(picR, "▼", Styles.Get(StyleKind.Center, 10, sc));
-                    if (GUI.Button(picR, GUIContent.none, GUIStyle.none))
-                        UiState.PickerSlot = picOpen ? -1 : idx;
-                }
-
-                // Per-slot enable (persists across sessions)
-                GUI.color = Color.white;
-                bool en  = Prefs.IsSlotEnabled(idx);
-                bool nen = GUI.Toggle(
-                    new Rect(vw - togW - 1, ry + rowH * 0.5f - 11f * sc, togW, togW), en, "");
-                if (nen != en) Prefs.SetSlotEnabled(idx, nen);
-
-                ry += rowH;
+                DrawSlotRow(new Rect(0, ry, inner.width, rowH), s, sc, effMI);
+                ry += rowH + rowGap;
             }
             GUI.EndScrollView();
+
+            if (scrolls)   // slim scroll indicator, wheel does the work
+            {
+                float track = listH;
+                float thumbH = Mathf.Max(16f, track * (listH / contentH));
+                float tY = y + (track - thumbH) * Mathf.Clamp01(_scroll.y / (contentH - listH));
+                Theme.Fill(new Rect(x + cw - 3f, tY, 3f, thumbH), Theme.AccentDim);
+            }
+        }
+
+        static void DrawSlotRow(Rect r, SlotData s, float sc, int effMI)
+        {
+            GUI.color = Color.white;
+            Theme.Box(r, Theme.Card);
+
+            // Icon + cooldown progress underline
+            float iSz = r.height - 12f * sc;
+            var ir = new Rect(r.x + 6f * sc, r.y + 5f * sc, iSz, iSz);
+            bool drew = false;
+            try
+            {
+                if (s.Icon != null)
+                { Theme.DrawSprite(ir, s.Icon); drew = true; }
+            }
+            catch { }
+            if (!drew) Theme.Fill(ir, Theme.Inset);
+            Theme.DrawBorder(ir, Theme.Border, 1f);
+            if (s.OnCooldown && s.Fill > 0f)
+                Theme.Fill(new Rect(ir.x, ir.yMax + 1f, ir.width * (1f - s.Fill), 2f * sc), Theme.Cooling);
+
+            // Key label + sub-hint
+            float lbX = ir.xMax + 8f * sc;
+            float lbW = 44f * sc;
+            Theme.Text9(new Rect(lbX, r.y + 4f * sc, lbW, r.height * 0.5f),
+                s.RawLabel ?? "", s.OnCooldown ? Theme.Cooling : Theme.TextHi,
+                Mathf.RoundToInt(11 * sc), FontStyle.Bold);
+
+            string hint = s.OnCooldown ? $"{(int)(s.Fill * 100)}%"
+                       : s.SlotIndex == 6 ? "evade"
+                       : (!string.IsNullOrEmpty(s.GameBoundKey) && effMI == 0) ? $"↑{s.GameBoundKey}"
+                       : null;
+            if (hint != null)
+                Theme.Text9(new Rect(lbX, r.y + r.height * 0.5f, lbW, r.height * 0.5f - 4f * sc),
+                    hint, s.OnCooldown ? Theme.Cooling : Theme.TextMut, Mathf.RoundToInt(8 * sc));
+
+            // Custom label field
+            bool  hasPicker = effMI >= 1;
+            float swW = 34f * sc, swH = 16f * sc;
+            float pkW = hasPicker ? 24f * sc : 0f;
+            float tfX = lbX + lbW + 6f * sc;
+            float tfW = r.xMax - tfX - pkW - swW - 20f * sc;
+            float tfH = 22f * sc;
+            float tfY = r.y + (r.height - tfH) * 0.5f;
+            string cur = Prefs.CustomLabel(effMI, s.SlotIndex);
+
+            GUI.color = Color.white;
+            string next = GUI.TextField(new Rect(tfX, tfY, tfW, tfH), cur, 20,
+                Theme.TextField(Mathf.RoundToInt(10 * sc)));
+            if (next != cur) Prefs.SetCustomLabel(effMI, s.SlotIndex, next);
+
+            if (string.IsNullOrEmpty(cur))
+                Theme.Text9(new Rect(tfX + 7f * sc, tfY, tfW - 10f * sc, tfH), "auto",
+                    Theme.TextMut, Mathf.RoundToInt(9 * sc));
+            else
+            {
+                float xs = 15f * sc;
+                GUI.color = Color.white;
+                if (GUI.Button(new Rect(tfX + tfW - xs - 3f * sc, tfY + (tfH - xs) * 0.5f, xs, xs),
+                        "✕", Theme.Button(Mathf.RoundToInt(8 * sc), danger: true)))
+                {
+                    Prefs.SetCustomLabel(effMI, s.SlotIndex, "");
+                    if (UiState.PickerSlot == s.SlotIndex) UiState.PickerSlot = -1;
+                }
+            }
+
+            // [▼] glyph picker (controller modes only)
+            if (hasPicker)
+            {
+                bool open = UiState.PickerSlot == s.SlotIndex;
+                GUI.color = Color.white;
+                if (GUI.Button(new Rect(tfX + tfW + 4f * sc, tfY, 20f * sc, tfH), "▼",
+                        Theme.Button(Mathf.RoundToInt(9 * sc), selected: open)))
+                    UiState.PickerSlot = open ? -1 : s.SlotIndex;
+            }
+
+            // Per-slot enable switch (persists)
+            bool en  = Prefs.IsSlotEnabled(s.SlotIndex);
+            bool nen = Widgets.Switch(
+                new Rect(r.xMax - swW - 8f * sc, r.y + (r.height - swH) * 0.5f, swW, swH), en);
+            if (nen != en) Prefs.SetSlotEnabled(s.SlotIndex, nen);
         }
 
         // ── Plumbing ──────────────────────────────────────────────
-        static void DrawSep(float lx, ref float y, float lw, float sc)
-        {
-            GUI.color = new Color(0.28f, 0.28f, 0.38f, 0.90f);
-            GUI.DrawTexture(new Rect(lx, y, lw, 1), Texture2D.whiteTexture);
-            y += 9f * sc;
-            GUI.color = Color.white;
-        }
-
-        static float SliderRow(float x, float y, float w, float sc,
-            string label, MelonLoader.MelonPreferences_Entry<float> pref, float lo, float hi, string fmt)
-        {
-            GUI.color = Color.white;
-            GUI.Label(new Rect(x, y, w, 18 * sc), $"{label}: {pref.Value.ToString(fmt)}",
-                Styles.Get(StyleKind.Left, 12, sc));
-            y += 18f * sc;
-            pref.Value = GUI.HorizontalSlider(new Rect(x, y, w, 14 * sc), pref.Value, lo, hi);
-            return y + 18f * sc;
-        }
-
         static void HandleDrag()
         {
             var ev = Event.current;
             if (ev == null) return;
             float sc = Mathf.Clamp(Prefs.MenuScale.Value, 0.7f, 2.0f);
-            var hR = new Rect(_rect.x, _rect.y, _rect.width, 26f * sc);
+            var hR = new Rect(_rect.x, _rect.y, _rect.width, 30f * sc);
             switch (ev.type)
             {
-                case EventType.MouseDown when hR.Contains(ev.mousePosition):
+                case EventType.MouseDown when hR.Contains(ev.mousePosition)
+                                              && !_closeRect.Contains(ev.mousePosition):
                     _dragging  = true;
                     _dragMoved = false;
                     _dragOff   = ev.mousePosition - new Vector2(_rect.x, _rect.y);

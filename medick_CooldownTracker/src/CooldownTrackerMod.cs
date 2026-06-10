@@ -19,7 +19,7 @@ namespace medick_CooldownTracker
         public override void OnInitializeMelon()
         {
             Prefs.Init();
-            MelonLogger.Msg($"{BuildInfo.DisplayName} v{BuildInfo.Version} ready — Home toggles settings");
+            MelonLogger.Msg($"{BuildInfo.OfficialName} v{BuildInfo.Version} ready — Home opens settings");
         }
 
         public override void OnUpdate()
@@ -31,20 +31,14 @@ namespace medick_CooldownTracker
             // While typing in a label field the Home key must not also toggle the panel.
             if (!UiState.TextFieldActive && Input.GetKeyDown(KeyCode.Home))
             {
-                UiState.ShowSettings = !UiState.ShowSettings;
-                if (!UiState.ShowSettings)
-                {
-                    UiState.PickerSlot      = -1;
-                    UiState.TextFieldActive = false;
-                    InputBlocker.Restore();
-                    Prefs.Save();
-                }
+                if (UiState.ShowSettings) SettingsPanel.Close();
+                else                      UiState.ShowSettings = true;
             }
 
             // Block game input while the panel wants it: movement lock enabled,
-            // or a label text field has keyboard focus.
+            // a label text field has keyboard focus, or icons are being moved.
             InputBlocker.Apply(UiState.ShowSettings &&
-                (Prefs.LockInput.Value || UiState.TextFieldActive));
+                (Prefs.LockInput.Value || UiState.TextFieldActive || UiState.MoveIcons));
 
             _tick += Time.deltaTime;
             if (_tick < TickRate) return;
@@ -54,7 +48,7 @@ namespace medick_CooldownTracker
 
         public override void OnGUI()
         {
-            Styles.Ensure();
+            Theme.Ensure();
             OverheadRenderer.Draw();
             if (!UiState.ShowSettings) return;
 
