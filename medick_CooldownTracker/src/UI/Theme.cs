@@ -73,12 +73,16 @@ namespace medick_CooldownTracker
             _btnSelected.normal.textColor = TextDark;
             _btnSelected.hover.background = Bordered(Accent, Accent);
             _btnSelected.hover.textColor  = TextDark;
+            _btnSelected.active.background = Bordered(AccentDim, AccentDim);
+            _btnSelected.active.textColor  = TextDark;
 
             _btnDanger = BoxStyle(Surface, Border);
             _btnDanger.alignment = TextAnchor.MiddleCenter;
             _btnDanger.normal.textColor = TextMut;
             _btnDanger.hover.background = Bordered(Danger, Danger);
             _btnDanger.hover.textColor  = TextHi;
+            _btnDanger.active.background = Bordered(Danger, BorderHi);
+            _btnDanger.active.textColor  = TextHi;
 
             _textField = new GUIStyle(GUI.skin.textField)
             {

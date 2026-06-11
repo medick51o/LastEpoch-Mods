@@ -24,32 +24,51 @@ namespace medick_CameraZoom
     internal static class CameraState
     {
         public static bool  Captured { get; private set; }
+        public static bool  CaptureStalled { get; private set; }
         public static float ZoomMin, ZoomDefault, ZoomPerScroll, ZoomSpeed;
         public static float AngleDefault, AngleMin, AngleMax;
+
+        const int StallFrames = 300;   // ~5 s of failed reads before we call it stalled
+        static int _failStreak;
 
         public static bool TryCapture(CameraManager mgr)
         {
             if (Captured) return true;
             if (mgr == null) return false;
+            string failReason;
             try
             {
                 float zm   = mgr.zoomMin,            zd   = mgr.zoomDefault;
                 float zps  = mgr.zoomPerScroll,      zs   = mgr.zoomSpeed;
                 float ad   = mgr.cameraAngleDefault;
                 float amin = mgr.cameraAngleMin,     amax = mgr.cameraAngleMax;
-                if (!Finite(zm) || !Finite(zd) || !Finite(zps) || !Finite(zs)
-                    || !Finite(ad) || !Finite(amin) || !Finite(amax))
-                    return false;                       // garbage read — retry next frame
-
-                ZoomMin = zm; ZoomDefault = zd; ZoomPerScroll = zps; ZoomSpeed = zs;
-                AngleDefault = ad; AngleMin = amin; AngleMax = amax;
-                Captured = true;                        // latch only after a fully clean read
-                MelonLogger.Msg(
-                    $"originals captured — zoomMin {zm:F1}, zoomDefault {zd:F1}, " +
-                    $"perScroll {zps:F1}, speed {zs:F1}, angle {ad:F1}° [{amin:F1}..{amax:F1}]");
+                if (Finite(zm) && Finite(zd) && Finite(zps) && Finite(zs)
+                    && Finite(ad) && Finite(amin) && Finite(amax))
+                {
+                    ZoomMin = zm; ZoomDefault = zd; ZoomPerScroll = zps; ZoomSpeed = zs;
+                    AngleDefault = ad; AngleMin = amin; AngleMax = amax;
+                    Captured = true;                    // latch only after a fully clean read
+                    CaptureStalled = false;
+                    _failStreak = 0;
+                    MelonLogger.Msg(
+                        $"originals captured — zoomMin {zm:F1}, zoomDefault {zd:F1}, " +
+                        $"perScroll {zps:F1}, speed {zs:F1}, angle {ad:F1}° [{amin:F1}..{amax:F1}]");
+                    return true;
+                }
+                failReason = "non-finite camera values";
             }
-            catch { }                                   // not ready — retry next frame
-            return Captured;
+            catch (System.Exception ex) { failReason = ex.Message; }
+
+            // Failed with a live manager: surface a stall instead of silently
+            // idling forever — the diagnosability gap that hid v1.x's bug class.
+            if (++_failStreak == StallFrames)
+            {
+                CaptureStalled = true;
+                MelonLogger.Warning(
+                    $"camera values not readable after {StallFrames} attempts ({failReason}) — " +
+                    "mod is idle; a game update may have changed CameraManager");
+            }
+            return false;
         }
 
         // Applies preferences to the camera. Compare-then-write against the
@@ -60,9 +79,9 @@ namespace medick_CameraZoom
             if (mgr == null || !Captured) return;       // never write before a clean capture
             try
             {
-                float zoomMin = Sane(Prefs.ZoomMin.Value,       -200f, -1f,  -40f);
-                float perScrl = Sane(Prefs.ZoomPerScroll.Value,  0.1f, 20f,    3f);
-                float speed   = Sane(Prefs.ZoomSpeed.Value,      0.5f, 30f,   10f);
+                float zoomMin = SaneZoomMin;
+                float perScrl = Sane(Prefs.ZoomPerScroll.Value, Prefs.PerScrollLo, Prefs.PerScrollHi, Prefs.PerScrollDefault);
+                float speed   = Sane(Prefs.ZoomSpeed.Value,     Prefs.SpeedLo,     Prefs.SpeedHi,     Prefs.SpeedDefault);
 
                 if (Differs(mgr.zoomMin, zoomMin))             mgr.zoomMin       = zoomMin;
                 if (Differs(mgr.zoomPerScroll, perScrl))       mgr.zoomPerScroll = perScrl;
@@ -70,7 +89,7 @@ namespace medick_CameraZoom
 
                 if (Prefs.LockAngle.Value)
                 {
-                    float a = Sane(Prefs.Angle.Value, 20f, 85f, AngleDefault);
+                    float a = Sane(Prefs.Angle.Value, Prefs.AngleLo, Prefs.AngleHi, AngleDefault);
                     if (Differs(mgr.cameraAngleDefault, a)) mgr.cameraAngleDefault = a;
                     if (Differs(mgr.cameraAngleMin, a))     mgr.cameraAngleMin     = a;
                     if (Differs(mgr.cameraAngleMax, a))     mgr.cameraAngleMax     = a;
@@ -114,7 +133,8 @@ namespace medick_CameraZoom
             catch { }
         }
 
-        public static float SaneZoomMin   => Sane(Prefs.ZoomMin.Value, -200f, -1f, -40f);
+        public static float SaneZoomMin =>
+            Sane(Prefs.ZoomMin.Value, Prefs.ZoomMinLo, Prefs.ZoomMinHi, Prefs.ZoomMinDefault);
 
         static bool Finite(float f) => !float.IsNaN(f) && !float.IsInfinity(f);
         static bool Differs(float live, float want) => !(Mathf.Abs(live - want) < 0.001f);

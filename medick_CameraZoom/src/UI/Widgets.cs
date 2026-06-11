@@ -49,13 +49,13 @@ namespace medick_CameraZoom
             return GUI.HorizontalSlider(r, value, lo, hi, GUIStyle.none, Theme.SliderThumb(sc));
         }
 
-        // "Label ........ [slider] [value]" row; writes the pref, returns next y.
-        public static float SliderRow(float x, float y, float w, float sc,
+        // "Label ........ [slider] [value]" row; writes the pref.
+        // All row helpers advance the layout cursor via `ref y`.
+        public static void SliderRow(float x, ref float y, float w, float sc,
             string label, MelonPreferences_Entry<float> pref, float lo, float hi, string fmt)
         {
             float v = LiveSliderRow(x, ref y, w, sc, label, pref.Value, lo, hi, fmt);
             if (v != pref.Value) pref.Value = v;
-            return y;
         }
 
         // Same row shape for values that are not preference-backed
@@ -64,6 +64,8 @@ namespace medick_CameraZoom
             string label, float value, float lo, float hi, string fmt)
         {
             float rowH  = 22f * sc;
+            // Family default is 0.40 (CooldownTracker); widened here so the
+            // "(game N)" suffixed labels from SettingsPanel.ZoomLabel fit.
             float labW  = w * 0.46f;
             float chipW = 44f * sc;
 
@@ -82,7 +84,7 @@ namespace medick_CameraZoom
         }
 
         // "Label ............................ [switch]" row.
-        public static float SwitchRow(float x, float y, float w, float sc,
+        public static void SwitchRow(float x, ref float y, float w, float sc,
             string label, MelonPreferences_Entry<bool> pref)
         {
             float rowH = 22f * sc;
@@ -90,7 +92,7 @@ namespace medick_CameraZoom
             float sw = 34f * sc, sh = 16f * sc;
             bool next = Switch(new Rect(x + w - sw, y + (rowH - sh) * 0.5f, sw, sh), pref.Value, sc);
             if (next != pref.Value) pref.Value = next;
-            return y + rowH + 4f * sc;
+            y += rowH + 4f * sc;
         }
 
         // "Label ............................ [button]" row; returns clicked.
@@ -107,14 +109,14 @@ namespace medick_CameraZoom
         }
 
         // Status line with a coloured dot.
-        public static float StatusRow(float x, float y, float w, float sc, string text, Color dotColor)
+        public static void StatusRow(float x, ref float y, float w, float sc, string text, Color dotColor)
         {
             float h = 16f * sc;
             float d = 6f * sc;
             Theme.Fill(new Rect(x + 1, y + (h - d) * 0.5f, d, d), dotColor);
             Theme.Text9(new Rect(x + d + 6f * sc, y, w - d - 6f * sc, h), text,
                 Theme.TextMut, Mathf.RoundToInt(9 * sc));
-            return y + h + 4f * sc;
+            y += h + 4f * sc;
         }
     }
 }

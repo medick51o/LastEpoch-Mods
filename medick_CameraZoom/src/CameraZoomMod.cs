@@ -10,8 +10,9 @@ using UnityEngine;
 
 namespace medick_CameraZoom
 {
-    // Camera FOV/zoom control for Last Epoch. End toggles the settings
-    // panel. See README.md for the feature tour.
+    // Camera zoom/angle control for Last Epoch — writes CameraManager
+    // fields, never Camera.main.fieldOfView (the manager overrides FOV
+    // every frame). End toggles the settings panel; see README.md.
     public partial class CameraZoomMod : MelonMod
     {
         public override void OnInitializeMelon()

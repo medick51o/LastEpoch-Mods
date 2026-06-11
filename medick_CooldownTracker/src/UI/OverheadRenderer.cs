@@ -64,7 +64,8 @@ namespace medick_CooldownTracker
             var hit = Theme.Pad(cluster, 8f);
             switch (ev.type)
             {
-                case EventType.MouseDown when hit.Contains(ev.mousePosition)
+                case EventType.MouseDown when ev.button == 0
+                                              && hit.Contains(ev.mousePosition)
                                               && !SettingsPanel.PanelRect.Contains(ev.mousePosition):
                     _dragging  = true;
                     _dragStart = ev.mousePosition;

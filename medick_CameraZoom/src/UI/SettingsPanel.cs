@@ -15,10 +15,12 @@ namespace medick_CameraZoom
         static bool    _dragMoved;
         static Vector2 _dragOff;
         static Rect    _closeRect;
+        static float   _sc = 1f;   // layout scale, frozen while a control is hot (see Draw)
 
         public static void Close()
         {
-            Visible = false;
+            Visible   = false;
+            _dragging = false;   // a missed MouseUp must not leak into the next open
             Prefs.Save();
         }
 
@@ -33,7 +35,14 @@ namespace medick_CameraZoom
 
             HandleDrag();
 
-            float sc = Mathf.Clamp(Prefs.MenuScale.Value, 0.7f, 2.0f);
+            // Layout scale is frozen while any IMGUI control is hot: the Menu
+            // scale slider's own rect derives from this value, so applying it
+            // mid-drag remaps the cursor against a moving rect — a divergent
+            // feedback loop that strobes the panel between min and max scale.
+            // The new scale takes effect on mouse-up.
+            if (GUIUtility.hotControl == 0)
+                _sc = Mathf.Clamp(Prefs.MenuScale.Value, Prefs.MenuScaleLo, Prefs.MenuScaleHi);
+            float sc = _sc;
             float w  = 380f * sc;
 
             // ── Live camera state ─────────────────────────────────
@@ -85,32 +94,39 @@ namespace medick_CameraZoom
             float cw = w - pad * 2f;
 
             // ── Status ────────────────────────────────────────────
-            y = ready
-                ? Widgets.StatusRow(x, y, cw, sc,
-                    $"live — zoom {liveCur:F1} → {liveTgt:F1} · angle {liveAngle:F1}° · game default {CameraState.ZoomDefault:F1}",
-                    Theme.Ready)
-                : Widgets.StatusRow(x, y, cw, sc,
+            if (ready)
+                Widgets.StatusRow(x, ref y, cw, sc,
+                    $"live — zoom {liveCur:F1} → {liveTgt:F1} · angle {(Prefs.LockAngle.Value ? "locked" : "default")} {liveAngle:F1}° · game default {CameraState.ZoomDefault:F1}",
+                    Theme.Ready);
+            else if (hasMgr)
+                Widgets.StatusRow(x, ref y, cw, sc,
+                    CameraState.CaptureStalled
+                        ? "camera values not readable — check the MelonLoader log"
+                        : "syncing with camera…", Theme.Warning);
+            else
+                Widgets.StatusRow(x, ref y, cw, sc,
                     "camera not loaded — enter a zone first", Theme.Warning);
             y += gapSect;
 
             // ── ZOOM ──────────────────────────────────────────────
             Widgets.SectionHeader(x, ref y, cw, sc, "ZOOM");
-            y = Widgets.SliderRow(x, y, cw, sc,
+            Widgets.SliderRow(x, ref y, cw, sc,
                 ZoomLabel("Zoom out limit", CameraState.ZoomMin, "F0"),
-                Prefs.ZoomMin, -200f, -1f, "F0");
-            y = Widgets.SliderRow(x, y, cw, sc,
+                Prefs.ZoomMin, Prefs.ZoomMinLo, Prefs.ZoomMinHi, "F0");
+            Widgets.SliderRow(x, ref y, cw, sc,
                 ZoomLabel("Scroll sensitivity", CameraState.ZoomPerScroll, "F1"),
-                Prefs.ZoomPerScroll, 0.1f, 20f, "F1");
-            y = Widgets.SliderRow(x, y, cw, sc,
+                Prefs.ZoomPerScroll, Prefs.PerScrollLo, Prefs.PerScrollHi, "F1");
+            Widgets.SliderRow(x, ref y, cw, sc,
                 ZoomLabel("Zoom speed", CameraState.ZoomSpeed, "F1"),
-                Prefs.ZoomSpeed, 0.5f, 30f, "F1");
+                Prefs.ZoomSpeed, Prefs.SpeedLo, Prefs.SpeedHi, "F1");
 
             if (ready)
             {
                 float lo = CameraState.SaneZoomMin;
                 float hi = CameraState.ZoomDefault + 5f;
+                hi = Mathf.Max(hi, lo + 1f);   // a zoom-out limit above the default must not invert the range
                 float cur = Mathf.Clamp(liveTgt, lo, hi);
-                float next = Widgets.LiveSliderRow(x, ref y, cw, sc, "Current zoom (live)", cur, lo, hi, "F1");
+                float next = Widgets.LiveSliderRow(x, ref y, cw, sc, "Target zoom (live)", cur, lo, hi, "F1");
                 if (Mathf.Abs(next - cur) > 0.05f && !float.IsNaN(next))
                 {
                     try { mgr.targetZoom = next; } catch { }
@@ -120,18 +136,18 @@ namespace medick_CameraZoom
 
             // ── ANGLE ─────────────────────────────────────────────
             Widgets.SectionHeader(x, ref y, cw, sc, "ANGLE");
-            y = Widgets.SwitchRow(x, y, cw, sc,
-                Prefs.LockAngle.Value
-                    ? $"Lock camera angle ({Prefs.Angle.Value:F0}°)"
-                    : ZoomLabel("Lock camera angle", CameraState.AngleDefault, "F0", "°"),
+            Widgets.SwitchRow(x, ref y, cw, sc,
+                ZoomLabel("Lock camera angle", CameraState.AngleDefault, "F0", "°"),
                 Prefs.LockAngle);
             if (Prefs.LockAngle.Value)
-                y = Widgets.SliderRow(x, y, cw, sc, "Locked angle (degrees)", Prefs.Angle, 20f, 85f, "F0");
+                Widgets.SliderRow(x, ref y, cw, sc, "Locked angle (degrees)",
+                    Prefs.Angle, Prefs.AngleLo, Prefs.AngleHi, "F0");
             y += gapSect;
 
             // ── PANEL ─────────────────────────────────────────────
             Widgets.SectionHeader(x, ref y, cw, sc, "PANEL");
-            y = Widgets.SliderRow(x, y, cw, sc, "Menu scale", Prefs.MenuScale, 0.7f, 2.0f, "F1");
+            Widgets.SliderRow(x, ref y, cw, sc, "Menu scale",
+                Prefs.MenuScale, Prefs.MenuScaleLo, Prefs.MenuScaleHi, "F1");
             if (Widgets.ButtonRow(x, ref y, cw, sc, "Panel position", "Reset"))
             {
                 _rect.x = Prefs.DefaultPanelX;
@@ -211,11 +227,11 @@ namespace medick_CameraZoom
         {
             var ev = Event.current;
             if (ev == null) return;
-            float sc = Mathf.Clamp(Prefs.MenuScale.Value, 0.7f, 2.0f);
-            var hR = new Rect(_rect.x, _rect.y, _rect.width, 30f * sc);
+            var hR = new Rect(_rect.x, _rect.y, _rect.width, 30f * _sc);
             switch (ev.type)
             {
-                case EventType.MouseDown when hR.Contains(ev.mousePosition)
+                case EventType.MouseDown when ev.button == 0
+                                              && hR.Contains(ev.mousePosition)
                                               && !_closeRect.Contains(ev.mousePosition):
                     _dragging  = true;
                     _dragMoved = false;

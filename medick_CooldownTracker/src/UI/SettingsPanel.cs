@@ -16,6 +16,7 @@ namespace medick_CooldownTracker
         static Vector2 _scroll;
         static Rect    _closeRect;
         static Rect    _fieldBand;      // screen-space column where label fields live (prev frame)
+        static float   _sc = 1f;        // layout scale, frozen while a control is hot (see Draw)
         static readonly List<SlotData> _rows = new();
 
         public static Rect PanelRect => _rect;
@@ -44,7 +45,14 @@ namespace medick_CooldownTracker
             if (evt != null && evt.type == EventType.MouseDown && !_fieldBand.Contains(evt.mousePosition))
                 GUIUtility.keyboardControl = 0;
 
-            float sc = Mathf.Clamp(Prefs.MenuScale.Value, 0.7f, 2.0f);
+            // Layout scale is frozen while any IMGUI control is hot: the Menu
+            // scale slider's own rect derives from this value, so applying it
+            // mid-drag remaps the cursor against a moving rect — a divergent
+            // feedback loop that strobes the panel between min and max scale.
+            // The new scale takes effect on mouse-up.
+            if (GUIUtility.hotControl == 0)
+                _sc = Mathf.Clamp(Prefs.MenuScale.Value, 0.7f, 2.0f);
+            float sc = _sc;
             float w  = 400f * sc;
             int   effMI = ButtonLabels.GetModeIndex();
 
@@ -99,11 +107,12 @@ namespace medick_CooldownTracker
 
             if (Prefs.InputMode.Value == 0)
             {
-                y = InputTracker.IsControllerActive
-                    ? Widgets.StatusRow(x, y, cw, sc,
+                if (InputTracker.IsControllerActive)
+                    Widgets.StatusRow(x, ref y, cw, sc,
                         $"Controller detected ({(InputTracker.DetectedLayout == CtrlLayout.PlayStation ? "PS5" : "Xbox")})",
-                        InputTracker.DetectedLayout == CtrlLayout.PlayStation ? Theme.PsBlue : Theme.XboxGreen)
-                    : Widgets.StatusRow(x, y, cw, sc, "Keyboard / Mouse", Theme.Ready);
+                        InputTracker.DetectedLayout == CtrlLayout.PlayStation ? Theme.PsBlue : Theme.XboxGreen);
+                else
+                    Widgets.StatusRow(x, ref y, cw, sc, "Keyboard / Mouse", Theme.Ready);
 
                 float labW = 110f * sc;
                 Theme.Text9(new Rect(x, y, labW, 20f * sc), "Layout override",
@@ -118,10 +127,10 @@ namespace medick_CooldownTracker
 
             // ── DISPLAY ───────────────────────────────────────────
             Widgets.SectionHeader(x, ref y, cw, sc, "DISPLAY");
-            y = Widgets.SliderRow(x, y, cw, sc, "Icon opacity",      Prefs.Alpha,     0.05f,   1f, "F2");
-            y = Widgets.SliderRow(x, y, cw, sc, "Icon size",         Prefs.Size,      32f,   120f, "F0");
-            y = Widgets.SliderRow(x, y, cw, sc, "Horizontal offset", Prefs.OffsetX, -500f,  500f, "F0");
-            y = Widgets.SliderRow(x, y, cw, sc, "Vertical offset",   Prefs.OffsetY, -600f,  200f, "F0");
+            Widgets.SliderRow(x, ref y, cw, sc, "Icon opacity",      Prefs.Alpha,     0.05f,   1f, "F2");
+            Widgets.SliderRow(x, ref y, cw, sc, "Icon size",         Prefs.Size,      32f,   120f, "F0");
+            Widgets.SliderRow(x, ref y, cw, sc, "Horizontal offset", Prefs.OffsetX, -500f,  500f, "F0");
+            Widgets.SliderRow(x, ref y, cw, sc, "Vertical offset",   Prefs.OffsetY, -600f,  200f, "F0");
 
             // Move mode: drag the live icon cluster instead of doing slider math.
             if (Widgets.ButtonRow(x, ref y, cw, sc, "Icon position",
@@ -131,16 +140,16 @@ namespace medick_CooldownTracker
                 if (!UiState.MoveIcons) Prefs.Save();   // just locked in a position
             }
             if (UiState.MoveIcons)
-                y = Widgets.StatusRow(x, y, cw, sc,
+                Widgets.StatusRow(x, ref y, cw, sc,
                     "drag the icon cluster in the game view — sliders follow", Theme.Accent);
 
-            y = Widgets.SwitchRow(x, y, cw, sc, "Console button badges", Prefs.ButtonBadges);
-            y = Widgets.SliderRow(x, y, cw, sc, "Menu scale",        Prefs.MenuScale, 0.7f,  2.0f, "F1");
+            Widgets.SwitchRow(x, ref y, cw, sc, "Console button badges", Prefs.ButtonBadges);
+            Widgets.SliderRow(x, ref y, cw, sc, "Menu scale",        Prefs.MenuScale, 0.7f,  2.0f, "F1");
             y += gapSect;
 
             // ── BEHAVIOR ──────────────────────────────────────────
             Widgets.SectionHeader(x, ref y, cw, sc, "BEHAVIOR");
-            y = Widgets.SwitchRow(x, y, cw, sc, "Block movement while menu is open", Prefs.LockInput);
+            Widgets.SwitchRow(x, ref y, cw, sc, "Block movement while menu is open", Prefs.LockInput);
             if (Widgets.ButtonRow(x, ref y, cw, sc, "Panel position", "Reset"))
             {
                 _rect.x = Prefs.DefaultPanelX;
@@ -216,6 +225,7 @@ namespace medick_CooldownTracker
             UiState.PickerSlot      = -1;
             UiState.TextFieldActive = false;
             UiState.MoveIcons       = false;
+            _dragging               = false;  // a missed MouseUp must not leak into the next open
             GUIUtility.keyboardControl = 0;   // stale focus must not survive a reopen
             InputBlocker.Restore();
             Prefs.Save();
@@ -349,11 +359,11 @@ namespace medick_CooldownTracker
         {
             var ev = Event.current;
             if (ev == null) return;
-            float sc = Mathf.Clamp(Prefs.MenuScale.Value, 0.7f, 2.0f);
-            var hR = new Rect(_rect.x, _rect.y, _rect.width, 30f * sc);
+            var hR = new Rect(_rect.x, _rect.y, _rect.width, 30f * _sc);
             switch (ev.type)
             {
-                case EventType.MouseDown when hR.Contains(ev.mousePosition)
+                case EventType.MouseDown when ev.button == 0
+                                              && hR.Contains(ev.mousePosition)
                                               && !_closeRect.Contains(ev.mousePosition):
                     _dragging  = true;
                     _dragMoved = false;

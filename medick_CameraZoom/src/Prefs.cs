@@ -10,6 +10,14 @@ namespace medick_CameraZoom
         public const float DefaultPanelX = 24f;
         public const float DefaultPanelY = 120f;
 
+        // One (Lo, Hi, Default) triple per tunable — the single source for
+        // the CreateEntry default, the sanitizer clamp, and the slider range.
+        public const float ZoomMinLo = -200f,  ZoomMinHi = -1f,  ZoomMinDefault = -40f;
+        public const float PerScrollLo = 0.1f, PerScrollHi = 20f, PerScrollDefault = 3f;
+        public const float SpeedLo = 0.5f,     SpeedHi = 30f,     SpeedDefault = 10f;
+        public const float AngleLo = 20f,      AngleHi = 85f,     AngleDefaultPref = 55f;
+        public const float MenuScaleLo = 0.7f, MenuScaleHi = 2.0f;
+
         public static MelonPreferences_Entry<float> ZoomMin;
         public static MelonPreferences_Entry<float> ZoomPerScroll;
         public static MelonPreferences_Entry<float> ZoomSpeed;
@@ -23,11 +31,11 @@ namespace medick_CameraZoom
         public static void Init()
         {
             var cat = MelonPreferences.CreateCategory("medick_CameraZoom");
-            ZoomMin       = cat.CreateEntry("ZoomMin",       -40f, "Zoom-out limit. More negative = further out. Game default ≈ -15");
-            ZoomPerScroll = cat.CreateEntry("ZoomPerScroll",   3f, "Zoom change per scroll notch. Game default ≈ 1-2");
-            ZoomSpeed     = cat.CreateEntry("ZoomSpeed",      10f, "Camera lerp speed to target zoom. Game default ≈ 5-8");
-            LockAngle     = cat.CreateEntry("LockAngle",    false, "Lock camera viewing angle (prevents tilting)");
-            Angle         = cat.CreateEntry("Angle",          55f, "Camera tilt angle when locked (degrees)");
+            ZoomMin       = cat.CreateEntry("ZoomMin",       ZoomMinDefault,   "Zoom-out limit. More negative = further out. Game default ≈ -15");
+            ZoomPerScroll = cat.CreateEntry("ZoomPerScroll", PerScrollDefault, "Zoom change per scroll notch. Game default ≈ 1-2");
+            ZoomSpeed     = cat.CreateEntry("ZoomSpeed",     SpeedDefault,     "Camera lerp speed to target zoom. Game default ≈ 5-8");
+            LockAngle     = cat.CreateEntry("LockAngle",     false,            "Lock camera viewing angle (prevents tilting)");
+            Angle         = cat.CreateEntry("Angle",         AngleDefaultPref, "Camera tilt angle when locked (degrees)");
             MenuScale     = cat.CreateEntry("MenuScale",     1.0f, "Settings panel scale");
             PanelX        = cat.CreateEntry("PanelX", DefaultPanelX, "Settings panel screen X");
             PanelY        = cat.CreateEntry("PanelY", DefaultPanelY, "Settings panel screen Y");

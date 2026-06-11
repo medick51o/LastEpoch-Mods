@@ -17,9 +17,11 @@ namespace medick_CameraZoom
             public static void Postfix(CameraManager __instance)
             {
                 if (__instance == null) return;
-                CameraState.TryCapture(__instance);
+                bool ok = CameraState.TryCapture(__instance);
                 CameraState.Apply(__instance);
-                Dbg.Log("CameraManager.Start — settings applied for new scene");
+                Dbg.Log(ok
+                    ? "CameraManager.Start — settings applied for new scene"
+                    : "CameraManager.Start — capture not ready, will retry in OnUpdate");
             }
         }
     }
