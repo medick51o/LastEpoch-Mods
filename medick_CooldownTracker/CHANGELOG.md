@@ -23,6 +23,9 @@ the Nexus upgrade path are unchanged (`medick_CooldownTracker`).
   palette, single gold accent, segmented controls, custom switches and
   sliders, hover/focus states, branded title bar and footer) replacing the
   grab-bag of coloured boxes and default Unity widgets.
+- Per-slot tracking toggles now persist between sessions.
+- `DebugLog` preference — registration logging is opt-in; default output is
+  one startup line.
 
 ### Fixed
 - **Real skill icons.** Sprites packed into the game's UI atlases were being
@@ -48,11 +51,6 @@ the Nexus upgrade path are unchanged (`medick_CooldownTracker`).
 - Panel header version no longer hardcoded (read v4.4 while the mod was 4.5).
 - Text-field focus flag can no longer latch on and permanently block input
   when the slot list empties mid-edit.
-
-### Added
-- Per-slot tracking toggles now persist between sessions.
-- `DebugLog` preference — registration logging is opt-in; default output is
-  one startup line.
 
 ### Changed
 - Source restructured from one 1,050-line file into `src/` modules

@@ -44,7 +44,7 @@ namespace medick_CooldownTracker
         public static int Segmented(Rect r, int selected, string[] labels, float sc)
         {
             int n = labels.Length;
-            float gap = 2f;
+            float gap = 2f * sc;
             float bw  = (r.width - (n - 1) * gap) / n;
             int result = selected;
             GUI.color = Color.white;
@@ -58,14 +58,15 @@ namespace medick_CooldownTracker
         }
 
         // Modern two-state switch; returns the (possibly toggled) value.
-        public static bool Switch(Rect r, bool value)
+        public static bool Switch(Rect r, bool value, float sc)
         {
             GUI.color = Color.white;
             Theme.Box(r, value ? Theme.SwitchOn : Theme.SwitchOff);
-            float k = r.height - 6f;
+            float inset = 3f * sc;
+            float k = r.height - inset * 2f;
             var knob = value
-                ? new Rect(r.xMax - k - 3f, r.y + 3f, k, k)
-                : new Rect(r.x + 3f,        r.y + 3f, k, k);
+                ? new Rect(r.xMax - k - inset, r.y + inset, k, k)
+                : new Rect(r.x + inset,        r.y + inset, k, k);
             Theme.Fill(knob, value ? Theme.TextDark : Theme.TextMut);
             return GUI.Button(r, GUIContent.none, GUIStyle.none) ? !value : value;
         }
@@ -112,20 +113,20 @@ namespace medick_CooldownTracker
             float rowH = 22f * sc;
             Theme.Text9(new Rect(x, y, w - 44f * sc, rowH), label, Theme.Text, Mathf.RoundToInt(10 * sc));
             float sw = 34f * sc, sh = 16f * sc;
-            bool next = Switch(new Rect(x + w - sw, y + (rowH - sh) * 0.5f, sw, sh), pref.Value);
+            bool next = Switch(new Rect(x + w - sw, y + (rowH - sh) * 0.5f, sw, sh), pref.Value, sc);
             if (next != pref.Value) pref.Value = next;
             return y + rowH + 4f * sc;
         }
 
         // "Label ............................ [button]" row; returns clicked.
         public static bool ButtonRow(float x, ref float y, float w, float sc,
-            string label, string buttonText)
+            string label, string buttonText, bool selected = false)
         {
             float rowH = 22f * sc;
             Theme.Text9(new Rect(x, y, w - 80f * sc, rowH), label, Theme.Text, Mathf.RoundToInt(10 * sc));
             GUI.color = Color.white;
             bool clicked = GUI.Button(new Rect(x + w - 76f * sc, y + 1f * sc, 76f * sc, rowH - 2f * sc),
-                buttonText, Theme.Button(Mathf.RoundToInt(9 * sc)));
+                buttonText, Theme.Button(Mathf.RoundToInt(9 * sc), selected));
             y += rowH + 4f * sc;
             return clicked;
         }

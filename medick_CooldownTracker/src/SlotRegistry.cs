@@ -37,7 +37,7 @@ namespace medick_CooldownTracker
     {
         public const int   SlotCount      = 7;   // 0-5 skills, 6 = evade
         const int   MaxHotkeyTries = 6;
-        const float HotkeyRetraySec = 2f;
+        const float HotkeyRetrySec = 2f;
 
         static readonly List<SlotData> _slots = new();
         static readonly object _lock = new();
@@ -161,7 +161,7 @@ namespace medick_CooldownTracker
                             var k = HotkeyReader.TryRead(s.Source);
                             if (k != null)                            s.GameBoundKey = k;
                             else if (++s.HotkeyTries >= MaxHotkeyTries) s.GameBoundKey = "";
-                            else                                      s.NextHotkeyRetry = now + HotkeyRetraySec;
+                            else                                      s.NextHotkeyRetry = now + HotkeyRetrySec;
                         }
 
                         RefreshLabel(s);

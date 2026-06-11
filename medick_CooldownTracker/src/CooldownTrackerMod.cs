@@ -49,6 +49,7 @@ namespace medick_CooldownTracker
         public override void OnGUI()
         {
             Theme.Ensure();
+            ButtonPicker.PreInput();   // picker is modal: it eats its mouse events before anyone else
             OverheadRenderer.Draw();
             if (!UiState.ShowSettings) return;
 

@@ -25,6 +25,7 @@ namespace medick_CooldownTracker
             if (cam == null) return;
 
             bool moveMode = UiState.MoveIcons && UiState.ShowSettings;
+            if (!moveMode) _dragging = false;   // a drag aborted mid-move must not leak into the next session
             if (moveMode) SlotRegistry.SnapshotEnabled(_buf);
             else          SlotRegistry.SnapshotActive(_buf);
             if (_buf.Count == 0) { _dragging = false; return; }
@@ -49,9 +50,10 @@ namespace medick_CooldownTracker
             {
                 var hit = Theme.Pad(cluster, 8f);
                 Theme.DrawBorder(hit, Theme.Accent, 2f);
-                Theme.Text9(new Rect(hit.x - 60f, hit.y - 24f, hit.width + 120f, 20f),
+                int hfs = Mathf.Max(12, Mathf.RoundToInt(sz * 0.22f));   // scale with icon size like the labels do
+                Theme.Text9(new Rect(hit.x - hfs * 5f, hit.y - hfs * 2f, hit.width + hfs * 10f, hfs * 1.7f),
                     "drag to reposition — press Lock when done",
-                    Theme.Accent, 12, FontStyle.Bold, TextAnchor.MiddleCenter);
+                    Theme.Accent, hfs, FontStyle.Bold, TextAnchor.MiddleCenter);
             }
         }
 
@@ -136,7 +138,7 @@ namespace medick_CooldownTracker
             // Border: orange while cooling, green when nearly ready
             bool nearReady = !cooling || s.Fill < 0.10f;
             Theme.DrawBorder(r, nearReady
-                ? new Color(0.25f, 1f, 0.35f, alpha)
+                ? Theme.WithAlpha(Theme.ReadyBright, alpha)
                 : new Color(1f, 0.55f, 0.1f, alpha * 0.85f), 2);
 
             // Label: console button badge for short button-like labels (when
@@ -160,6 +162,9 @@ namespace medick_CooldownTracker
             float ring  = Mathf.Max(1.5f, d * 0.09f);
             var   body  = new Color(0.07f, 0.08f, 0.11f, alpha * 0.95f);
 
+            // GUI.color must be white for the glyph labels: the style already
+            // carries the colour+alpha, and IMGUI multiplies GUI.color in —
+            // tinting twice squares the alpha and darkens the face colours.
             if (s.BadgeIsFace)
             {
                 var br = new Rect(cx - d * 0.5f, cy - d * 0.5f, d, d);
@@ -168,7 +173,7 @@ namespace medick_CooldownTracker
                 Theme.DrawDisc(br, rc);                          // coloured ring
                 Theme.DrawDisc(Theme.Pad(br, -ring), body);      // dark face
                 int fs = Mathf.Max(9, Mathf.RoundToInt(d * 0.52f));
-                GUI.color = rc;
+                GUI.color = Color.white;
                 GUI.Label(br, lbl, Theme.BadgeLabel(fs, rc));
             }
             else
@@ -182,7 +187,7 @@ namespace medick_CooldownTracker
                 Theme.DrawCapsule(br, ringC);
                 Theme.DrawCapsule(Theme.Pad(br, -ring), body);
                 var txtC = new Color(0.93f, 0.90f, 0.84f, alpha);
-                GUI.color = txtC;
+                GUI.color = Color.white;
                 GUI.Label(br, lbl, Theme.BadgeLabel(fs, txtC));
             }
         }
@@ -197,10 +202,10 @@ namespace medick_CooldownTracker
             GUI.DrawTexture(lr, Texture2D.whiteTexture);
 
             Color lblCol = nearReady
-                ? new Color(0.3f, 1f, 0.5f, alpha)
+                ? Theme.WithAlpha(Theme.ReadyBright, alpha)
                 : new Color(1f, 0.92f, 0.55f, alpha);
             int fontSize = Mathf.Max(8, Mathf.RoundToInt(r.height * (s.TwoLine ? 0.13f : 0.20f)));
-            GUI.color = lblCol;
+            GUI.color = Color.white;   // colour lives in the style; double-tinting squares the alpha
             GUI.Label(lr, s.DisplayLabel, Theme.IconLabel(fontSize, lblCol));
         }
     }

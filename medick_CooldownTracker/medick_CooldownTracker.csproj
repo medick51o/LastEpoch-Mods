@@ -5,8 +5,6 @@
     <AssemblyName>medick_CooldownTracker</AssemblyName>
     <RootNamespace>medick_CooldownTracker</RootNamespace>
     <Nullable>disable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <!-- ── Reference paths ── adjust if your game is elsewhere ── -->
@@ -46,10 +44,6 @@
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>$(GM)UnityEngine.InputLegacyModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>$(GM)UnityEngine.PhysicsModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">

@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Reflection;
 using Il2Cpp;
 using UnityEngine;
 using UnityEngine.UI;
@@ -143,6 +142,10 @@ namespace medick_CooldownTracker
     }
 
     // Best-effort read of the key the game itself shows on an action bar slot.
+    // (v4 also carried a reflection sweep over generic Components here — it
+    // could never match anything because Il2Cpp interop hands back base-type
+    // wrappers, so the managed GetType() never exposes a `text` property.
+    // The typed Text pass below is the only one that ever produced results.)
     internal static class HotkeyReader
     {
         public static string TryRead(AbilityBarIcon icon)
@@ -153,22 +156,6 @@ namespace medick_CooldownTracker
                 var texts = icon.GetComponentsInChildren<Text>(true);
                 foreach (var t in texts)
                 { var s = t?.text?.Trim(); if (IsHotkeyLike(s)) return s; }
-
-                var all = icon.GetComponentsInChildren<Component>(true);
-                foreach (var comp in all)
-                {
-                    if (comp == null) continue;
-                    try
-                    {
-                        var n = comp.GetIl2CppType()?.Name ?? "";
-                        if (!n.Contains("Text") && !n.Contains("TMP") && !n.Contains("Label")) continue;
-                        var p = comp.GetType().GetProperty("text", BindingFlags.Public | BindingFlags.Instance);
-                        if (p == null) continue;
-                        var v = p.GetValue(comp)?.ToString()?.Trim();
-                        if (IsHotkeyLike(v)) return v;
-                    }
-                    catch { }
-                }
             }
             catch { }
             return null;

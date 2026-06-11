@@ -23,7 +23,8 @@ namespace medick_CooldownTracker
         public static readonly Color Text      = Hex(0xC6C2B6);
         public static readonly Color TextMut   = Hex(0x807D8C);
         public static readonly Color TextDark  = Hex(0x14110A);
-        public static readonly Color Ready     = Hex(0x59C97B);
+        public static readonly Color Ready       = Hex(0x59C97B);
+        public static readonly Color ReadyBright = new(0.25f, 1f, 0.35f);   // in-world "skill ready" green
         public static readonly Color Cooling   = Hex(0xD98E3B);
         public static readonly Color Danger    = Hex(0xB5484D);
         public static readonly Color XboxGreen = Hex(0x3FA63F);
@@ -36,7 +37,7 @@ namespace medick_CooldownTracker
 
         // ── Textures & core styles ────────────────────────────────
         static bool _ready;
-        public static GUIStyle Panel, Card, CardHi, InsetBox, SwitchOn, SwitchOff;
+        public static GUIStyle Panel, Card, InsetBox, SwitchOn, SwitchOff;
         static GUIStyle _btn, _btnSelected, _btnDanger, _textField, _label, _iconLabel, _badgeLabel;
         static GUIStyle _sliderThumb;
         public static Texture2D Disc { get; private set; }
@@ -55,7 +56,6 @@ namespace medick_CooldownTracker
 
             Panel     = BoxStyle(Bg,      Border);
             Card      = BoxStyle(Surface, Border);
-            CardHi    = BoxStyle(SurfaceHi, BorderHi);
             InsetBox  = BoxStyle(Inset,   Border);
             SwitchOn  = BoxStyle(Accent,  AccentDim);
             SwitchOff = BoxStyle(Inset,   Border);
@@ -267,5 +267,7 @@ namespace medick_CooldownTracker
         }
 
         public static Rect Pad(Rect r, float d) => new(r.x - d, r.y - d, r.width + d * 2, r.height + d * 2);
+
+        public static Color WithAlpha(Color c, float a) => new(c.r, c.g, c.b, a);
     }
 }

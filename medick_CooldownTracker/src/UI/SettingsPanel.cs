@@ -15,6 +15,7 @@ namespace medick_CooldownTracker
         static Vector2 _dragOff;
         static Vector2 _scroll;
         static Rect    _closeRect;
+        static Rect    _fieldBand;      // screen-space column where label fields live (prev frame)
         static readonly List<SlotData> _rows = new();
 
         public static Rect PanelRect => _rect;
@@ -35,6 +36,13 @@ namespace medick_CooldownTracker
             }
 
             HandleDrag();
+
+            // Runtime IMGUI never releases keyboard focus on its own: without
+            // this, one click into a label field leaves TextFieldActive stuck
+            // true (Home dead, input blocked) until the panel is ✕-closed.
+            var evt = Event.current;
+            if (evt != null && evt.type == EventType.MouseDown && !_fieldBand.Contains(evt.mousePosition))
+                GUIUtility.keyboardControl = 0;
 
             float sc = Mathf.Clamp(Prefs.MenuScale.Value, 0.7f, 2.0f);
             float w  = 400f * sc;
@@ -116,23 +124,15 @@ namespace medick_CooldownTracker
             y = Widgets.SliderRow(x, y, cw, sc, "Vertical offset",   Prefs.OffsetY, -600f,  200f, "F0");
 
             // Move mode: drag the live icon cluster instead of doing slider math.
+            if (Widgets.ButtonRow(x, ref y, cw, sc, "Icon position",
+                    UiState.MoveIcons ? "Lock" : "Move", selected: UiState.MoveIcons))
             {
-                float mvH = 22f * sc;
-                Theme.Text9(new Rect(x, y, cw - 80f * sc, mvH), "Icon position",
-                    Theme.Text, Mathf.RoundToInt(10 * sc));
-                GUI.color = Color.white;
-                if (GUI.Button(new Rect(x + cw - 76f * sc, y + 1f * sc, 76f * sc, mvH - 2f * sc),
-                        UiState.MoveIcons ? "Lock" : "Move",
-                        Theme.Button(Mathf.RoundToInt(9 * sc), selected: UiState.MoveIcons)))
-                {
-                    UiState.MoveIcons = !UiState.MoveIcons;
-                    if (!UiState.MoveIcons) Prefs.Save();   // just locked in a position
-                }
-                y += mvH + 4f * sc;
-                if (UiState.MoveIcons)
-                    y = Widgets.StatusRow(x, y, cw, sc,
-                        "drag the icon cluster in the game view — sliders follow", Theme.Accent);
+                UiState.MoveIcons = !UiState.MoveIcons;
+                if (!UiState.MoveIcons) Prefs.Save();   // just locked in a position
             }
+            if (UiState.MoveIcons)
+                y = Widgets.StatusRow(x, y, cw, sc,
+                    "drag the icon cluster in the game view — sliders follow", Theme.Accent);
 
             y = Widgets.SwitchRow(x, y, cw, sc, "Console button badges", Prefs.ButtonBadges);
             y = Widgets.SliderRow(x, y, cw, sc, "Menu scale",        Prefs.MenuScale, 0.7f,  2.0f, "F1");
@@ -216,6 +216,7 @@ namespace medick_CooldownTracker
             UiState.PickerSlot      = -1;
             UiState.TextFieldActive = false;
             UiState.MoveIcons       = false;
+            GUIUtility.keyboardControl = 0;   // stale focus must not survive a reopen
             InputBlocker.Restore();
             Prefs.Save();
         }
@@ -228,6 +229,16 @@ namespace medick_CooldownTracker
             bool  scrolls  = contentH > listH + 1f;
             var   outer    = new Rect(x, y, cw, listH);
             var   inner    = new Rect(0, 0, cw - (scrolls ? 8f * sc : 0f), contentH);
+
+            // Screen-space column occupied by the label text fields — clicks
+            // outside it release IMGUI keyboard focus (see Draw).
+            {
+                float iSz  = rowH - 12f * sc;
+                float tfX  = 6f * sc + iSz + 8f * sc + 44f * sc + 6f * sc;
+                float pkW  = effMI >= 1 ? 24f * sc : 0f;
+                float tfW  = inner.width - tfX - pkW - 34f * sc - 20f * sc;
+                _fieldBand = new Rect(x + tfX, y, tfW, listH);
+            }
 
             _scroll = GUI.BeginScrollView(outer, _scroll, inner, GUIStyle.none, GUIStyle.none);
             float ry = 0f;
@@ -291,20 +302,24 @@ namespace medick_CooldownTracker
             float tfH = 22f * sc;
             float tfY = r.y + (r.height - tfH) * 0.5f;
             string cur = Prefs.CustomLabel(effMI, s.SlotIndex);
+            bool hasCustom = !string.IsNullOrEmpty(cur);
 
+            // The clear ✕ sits OUTSIDE the field rect — an overlapping button
+            // never receives the MouseDown (the TextField consumes it first).
+            float clearW = hasCustom ? 18f * sc : 0f;
             GUI.color = Color.white;
-            string next = GUI.TextField(new Rect(tfX, tfY, tfW, tfH), cur, 20,
+            string next = GUI.TextField(new Rect(tfX, tfY, tfW - clearW, tfH), cur, 20,
                 Theme.TextField(Mathf.RoundToInt(10 * sc)));
             if (next != cur) Prefs.SetCustomLabel(effMI, s.SlotIndex, next);
 
-            if (string.IsNullOrEmpty(cur))
+            if (!hasCustom)
                 Theme.Text9(new Rect(tfX + 7f * sc, tfY, tfW - 10f * sc, tfH), "auto",
                     Theme.TextMut, Mathf.RoundToInt(9 * sc));
             else
             {
                 float xs = 15f * sc;
                 GUI.color = Color.white;
-                if (GUI.Button(new Rect(tfX + tfW - xs - 3f * sc, tfY + (tfH - xs) * 0.5f, xs, xs),
+                if (GUI.Button(new Rect(tfX + tfW - xs - 1f * sc, tfY + (tfH - xs) * 0.5f, xs, xs),
                         "✕", Theme.Button(Mathf.RoundToInt(8 * sc), danger: true)))
                 {
                     Prefs.SetCustomLabel(effMI, s.SlotIndex, "");
@@ -325,7 +340,7 @@ namespace medick_CooldownTracker
             // Per-slot enable switch (persists)
             bool en  = Prefs.IsSlotEnabled(s.SlotIndex);
             bool nen = Widgets.Switch(
-                new Rect(r.xMax - swW - 8f * sc, r.y + (r.height - swH) * 0.5f, swW, swH), en);
+                new Rect(r.xMax - swW - 8f * sc, r.y + (r.height - swH) * 0.5f, swW, swH), en, sc);
             if (nen != en) Prefs.SetSlotEnabled(s.SlotIndex, nen);
         }
 
