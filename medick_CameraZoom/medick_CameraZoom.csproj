@@ -5,8 +5,6 @@
     <AssemblyName>medick_CameraZoom</AssemblyName>
     <RootNamespace>medick_CameraZoom</RootNamespace>
     <Nullable>disable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <!-- ── Reference paths ── adjust if your game is elsewhere ── -->
