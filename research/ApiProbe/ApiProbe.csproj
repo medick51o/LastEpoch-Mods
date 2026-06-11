@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ML>C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\net6\</ML>
+    <GM>C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\Il2CppAssemblies\</GM>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Il2CppLE"><HintPath>$(GM)Il2CppLE.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Il2CppInterop.Runtime"><HintPath>$(ML)Il2CppInterop.Runtime.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Il2Cppmscorlib"><HintPath>$(GM)Il2Cppmscorlib.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(GM)UnityEngine.CoreModule.dll</HintPath><Private>true</Private></Reference>
+  </ItemGroup>
+</Project>
