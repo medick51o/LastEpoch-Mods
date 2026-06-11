@@ -1,22 +1,21 @@
 // ================================================================
-//  GroundLabels.cs  —  medick_Terrible_Tooltips
+//  GroundLabels.cs — appends tier+grade brackets to dropped item
+//  name labels:   PLATED BELT  [5A 7C 4C 1S]
 //
-//  Appends tier+grade brackets to dropped item name labels.
+//  Ported from v1 nearly verbatim — the most battle-tested subsystem
+//  in the mod. Credits: logic adapted from KG / war3i4i.
 //
-//    PLATED BELT  [5A 7C 4C 1S]
-//
-//  Style options (set via settings menu):
-//    None         — brackets never shown
-//    TierAndRank  — [5A]  tier number + grade letter  ← default
-//    TierOnly     — [5]   tier number only
-//    RankOnly     — [A]   grade letter only
-//
-//  Filter Only — when ON, only show on loot-filter highlighted items
-//  Hold Alt    — when ON, hide brackets until Left/Right Alt is held
-//                (KG-style; off by default)
-//
-//  Works alongside Fallen_LE_Mods — see Core.cs for Fallen API notes.
-//  Credits: logic adapted from KG / war3i4i's Experimental.cs.
+//  Laws (see ARCHAEOLOGY.md):
+//  • One-frame coroutine: EHG writes the base text the same frame.
+//  • REUSE EHG's written text as the base (never rebuild from FullName)
+//    — preserves the native "(53)" rule number (MedianAura's report).
+//  • Three-zero-width-space Marker: double-process guard AND the strip
+//    token for the MedianAura fix. Load-bearing twice.
+//  • SetText saves/restores TMP faceColor (LeHud truce — .text writes
+//    wipe LeHud's custom rarity colors via mesh rebuild).
+//  • isUniqueSetOrLegendary() ground items are Fallen Star's territory.
+//    Skipped, entirely, forever.
+//  • Never ToUpper assembled rich text (breaks <color> tags).
 // ================================================================
 
 namespace medick_Terrible_Tooltips;
@@ -24,15 +23,14 @@ namespace medick_Terrible_Tooltips;
 public static class GroundLabels
 {
     // Zero-width space marker — prevents double-processing a label
-    private const string Marker = "\u200B\u200B\u200B";
+    private const string Marker = "​​​";
 
-    // Matches EHG's trailing rule number format: "Ruby Ring (53)" or "<font=...>Ring</font> (53)"
+    // EHG's trailing rule number: "Ruby Ring (53)" — parenthesized
+    // (the bare-number regex was v1.4's silent failure)
     private static readonly Regex s_ruleNumRegex = new(@"^(.*?)\s+\((\d+)\)\s*$",
         RegexOptions.Compiled | RegexOptions.Singleline);
 
     // ── Alt-key cache ─────────────────────────────────────────────────
-    // Stores (label, plainText, bracketedText) for active ground items
-    // when "Hold Alt to Show" is enabled. Toggled every frame in OnUpdate.
     private static readonly List<(GroundItemLabel label, string plain, string bracketed)>
         s_altCache = new();
 
@@ -41,10 +39,9 @@ public static class GroundLabels
     // Called from TerribleTooltipsMod.OnUpdate()
     public static void OnUpdate()
     {
-        if (!TerribleTooltipsMod.LabelAltKey.Value) return;
+        if (!Prefs.LabelAltKey.Value) return;
         if (s_altCache.Count == 0) return;
 
-        // Clean up labels that are gone / hidden
         s_altCache.RemoveAll(e =>
             e.label == null || !e.label.gameObject.activeInHierarchy);
 
@@ -58,7 +55,6 @@ public static class GroundLabels
             {
                 if (label.itemText == null) continue;
                 string target = altHeld ? bracketed : plain;
-                // Re-apply marker so patch doesn't re-trigger
                 SetText(label.itemText, (label.emphasized ? target.ToUpper() : target) + Marker);
                 label.sceneFollower?.calculateDimensions();
             }
@@ -69,12 +65,11 @@ public static class GroundLabels
     // ── Patch ─────────────────────────────────────────────────────────
     [HarmonyPatch(typeof(GroundItemLabel),
         nameof(GroundItemLabel.SetGroundTooltipText), typeof(bool))]
-    private static class Patch_GroundLabel
+    internal static class Patch_GroundLabel
     {
         private static void Postfix(GroundItemLabel __instance)
         {
-            if (TerribleTooltipsMod.LabelStyle.Value ==
-                TerribleTooltipsMod.GroundLabelStyle.None) return;
+            if (Prefs.LabelStyle.Value == GroundLabelStyle.None) return;
             MelonCoroutines.Start(DelayRoutine(__instance));
         }
     }
@@ -103,34 +98,30 @@ public static class GroundLabels
 
         // Defer unique/set/legendary items to Fallen_LE_Mods which shows
         // LP, Weaver's Will, NEW, OWNED and stash comparison — much better.
-        // We only handle normal crafting items with tier/rank brackets.
         if (itemData.isUniqueSetOrLegendary()) yield break;
 
         // Filter check
-        if (TerribleTooltipsMod.LabelFilterOnly.Value)
+        if (Prefs.LabelFilterOnly.Value)
             if (!TerribleTooltipsAPI.CheckFilter(itemData, out _, true)) yield break;
 
-        // ── Read whatever EHG already wrote (includes rule number, e.g. "PLATED BELT 32") ──
-        // Preserve this so EHG's native rule number display is never lost.
-        string ehgText  = tmp.text.Replace(Marker, "").Trim();
-        string ehgBase  = !string.IsNullOrEmpty(ehgText)
+        // Read whatever EHG already wrote (includes its rule number) —
+        // preserved so the native rule display is never lost (MedianAura).
+        string ehgText = tmp.text.Replace(Marker, "").Trim();
+        string ehgBase = !string.IsNullOrEmpty(ehgText)
             ? ehgText
             : (item.emphasized ? itemData.FullName.ToUpper() : itemData.FullName);
 
-        // ── Parse rule number out of EHG text (e.g. "PLATED BELT 32" → name="PLATED BELT", num="32") ──
         Match  ruleMatch  = s_ruleNumRegex.Match(ehgBase);
         bool   hasRuleNum = ruleMatch.Success;
         string cleanName  = hasRuleNum ? ruleMatch.Groups[1].Value : ehgBase;
         string ruleNum    = hasRuleNum ? ruleMatch.Groups[2].Value : "";
 
-        // ── Build bracket ─────────────────────────────────────────────
-        string bracket = BuildBracket(itemData);
-
+        string bracket   = BuildBracket(itemData);
         string plain     = Assemble(cleanName, ruleNum, hasRuleNum, "");
         string bracketed = Assemble(cleanName, ruleNum, hasRuleNum, bracket);
 
         // ── Alt-key mode ──────────────────────────────────────────────
-        if (TerribleTooltipsMod.LabelAltKey.Value)
+        if (Prefs.LabelAltKey.Value)
         {
             SetText(tmp, plain + Marker);
             item.sceneFollower?.calculateDimensions();
@@ -150,7 +141,7 @@ public static class GroundLabels
     {
         if (itemData.affixes.Count == 0) return "";
 
-        var style = TerribleTooltipsMod.LabelStyle.Value;
+        var style = Prefs.LabelStyle.Value;
         var sb    = new StringBuilder("[");
 
         bool first = true;
@@ -167,23 +158,20 @@ public static class GroundLabels
 
             switch (style)
             {
-                case TerribleTooltipsMod.GroundLabelStyle.TierAndRank:
-                    // e.g.  5A  (tier in tier colour, letter in grade colour)
+                case GroundLabelStyle.TierAndRank:
                     if (tier > 0)
                         sb.Append($"<color={tierColor}>{tier}</color>");
                     sb.Append($"<color={letterColor}>{letter}</color>");
                     break;
 
-                case TerribleTooltipsMod.GroundLabelStyle.TierOnly:
-                    // e.g.  5  (tier in tier colour)
+                case GroundLabelStyle.TierOnly:
                     if (tier > 0)
                         sb.Append($"<color={tierColor}>{tier}</color>");
                     else
                         sb.Append("-");
                     break;
 
-                case TerribleTooltipsMod.GroundLabelStyle.RankOnly:
-                    // e.g.  A  (letter in grade colour)
+                case GroundLabelStyle.RankOnly:
                     sb.Append($"<color={letterColor}>{letter}</color>");
                     break;
             }
@@ -193,13 +181,10 @@ public static class GroundLabels
         return sb.ToString();
     }
 
-    // ── Safe TMP text writer ──────────────────────────────────────────
-    // Setting .text in IL2CPP TMP triggers a full mesh rebuild which can
-    // wipe faceColor changes applied by other mods (e.g. LeHud's custom
-    // rarity colors). We snapshot the color before writing and restore it
-    // immediately after. The intermediate tmp.text = "" is also removed —
-    // writing the target string directly is sufficient and avoids a blank
-    // frame that other mods could react to.
+    // ── Safe TMP text writer (the LeHud truce) ────────────────────────
+    // Setting .text triggers a TMP mesh rebuild that wipes faceColor
+    // changes applied by other mods (LeHud's custom rarity colors).
+    // Snapshot before, restore after; no intermediate empty-string write.
     private static void SetText(TextMeshProUGUI tmp, string value)
     {
         var savedColor = tmp.faceColor;
@@ -207,7 +192,7 @@ public static class GroundLabels
         tmp.faceColor = savedColor;
     }
 
-    // ── Static label assembler — avoids IL2CPP closure issues with local functions ──
+    // ── Static label assembler — avoids IL2CPP closure issues ─────────
     private static string Assemble(string cleanName, string ruleNum, bool hasRuleNum, string bracket)
     {
         string br = !string.IsNullOrEmpty(bracket) ? " " + bracket : "";
@@ -216,11 +201,11 @@ public static class GroundLabels
             return cleanName + br;
 
         string num = "(" + ruleNum + ")";
-        return TerribleTooltipsMod.LabelRulePosition.Value switch
+        return Prefs.LabelRulePosition.Value switch
         {
-            TerribleTooltipsMod.RuleNumberPosition.Start => num + " " + cleanName + br,
-            TerribleTooltipsMod.RuleNumberPosition.End   => cleanName + br + " " + num,
-            _                                            => cleanName + " " + num + br
+            RuleNumberPosition.Start => num + " " + cleanName + br,
+            RuleNumberPosition.End   => cleanName + br + " " + num,
+            _                        => cleanName + " " + num + br
         };
     }
 }

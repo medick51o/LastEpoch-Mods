@@ -1,39 +1,39 @@
 // ================================================================
-//  TooltipPatch.cs  —  medick_Terrible_Tooltips
+//  TooltipRecolor.cs — transforms tooltip lines into WoW-style
+//  tier/grade colouring. (v1: TooltipPatch.cs — ported verbatim;
+//  every regex and ritual here is battle-tested across seasons.)
 //
-//  Transforms tooltip lines into WoW-style tier/grade colouring.
-//
-//  INPUT  (KG Letter_Style output):
+//  INPUT  (AffixInjector / KG Letter_Style output):
 //    [5A] 58% increased Lightning Damage
 //    Range: 40% to 60%
 //    Tier: 5 (max craftable)
 //
 //  OUTPUT:
-//    58% increased Lightning Damage (A)      ← tier colour + grade letter
-//    Range: 40% to 60%                       ← grade colour, no letter
-//    Tier: 5 (max craftable)                 ← tier colour
+//    58% increased Lightning Damage (A)   ← tier colour + grade letter
+//    Range: 40% to 60%                    ← grade colour, no letter
+//    Tier: 5 (max craftable)              ← tier colour
 //
-//  Rules:
-//    • Affix name  → colour = tier colour; suffix = (gradeLetter) in grade colour
-//    • Untiered affix (set/unique) → both name AND letter use grade colour
-//    • Range line  → colour = grade colour, no grade letter appended
-//    • Tier line   → colour = tier colour
-//    • KG bracket prefix [5A] / [A] stripped from affix name
-//    • KG extra data [85.9%] / (0.923) stripped from affix name
-//    • EHG's own colour tags on affix names overridden
-//
-//  Respects the "Terrible Tooltips" toggle in the settings menu.
-//  Hook: UITooltipItem.UpdateLayout postfix.
+//  Laws (see ARCHAEOLOGY.md):
+//  • Hook is UITooltipItem.UpdateLayout — UpdatePrefixAndSuffixesText is
+//    intrinsically unpatchable (0xc0000005 even with an empty postfix).
+//  • The full-scene TMP scan is the only reliable way to find tooltip
+//    TMPs; it runs per tooltip layout, not per frame.
+//  • The KG main line, EHG "Tier:" line AND "Range:" line all live in
+//    ONE TMP per affix; set/unique Range-only TMPs inherit grade colour
+//    from a sibling via parent GetInstanceID (Transforms don't hash).
+//  • EHG resets standalone Tier TMP colours after UpdateLayout — the
+//    cache below re-applies them every LateUpdate.
 // ================================================================
 
 namespace medick_Terrible_Tooltips;
 
-public partial class TerribleTooltipsMod
+public static class TooltipRecolor
 {
     // Tier TMPs EHG resets after UpdateLayout — re-apply every LateUpdate
     private static readonly List<(TextMeshProUGUI tmp, Color color)> s_tierColorCache = new();
 
-    public override void OnLateUpdate()
+    // Called from TerribleTooltipsMod.OnLateUpdate()
+    public static void OnLateUpdate()
     {
         if (s_tierColorCache.Count == 0) return;
         s_tierColorCache.RemoveAll(p => p.tmp == null || !p.tmp.gameObject.activeInHierarchy);
@@ -41,7 +41,7 @@ public partial class TerribleTooltipsMod
             tmp.color = color;
     }
 
-    // ── Regex patterns ────────────────────────────────────────────────
+    // ── Regex patterns (exact — load-bearing) ─────────────────────────
 
     // KG tier+grade bracket  "[<color=…>5</color><color=…>A</color>]"
     // Group 1 = tier number  Group 2 = grade colour hex  Group 3 = grade letter
@@ -50,7 +50,6 @@ public partial class TerribleTooltipsMod
         RegexOptions.Compiled);
 
     // KG grade-only bracket (unique/set)  "[<color=…>A</color>]"
-    // Group 1 = grade colour hex  Group 2 = grade letter
     private static readonly Regex s_kgGradeOnlyRegex = new(
         @"\[<color=([^>]+)>([SABCF])</color>\]",
         RegexOptions.Compiled);
@@ -60,13 +59,14 @@ public partial class TerribleTooltipsMod
         @"Tier:\s*(\d+)",
         RegexOptions.Compiled);
 
-    // Strips ALL TMP <color=…> / </color> tags from a string
+    // Strips ALL TMP <color=…> / </color> tags (TMP innermost-tag-wins:
+    // outer wrapping fails until inner tags are stripped)
     private static readonly Regex s_colorTagRegex = new(
         @"</?color[^>]*>",
         RegexOptions.Compiled);
 
-    // Strips ONE OR MORE KG brackets from the START of a line
-    // e.g. "[F] [1S] +48 Armor" → "+48 Armor"
+    // Strips ONE OR MORE KG brackets from the START of a line — the `+`
+    // handles hybrid lines like "[F] [1S] +48 Armor" → "+48 Armor"
     private static readonly Regex s_kgBracketStripRegex = new(
         @"^(\[\d*[SABCF]\]\s*)+",
         RegexOptions.Compiled);
@@ -79,20 +79,20 @@ public partial class TerribleTooltipsMod
     // ── Patch ─────────────────────────────────────────────────────────
 
     [HarmonyPatch(typeof(UITooltipItem), "UpdateLayout")]
-    private static class Patch_UpdateLayout
+    internal static class Patch_UpdateLayout
     {
         private static void Postfix(UITooltipItem __instance)
         {
-            if (!TerribleTooltipsMod.EnableTooltips.Value) return;
+            if (!Prefs.EnableTooltips.Value) return;
             try
             {
                 TextMeshProUGUI[] allTMPs =
                     UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>();
                 if (allTMPs == null) return;
 
-                // ── Pass 1: collect grade colour per parent transform instance ID
-                //            so standalone Range-only TMPs (set/unique siblings)
-                //            can inherit the correct grade colour.
+                // ── Pass 1: collect grade colour per parent instance ID so
+                //    standalone Range-only TMPs (set/unique siblings) can
+                //    inherit the correct grade colour.
                 var parentGradeColor = new Dictionary<int, string>();
                 foreach (TextMeshProUGUI tmp in allTMPs)
                 {
@@ -107,7 +107,7 @@ public partial class TerribleTooltipsMod
                         parentGradeColor[tmp.transform.parent.GetInstanceID()] = gc;
                 }
 
-                // ── Pass 2: apply colouring ───────────────────────────────────
+                // ── Pass 2: apply colouring ───────────────────────────────
                 foreach (TextMeshProUGUI tmp in allTMPs)
                 {
                     try
@@ -124,7 +124,7 @@ public partial class TerribleTooltipsMod
                         if (!isTierGrade) gm = s_kgGradeOnlyRegex.Match(text);
                         bool hasKgGrade = gm.Success;
 
-                        // ── EHG standalone Tier TMP ───────────────────────────
+                        // ── EHG standalone Tier TMP ───────────────────────
                         if (hasTier && !hasKgGrade)
                         {
                             Match tm = s_tierRegex.Match(text);
@@ -142,10 +142,10 @@ public partial class TerribleTooltipsMod
                             continue;
                         }
 
-                        // ── Standalone Range-only TMP ─────────────────────────
-                        // No KG grade and no Tier — header or set/unique Range line
-                        // in a separate widget. Try to inherit grade colour from a
-                        // sibling KG-graded TMP via parent instance ID lookup.
+                        // ── Standalone Range-only TMP ─────────────────────
+                        // No KG grade, no Tier — set/unique Range line in a
+                        // separate widget. Inherit grade colour from a sibling
+                        // KG-graded TMP via parent (then grandparent) lookup.
                         if (hasRange && !hasKgGrade && !hasTier)
                         {
                             string stripped = s_colorTagRegex.Replace(text, "");
@@ -168,7 +168,7 @@ public partial class TerribleTooltipsMod
                             continue;
                         }
 
-                        // ── KG Affix TMP (has KG grade bracket) ──────────────
+                        // ── KG Affix TMP (has KG grade bracket) ───────────
                         if (!hasKgGrade) continue;
 
                         string gradeColor, gradeLetter, tierHex;
@@ -205,18 +205,16 @@ public partial class TerribleTooltipsMod
                                 clean = s_kgExtraDataRegex.Replace(clean, "");
                                 clean = clean.Trim();
 
-                                // Affix name colour — respects Tier Colors toggle
-                                // Tiered: name in tier colour; Untiered: name in grade colour
-                                // When Tier Colors off: plain white
-                                bool useTierColor = TerribleTooltipsMod.TooltipTierColors.Value;
-                                bool useRankColor = TerribleTooltipsMod.TooltipRankColors.Value;
+                                // Tiered: name in tier colour; untiered: grade
+                                // colour; toggles gate each channel.
+                                bool useTierColor = Prefs.TooltipTierColors.Value;
+                                bool useRankColor = Prefs.TooltipRankColors.Value;
 
                                 string nameColor = useTierColor ? (tierHex ?? gradeColor) : null;
                                 string affixPart = nameColor != null
                                     ? $"<color={nameColor}>{clean}</color>"
                                     : clean;
 
-                                // Grade letter — respects Rank Colors toggle
                                 string letterPart = useRankColor
                                     ? $"<color={gradeColor}>({gradeLetter})</color>"
                                     : $"({gradeLetter})";
@@ -265,7 +263,7 @@ public partial class TerribleTooltipsMod
             }
             catch (Exception ex)
             {
-                MelonLogger.Warning("[TerribleTooltips] Tooltip error: " + ex.Message);
+                MelonLogger.Warning("tooltip recolor error: " + ex.Message);
             }
         }
     }

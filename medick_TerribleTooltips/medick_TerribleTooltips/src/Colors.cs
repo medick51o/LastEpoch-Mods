@@ -1,20 +1,22 @@
 // ================================================================
-//  Colors.cs  —  medick_Terrible_Tooltips
+//  Colors.cs — the WoW-retina colour language. FROZEN BRAND.
 //
-//  Central colour + grade definitions used by both the tooltip
-//  patch and the ground label renderer.
+//  "the colors come from world of warcraft item colorization...
+//   sense of comfort and familiarity and thats what i want to bring
+//   to players who use this mod" — medick
 //
 //  Tier colours (T1 gray → T7+ Mythic Pink):
-//    T1  #DADADA  common
-//    T2  #E1E1E1  uncommon
-//    T3  #16FF0E  green
-//    T4  #77ACFF  blue
-//    T5  #A807FF  purple / epic
-//    T6  #FA9E3D  legendary gold
-//    T7+ #FF44FF  MYTHIC (D4 Ancestral beam pink)
+//    T1  #DADADA   T2  #E1E1E1   T3  #16FF0E (green)
+//    T4  #77ACFF (blue)   T5  #A807FF (purple)
+//    T6  #FA9E3D (legendary gold)   T7+ #FF44FF (MYTHIC — D4 Ancestral pink,
+//    medick's signature: "I am a diablo 4 guy")
 //
-//  Grade letters:   F  C  B  A  S
-//  Grade colours: gray blue purple gold MYTHIC
+//  Grades:  F <50 · C <70 · B <80 · A <95 · S ≥95  (roll × 100)
+//  Gray F is a feature: "telling the player ya that roll sucks bro"
+//
+//  These hex values are canonical — marketing copy drifts get corrected
+//  TO this file, never the reverse. Thresholds inherited from KG.
+//  (v1's unused RollColor() band function was removed in the v2 audit.)
 // ================================================================
 
 namespace medick_Terrible_Tooltips;
@@ -32,19 +34,6 @@ public static class Colors
             5 => "#A807FF",  // T5 purple / epic
             6 => "#FA9E3D",  // T6 legendary gold
             _ => "#FF44FF",  // T7+ MYTHIC
-        };
-
-    // ── Roll quality colour — keyed by 0–100% roll value ─────────────
-    public static string RollColor(double roll)
-        => roll switch
-        {
-            < 20 => "#D2D2D2",  // poor
-            < 40 => "#E1E1E1",  // common
-            < 60 => "#16FF0E",  // uncommon
-            < 70 => "#77ACFF",  // rare
-            < 80 => "#A807FF",  // epic
-            < 95 => "#FA9E3D",  // legendary
-            _    => "#FF44FF",  // S-tier MYTHIC
         };
 
     // ── Grade letter ─────────────────────────────────────────────────
