@@ -26,10 +26,18 @@ namespace medick_Terrible_Inventory
         const float GAP   = 3f;
         const float COL_W = 118f;
         const float COL_Y = -4f;
-        const float TAB_X = 28f;
-        const float TAB_W = 157f;
-        const float TAB_H = 65f;
-        const float COL_X = TAB_X - GAP - COL_W;
+
+        // Master tab sits to the RIGHT of the panel's decorative border bar
+        // (~52 canvas units wide) so the frame art can't cover its text —
+        // in-game evidence 2026-06-11. Slightly larger box per the same pass.
+        const float TAB_X = 64f;
+        const float TAB_W = 168f;
+        const float TAB_H = 70f;
+
+        // The column does NOT follow the tab — its position is frozen at the
+        // original anchor (28 - GAP - COL_W) because the faction boxes sit
+        // exactly where Andrew wants them.
+        const float COL_X = -93f;
 
         // ── Destinations (scene names verified in-game; see ARCHAEOLOGY.md —
         //    Dun1Q10 = Temporal Sanctum, Dun2Q10 = Lightless Arbor; the v1.0
