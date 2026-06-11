@@ -126,3 +126,47 @@ review fleet: 7 lenses (+ ecosystem-compat verifying every treaty clause,
 + color-language clarity) · Andrew's acceptance tests: max-roll legendary
 grades S; LeHud + Fallen co-installed session crash-free; a fresh-eyes
 read of the settings panel "just clicks".
+
+## v3 — THE CLEAN LINE (vision-interview contract, 2026-06-11)
+
+The Karpathy interview surfaced the real project. Andrew's words: "we are
+basically taking KG's mod and EHG's broken vision of a tooltip and doing
+their job... our goal is to have them look at this and be like wow, why
+isn't this in our game." The options are the pitch — an EHG dev should be
+able to toy with the layouts and steal ideas.
+
+**Mission:** one line per affix. Kill the essay. A 4-affix exalted reads in
+five lines, not sixteen. The half-second decision ("pick it up / keep
+blasting") never waits on reading.
+
+**The line:** affix text (+ value as EHG renders it) + the SIGNAL =
+`Tier N` spelled out in its tier color + grade letter in its grade color.
+Untiered affixes: grade only. Sealed: dim "Sealed" + grade. Hybrid affixes:
+ONE line — names joined, grade per stat (S·S).
+
+**Layout presets — THE SHIP GATE: v3 does not release unless several work:**
+- `BadgeLeft` (DEFAULT — Andrew's pick, "b with colors"): signal leads, text follows
+- `SignalRight`: text left, signal right-aligned column
+- `Trailing`: text, then signal right behind it
+
+**Toggles (zero-settings perfection for the homies; knobs for the sweats):**
+- Affix name color: TierColor (default) | GameDefault (white)
+- Grade letter: shown (default) | hidden ("if they want the ABC gone they get it gone")
+- Ranges + craft detail: HIDDEN by default ("it's freaking clutter") —
+  **Hold-Alt = deep view** (same Alt muscle as ground labels); per-detail
+  settings pins exist but default OFF
+
+**Untouched, forever (this round):** ground labels (the KG bracket is
+beloved — question parked, default = no change) · all frozen ABIs ·
+LeHud truce · Fallen Star treaty · crash laws (the clean line lives inside
+the existing UpdateLayout postfix reality — UpdatePrefixAndSuffixesText
+remains unpatchable, OpenItemTooltip remains forbidden).
+
+**Sequencing (Andrew's call):** v2.0.0 = GitHub-only, never uploads to
+Nexus. The Nexus debut IS v3 — the legacy arrives looking like it belongs
+in the game. (Open call for Andrew: whether to reply to zoundb before v3
+ships, since the legendary fix is in v2/GitHub but won't reach Nexus until v3.)
+
+**Audience order (conscious choice):** homies → sweats → WoW/D4 vets → Andrew.
+Mockups: `medick_TerribleTooltips/mockups/tooltip-flow-v3.html`.
+Parked ideas: player-custom color presets (fights "deepen, don't widen" — his call later).

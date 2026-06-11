@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Terrible Tooltips v3 — the clean line, three flows</title>
+<style>
+  body { background:#0d0c10; color:#cfc8b8; font-family: Georgia, serif; margin:0; padding:30px 20px 80px; }
+  .wrap { max-width:1180px; margin:0 auto; }
+  h1 { color:#FF44FF; font-size:26px; margin:0 0 4px; }
+  .sub { color:#8a8478; font-style:italic; margin-bottom:30px; }
+  h2 { color:#C9A653; font-size:18px; border-bottom:1px solid #3a3320; padding-bottom:6px; margin:36px 0 6px; }
+  .note { color:#8a8478; font-size:14px; font-style:italic; margin:0 0 14px; }
+  .row { display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start; }
+
+  /* game-ish tooltip card */
+  .tt {
+    background:linear-gradient(180deg,#1c1a22 0%,#15131a 100%);
+    border:1px solid #3c3a45; border-radius:4px;
+    padding:18px 22px; min-width:430px; max-width:480px;
+    font-variant: small-caps; letter-spacing:.4px; font-size:16.5px; line-height:1.55;
+    box-shadow:0 6px 24px rgba(0,0,0,.6);
+  }
+  .tt .hdr { color:#9b8e6d; font-size:13.5px; letter-spacing:2px; margin:10px 0 6px; }
+  .tt .hdr:first-child { margin-top:0; }
+  .tt .sep { border-top:1px solid #2c2a33; margin:8px 0; }
+  .tt .sealed { color:#C9A653; font-size:12.5px; letter-spacing:1.5px; }
+  .dim { color:#8a8478; }
+  .line { display:flex; justify-content:space-between; gap:18px; }
+  .line .sig { white-space:nowrap; }
+  .cap { color:#8a8478; font-size:13px; font-style:italic; font-variant:normal; margin-top:8px; max-width:470px; }
+
+  /* palette */
+  .t1{color:#DADADA;} .t4{color:#77ACFF;} .t5{color:#A807FF;} .t7{color:#FF44FF;}
+  .gA{color:#FA9E3D;} .gB{color:#A807FF;} .gC{color:#77ACFF;} .gS{color:#FF44FF;}
+  .name{color:#E8E2D2;}
+  .alt { background:#0f0e14; border:1px dashed #4a4555; }
+  kbd { background:#26222e; border:1px solid #4a4555; border-radius:3px; padding:1px 7px; font-size:12px; font-variant:normal; color:#cfc8b8; }
+  .verdict { background:#1d1a14; border-left:4px solid #C9A653; padding:10px 16px; border-radius:4px; margin-top:40px; font-size:15px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Terrible Tooltips v3 — the clean line</h1>
+  <div class="sub">your exact item from the screenshot · 16 lines of essay → 5 lines of signal · pick the flow that belongs in the game</div>
+
+  <h2>TODAY — the essay (what your screenshot shows)</h2>
+  <p class="note">4 affixes, ~16 lines. every affix takes three lines to say one thing. this is the enemy.</p>
+  <div class="tt">
+    <div class="hdr">PREFIXES</div>
+    <div><span class="t5">58% increased Lightning Damage</span> <span class="gA">(A)</span></div>
+    <div class="t5">Tier: 5 (max craftable)</div>
+    <div class="gA">Range: 40% to 60%</div>
+    <div class="sep"></div>
+    <div><span class="t4">28% increased Mana Regeneration</span> <span class="gC">(C)</span></div>
+    <div class="t4">Tier: 4</div>
+    <div class="gC">Range: 25% to 29%</div>
+    <div class="hdr">SUFFIXES</div>
+    <div><span class="t7">30% increased Cooldown Recovery Speed</span> <span class="gC">(C)</span></div>
+    <div class="t7">Tier: 7 (drop only)</div>
+    <div class="gC">Range: 28% to 32%</div>
+    <div class="sep"></div>
+    <div><span class="t1">+32 Armor</span> <span class="gS">(S)</span></div>
+    <div><span class="t1">10% reduced Bonus Damage Taken from Critical Strikes</span> <span class="gS">(S)</span></div>
+    <div class="t1">Tier: 1</div>
+    <div class="gS">Range: 24 to 32</div>
+    <div class="gS">Range: 8% to 10%</div>
+    <div class="sep"></div>
+    <div class="sealed">SEALED AFFIX – CANNOT BE MODIFIED</div>
+    <div><span class="name">13% of Potion Health Converted to Ward</span> <span class="gB">(B)</span></div>
+  </div>
+
+  <h2>OPTION A — “Signal Right”</h2>
+  <p class="note">affix text stays in EHG's own style (white), the signal sits right-aligned in a fixed column: <b>Tier N</b> in tier color · grade in grade color. calmest read — your eye scans one straight column of signals.</p>
+  <div class="row">
+  <div class="tt">
+    <div class="hdr">PREFIXES</div>
+    <div class="line"><span class="name">58% increased Lightning Damage</span><span class="sig"><span class="t5">Tier 5</span> <span class="gA">A</span></span></div>
+    <div class="line"><span class="name">28% increased Mana Regeneration</span><span class="sig"><span class="t4">Tier 4</span> <span class="gC">C</span></span></div>
+    <div class="hdr">SUFFIXES</div>
+    <div class="line"><span class="name">30% increased Cooldown Recovery Speed</span><span class="sig"><span class="t7">Tier 7</span> <span class="gC">C</span></span></div>
+    <div class="line"><span class="name">+32 Armor &amp; 10% reduced Crit Damage Taken</span><span class="sig"><span class="t1">Tier 1</span> <span class="gS">S·S</span></span></div>
+    <div class="line"><span class="name">13% of Potion Health Converted to Ward</span><span class="sig"><span class="dim">Sealed</span> <span class="gB">B</span></span></div>
+  </div>
+  </div>
+
+  <h2>OPTION B — “Badge Left”</h2>
+  <p class="note">the signal leads, KG-style, but spelled out: you read the badge first, then the words only if the badge earned it. fastest triage — strongest break from EHG's look.</p>
+  <div class="row">
+  <div class="tt">
+    <div class="hdr">PREFIXES</div>
+    <div><span class="sig"><span class="t5">Tier 5</span>·<span class="gA">A</span></span>&nbsp;&nbsp;<span class="name">58% increased Lightning Damage</span></div>
+    <div><span class="sig"><span class="t4">Tier 4</span>·<span class="gC">C</span></span>&nbsp;&nbsp;<span class="name">28% increased Mana Regeneration</span></div>
+    <div class="hdr">SUFFIXES</div>
+    <div><span class="sig"><span class="t7">Tier 7</span>·<span class="gC">C</span></span>&nbsp;&nbsp;<span class="name">30% increased Cooldown Recovery Speed</span></div>
+    <div><span class="sig"><span class="t1">Tier 1</span>·<span class="gS">S</span></span>&nbsp;&nbsp;<span class="name">+32 Armor &amp; 10% reduced Crit Damage Taken</span></div>
+    <div><span class="sig"><span class="dim">Sealed</span>·<span class="gB">B</span></span>&nbsp;&nbsp;<span class="name">13% of Potion Health Converted to Ward</span></div>
+  </div>
+  </div>
+
+  <h2>OPTION C — “Colored Name” (closest to today, minus the essay)</h2>
+  <p class="note">keeps v2's tier-colored affix names (the WoW retina read — color of the words IS the tier), with <b>Tier N · grade</b> tucked at the end. most colorful; the name color and the signal say the same thing twice.</p>
+  <div class="row">
+  <div class="tt">
+    <div class="hdr">PREFIXES</div>
+    <div><span class="t5">58% increased Lightning Damage</span> <span class="dim">—</span> <span class="t5">Tier 5</span> <span class="gA">A</span></div>
+    <div><span class="t4">28% increased Mana Regeneration</span> <span class="dim">—</span> <span class="t4">Tier 4</span> <span class="gC">C</span></div>
+    <div class="hdr">SUFFIXES</div>
+    <div><span class="t7">30% increased Cooldown Recovery Speed</span> <span class="dim">—</span> <span class="t7">Tier 7</span> <span class="gC">C</span></div>
+    <div><span class="t1">+32 Armor &amp; 10% reduced Crit Damage Taken</span> <span class="dim">—</span> <span class="t1">Tier 1</span> <span class="gS">S</span></div>
+    <div><span class="name">13% of Potion Health Converted to Ward</span> <span class="dim">—</span> <span class="dim">Sealed</span> <span class="gB">B</span></div>
+  </div>
+  </div>
+
+  <h2>HOLD <kbd>ALT</kbd> — the deep view (works with any option above)</h2>
+  <p class="note">ranges &amp; craft info exist — they just wait their turn. shown here on Option A.</p>
+  <div class="row">
+  <div class="tt alt">
+    <div class="hdr">PREFIXES</div>
+    <div class="line"><span class="name">58% increased Lightning Damage</span><span class="sig"><span class="t5">Tier 5</span> <span class="gA">A</span></span></div>
+    <div class="dim">&nbsp;&nbsp;Range 40–60% · rolled 58% · max craftable</div>
+    <div class="line"><span class="name">28% increased Mana Regeneration</span><span class="sig"><span class="t4">Tier 4</span> <span class="gC">C</span></span></div>
+    <div class="dim">&nbsp;&nbsp;Range 25–29% · rolled 28%</div>
+    <div class="hdr">SUFFIXES</div>
+    <div class="line"><span class="name">30% increased Cooldown Recovery Speed</span><span class="sig"><span class="t7">Tier 7</span> <span class="gC">C</span></span></div>
+    <div class="dim">&nbsp;&nbsp;Range 28–32% · rolled 30% · drop only</div>
+  </div>
+  </div>
+
+  <div class="verdict">
+    <b>How to judge:</b> squint. Whichever one your eye reads <i>without trying</i> — where you know the item before you've finished looking — that's the one that belongs in the game. Tell Claude: <b>A</b>, <b>B</b>, or <b>C</b> (or mix: "A but with B's hybrid handling"). Wording, spacing, the · separator, "Sealed" treatment — all tunable after you pick the shape.
+  </div>
+</div>
+</body>
+</html>
