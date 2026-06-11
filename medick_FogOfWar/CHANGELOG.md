@@ -1,0 +1,49 @@
+# Changelog — MedicK's Terrible fog_OFwar
+
+## v2.0.0 — 2026-06-10
+
+Ground-up engineering pass and rebrand: **The fog OF war** is now
+**MedicK's Terrible fog_OFwar** ("fog_OF_war" for short), joining the
+Terrible family. Internal name, DLL, prefs and cfg path are unchanged
+(`medick_The_fogOFwar`).
+
+### Fixed
+- **No more restarts. Ever.** v1's "BLIND requires a full game restart —
+  both ways" warning wall is gone: entering BLIND hides the minimap live,
+  leaving BLIND restores it live (the hidden object is remembered and
+  re-activated). All six levels apply the moment you pick them.
+- **HUD blast-radius hazard defused.** v1's minimap-hiding walk matched any
+  ancestor named "minimap", "hud" or "corner" — one hierarchy rename away
+  from deactivating the entire HUD. v2 only ever hides a minimap-named
+  ancestor (outermost match) or the minimap object itself.
+- **Zone default radius is captured per zone**, not latched once globally —
+  zones with different defaults now scale LIMITED/SCOUT correctly.
+- The mod no longer reports its errors as "[Terrible Tooltips]" — v1's
+  settings helpers were copy-pasted from the sibling mod, header and log
+  prefixes included.
+
+### Changed
+- **The level legend is now clickable** — each colour-coded row selects its
+  level on click and syncs the dropdown (v1's legend rows were dead buttons
+  captioned "this box is not clickable, it is just here for reference").
+- Settings injection is idempotent (re-runs rebind instead of duplicating
+  rows) and degrades gracefully with one warning if a game update changes
+  the settings hierarchy — fog control keeps working from the cfg file.
+- Source restructured into `src/` modules with a written behavior contract
+  (SPEC.md); Harmony patches nested in the mod class (MelonLoader
+  auto-discovery guardrail); csproj relics removed (AllowUnsafeBlocks,
+  Optimize, duplicate Il2CppLE.Core reference).
+- Restores vanilla map state if the mod is unloaded.
+- Settings carry over from v1.0 unchanged (same category, entry, cfg path).
+
+### Added
+- `DebugLog` preference — apply/capture logging is opt-in; default output is
+  one startup line.
+
+---
+
+## v1.0.0 — 2026-04-12
+- Initial release: 6-level fog of war control (BLIND / HARD / LIMITED /
+  NORMAL / SCOUT / ORACLE), Map Vision dropdown + level legend injected into
+  the game's settings screen, persisted to UserData/medick_The_fogOFwar.cfg.
+- BLIND required a full game restart in both directions.
