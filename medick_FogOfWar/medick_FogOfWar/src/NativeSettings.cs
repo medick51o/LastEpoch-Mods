@@ -46,16 +46,17 @@ namespace medick_FogOfWar
         static Transform Root(SettingsPanelTabNavigable settings) =>
             settings.transform.GetChild(0).GetChild(0);
 
-        // Probe everything the creators depend on, before building anything.
+        // Probe everything the fog UI depends on, before building anything.
         // One missing piece → one latched warning → caller skips injection.
+        // (The dropdown template is NOT probed — fog's UI is legend-rows-only
+        // since v2.0; CreateEnumDropdown checks its own template when used.)
         public static bool TemplatesAvailable(SettingsPanelTabNavigable settings)
         {
             try
             {
                 Transform root = Root(settings);
-                if (!root.Find(ToggleTemplate))   { WarnDegradedOnce($"template '{ToggleTemplate}' missing");   return false; }
-                if (!root.Find(DropdownTemplate)) { WarnDegradedOnce($"template '{DropdownTemplate}' missing"); return false; }
-                if (!root.Find(HeaderAnchor))     { WarnDegradedOnce($"anchor '{HeaderAnchor}' missing");       return false; }
+                if (!root.Find(ToggleTemplate)) { WarnDegradedOnce($"template '{ToggleTemplate}' missing"); return false; }
+                if (!root.Find(HeaderAnchor))   { WarnDegradedOnce($"anchor '{HeaderAnchor}' missing");     return false; }
                 return true;
             }
             catch (Exception ex)
@@ -189,6 +190,10 @@ namespace medick_FogOfWar
 
         // Enum dropdown row. Returns the live dropdown (or null) so the
         // caller can sync it when the value changes elsewhere.
+        // UNUSED by fog since v2.0 (the clickable legend replaced the
+        // dropdown) — retained as the family's hardened reference
+        // implementation for the Terrible Tooltips/Inventory revamps,
+        // which are dropdown-heavy.
         public static ColoredIconDropdown CreateEnumDropdown<T>(SettingsPanelTabNavigable settings,
             string category, string rowName, string title, string description,
             MelonPreferences_Entry<T> option, Action<int> onChanged) where T : Enum

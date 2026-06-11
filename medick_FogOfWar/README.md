@@ -1,4 +1,4 @@
-# MedicK's Terrible fog_OFwar
+# MedicK's Terrible fog_OF_war
 
 *a fog control mod* — **fog_OF_war** for short. A [MelonLoader](https://melonwiki.xyz) mod for **Last Epoch** with a 6-level vision dial, living inside the game's own settings screen. Slide left to go in blind. Slide right because we all know why you're really here.
 
@@ -17,7 +17,7 @@
 
 ## Where it lives
 
-No overlay panel, no keybinds: open the game's **Settings** and find the **Terrible fog_OFwar** section — one dropdown plus a colour-coded legend where **clicking a level row selects it**.
+No overlay panel, no keybinds, no dropdown: open the game's **Settings** and find the **Terrible fog_OF_war** section — a colour-coded legend where **clicking a level row selects it**, radio-style. The active level stays checked, so the menu always answers "what am I running?"
 
 **Everything applies instantly.** Switching into or out of BLIND hides/restores the minimap live — the v1 "full game restart required, both ways" days are over. One engine note: lowering the radius doesn't re-fog what you've already explored; the next zone starts clean.
 
@@ -25,7 +25,7 @@ No overlay panel, no keybinds: open the game's **Settings** and find the **Terri
 
 1. Install [MelonLoader 0.6.x](https://melonwiki.xyz) into Last Epoch
 2. Drop `medick_The_fogOFwar.dll` into `Last Epoch/Mods/`
-3. Open Settings → Terrible fog_OFwar → pick your poison
+3. Open Settings → Terrible fog_OF_war → pick your poison
 
 Upgrading from v1.0: just replace the DLL — your level carries over (`UserData/medick_The_fogOFwar.cfg`).
 
@@ -51,7 +51,7 @@ medick_FogOfWar/
     FogOfWarMod.Patches.cs  Harmony patches (Minimap.Awake, settings panel)
     FogController.cs        Capture / apply / live BLIND hide+restore
     FogLevels.cs            Level → radius contract (see SPEC.md)
-    SettingsUi.cs           The Terrible fog_OFwar settings category
+    SettingsUi.cs           The Terrible fog_OF_war settings category
     NativeSettings.cs       KG-derived native settings injection helpers
     BuildInfo.cs            Brand/version single source of truth
     Prefs.cs                Persisted settings (frozen cfg path)

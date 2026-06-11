@@ -1,9 +1,9 @@
-# Changelog — MedicK's Terrible fog_OFwar
+# Changelog — MedicK's Terrible fog_OF_war
 
 ## v2.0.0 — 2026-06-10
 
 Ground-up engineering pass and rebrand: **The fog OF war** is now
-**MedicK's Terrible fog_OFwar** ("fog_OF_war" for short), joining the
+**MedicK's Terrible fog_OF_war** ("fog_OF_war" for short), joining the
 Terrible family. Internal name, DLL, prefs and cfg path are unchanged
 (`medick_The_fogOFwar`).
 
@@ -23,9 +23,11 @@ Terrible family. Internal name, DLL, prefs and cfg path are unchanged
   prefixes included.
 
 ### Changed
-- **The level legend is now clickable** — each colour-coded row selects its
-  level on click and syncs the dropdown (v1's legend rows were dead buttons
-  captioned "this box is not clickable, it is just here for reference").
+- **The level legend IS the control now** — each colour-coded row selects its
+  level on click and the active row stays checked, radio-style (v1's legend
+  rows were dead buttons captioned "this box is not clickable, it is just
+  here for reference"). The dropdown is gone — once the rows became real
+  controls it was redundant.
 - Settings injection is idempotent (re-runs rebind instead of duplicating
   rows) and degrades gracefully with one warning if a game update changes
   the settings hierarchy — fog control keeps working from the cfg file.

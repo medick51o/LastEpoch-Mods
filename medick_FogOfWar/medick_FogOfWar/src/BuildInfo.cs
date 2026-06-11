@@ -6,8 +6,9 @@ namespace medick_FogOfWar
     internal static class BuildInfo
     {
         public const string Name         = "medick_The_fogOFwar";
-        public const string DisplayName  = "Terrible fog_OFwar";   // settings category title
-        public const string OfficialName = "MedicK's Terrible fog_OFwar";
+        // The OF stands alone on purpose. You know why. ("bastos" branding)
+        public const string DisplayName  = "Terrible fog_OF_war";   // settings category title
+        public const string OfficialName = "MedicK's Terrible fog_OF_war";
         public const string Version      = "2.0.0";
         public const string Author       = "medick";
     }

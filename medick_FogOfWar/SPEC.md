@@ -1,4 +1,4 @@
-# SPEC — MedicK's Terrible fog_OFwar v2.0.0
+# SPEC — MedicK's Terrible fog_OF_war v2.0.0
 
 *a fog control mod* — "fog_OF_war" for short. Internal name `medick_The_fogOFwar` (frozen: DLL, prefs category, cfg path, Nexus upgrade path).
 
@@ -45,11 +45,12 @@ Zone-default fallback when no capture exists yet: 150.
 ### Settings UI (native injection — no IMGUI panel; this is the mod's identity)
 
 - Injected into the game's own settings screen (`SettingsPanelTabNavigable.Awake`)
-  under category **"Terrible fog_OFwar"**, via the KG/war3i4i instantiation
+  under category **"Terrible fog_OF_war"**, via the KG/war3i4i instantiation
   technique (credited).
-- One enum dropdown (primary control) + six colour-coded legend rows that are
-  **clickable** — clicking a legend row selects that level and syncs the
-  dropdown (v1's legend rows were dead buttons labelled "not clickable").
+- **The six colour-coded legend rows ARE the control** — clicking a row
+  selects that level, and the active row stays checked, radio-style (v1's
+  legend rows were dead buttons labelled "not clickable" next to a dropdown;
+  the dropdown was removed once the clickable rows proved out in-game).
 - v1's restart-warning rows are deleted — obsolete once everything is live.
 - Injection must be idempotent: re-running against a hierarchy that already
   contains our rows rebinds instead of duplicating.
