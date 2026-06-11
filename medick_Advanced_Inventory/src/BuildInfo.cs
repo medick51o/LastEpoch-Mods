@@ -8,7 +8,7 @@ namespace medick_Terrible_Inventory
         public const string Name         = "medick_Terrible_Inventory";
         public const string DisplayName  = "Terrible Inventory";   // settings category title
         public const string OfficialName = "MedicK's Terrible Inventory";
-        public const string Version      = "2.0.0";
+        public const string Version      = "2.0.0";   // bump in lockstep with <Version> in the csproj
         public const string Author       = "medick";
     }
 }

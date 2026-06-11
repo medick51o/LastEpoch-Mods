@@ -15,6 +15,7 @@ table and the seven blood-bought safety rules. This spec assumes both.
    collapsible groups — **FACTIONS** (Circle of Fortune, Merchant's Guild,
    Forgotten Knights, The Woven) · **DUNGEONS** (Lightless Arbor, Temporal
    Sanctum, Soulfire Bastion) · **HUBS** (End of Time, Champion's Gate/Arena).
+   Collapse choices survive panel rebuilds/zone changes within a session.
 3. **Controller / Steam Deck**: all buttons remain visible and usable in
    controller mode (right-stick cursor); Deck-touch-sized targets.
 4. Stash All uses the game's own quick-move at KG's 3-frame server-safe
@@ -56,11 +57,19 @@ font + a faux two-rectangle "gold border" — the "slapped on top at 2am" look.
    the map's own locked node.
 3. Travel = find `UIWaypointStandard` in `waypointsInMenu`, call
    `LoadWaypointScene()`. Never `SendAttemptWaypoint` (disconnect).
+   Immediately before the load — and ONLY once the gate has passed and the
+   waypoint is found, so a non-travelling click leaves zero footprint — the
+   v1-carried `WaypointManager` enable runs (`WaypointEnabled = true` +
+   `EnableWaypoint()`): some zones disable waypoint use and this allows the
+   jump the way v1 always did. The successful scene load resets the flag.
 4. If the waypoint isn't found: re-run the primer ONCE, retry once, then give
-   up with a single warning. **The v1 fallback chain is deleted** — no
-   map-flash + era-tab text-click, no searching 3,671 buttons for "VISIT X"
-   (the path that once invoked the mod's own button and summoned EHG's bug
-   reporter). Primer-then-retry replaces all of it.
+   up with a single warning **per destination per session** ("travel
+   unavailable here"). **The v1 fallback chain is deleted** — no map-flash +
+   era-tab text-click, no searching 3,671 buttons for "VISIT X" (the path
+   that once invoked the mod's own button and summoned EHG's bug reporter).
+   Primer-then-retry replaces all of it.
+4b. The travel concurrency guard spans the whole scene transition (released
+   on scene load, 10 s failsafe) — not just the frame the load fires.
 5. Primer: once per session on first inventory open in a playable scene;
    snapshot `activeSelf` of the full ancestor chain per controller, activate
    root→leaf, one frame for OnEnable, restore the EXACT snapshot (forcing

@@ -20,26 +20,55 @@ namespace medick_Terrible_Inventory
         public static GameObject Button(GameObject template, Transform parent, string name, Action onClick)
         {
             GameObject go = UnityEngine.Object.Instantiate(template, parent);
-
-            // Strip the donor's behaviour so it can't fight our wiring.
-            var sort = go.GetComponent<SortInventoryButton>();
-            if (sort != null) UnityEngine.Object.DestroyImmediate(sort);
-
-            // Kill localization bindings or the game rewrites our labels.
-            foreach (var loc in go.GetComponentsInChildren<UnityEngine.Localization.Components.LocalizeStringEvent>(true))
-                UnityEngine.Object.DestroyImmediate(loc);
-
-            var btn = go.GetComponent<Button>();
-            if (btn != null)
+            try
             {
-                btn.onClick.RemoveAllListeners();
-                var action = new Action(onClick);
-                _keepAlive.Add(action);
-                btn.onClick.AddListener(action);
-            }
+                // Strip the donor's behaviour so it can't fight our wiring.
+                var sort = go.GetComponent<SortInventoryButton>();
+                if (sort != null) UnityEngine.Object.DestroyImmediate(sort);
 
-            go.name = name;   // name LAST — a half-built clone is never findable as ours
-            return go;
+                // Kill localization bindings or the game rewrites our labels.
+                foreach (var loc in go.GetComponentsInChildren<UnityEngine.Localization.Components.LocalizeStringEvent>(true))
+                    UnityEngine.Object.DestroyImmediate(loc);
+
+                var btn = go.GetComponent<Button>();
+                if (btn != null)
+                {
+                    // Fresh event object: clears runtime AND serialized
+                    // persistent listeners (RemoveAllListeners only clears
+                    // runtime ones — a game update wiring the donor via
+                    // persistent calls would survive onto our clones).
+                    btn.onClick = new Button.ButtonClickedEvent();
+                    var action = new Action(onClick);
+                    _keepAlive.Add(action);
+                    btn.onClick.AddListener(action);
+                }
+
+                // Native-look diagnostics for the in-game validation pass:
+                // the 9-slice assumption lives or dies on this sprite.
+                if (Prefs.DebugLog != null && Prefs.DebugLog.Value)
+                {
+                    try
+                    {
+                        var img = go.transform.childCount > 0
+                            ? go.transform.GetChild(0).GetComponent<Image>()
+                            : go.GetComponent<Image>();
+                        if (img != null)
+                            Dbg.Log($"clone '{name}': sprite={(img.sprite != null ? img.sprite.name : "none")} " +
+                                    $"type={img.type} border={(img.sprite != null ? img.sprite.border.ToString() : "?")}");
+                    }
+                    catch { }
+                }
+
+                go.name = name;   // name LAST — a half-built clone is never findable as ours
+                return go;
+            }
+            catch
+            {
+                // Destroyed in catch — never leak a live donor-named clone
+                // into the footer/column (it would duplicate every rebuild).
+                try { if (go) UnityEngine.Object.DestroyImmediate(go); } catch { }
+                throw;            // callers own the single-log degradation
+            }
         }
 
         // The Sort button's child(1) is its dots glyph — it overlaps custom
@@ -60,7 +89,8 @@ namespace medick_Terrible_Inventory
             catch { return null; }
         }
 
-        // Single-line auto-sizing label (footer buttons).
+        // Single-line auto-sizing label (footer buttons). Pinned single-line:
+        // the donor's wrap setting must not break "STASH ALL" onto two lines.
         public static void SetLabel(GameObject btn, string text, float minSize, float maxSize)
         {
             var tmp = Label(btn);
@@ -69,15 +99,31 @@ namespace medick_Terrible_Inventory
             tmp.enableAutoSizing = true;
             tmp.fontSizeMin = minSize;
             tmp.fontSizeMax = maxSize;
+            tmp.enableWordWrapping = false;
+            tmp.overflowMode = TextOverflowModes.Truncate;
         }
 
         // Rich-text label stretched over the whole button (teleport column).
-        public static void SetRichLabel(GameObject btn, string richText)
+        // baseSize > 0 pins a deterministic font size (the donor's auto-size
+        // leaves whatever it last computed for its own string); autoMin/Max
+        // > 0 enables shrink-to-fit for long destination names.
+        public static void SetRichLabel(GameObject btn, string richText,
+            float baseSize = 0f, float autoMin = 0f, float autoMax = 0f)
         {
             var tmp = Label(btn);
             if (tmp == null) return;
             tmp.text = richText;
-            tmp.enableAutoSizing = false;
+            if (baseSize > 0f) tmp.fontSize = baseSize;
+            if (autoMin > 0f && autoMax > 0f)
+            {
+                tmp.enableAutoSizing = true;
+                tmp.fontSizeMin = autoMin;
+                tmp.fontSizeMax = autoMax;
+            }
+            else
+            {
+                tmp.enableAutoSizing = false;
+            }
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.enableWordWrapping = false;
             tmp.overflowMode = TextOverflowModes.Truncate;

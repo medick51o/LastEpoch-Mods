@@ -16,19 +16,17 @@ namespace medick_Terrible_Inventory
     // mutations (v1's TryCompactCurrency debug fossil is gone).
     internal static class InventoryUi
     {
-        // Known Sort-button paths, newest first (relative to the hook component).
-        static readonly string[] SortPaths =
-        {
-            "Tab Contents/Items Tab/Inventory Tab Footer Base/Left_Buttons_Container/Sort",
-            "Tab Contents/Items Tab/Footer/Left_Buttons_Container/Sort",
-            "Tab Contents/Items Tab/Inventory Tab Footer Base/Buttons/Sort",
-            "Tab Contents/Items Tab/Inventory Tab Footer Base/Left_Buttons_Container/SortButton",
-        };
+        // The ONE in-game-verified Sort-button path (ARCHAEOLOGY truth table).
+        // Speculative fallbacks were axed in review — they anticipate nothing,
+        // and the latched warning below is the honest response to a real move.
+        const string SortPath =
+            "Tab Contents/Items Tab/Inventory Tab Footer Base/Left_Buttons_Container/Sort";
 
         internal static Transform ButtonBar;   // the keep-alive target (see mod OnLateUpdate)
 
         static GameObject _stashBtn, _stashAllBtn, _vendorBtn;
         static bool _pathWarned;
+        static bool _stashAllRunning;
 
         public static void Inject(EnableWovenEchoesTabIfRelevant panel)
         {
@@ -45,19 +43,15 @@ namespace medick_Terrible_Inventory
                     return;
                 }
 
-                Transform sortTransform = null;
-                foreach (string p in SortPaths)
-                {
-                    sortTransform = panel.transform.Find(p);
-                    if (sortTransform != null) break;
-                }
+                Transform sortTransform = panel.transform.Find(SortPath);
                 if (sortTransform == null)
                 {
                     if (!_pathWarned)
                     {
                         _pathWarned = true;
                         MelonLogger.Warning(
-                            "inventory footer changed — footer buttons unavailable (a game update likely moved the Sort button)");
+                            "inventory footer changed — footer buttons AND Quick Teleport unavailable " +
+                            "(a game update likely moved the Sort button)");
                     }
                     return;
                 }
@@ -73,7 +67,14 @@ namespace medick_Terrible_Inventory
                     });
 
                 _stashAllBtn = MakeFooterButton(sortGO, bar, "medick_StashAllBtn", "STASH ALL",
-                    () => MelonCoroutines.Start(StashAllCoroutine()));
+                    () =>
+                    {
+                        // Re-entrancy guard: two interleaved dump loops would
+                        // halve the 3-frame server-safe cadence (rule #3 class).
+                        if (_stashAllRunning) { Dbg.Log("Stash All already running — click ignored"); return; }
+                        _stashAllRunning = true;
+                        MelonCoroutines.Start(StashAllCoroutine());
+                    });
 
                 _vendorBtn = MakeFooterButton(sortGO, bar, "medick_VendorBtn", "VENDOR",
                     () =>
@@ -111,17 +112,25 @@ namespace medick_Terrible_Inventory
             catch (Exception e)
             {
                 MelonLogger.Error("footer injection failed: " + e);
+                // Destroyed in catch: a half-built footer must not latch the
+                // idempotency marker, or this panel never heals (keep-alive
+                // dead, teleport menu never built).
+                try
+                {
+                    if (_stashBtn)    UnityEngine.Object.DestroyImmediate(_stashBtn);
+                    if (_stashAllBtn) UnityEngine.Object.DestroyImmediate(_stashAllBtn);
+                    if (_vendorBtn)   UnityEngine.Object.DestroyImmediate(_vendorBtn);
+                }
+                catch { }
+                _stashBtn = _stashAllBtn = _vendorBtn = null;
+                ButtonBar = null;
             }
         }
 
         static Transform FindOurButton(Transform root)
         {
-            foreach (string p in SortPaths)
-            {
-                Transform sort = root.Find(p);
-                if (sort != null) return sort.parent.Find("medick_StashBtn");
-            }
-            return null;
+            Transform sort = root.Find(SortPath);
+            return sort != null ? sort.parent.Find("medick_StashBtn") : null;
         }
 
         static GameObject MakeFooterButton(GameObject template, Transform bar, string name,
@@ -159,42 +168,51 @@ namespace medick_Terrible_Inventory
 
         static IEnumerator StashAllCoroutine()
         {
-            ItemContainersManager mgr = ItemContainersManager.Instance;
-            if (mgr == null) yield break;
-            ItemContainer inv = mgr.inventory;
-            if (inv == null) yield break;
-
-            if (UIBase.instanceExists && UIBase.instance != null)
-                UIBase.instance.openStash(false, false);   // items need somewhere to go
-
-            yield return null;                              // let the stash UI settle
-
-            Vector2Int[] positions;
+            // try/finally is CS1626-legal (only try/CATCH bars yields) and
+            // guarantees the re-entrancy flag clears on every exit path.
             try
             {
-                positions = inv.content.ToArray()
-                    .Select(e => e._Position_k__BackingField)
-                    .ToArray();
-            }
-            catch (Exception e)
-            {
-                MelonLogger.Warning("Stash All — could not read inventory: " + e.Message);
-                yield break;
-            }
+                ItemContainersManager mgr = ItemContainersManager.Instance;
+                if (mgr == null) yield break;
+                ItemContainer inv = mgr.inventory;
+                if (inv == null) yield break;
 
-            foreach (Vector2Int pos in positions)
-            {
+                if (UIBase.instanceExists && UIBase.instance != null)
+                    UIBase.instance.openStash(false, false);   // items need somewhere to go
+
+                yield return null;                              // let the stash UI settle
+
+                Vector2Int[] positions;
                 try
                 {
-                    mgr.TryQuickMove(ContainerID.INVENTORY, ContainerID.STASH, pos, false, false);
+                    positions = inv.content.ToArray()
+                        .Select(e => e._Position_k__BackingField)
+                        .ToArray();
                 }
-                catch { }
-                yield return null;                          // 3-frame cadence — do not speed up;
-                yield return null;                          // this is what keeps the server calm
-                yield return null;
-            }
+                catch (Exception e)
+                {
+                    MelonLogger.Warning("Stash All — could not read inventory: " + e.Message);
+                    yield break;
+                }
 
-            Dbg.Log($"Stash All complete — attempted {positions.Length} items");
+                foreach (Vector2Int pos in positions)
+                {
+                    try
+                    {
+                        mgr.TryQuickMove(ContainerID.INVENTORY, ContainerID.STASH, pos, false, false);
+                    }
+                    catch { }
+                    yield return null;                          // 3-frame cadence — do not speed up;
+                    yield return null;                          // this is what keeps the server calm
+                    yield return null;
+                }
+
+                Dbg.Log($"Stash All complete — attempted {positions.Length} items");
+            }
+            finally
+            {
+                _stashAllRunning = false;
+            }
         }
     }
 }

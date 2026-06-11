@@ -14,21 +14,37 @@ namespace medick_Terrible_Inventory
     // own option rows, strip their localization, rewire their widgets.
     //
     // Hardened per the family playbook (proven in fog_OF_war):
-    //  • ONE latched degradation warning per session; fog... mod features
-    //    keep working from MelonPreferences.cfg if the UI can't build.
+    //  • ONE latched degradation warning per session; the mod's buttons keep
+    //    working and prefs stay editable via MelonPreferences.cfg.
     //  • Clones named LAST + destroyed in catch — half-built rows are never
     //    findable and mistaken for success.
     //  • Creators are idempotent: existing rows are REBOUND, not duplicated.
     internal static class NativeSettings
     {
         const string CategoryPrefix = "ModsCategory - ";
-        const string ToggleTemplate = "Toogle - Minion Health Bars";   // [sic] — the game's own typo
-        const string HeaderAnchor   = "Header - Interface";
+        // The game's own typo, first — plus the spelling EHG would fix it to
+        // (the single most likely rename this template will ever see).
+        static readonly string[] ToggleTemplates =
+        {
+            "Toogle - Minion Health Bars",
+            "Toggle - Minion Health Bars",
+        };
+        const string HeaderAnchor = "Header - Interface";
 
         static bool _degradedWarned;
         static readonly List<Delegate> _keepAlive = new();
 
-        static void WarnDegradedOnce(string detail)
+        static Transform FindToggleTemplate(Transform root)
+        {
+            foreach (string name in ToggleTemplates)
+            {
+                Transform t = root.Find(name);
+                if (t) return t;
+            }
+            return null;
+        }
+
+        public static void WarnDegradedOnce(string detail)
         {
             if (_degradedWarned) return;
             _degradedWarned = true;
@@ -45,8 +61,8 @@ namespace medick_Terrible_Inventory
             try
             {
                 Transform root = Root(settings);
-                if (!root.Find(ToggleTemplate)) { WarnDegradedOnce($"template '{ToggleTemplate}' missing"); return false; }
-                if (!root.Find(HeaderAnchor))   { WarnDegradedOnce($"anchor '{HeaderAnchor}' missing");     return false; }
+                if (FindToggleTemplate(root) == null) { WarnDegradedOnce("toggle row template missing");        return false; }
+                if (!root.Find(HeaderAnchor))         { WarnDegradedOnce($"anchor '{HeaderAnchor}' missing");   return false; }
                 return true;
             }
             catch (Exception ex)
@@ -116,10 +132,10 @@ namespace medick_Terrible_Inventory
                 Transform existing = root.Find(rowName);
                 if (existing) return RebindToggle(existing, initial, onChanged);
 
-                Transform template = root.Find(ToggleTemplate);
+                Transform template = FindToggleTemplate(root);
                 if (!template)
                 {
-                    WarnDegradedOnce($"template '{ToggleTemplate}' missing");
+                    WarnDegradedOnce("toggle row template missing");
                     return null;
                 }
                 int orderIndex = CreateCategoryIfNeeded(settings, category);
@@ -145,13 +161,13 @@ namespace medick_Terrible_Inventory
                 catch (Exception ex)
                 {
                     if (row) UnityEngine.Object.DestroyImmediate(row.gameObject);
-                    MelonLogger.Warning($"settings toggle '{title}' failed: {ex.Message}");
+                    WarnDegradedOnce($"toggle '{title}' build failed: {ex.Message}");
                     return null;
                 }
             }
             catch (Exception ex)
             {
-                MelonLogger.Warning($"settings toggle '{title}' failed: {ex.Message}");
+                WarnDegradedOnce($"toggle '{title}' failed: {ex.Message}");
                 return null;
             }
         }
@@ -159,8 +175,17 @@ namespace medick_Terrible_Inventory
         static Toggle RebindToggle(Transform row, bool initial, Action<bool> onChanged)
         {
             Toggle toggle = row.GetComponentInChildren<Toggle>(true);
-            if (toggle == null) return null;
-            toggle.onValueChanged.RemoveAllListeners();
+            if (toggle == null)
+            {
+                // A toggle-less row is a broken leftover — destroy it so it
+                // isn't silently re-found and "rebound" to nothing forever.
+                WarnDegradedOnce($"toggle widget missing in row '{row.name}'");
+                try { UnityEngine.Object.DestroyImmediate(row.gameObject); } catch { }
+                return null;
+            }
+            // Fresh event object: clears runtime AND serialized persistent
+            // listeners a game update might wire into the donor row.
+            toggle.onValueChanged = new Toggle.ToggleEvent();
             try { toggle.SetIsOnWithoutNotify(initial); }
             catch { toggle.isOn = initial; }   // safe: no listeners attached yet
             var listener = new Action<bool>(_ => onChanged(toggle.isOn));

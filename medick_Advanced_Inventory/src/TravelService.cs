@@ -15,16 +15,15 @@ namespace medick_Terrible_Inventory
     //    correctly online and offline.
     //  • Each of the 5 era UIWaypointControllers must have OnEnable fired
     //    once per session before travel works — the silent primer below
-    //    (Andrew's own fix) handles that invisibly during the loading screen.
+    //    (Andrew's own fix) handles that invisibly.
     //  • v1's fallback chain (map-flash + era-tab text-click + searching all
-    //    buttons for "VISIT X") is DELETED — it once invoked the mod's own
-    //    button and melted the frame rate badly enough to summon EHG's bug
-    //    reporter. Prime-then-retry replaces all of it.
+    //    buttons for "VISIT X") is DELETED. Prime-then-retry replaces it.
     internal static class TravelService
     {
         static bool _travelInProgress;
         static bool _primed;
         static bool _primerRunning;
+        static readonly HashSet<string> _warnedScenes = new();
 
         public static void EnsurePrimed()
         {
@@ -32,6 +31,11 @@ namespace medick_Terrible_Inventory
             _primerRunning = true;
             MelonCoroutines.Start(PrimeCoroutine());
         }
+
+        // The travel guard spans the whole scene transition (safety rule #3:
+        // concurrent travel once summoned EHG's bug reporter) — it is cleared
+        // here on scene load, with a timeout failsafe inside TravelCoroutine.
+        public static void NotifySceneLoaded() => _travelInProgress = false;
 
         public static void RequestTravel(string scene)
         {
@@ -50,7 +54,6 @@ namespace medick_Terrible_Inventory
             _travelInProgress = true;
             Dbg.Log($"travel requested: '{scene}'");
 
-            // Make sure the controllers are primed before judging anything.
             EnsurePrimed();
             float waited = 0f;
             while (_primerRunning && waited < 10f)
@@ -59,7 +62,51 @@ namespace medick_Terrible_Inventory
                 waited += 0.25f;
             }
 
-            // The game's flag for "waypoint use allowed here".
+            // One scene scan per click, shared by the gate and the lookup
+            // (FindObjectsOfType over a big town scene is hitch-prone on Deck).
+            UIWaypointController[] controllers = FindControllers();
+
+            // Unlock gate — behave exactly like the map's own locked node:
+            // not unlocked → do nothing, leave NO game-state footprint.
+            if (!IsUnlocked(controllers, scene))
+            {
+                MelonLogger.Msg($"'{scene}' is not an unlocked waypoint for this character — ignoring");
+                _travelInProgress = false;
+                yield break;
+            }
+
+            UIWaypointStandard wp = FindWaypointForScene(controllers, scene);
+
+            // SPEC travel rule 4: waypoint miss → re-run the primer ONCE,
+            // retry once (a controller can miss its OnEnable, or a relog can
+            // re-instantiate controllers the latched prime never saw).
+            if (wp == null)
+            {
+                Dbg.Log($"'{scene}' not found — re-priming once");
+                _primed = false;
+                EnsurePrimed();
+                float w2 = 0f;
+                while (_primerRunning && w2 < 10f)
+                {
+                    yield return new WaitForSeconds(0.25f);
+                    w2 += 0.25f;
+                }
+                controllers = FindControllers();
+                wp = FindWaypointForScene(controllers, scene);
+            }
+
+            if (wp == null)
+            {
+                if (_warnedScenes.Add(scene))   // once per scene per session
+                    MelonLogger.Warning($"waypoint '{scene}' not found after re-priming — travel unavailable here");
+                _travelInProgress = false;
+                yield break;
+            }
+
+            // Carried from v1, deliberately AFTER the gate and the lookup so a
+            // click that doesn't travel leaves no footprint: some zones set
+            // WaypointEnabled=false and this allows the jump the way v1 did.
+            // A successful travel loads a new scene, which resets the flag.
             try
             {
                 WaypointManager wm = WaypointManager.getInstance();
@@ -67,65 +114,63 @@ namespace medick_Terrible_Inventory
             }
             catch { }
 
-            // Unlock gate — behave exactly like the map's own locked node:
-            // not unlocked → do nothing. (Safety rule #2: an ungated teleport
-            // once soft-locked a fresh character in the Bazaar.)
-            if (!IsUnlocked(scene))
-            {
-                MelonLogger.Msg($"'{scene}' is not an unlocked waypoint for this character — ignoring");
-                _travelInProgress = false;
-                yield break;
-            }
-
-            UIWaypointStandard wp = FindWaypointForScene(scene);
-            if (wp == null)
-            {
-                MelonLogger.Warning($"waypoint '{scene}' not found after priming — travel unavailable this session");
-                _travelInProgress = false;
-                yield break;
-            }
-
+            bool fired = false;
             try
             {
                 wp.LoadWaypointScene();
+                fired = true;
                 Dbg.Log($"travel → '{scene}'");
             }
             catch (Exception e)
             {
                 MelonLogger.Warning($"travel to '{scene}' failed: {e.Message}");
             }
+
+            if (!fired)
+            {
+                _travelInProgress = false;
+                yield break;
+            }
+
+            // Hold the guard across the transition; NotifySceneLoaded clears
+            // it on arrival, the timeout covers a silently failed load.
+            float guard = 0f;
+            while (_travelInProgress && guard < 10f)
+            {
+                yield return new WaitForSeconds(0.5f);
+                guard += 0.5f;
+            }
             _travelInProgress = false;
         }
 
-        // ── Unlock gate ───────────────────────────────────────────
-        // True when any era controller lists the scene as unlocked.
-        // If the unlock data cannot be read at all, default to allow —
-        // LoadWaypointScene is the game's own gated path regardless.
-
-        static bool IsUnlocked(string scene)
+        static UIWaypointController[] FindControllers()
         {
+            try { return UnityEngine.Object.FindObjectsOfType<UIWaypointController>(true); }
+            catch { return null; }
+        }
+
+        // ── Unlock gate ───────────────────────────────────────────
+        // True when any era controller lists the scene as unlocked. If the
+        // unlock data cannot be read at all, default to allow — documented
+        // tradeoff; LoadWaypointScene is the game's own gated path anyway.
+
+        static bool IsUnlocked(UIWaypointController[] all, string scene)
+        {
+            if (all == null || all.Length == 0) return true;
             bool readAnything = false;
-            try
+            foreach (UIWaypointController ctrl in all)
             {
-                UIWaypointController[] all = UnityEngine.Object.FindObjectsOfType<UIWaypointController>(true);
-                if (all == null || all.Length == 0) return true;
-
-                foreach (UIWaypointController ctrl in all)
+                try
                 {
-                    try
-                    {
-                        var unlocked = ctrl.unlockedScenes;
-                        if (unlocked == null) continue;
-                        int n = unlocked.Count;
-                        readAnything = true;
-                        for (int i = 0; i < n; i++)
-                            if ((unlocked[i] ?? "") == scene) return true;
-                    }
-                    catch { }
+                    var unlocked = ctrl.unlockedScenes;
+                    if (unlocked == null) continue;
+                    int n = unlocked.Count;
+                    readAnything = true;
+                    for (int i = 0; i < n; i++)
+                        if ((unlocked[i] ?? "") == scene) return true;
                 }
+                catch { }
             }
-            catch { return true; }
-
             if (!readAnything)
             {
                 Dbg.Log("unlock data unreadable — allowing travel attempt");
@@ -135,49 +180,38 @@ namespace medick_Terrible_Inventory
         }
 
         // ── Waypoint lookup ───────────────────────────────────────
-        // All 5 era controllers (Ancient/Divine/Imperial/Ruined/EoT) hold
-        // waypointsInMenu populated at scene load; search them all —
-        // FindObjectOfType (singular) was v1's original only-EoT-works bug.
+        // Search ALL controllers — FindObjectOfType (singular) was v1's
+        // original only-End-of-Time-works bug.
 
-        static UIWaypointStandard FindWaypointForScene(string targetScene)
+        static UIWaypointStandard FindWaypointForScene(UIWaypointController[] all, string targetScene)
         {
-            try
+            if (all == null) return null;
+            foreach (UIWaypointController ctrl in all)
             {
-                UIWaypointController[] all = UnityEngine.Object.FindObjectsOfType<UIWaypointController>(true);
-                if (all == null) return null;
-
-                foreach (UIWaypointController ctrl in all)
+                int count = 0;
+                try { count = ctrl.waypointsInMenu?.Count ?? 0; } catch { }
+                for (int i = 0; i < count; i++)
                 {
-                    int count = 0;
-                    try { count = ctrl.waypointsInMenu?.Count ?? 0; } catch { }
-                    for (int i = 0; i < count; i++)
+                    try
                     {
-                        try
-                        {
-                            UIWaypointStandard w = ctrl.waypointsInMenu[i]?.TryCast<UIWaypointStandard>();
-                            if (w != null && (w.sceneName ?? "") == targetScene)
-                                return w;
-                        }
-                        catch { }
+                        UIWaypointStandard w = ctrl.waypointsInMenu[i]?.TryCast<UIWaypointStandard>();
+                        if (w != null && (w.sceneName ?? "") == targetScene)
+                            return w;
                     }
+                    catch { }
                 }
-            }
-            catch (Exception e)
-            {
-                MelonLogger.Warning("waypoint search failed: " + e.Message);
             }
             return null;
         }
 
         // ── Silent era-controller primer (Andrew's fix, v1.3.0) ───
-        // For each controller: snapshot the activeSelf of its FULL ancestor
-        // chain, activate root→leaf so OnEnable fires, give it a frame, then
-        // restore the EXACT snapshot. Forcing everything false afterwards
-        // once wiped the world map empty — snapshot-restore is law.
+        // Snapshot the activeSelf of each controller's FULL ancestor chain,
+        // activate root→leaf so OnEnable fires, one frame, restore the EXACT
+        // snapshot. Forcing false afterwards once wiped the world map empty —
+        // snapshot-restore is law.
 
         static IEnumerator PrimeCoroutine()
         {
-            // Wait for a real playable scene (not boot/login/character select).
             float waited = 0f;
             while (waited < 30f)
             {
@@ -195,16 +229,13 @@ namespace medick_Terrible_Inventory
                 yield return new WaitForSeconds(0.5f);
                 waited += 0.5f;
             }
-            yield return new WaitForSeconds(0.5f);   // let the scene settle
+            yield return new WaitForSeconds(0.5f);
 
-            UIWaypointController[] all = null;
-            try { all = UnityEngine.Object.FindObjectsOfType<UIWaypointController>(true); } catch { }
-
+            UIWaypointController[] all = FindControllers();
             if (all == null || all.Length == 0)
             {
                 // Don't latch _primed — a later zone may have controllers;
-                // EnsurePrimed (called on every inventory open and travel
-                // click) will retry there.
+                // EnsurePrimed (every inventory open + travel click) retries.
                 Dbg.Log("primer: no era controllers in this scene — will retry later");
                 _primerRunning = false;
                 yield break;
@@ -238,10 +269,10 @@ namespace medick_Terrible_Inventory
                 }
                 catch { }
 
-                yield return null;                                // one frame for OnEnable
+                yield return null;
 
                 try { ctrl.gameObject.SetActive(wasActive); } catch { }
-                chain.Reverse();                                  // leaf → root
+                chain.Reverse();
                 foreach (var go in chain) { try { go.SetActive(false); } catch { } }
             }
 

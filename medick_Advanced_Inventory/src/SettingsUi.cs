@@ -51,7 +51,8 @@ namespace medick_Terrible_Inventory
             }
             catch (Exception ex)
             {
-                MelonLogger.Warning("settings injection failed: " + ex.Message);
+                // Latched: this Awake re-fires per panel instance.
+                NativeSettings.WarnDegradedOnce("settings injection failed: " + ex.Message);
             }
         }
 

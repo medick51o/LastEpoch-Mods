@@ -46,6 +46,10 @@ namespace medick_Terrible_Inventory
             catch { InventoryUi.ButtonBar = null; }   // collected reference — next panel re-injects
         }
 
+        // The travel guard spans the scene transition; arrival releases it.
+        public override void OnSceneWasLoaded(int buildIndex, string sceneName) =>
+            TravelService.NotifySceneLoaded();
+
         public override void OnApplicationQuit() => Prefs.Save();
     }
 }

@@ -72,10 +72,10 @@ namespace medick_Terrible_Inventory
             {
                 if (panel.Find(GUARD) != null) { ApplyVisibility(); return; }   // this panel already built
 
-                // Fresh panel instance: reset per-panel state.
+                // Fresh panel instance: reset the item registry only.
+                // _columnOpen/_groupOpen deliberately survive rebuilds — the
+                // player's collapse choices carry across zone changes.
                 _items.Clear();
-                _columnOpen = true;
-                for (int i = 0; i < _groupOpen.Length; i++) _groupOpen[i] = true;
 
                 // ── Master tab (always visible at the panel border) ──
                 _masterTab = NativeClone.Button(template, panel, GUARD, ToggleColumn);
@@ -116,6 +116,19 @@ namespace medick_Terrible_Inventory
             catch (Exception e)
             {
                 MelonLoader.MelonLogger.Error("teleport menu injection failed: " + e);
+                // Destroyed in catch: the GUARD object is built first, so a
+                // half-built column would otherwise latch forever and leave a
+                // QUICK TELEPORT tab that toggles nothing.
+                try
+                {
+                    if (_masterTab) UnityEngine.Object.DestroyImmediate(_masterTab);
+                    if (_column)    UnityEngine.Object.DestroyImmediate(_column);
+                }
+                catch { }
+                _masterTab = null;
+                _column = null;
+                _masterLabel = null;
+                _items.Clear();
             }
         }
 
@@ -142,8 +155,11 @@ namespace medick_Terrible_Inventory
             NativeClone.SetLayoutSize(go, COL_W, BTN_H);
 
             string hex = ColorUtility.ToHtmlStringRGB(d.color);
+            // Relative size tags + auto-sizing so "Circle of Fortune" and
+            // "Forgotten Knights" shrink-to-fit instead of clipping silently.
             NativeClone.SetRichLabel(go,
-                $"<size=11.5><b>{d.line1}</b></size>\n<size=9><color=#{hex}>{d.line2}</color></size>");
+                $"<b>{d.line1}</b>\n<size=78%><color=#{hex}>{d.line2}</color></size>",
+                baseSize: 11.5f, autoMin: 8.5f, autoMax: 11.5f);
             NativeClone.AddAccentBar(go, d.color);   // faction identity, native art untouched
 
             _items.Add((go, group));
@@ -151,8 +167,11 @@ namespace medick_Terrible_Inventory
 
         // ── State ─────────────────────────────────────────────────
 
+        // Explicit size: the donor label's auto-size leaves a nondeterministic
+        // fontSize behind (whatever its own localized string last computed).
         static string MasterLabelText() =>
-            _columnOpen ? "<b>< QUICK\nTELEPORT</b>" : "<b>> QUICK\nTELEPORT</b>";
+            _columnOpen ? "<size=12><b>< QUICK\nTELEPORT</b></size>"
+                        : "<size=12><b>> QUICK\nTELEPORT</b></size>";
 
         // ASCII arrows on purpose — the game's TMP font has no ▼/▶ glyphs.
         static string HeaderText(int g) =>
