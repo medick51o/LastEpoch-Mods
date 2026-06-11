@@ -1,5 +1,5 @@
 # MedicK's Terrible Tooltips
-**by medick** — v2.0.0
+**by medick** — v3.0.0
 
 WoW / Diablo 4 style tier and grade colouring on item tooltips and ground labels. If your eyes were trained by twenty years of loot games, they already know how to read this mod — zero deciphering required.
 
@@ -7,10 +7,15 @@ WoW / Diablo 4 style tier and grade colouring on item tooltips and ground labels
 
 ## Features
 
-### Tooltip Colours
-Affix names are coloured by **crafting tier** (T1 gray → T7 mythic pink) and a **grade letter** is appended showing how well the affix actually rolled within that tier (F = bottom of the range, S = near-perfect). Same tier, very different power — now you can see it at a glance.
+### The Clean Line (v3)
+One line per affix: the affix text plus a **`Tier 5·A`** signal — tier spelled out in its tier colour, grade letter in its grade colour. EHG's per-affix "Tier:" and "Range:" lines are folded away; a 4-affix exalted reads in ~5 lines instead of ~16. **Hold Alt while hovering** and the full detail (ranges, craft info) returns live; release and it's clean again.
 
-**v2.0.0: this finally works correctly on legendaries.** v1 graded legendary affixes off reconstructed display values, which broke on Legendary Potential items (a max-rolled 12% Mana could grade C). v2 reads the game's own stored roll bytes — the grade you see is the roll the game actually gave you.
+**Build it how you want** — three layouts (`BadgeLeft` default / `SignalRight` / `Trailing`), affix names in tier colour or the game's default, grade letters on or off, and pins to keep ranges/tier details permanently visible if Alt isn't your style.
+
+### Tooltip Colours
+Affix names are coloured by **crafting tier** (T1 gray → T7 mythic pink) and a **grade letter** shows how well the affix actually rolled within that tier (F = bottom of the range, S = near-perfect). Same tier, very different power — now you can see it at a glance.
+
+**Since v2.0.0 this works correctly on legendaries.** v1 graded legendary affixes off reconstructed display values, which broke on Legendary Potential items (a max-rolled 12% Mana could grade C). v2+ reads the game's own stored roll bytes — the grade you see is the roll the game actually gave you.
 
 ### Ground Labels
 Items on the ground show `[5A 3C 7S]` style brackets — tier number, grade letter, or both — so you can evaluate drops without hovering over everything. Uniques, sets and legendaries are deliberately left alone (Fallen Star's Improved Tooltips owns those, and does it better).
@@ -27,6 +32,11 @@ Hover any item and the tooltip shows **which loot filter rule matched it** — i
 | Terrible Tooltips | ON | Master switch — enables all tooltip colouring |
 | Tooltip: Tier Colors | ON | Colours affix names by crafting tier |
 | Tooltip: Rank Colors | ON | Colours grade letters by roll quality |
+| Tooltip Layout | BadgeLeft | Where the Tier·Grade signal sits: BadgeLeft / SignalRight / Trailing |
+| Affix Name Color | TierColor | Affix text in its tier colour, or the game's default text colour |
+| Show Grade Letters | ON | The S/A/B/C/F grades — turn off if you only want tiers |
+| Always Show Ranges | OFF | Pin Range lines permanently (or just hold Alt to peek) |
+| Always Show Tier Details | OFF | Pin the full "Tier: 5 (max craftable)" line (or hold Alt) |
 | Ground Label Style | Tier+Rank | Dropdown: None / TierAndRank / TierOnly / RankOnly |
 | Ground Labels: Filter Only | OFF | Only show brackets on loot-filter highlighted items |
 | Ground Labels: Hold Alt to Show | OFF | Hide brackets until you hold Alt (KG-style) |

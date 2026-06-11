@@ -23,6 +23,20 @@ public enum RuleNumberPosition
     End          // "PLATED BELT [5A 1F 4C] (69)"
 }
 
+// v3 clean-line layouts — the ship gate: several must work at release.
+public enum TooltipLayout
+{
+    BadgeLeft,    // "Tier 5·A  58% increased Lightning Damage"  ← default (Andrew's pick)
+    SignalRight,  // "58% increased Lightning Damage        Tier 5 A"
+    Trailing      // "58% increased Lightning Damage — Tier 5 A"
+}
+
+public enum AffixNameColorMode
+{
+    TierColor,   // affix text wears its tier color (the WoW retina read) ← default
+    GameDefault  // the game's own text color; only the Tier·Grade signal is colored
+}
+
 // All persisted settings. Category name, entry names and the cfg path are
 // FROZEN — the in-place upgrade path for v1.x users.
 internal static class Prefs
@@ -33,6 +47,13 @@ internal static class Prefs
     public static MelonPreferences_Entry<bool> EnableTooltips;
     public static MelonPreferences_Entry<bool> TooltipTierColors;
     public static MelonPreferences_Entry<bool> TooltipRankColors;
+
+    // v3 clean line
+    public static MelonPreferences_Entry<TooltipLayout>       Layout;
+    public static MelonPreferences_Entry<AffixNameColorMode>  NameColorMode;
+    public static MelonPreferences_Entry<bool>                ShowGradeLetters;
+    public static MelonPreferences_Entry<bool>                AlwaysShowRanges;
+    public static MelonPreferences_Entry<bool>                AlwaysShowTierDetails;
 
     // Ground labels
     public static MelonPreferences_Entry<GroundLabelStyle> LabelStyle;
@@ -56,6 +77,18 @@ internal static class Prefs
             "Tooltip Tier Colors", "Colour affix names by their crafting tier (T1 gray → T7 mythic)");
         TooltipRankColors = Category.CreateEntry("TooltipRankColors", true,
             "Tooltip Rank Colors", "Colour grade letters by roll quality (F gray → S mythic)");
+
+        // v3 — THE CLEAN LINE (one line per affix; the essay dies)
+        Layout = Category.CreateEntry("TooltipLayout", TooltipLayout.BadgeLeft,
+            "Tooltip Layout", "Where the Tier·Grade signal sits on each affix line (BadgeLeft / SignalRight / Trailing)");
+        NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.TierColor,
+            "Affix Name Color", "TierColor = affix text wears its tier color; GameDefault = game's own text color");
+        ShowGradeLetters = Category.CreateEntry("ShowGradeLetters", true,
+            "Show Grade Letters", "The S/A/B/C/F roll grade on each affix line");
+        AlwaysShowRanges = Category.CreateEntry("AlwaysShowRanges", false,
+            "Always Show Ranges", "Pin EHG's 'Range: X to Y' lines permanently (default: hidden, hold Alt to peek)");
+        AlwaysShowTierDetails = Category.CreateEntry("AlwaysShowTierDetails", false,
+            "Always Show Tier Details", "Pin EHG's full 'Tier: N (max craftable)' line (default: folded into the clean line, hold Alt to peek)");
 
         LabelStyle      = Category.CreateEntry("GroundLabelStyle", GroundLabelStyle.TierAndRank,
             "Ground Label Style", "What to show on items on the ground (None / TierAndRank / TierOnly / RankOnly)");

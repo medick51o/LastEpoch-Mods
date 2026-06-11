@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>medick_Terrible_Tooltips</AssemblyName>
     <RootNamespace>medick_Terrible_Tooltips</RootNamespace>
-    <Version>2.0.0</Version>
+    <Version>3.0.0</Version>
     <Nullable>disable</Nullable>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>

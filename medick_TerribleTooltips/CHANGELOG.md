@@ -1,5 +1,35 @@
 # Changelog — MedicK's Terrible Tooltips
 
+## v3.0.0 — THE CLEAN LINE
+One line per affix. The essay dies.
+
+### Changed
+- **Affix lines composed clean**: each affix is now ONE line — the affix
+  text plus a `Tier 5·A` signal (tier in its tier colour, grade in its
+  grade colour). EHG's separate "Tier: 5 (max craftable)" and
+  "Range: 40% to 60%" lines are folded away. A 4-affix exalted drops from
+  ~16 lines of tooltip to ~5.
+- **Hold Alt = deep view**: while hovering, hold Alt and the full EHG
+  detail (ranges, craft info) returns live under each affix. Release Alt
+  and it's clean again.
+
+### Added — the layout toy box
+- **Tooltip Layout** (dropdown): `BadgeLeft` — "Tier 5·A  affix text"
+  (default) · `SignalRight` — signal at the right edge · `Trailing` —
+  "affix text — Tier 5 A". Build it how you want.
+- **Affix Name Color** (dropdown): `TierColor` (default — the text wears
+  its tier colour) or `GameDefault` (only the signal is coloured).
+- **Show Grade Letters** (toggle): want the S/A/B/C/F gone? It's gone.
+- **Always Show Ranges / Always Show Tier Details** (toggles): pin the
+  deep-view lines permanently if Alt isn't your style. Both default OFF.
+
+### Unchanged on purpose
+- Ground labels — the KG bracket is beloved; not one byte touched.
+- Standalone set/unique Tier/Range widgets keep the v2 recolor treatment
+  (they're separate game widgets, not our essay to kill).
+- All v1/v2 settings, the cfg path, every ecosystem treaty (LeHud truce,
+  Fallen Star), and every crash law.
+
 ## v2.0.0 — the ground-up rebuild
 The whole mod was re-architected from a single 400-line Core.cs into twelve
 focused modules, with every battle-tested behaviour preserved verbatim.

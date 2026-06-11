@@ -49,6 +49,46 @@ internal static class SettingsUi
             Prefs.TooltipRankColors.Value,
             v => { Prefs.TooltipRankColors.Value = v; Prefs.Save(); });
 
+        // ── v3 clean line — the layout toy box ────────────────────────
+        // "by us giving the players the option to do B, do C, do A —
+        //  an EHG dev can toy with it and create ideas" — the ship gate.
+        NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Layout",
+            "<color=#FF44FF>Tooltip Layout</color>",
+            "Where the Tier·Grade signal sits on each affix line. " +
+            "BadgeLeft = 'Tier 5·A' leads the line. SignalRight = signal at the right edge. " +
+            "Trailing = name — Tier 5 A. Pick how your eye likes to scan.",
+            Prefs.Layout,
+            i => { Prefs.Layout.Value = (TooltipLayout)i; Prefs.Save(); });
+
+        NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Name Color",
+            "<color=#FF44FF>Affix Name Color</color>",
+            "TierColor = the affix text itself wears its tier color, so you identify it instantly. " +
+            "GameDefault = the game's own text color — only the Tier·Grade signal is colored.",
+            Prefs.NameColorMode,
+            i => { Prefs.NameColorMode.Value = (AffixNameColorMode)i; Prefs.Save(); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Grade Letters",
+            "<color=#FF44FF>Show Grade Letters</color>",
+            "The S/A/B/C/F roll grade on each affix line. Turn this off if you only want tiers — the letters are gone, no hard feelings.",
+            Prefs.ShowGradeLetters.Value,
+            v => { Prefs.ShowGradeLetters.Value = v; Prefs.Save(); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Pin Ranges",
+            "<color=#FF44FF>Always Show Ranges</color>",
+            "Pin the 'Range: X to Y' lines permanently. Default OFF — they're clutter; hold Alt while hovering to peek instead.",
+            Prefs.AlwaysShowRanges.Value,
+            v => { Prefs.AlwaysShowRanges.Value = v; Prefs.Save(); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Pin Tier Details",
+            "<color=#FF44FF>Always Show Tier Details</color>",
+            "Pin the full 'Tier: 5 (max craftable)' line. Default OFF — the tier is already on the clean line; hold Alt while hovering to peek at the detail.",
+            Prefs.AlwaysShowTierDetails.Value,
+            v => { Prefs.AlwaysShowTierDetails.Value = v; Prefs.Save(); });
+
+        NativeSettings.CreateInfoRow(settings, Cat, "TT - Alt Hint",
+            "<color=#FA9E3D>Hold Alt = deep view</color>",
+            "While hovering an item, hold Alt to reveal the full detail under each affix — ranges, craft info, everything the clean line tucked away. Release Alt and it's clean again.");
+
         // ── Color legend (honest info rows) ───────────────────────────
         NativeSettings.CreateInfoRow(settings, Cat, "TT - Tier Legend",
             "<color=#FF44FF>T7</color>  >  <color=#FA9E3D>T6</color>  >  <color=#A807FF>T5</color>  >  <color=#77ACFF>T4</color>  >  <color=#16FF0E>T3</color>  >  <color=#E1E1E1>T2</color>  >  <color=#DADADA>T1</color>",
