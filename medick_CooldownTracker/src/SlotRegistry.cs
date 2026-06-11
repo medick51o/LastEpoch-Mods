@@ -22,6 +22,8 @@ namespace medick_CooldownTracker
         public string RawLabel;
         public string DisplayLabel = "";
         public bool   TwoLine;
+        public bool   BadgeIsFace;     // label is a face button of the active mode
+        public Color  BadgeColor;      // its pad colour when BadgeIsFace
 
         public float NextHotkeyRetry;
         public int   HotkeyTries;
@@ -172,6 +174,11 @@ namespace medick_CooldownTracker
         internal static void RefreshLabel(SlotData s)
         {
             string lbl = ButtonLabels.Resolve(s.SlotIndex, s.GameBoundKey);
+            // Face identity is mode-dependent, so recompute even when the
+            // label string itself is unchanged (auto-detect can flip modes).
+            s.BadgeIsFace = ButtonLabels.TryGetFaceColor(
+                ButtonLabels.GetModeIndex(), lbl, out var fc);
+            s.BadgeColor = fc;
             if (lbl == s.RawLabel) return;
             s.RawLabel = lbl;
             int sp = lbl.IndexOf(' ');

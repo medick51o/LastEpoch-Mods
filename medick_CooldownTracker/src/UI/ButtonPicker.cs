@@ -7,23 +7,6 @@ namespace medick_CooldownTracker
     // pad colours (that's semantics, not decoration).
     internal static class ButtonPicker
     {
-        static readonly string[] PS5Face  = { "△", "□", "○", "✕" };
-        static readonly Color[]  PS5FaceC =
-        {
-            new(0.30f, 0.85f, 0.55f),   // △ Triangle – green
-            new(0.95f, 0.48f, 0.70f),   // □ Square   – pink
-            new(0.95f, 0.28f, 0.28f),   // ○ Circle   – red
-            new(0.38f, 0.52f, 0.96f),   // ✕ Cross    – blue
-        };
-        static readonly string[] XboxFace  = { "A", "B", "X", "Y" };
-        static readonly Color[]  XboxFaceC =
-        {
-            new(0.15f, 0.80f, 0.28f),   // A – green
-            new(0.90f, 0.20f, 0.15f),   // B – red
-            new(0.22f, 0.45f, 0.95f),   // X – blue
-            new(0.95f, 0.78f, 0.05f),   // Y – gold
-        };
-
         public static void Draw(int effMI)
         {
             float sc = Mathf.Clamp(Prefs.MenuScale.Value, 0.7f, 2.0f);
@@ -61,7 +44,7 @@ namespace medick_CooldownTracker
             float y = py + th + 7f * sc;
             if (effMI == 2)
             {
-                y = Group(px, y, pw, sc, "Face",    PS5Face,               PS5FaceC, 30);
+                y = Group(px, y, pw, sc, "Face",    ButtonLabels.PsFaceSyms, ButtonLabels.PsFaceCols, 30);
                 y = Group(px, y, pw, sc, "Bumper",  new[] { "L1", "R1" },  null,     24);
                 y = Group(px, y, pw, sc, "Trigger", new[] { "L2", "R2" },  null,     24);
                 y = Group(px, y, pw, sc, "Stick",   new[] { "L3", "R3" },  null,     24);
@@ -70,7 +53,7 @@ namespace medick_CooldownTracker
             }
             else
             {
-                y = Group(px, y, pw, sc, "Face",    XboxFace,              XboxFaceC, 30);
+                y = Group(px, y, pw, sc, "Face",    ButtonLabels.XboxFaceSyms, ButtonLabels.XboxFaceCols, 30);
                 y = Group(px, y, pw, sc, "Bumper",  new[] { "LB", "RB" },  null,      24);
                 y = Group(px, y, pw, sc, "Trigger", new[] { "LT", "RT" },  null,      24);
                 y = Group(px, y, pw, sc, "Stick",   new[] { "LS", "RS" },  null,      24);

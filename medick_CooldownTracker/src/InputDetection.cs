@@ -66,14 +66,49 @@ namespace medick_CooldownTracker
         }
     }
 
-    // Default button names per input mode, and resolution of the label that
-    // actually gets drawn for a slot (custom > game-bound key > default).
+    // Default button names per input mode, resolution of the label that
+    // actually gets drawn for a slot (custom > game-bound key > default),
+    // and the face-button colour identities shared by the overhead badges
+    // and the glyph picker.
     internal static class ButtonLabels
     {
         // 7 entries: slots 0-5 (skills) + slot 6 (evade/dodge)
         public static readonly string[] Xbox        = { "X",  "Y",  "RB", "LT", "L",  "RT", "B"     };
         public static readonly string[] PlayStation = { "□",  "△",  "R1", "L2", "L3", "R2", "○"     };
         public static readonly string[] Keyboard    = { "Q",  "W",  "E",  "R",  "RMB","T",  "Space" };
+
+        // Face buttons drawn in their real-world pad colours.
+        public static readonly string[] XboxFaceSyms = { "A", "B", "X", "Y" };
+        public static readonly Color[]  XboxFaceCols =
+        {
+            new(0.15f, 0.80f, 0.28f),   // A – green
+            new(0.90f, 0.20f, 0.15f),   // B – red
+            new(0.22f, 0.45f, 0.95f),   // X – blue
+            new(0.95f, 0.78f, 0.05f),   // Y – gold
+        };
+        public static readonly string[] PsFaceSyms = { "△", "□", "○", "✕" };
+        public static readonly Color[]  PsFaceCols =
+        {
+            new(0.30f, 0.85f, 0.55f),   // △ Triangle – green
+            new(0.95f, 0.48f, 0.70f),   // □ Square   – pink
+            new(0.95f, 0.28f, 0.28f),   // ○ Circle   – red
+            new(0.38f, 0.52f, 0.96f),   // ✕ Cross    – blue
+        };
+
+        // True when `label` is a face button of the given mode; out = its colour.
+        public static bool TryGetFaceColor(int modeIdx, string label, out Color c)
+        {
+            c = default;
+            if (string.IsNullOrEmpty(label)) return false;
+            string[] syms; Color[] cols;
+            if      (modeIdx == 1) { syms = XboxFaceSyms; cols = XboxFaceCols; }
+            else if (modeIdx == 2) { syms = PsFaceSyms;   cols = PsFaceCols;   }
+            else return false;
+            for (int i = 0; i < syms.Length; i++)
+                if (string.Equals(label, syms[i], StringComparison.OrdinalIgnoreCase))
+                { c = cols[i]; return true; }
+            return false;
+        }
 
         // modeIdx: 0=Keyboard  1=Xbox  2=PlayStation
         public static int GetModeIndex()

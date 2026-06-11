@@ -37,8 +37,9 @@ namespace medick_CooldownTracker
         // ── Textures & core styles ────────────────────────────────
         static bool _ready;
         public static GUIStyle Panel, Card, CardHi, InsetBox, SwitchOn, SwitchOff;
-        static GUIStyle _btn, _btnSelected, _btnDanger, _textField, _label, _iconLabel;
+        static GUIStyle _btn, _btnSelected, _btnDanger, _textField, _label, _iconLabel, _badgeLabel;
         static GUIStyle _sliderThumb;
+        public static Texture2D Disc { get; private set; }
         static Font _serif;
         static readonly Dictionary<(int size, FontStyle fs, TextAnchor anchor, bool serif), GUIStyle> _labels = new();
         static readonly Dictionary<(int size, int kind), GUIStyle> _buttons = new();
@@ -99,12 +100,34 @@ namespace medick_CooldownTracker
             };
             _label.normal.textColor = Color.white;   // tinted via GUI.color at draw time
 
-            _iconLabel = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter, wordWrap = false };
+            _iconLabel  = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter, wordWrap = false };
+            _badgeLabel = new GUIStyle(_iconLabel) { fontStyle = FontStyle.Bold };
+
+            Disc = MakeDisc(64);
 
             _sliderThumb = new GUIStyle();
             _sliderThumb.normal.background = Bordered(Accent, AccentDim);
             _sliderThumb.hover.background  = Bordered(Accent, Accent);
             _sliderThumb.border = new RectOffset(1, 1, 1, 1);
+        }
+
+        // Anti-aliased white disc, tinted at draw time — the basis for the
+        // console button badges (no Microsoft/Sony assets, just math).
+        static Texture2D MakeDisc(int size)
+        {
+            var t = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            { hideFlags = HideFlags.HideAndDontSave, filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+            float c = (size - 1) * 0.5f;
+            float radius = size * 0.5f - 1.5f;
+            for (int yy = 0; yy < size; yy++)
+                for (int xx = 0; xx < size; xx++)
+                {
+                    float dx = xx - c, dy = yy - c;
+                    float a = Mathf.Clamp01(radius - Mathf.Sqrt(dx * dx + dy * dy) + 0.5f);
+                    t.SetPixel(xx, yy, new Color(1f, 1f, 1f, a));
+                }
+            t.Apply();
+            return t;
         }
 
         static Texture2D Bordered(Color fill, Color border)
@@ -170,6 +193,34 @@ namespace medick_CooldownTracker
             _iconLabel.fontSize = fontSize;
             _iconLabel.normal.textColor = color;
             return _iconLabel;
+        }
+
+        // Bold centered glyph style for button badges.
+        public static GUIStyle BadgeLabel(int fontSize, Color color)
+        {
+            _badgeLabel.fontSize = fontSize;
+            _badgeLabel.normal.textColor = color;
+            return _badgeLabel;
+        }
+
+        public static void DrawDisc(Rect r, Color c)
+        {
+            GUI.color = c;
+            GUI.DrawTexture(r, Disc);
+            GUI.color = Color.white;
+        }
+
+        // Pill shape composed from two discs + a centre rect (seamless when
+        // the rect is drawn last, covering the discs' inner AA edges).
+        public static void DrawCapsule(Rect r, Color c)
+        {
+            GUI.color = c;
+            float h = r.height;
+            GUI.DrawTexture(new Rect(r.x, r.y, h, h), Disc);
+            GUI.DrawTexture(new Rect(r.xMax - h, r.y, h, h), Disc);
+            if (r.width > h)
+                GUI.DrawTexture(new Rect(r.x + h * 0.5f, r.y, r.width - h, h), Texture2D.whiteTexture);
+            GUI.color = Color.white;
         }
 
         // ── Primitive draw helpers ────────────────────────────────

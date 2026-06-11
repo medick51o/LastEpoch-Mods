@@ -18,6 +18,7 @@ namespace medick_CooldownTracker
         public static MelonPreferences_Entry<int>   InputMode;   // 0=Auto 1=KB 2=Xbox 3=PS5
         public static MelonPreferences_Entry<int>   CtrlLayout;  // 0=Auto 1=Xbox 2=PS5
         public static MelonPreferences_Entry<bool>  LockInput;
+        public static MelonPreferences_Entry<bool>  ButtonBadges;
         public static MelonPreferences_Entry<bool>  DebugLog;
         public static MelonPreferences_Entry<float> PanelX;
         public static MelonPreferences_Entry<float> PanelY;
@@ -46,6 +47,7 @@ namespace medick_CooldownTracker
             InputMode  = cat.CreateEntry("InputMode",  0,     "0=Auto 1=KB 2=Xbox 3=PS5");
             CtrlLayout = cat.CreateEntry("CtrlLayout", 0,     "0=Auto 1=Xbox 2=PS5");
             LockInput  = cat.CreateEntry("LockInputWhenOpen", false, "Block movement inputs while settings open");
+            ButtonBadges = cat.CreateEntry("ButtonBadges", true, "Draw console-style button badges instead of text labels");
             DebugLog   = cat.CreateEntry("DebugLog",   false, "Verbose log output");
             PanelX     = cat.CreateEntry("PanelX",     DefaultPanelX, "Settings panel screen X");
             PanelY     = cat.CreateEntry("PanelY",     DefaultPanelY, "Settings panel screen Y");

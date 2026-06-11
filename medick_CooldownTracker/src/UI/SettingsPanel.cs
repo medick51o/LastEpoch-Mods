@@ -48,7 +48,7 @@ namespace medick_CooldownTracker
             float autoH   = Prefs.InputMode.Value == 0
                 ? 20f * sc + 24f * sc                       // status row + layout override row
                 : 0f;
-            float sliders = 5 * 26f * sc + 26f * sc            // 5 sliders + Move row
+            float sliders = 5 * 26f * sc + 2 * 26f * sc        // 5 sliders + Move row + badges row
                 + (UiState.MoveIcons ? 20f * sc : 0f);         // hint while moving
             float behave  = 2 * 26f * sc;
             float gapSect = 8f * sc;
@@ -134,6 +134,7 @@ namespace medick_CooldownTracker
                         "drag the icon cluster in the game view — sliders follow", Theme.Accent);
             }
 
+            y = Widgets.SwitchRow(x, y, cw, sc, "Console button badges", Prefs.ButtonBadges);
             y = Widgets.SliderRow(x, y, cw, sc, "Menu scale",        Prefs.MenuScale, 0.7f,  2.0f, "F1");
             y += gapSect;
 

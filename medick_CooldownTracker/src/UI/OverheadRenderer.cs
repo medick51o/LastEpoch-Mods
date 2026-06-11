@@ -139,7 +139,56 @@ namespace medick_CooldownTracker
                 ? new Color(0.25f, 1f, 0.35f, alpha)
                 : new Color(1f, 0.55f, 0.1f, alpha * 0.85f), 2);
 
-            // Label strip ("Flame Ward" renders stacked as Flame / Ward)
+            // Label: console button badge for short button-like labels (when
+            // enabled), classic text strip for spell names / long customs.
+            string lbl = s.RawLabel ?? "";
+            bool badge = Prefs.ButtonBadges.Value && !s.TwoLine
+                && lbl.Length > 0 && lbl.Length <= 5;
+            if (badge) DrawBadge(r, s, lbl, alpha);
+            else       DrawLabelStrip(r, s, alpha, nearReady);
+            GUI.color = Color.white;
+        }
+
+        // Round face button (red B, gold Y, blue ✕…) or a capsule keycap
+        // (RB, LT, L3, Q…), centred on the icon's bottom edge — drawn from a
+        // runtime-generated anti-aliased disc, no console assets involved.
+        static void DrawBadge(Rect r, SlotData s, string lbl, float alpha)
+        {
+            float d  = Mathf.Clamp(r.height * 0.40f, 16f, 44f);
+            float cx = r.x + r.width * 0.5f;
+            float cy = r.yMax;
+            float ring  = Mathf.Max(1.5f, d * 0.09f);
+            var   body  = new Color(0.07f, 0.08f, 0.11f, alpha * 0.95f);
+
+            if (s.BadgeIsFace)
+            {
+                var br = new Rect(cx - d * 0.5f, cy - d * 0.5f, d, d);
+                Theme.DrawDisc(Theme.Pad(br, d * 0.10f), new Color(0f, 0f, 0f, alpha * 0.50f));
+                var rc = s.BadgeColor; rc.a = alpha;
+                Theme.DrawDisc(br, rc);                          // coloured ring
+                Theme.DrawDisc(Theme.Pad(br, -ring), body);      // dark face
+                int fs = Mathf.Max(9, Mathf.RoundToInt(d * 0.52f));
+                GUI.color = rc;
+                GUI.Label(br, lbl, Theme.BadgeLabel(fs, rc));
+            }
+            else
+            {
+                int   fs    = Mathf.Max(8, Mathf.RoundToInt(d * 0.46f));
+                float textW = lbl.Length * fs * 0.62f;
+                float w     = Mathf.Max(d, textW + d * 0.55f);
+                var   br    = new Rect(cx - w * 0.5f, cy - d * 0.5f, w, d);
+                var   ringC = new Color(0.66f, 0.66f, 0.72f, alpha);
+                Theme.DrawCapsule(Theme.Pad(br, d * 0.10f), new Color(0f, 0f, 0f, alpha * 0.50f));
+                Theme.DrawCapsule(br, ringC);
+                Theme.DrawCapsule(Theme.Pad(br, -ring), body);
+                var txtC = new Color(0.93f, 0.90f, 0.84f, alpha);
+                GUI.color = txtC;
+                GUI.Label(br, lbl, Theme.BadgeLabel(fs, txtC));
+            }
+        }
+
+        static void DrawLabelStrip(Rect r, SlotData s, float alpha, bool nearReady)
+        {
             float lh = s.TwoLine
                 ? Mathf.Max(28f, r.height * 0.42f)
                 : Mathf.Max(15f, r.height * 0.23f);
@@ -153,7 +202,6 @@ namespace medick_CooldownTracker
             int fontSize = Mathf.Max(8, Mathf.RoundToInt(r.height * (s.TwoLine ? 0.13f : 0.20f)));
             GUI.color = lblCol;
             GUI.Label(lr, s.DisplayLabel, Theme.IconLabel(fontSize, lblCol));
-            GUI.color = Color.white;
         }
     }
 }

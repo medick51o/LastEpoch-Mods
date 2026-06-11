@@ -8,6 +8,13 @@ Terrible Tooltips and Terrible Inventory. Internal name, DLL, preferences and
 the Nexus upgrade path are unchanged (`medick_CooldownTracker`).
 
 ### Added
+- **Console button badges** — short button labels render as real console-style
+  buttons under each skill icon: round face buttons in authentic pad colours
+  (red B, gold Y, green △, blue ✕…) and capsule keycaps for bumpers/triggers/
+  sticks/keys (RB, LT, L3, Q…). Drawn procedurally from a runtime-generated
+  anti-aliased disc — no image assets shipped. Spell-name labels keep the
+  classic text strip. Toggleable in DISPLAY ("Console button badges", on by
+  default).
 - **Move mode** — press *Move* next to the offset sliders, drag the floating
   icon cluster in the game view to wherever you want it, press *Lock*. The
   sliders follow live and remain available for precision nudges. Game input

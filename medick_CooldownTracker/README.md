@@ -8,6 +8,7 @@
 
 - **Real skill artwork, zero bundled files** — icons are read live from the game's own UI sprites in memory (atlas-aware sampling), so they always match your actual build
 - **Floating overhead icons** — hover above your head while skills cool down, with a sweep fill, ready-flash border, and key label
+- **Console button badges** — button labels render as real console-style buttons under each icon: colour-true round face buttons (red B, gold Y, green △, blue ✕…) and capsule keycaps for bumpers/triggers/keys; procedurally drawn, toggleable
 - **Move mode** — press *Move* in the settings, drag the icon cluster to wherever you want it floating, press *Lock*. The offset sliders stay for precision and follow your drag live
 - **Gameplay-aware** — icons only render while a living player is on screen; menus and the login screen stay clean
 - **Settings panel that stays put** — drag it anywhere; position is saved and restored every session
