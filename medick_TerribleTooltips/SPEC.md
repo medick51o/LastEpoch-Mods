@@ -68,11 +68,14 @@ the v3 candidate — not attempted in the legacy rebuild's risk budget.
 2. `UpdatePrefixAndSuffixesText` is unpatchable. `UpdateLayout` is the hook.
 3. No Il2Cpp generic List parameters in any patch signature; parameter
    names copied verbatim from the game ('data', 'value', 'ttInfo', '_item').
-4. Ground labels: one-frame coroutine; `tmp.text = ""` vertex-buffer ritual;
+4. Ground labels: one-frame coroutine;
    `sceneFollower?.calculateDimensions()`; three-zero-width-space Marker
    (double-process guard AND MedianAura strip); reuse EHG's written text as
    the base (never rebuild from FullName); `\((\d+)\)` parenthesized rule
-   regex; never ToUpper assembled rich text.
+   regex; never ToUpper assembled rich text. (The old `tmp.text = ""`
+   vertex-buffer ritual was deliberately RETIRED in v1.5.0's LeHud truce —
+   direct write avoids a blank frame other mods could react to; SetText's
+   faceColor save/restore is the canonical form.)
 5. LeHud truce: SetText faceColor save/restore on every ground-label write;
    never call `LoadFilter("")`.
 6. Fallen treaty: `isUniqueSetOrLegendary()` ground items are skipped,

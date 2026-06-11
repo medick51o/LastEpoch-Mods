@@ -16,7 +16,7 @@ Affix names are coloured by **crafting tier** (T1 gray → T7 mythic pink) and a
 Items on the ground show `[5A 3C 7S]` style brackets — tier number, grade letter, or both — so you can evaluate drops without hovering over everything. Uniques, sets and legendaries are deliberately left alone (Fallen Star's Improved Tooltips owns those, and does it better).
 
 ### Filter Rule Number
-Hover any item and the tooltip shows **which loot filter rule matched it** — in gold, e.g. `Rule#69`. Switch it to NumberAndName mode and you get the rule's name too ("Rule #69: Maxroll told me to pick this up blah blah"). You can also reposition EHG's native rule number on ground labels (start / end / default).
+Hover any item and the tooltip shows **which loot filter rule matched it** — in orange-gold (T6's shade), e.g. `Rule#69`. Switch it to NumberAndName mode and you get the rule's name too ("Rule #69: Maxroll told me to pick this up blah blah"). You can also reposition EHG's native rule number on ground labels (start / end / default).
 
 ---
 
@@ -47,7 +47,7 @@ Settings persist to `UserData/medick_Terrible_Tooltips.cfg` — editable by hand
 | T3 | Green |
 | T4 | Blue |
 | T5 | Purple |
-| T6 | Orange |
+| T6 | Orange-Gold |
 | T7 | Mythic Pink |
 
 ## Grade Letters

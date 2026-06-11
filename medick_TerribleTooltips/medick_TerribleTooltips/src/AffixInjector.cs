@@ -41,12 +41,10 @@ public static class AffixInjector
             ? $"[<color={Colors.TierColor(tier)}>{tier}</color><color={gradeColor}>{gradeLetter}</color>] "
             : $"[<color={gradeColor}>{gradeLetter}</color>] ";
 
-        // Insert before the last newline if the string is multi-line
-        // (KG convention so the bracket stays on the first line)
-        int lastNewLine = affixStr.LastIndexOf('\n');
-        return lastNewLine == -1
-            ? bracket + affixStr
-            : bracket + affixStr.Insert(lastNewLine, "");
+        // Prepending keeps the bracket on the first line of multi-line
+        // strings. (v1 had a dead Insert(lastNewLine, "") branch here —
+        // a no-op since forever; the fleet finally retired it.)
+        return bracket + affixStr;
     }
 
     // ── Patch: normal craftable affixes (prefix / suffix) ────────────
@@ -99,11 +97,14 @@ public static class AffixInjector
                 }
                 else
                 {
+                    // uniqueRolls fetched only for the bounds check; the read
+                    // goes through the game's own accessor — the exact path
+                    // the ApiProbe research validated.
                     var rolls = item.uniqueRolls;
                     byte rollId = uniqueMod.rollID;
                     if (rolls != null && rollId < rolls.Length)
                     {
-                        roll = rolls[rollId] / 255f;
+                        roll = item.getUniqueRoll(rollId) / 255f;
                     }
                     else
                     {

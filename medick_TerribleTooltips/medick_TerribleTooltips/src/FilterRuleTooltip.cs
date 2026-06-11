@@ -23,7 +23,9 @@ namespace medick_Terrible_Tooltips;
 
 public static class FilterRuleTooltip
 {
-    private const string Marker = "​​";
+    // Two zero-width spaces (vs GroundLabels' three) — escapes, not
+    // literal chars: load-bearing bytes must be visible in review.
+    private const string Marker = "\u200B\u200B";
     private const string Gold   = "#FA9E3D";
 
     private static ItemDataUnpacked s_pendingItem  = null;
@@ -61,6 +63,9 @@ public static class FilterRuleTooltip
     // ── Called from OnUpdate — injects after tooltip is rendered ──────
     public static void MonitorUpdate()
     {
+        // Master toggle promises "turn this off to restore default item
+        // tooltips" — that includes the gold Rule #, which defaults ON in v2.
+        if (!Prefs.EnableTooltips.Value) return;
         var mode = Prefs.ShowFilterRuleNumber.Value;
         if (mode == FilterRuleDisplay.Off) return;
 
@@ -81,13 +86,21 @@ public static class FilterRuleTooltip
 
             if (s_pendingItem == null || s_injected) return;
 
-            // Marker already present → re-hover of same item, injection persisted
+            // Marker already present → re-hover of same item, injection
+            // persisted. Scan ONLY the 'requires' TMP (the sole element we
+            // inject into) — a whole-tooltip scan could false-positive on
+            // another mod's zero-width characters and silently suppress us.
             try
             {
                 foreach (var tmp in tooltipUI.GetComponentsInChildren<TextMeshProUGUI>())
                 {
-                    if (tmp != null && (tmp.text ?? "").Contains(Marker))
-                    { s_injected = true; return; }
+                    if (tmp == null || tmp.gameObject.name != "requires") continue;
+                    if ((tmp.text ?? "").Contains(Marker))
+                    {
+                        s_injected = true;
+                        Dbg.Log("marker already in 'requires' — injection persisted");
+                        return;
+                    }
                 }
             }
             catch { }

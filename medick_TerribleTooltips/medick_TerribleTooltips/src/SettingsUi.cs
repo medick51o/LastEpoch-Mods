@@ -81,14 +81,14 @@ internal static class SettingsUi
         NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Rule Display",
             "<color=#FF44FF>Tooltip: Show Filter Rule #</color>",
             "Adds the matched loot filter rule number to the item tooltip on hover. " +
-            "Off = nothing. NumberOnly = 'Rule #69'. NumberAndName = 'Rule #69: Maxroll told me to pick this up blah blah'. " +
+            "Off = nothing. NumberOnly = 'Rule#69'. NumberAndName = 'Rule #69: Maxroll told me to pick this up blah blah'. " +
             "Works alongside Fallen Star's Improved Tooltips.",
             Prefs.ShowFilterRuleNumber,
             i => { Prefs.ShowFilterRuleNumber.Value = (FilterRuleDisplay)i; Prefs.Save(); });
 
         NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Rule Position",
             "<color=#FF44FF>Ground Label: Rule # Position</color>",
-            "Controls where EHG's filter rule number appears on the ground label relative to our tier/rank brackets. " +
+            "Controls where the game's own filter rule number (the one EHG — Eleventh Hour Games, the devs — draws on ground labels) appears relative to our tier/rank brackets. " +
             "See the reference box below for a visual preview of each option. " +
             "Only applies when Ground Label Style is not set to None.",
             Prefs.LabelRulePosition,

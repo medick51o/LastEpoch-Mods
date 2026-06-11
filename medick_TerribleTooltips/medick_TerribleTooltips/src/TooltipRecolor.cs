@@ -263,8 +263,18 @@ public static class TooltipRecolor
             }
             catch (Exception ex)
             {
-                MelonLogger.Warning("tooltip recolor error: " + ex.Message);
+                // Latched: UpdateLayout fires on every tooltip layout — an
+                // unlatched warning here would spam a whole farming session.
+                if (!s_recolorWarned)
+                {
+                    s_recolorWarned = true;
+                    MelonLogger.Warning(
+                        $"tooltip recolor failing ({ex.Message}) — colors may be missing until restart");
+                }
+                else Dbg.Log("tooltip recolor error: " + ex.Message);
             }
         }
+
+        private static bool s_recolorWarned;
     }
 }

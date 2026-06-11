@@ -152,7 +152,9 @@ inverse, available as a cross-check).
 
 ### Ground labels (battle-tested subsystem — minimal change)
 - GroundItemLabel.SetGroundTooltipText(bool) postfix + ONE-frame coroutine;
-  tmp.text = "" first (TMP vertex-buffer ritual) then text;
+  direct text write via SetText (faceColor save/restore) — the old
+  tmp.text = "" vertex-buffer ritual was RETIRED in v1.5.0's LeHud truce
+  (the blank frame it caused was something other mods could react to);
   sceneFollower?.calculateDimensions() after; Marker = three zero-width
   spaces (load-bearing twice: double-processing guard + MedianAura strip).
 - MedianAura fix: REUSE EHG's written text as base (preserves the native

@@ -22,8 +22,9 @@ namespace medick_Terrible_Tooltips;
 
 public static class GroundLabels
 {
-    // Zero-width space marker — prevents double-processing a label
-    private const string Marker = "​​​";
+    // Zero-width space marker — prevents double-processing a label.
+    // Escapes, not literal chars: load-bearing bytes must be visible.
+    private const string Marker = "\u200B\u200B\u200B";
 
     // EHG's trailing rule number: "Ruby Ring (53)" — parenthesized
     // (the bare-number regex was v1.4's silent failure)
@@ -55,7 +56,10 @@ public static class GroundLabels
             {
                 if (label.itemText == null) continue;
                 string target = altHeld ? bracketed : plain;
-                SetText(label.itemText, (label.emphasized ? target.ToUpper() : target) + Marker);
+                // No ToUpper here (Law 4): the cached strings were assembled
+                // from EHG's text, which is already uppercased for emphasized
+                // labels — re-uppercasing would mangle the <color> tags.
+                SetText(label.itemText, target + Marker);
                 label.sceneFollower?.calculateDimensions();
             }
             catch { }

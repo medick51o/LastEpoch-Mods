@@ -32,6 +32,10 @@ internal static class NativeSettings
     };
 
     static bool _degradedWarned;
+    // Pins listener delegates so IL2CPP never GCs one out from under a live
+    // widget. Grows by one set per settings-panel Awake — bounded by how
+    // many times a player opens settings per session; accepted, not pruned
+    // (pruning risks collecting a delegate a surviving widget still calls).
     static readonly List<Delegate> _keepAlive = new();
 
     public static void WarnDegradedOnce(string detail)
@@ -208,7 +212,16 @@ internal static class NativeSettings
             if (toggle != null)
             {
                 toggle.onValueChanged = new Toggle.ToggleEvent();
-                var listener = new Action<bool>(_ => onClick?.Invoke());
+                // Pure button: start unchecked and snap back after every
+                // press, so the donor checkbox never latches a meaningless
+                // state (v1 parity — the rebuild briefly dropped this).
+                try { toggle.SetIsOnWithoutNotify(false); }
+                catch { toggle.isOn = false; }   // safe: no listeners yet
+                var listener = new Action<bool>(_ =>
+                {
+                    try { toggle.SetIsOnWithoutNotify(false); } catch { }
+                    onClick?.Invoke();
+                });
                 _keepAlive.Add(listener);
                 toggle.onValueChanged.AddListener(listener);
             }
@@ -313,6 +326,11 @@ internal static class NativeSettings
                 UnityEngine.Object.DestroyImmediate(row.GetChild(1).GetComponent<LocalizeStringEvent>());
 
                 ColoredIconDropdown dropdown = row.GetChild(3).GetComponent<ColoredIconDropdown>();
+                // RemoveAllListeners (not a fresh event object like the
+                // toggles get): ColoredIconDropdown may carry serialized
+                // listeners tied to its own visuals; the donor's settings
+                // handlers die with the components destroyed above. This
+                // asymmetry is deliberate and shipped-proven since v1.
                 dropdown.onValueChanged.RemoveAllListeners();
                 dropdown.ClearOptions();
                 Il2CppSystem.Collections.Generic.List<string> opts = new();
