@@ -26,11 +26,10 @@ namespace medick_Terrible_Inventory
         const float GAP   = 3f;
         const float COL_W = 118f;
 
-        // Shared top edge for the tab AND the column — raised to the
-        // helmet/amulet equipment row so the tab mirrors the amulet slot
-        // (in-game pass #2, 2026-06-11: "symmetrical with the box to the
-        // right of the helmet"). Screenshot-estimated; nudge with evidence.
-        const float TOP_Y = 62f;
+        // Shared top edge for the tab AND the column — aligned with the
+        // helmet/amulet equipment row so the tab mirrors the amulet slot.
+        // Tuning log: -4 (too low) → 62 (overshot, pass #3) → 22.
+        const float TOP_Y = 22f;
 
         // Master tab sits to the RIGHT of the panel's decorative border bar
         // (~52 canvas units wide) so the frame art can't cover its text.
