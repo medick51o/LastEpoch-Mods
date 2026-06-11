@@ -5,8 +5,6 @@
     <AssemblyName>medick_Terrible_Inventory</AssemblyName>
     <RootNamespace>medick_Terrible_Inventory</RootNamespace>
     <Nullable>disable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -51,6 +49,16 @@
       <HintPath>$(GM)Unity.Localization.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(GM)UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
+
+  <!-- Auto-copy built DLL to Last Epoch Mods folder after each build -->
+  <Target Name="CopyToMods" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath)"
+          DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\Mods\" />
+  </Target>
 
 </Project>

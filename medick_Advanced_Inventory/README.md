@@ -1,52 +1,56 @@
-# Terrible Inventory
-**by medick** — v1.5.0
-*(formerly medick_Advanced_Inventory)*
+# MedicK's Terrible Inventory
 
-Quality-of-life buttons and a collapsible quick-teleport menu added directly to the inventory panel.
+*an inventory mod* — **Terrible Inventory** for short. A [MelonLoader](https://melonwiki.xyz) mod for **Last Epoch** that puts the things you actually do — stashing, vendoring, getting around — one click from your inventory.
 
----
+> Nexus Mods: [Terrible Inventory](https://www.nexusmods.com/lastepoch/mods/29) · by medick · internal name `medick_Terrible_Inventory` · formerly Advanced Inventory
 
 ## Features
 
-### Inventory Buttons
-Three extra buttons sit next to the Sort button at the bottom of the inventory:
+- **STASH** — open your stash from anywhere
+- **STASH ALL** — dump your whole inventory into the stash at a server-friendly pace (affinity tabs respected; it's a dump button, not a sorting service — blast and get back to the action)
+- **VENDOR** — open the NPC vendor from anywhere
+- **Quick Teleport** — a collapsible menu on the inventory panel: FACTIONS (Circle of Fortune, Merchant's Guild, Forgotten Knights, The Woven) · DUNGEONS (Lightless Arbor, Temporal Sanctum, Soulfire Bastion) · HUBS (End of Time, Champion's Gate). Works without ever opening the map; only travels to waypoints your character has unlocked — these are the game's own waypoints, not teleport hacks
+- **Native look** — every button is built from the game's own UI (sprites, font, hover behavior). v2 contains zero hand-drawn rectangles
+- **Controller / Steam Deck** — buttons stay visible in controller mode (the right stick moves a cursor, so they're fully usable on pad); touch-sized targets
+- **Choose what you see** — Settings → Terrible Inventory: every button and the teleport menu can be toggled individually
 
-| Button | What it does |
-|---|---|
-| STASH | Opens your stash from anywhere |
-| STASH ALL | Moves every item in your inventory to the stash |
-| VENDOR | Opens the NPC vendor shop from anywhere |
+## Controls
 
-### Quick Teleport Menu
-A collapsible column on the left side of the inventory panel with one-click travel to every major hub, faction, and dungeon entrance — grouped by era.
-
-| Era | Destinations |
-|---|---|
-| Divine Era | Circle of Fortune · Merchant's Guild · Champion's Gate |
-| Imperial Era | Soulfire Bastion |
-| Ruined Era | Lightless Arbor · Temporal Sanctum |
-| End of Time | Forgotten Knights · The Woven · The End of Time |
-
-Click **QUICK TELEPORT** to collapse or expand the whole column. Each era header is also clickable to collapse just that group.
-
-Teleport works instantly from anywhere — no need to open the world map first.
-
----
-
-## Compatibility
-- Works standalone
-- Controller / Steam Deck supported — buttons stay visible in controller mode
-- Compatible with MelonLoader 0.7.2+
-
----
+Everything lives on the inventory panel. `QUICK TELEPORT` tab collapses/expands the column; group headers collapse their sections.
 
 ## Installation
-Drop `medick_Terrible_Inventory.dll` into your `Last Epoch/Mods/` folder.
 
-Requires **MelonLoader 0.7.2+**.
+1. Install [MelonLoader 0.6.x](https://melonwiki.xyz) into Last Epoch
+2. Drop `medick_Terrible_Inventory.dll` into `Last Epoch/Mods/`
+3. Open your inventory
 
----
+Upgrading from v1.x: just replace the DLL.
 
-## Credits & Inspiration
-Inspired by **KillingGodVH's** LastEpochImprovements mod ([war3i4i/LastEpochImprovements](https://github.com/war3i4i/LastEpochImprovements)).
-Built with the help of Claude (Anthropic).
+> ⚠️ STASH/VENDOR-from-anywhere is a gray area in online play — use at your own risk. Recommended for offline.
+
+## Credits
+
+Inspired by **war3i4i / KillingGodVH**'s LastEpochImprovements; the settings-screen injection uses his technique. Built with Claude (Anthropic).
+
+## Building from source
+
+```bash
+dotnet build -c Release
+```
+
+The build auto-copies the DLL into the game's Mods folder. Source layout:
+
+```
+src/
+  TerribleInventoryMod.cs          MelonMod lifecycle + controller-mode keep-alive
+  TerribleInventoryMod.Patches.cs  Harmony patches (inventory + settings panels)
+  InventoryUi.cs                   Footer buttons + Stash All
+  TeleportMenu.cs                  Quick Teleport column (native clones)
+  TravelService.cs                 Unlock gate · waypoint lookup · silent era primer
+  NativeClone.cs                   The EHG-proud factory (clone, never paint)
+  SettingsUi.cs                    The Terrible Inventory settings category
+  NativeSettings.cs                KG-derived native settings injection helpers
+  BuildInfo.cs / Prefs.cs          Identity + persisted settings
+```
+
+See [SPEC.md](SPEC.md) for the behavior contract and [ARCHAEOLOGY.md](ARCHAEOLOGY.md) for the recovered development history.
