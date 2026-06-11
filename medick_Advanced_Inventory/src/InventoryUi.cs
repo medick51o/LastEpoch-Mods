@@ -103,6 +103,11 @@ namespace medick_Terrible_Inventory
                 // Build the teleport column with the same native template.
                 TeleportMenu.Inject(panel.transform, sortGO);
 
+                // Layout-tuning instrument: with DebugLog on, dump the panel's
+                // child rects so slot positions (helmet/amulet row) become
+                // exact numbers instead of screenshot estimates.
+                DumpLayout(panel.transform);
+
                 // First inventory open each session: silently prime the era
                 // controllers so every teleport works without the map.
                 TravelService.EnsurePrimed();
@@ -131,6 +136,26 @@ namespace medick_Terrible_Inventory
         {
             Transform sort = root.Find(SortPath);
             return sort != null ? sort.parent.Find("medick_StashBtn") : null;
+        }
+
+        // Dbg-gated coordinate dump (3 levels) for layout symmetry work.
+        static void DumpLayout(Transform root)
+        {
+            if (Prefs.DebugLog == null || !Prefs.DebugLog.Value) return;
+            try
+            {
+                void Walk(Transform t, int depth)
+                {
+                    if (depth > 3) return;
+                    var rt = t.GetComponent<RectTransform>();
+                    Dbg.Log($"{new string(' ', depth * 2)}{t.name}  " +
+                            $"pos={(rt != null ? rt.anchoredPosition.ToString("F0") : "?")}  " +
+                            $"size={(rt != null ? rt.sizeDelta.ToString("F0") : "?")}");
+                    for (int i = 0; i < t.childCount; i++) Walk(t.GetChild(i), depth + 1);
+                }
+                Walk(root, 0);
+            }
+            catch { }
         }
 
         static GameObject MakeFooterButton(GameObject template, Transform bar, string name,

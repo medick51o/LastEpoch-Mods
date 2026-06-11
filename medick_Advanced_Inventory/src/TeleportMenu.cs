@@ -25,18 +25,21 @@ namespace medick_Terrible_Inventory
         const float HDR_H = 30f;
         const float GAP   = 3f;
         const float COL_W = 118f;
-        const float COL_Y = -4f;
+
+        // Shared top edge for the tab AND the column — raised to the
+        // helmet/amulet equipment row so the tab mirrors the amulet slot
+        // (in-game pass #2, 2026-06-11: "symmetrical with the box to the
+        // right of the helmet"). Screenshot-estimated; nudge with evidence.
+        const float TOP_Y = 62f;
 
         // Master tab sits to the RIGHT of the panel's decorative border bar
-        // (~52 canvas units wide) so the frame art can't cover its text —
-        // in-game evidence 2026-06-11. Slightly larger box per the same pass.
-        const float TAB_X = 64f;
+        // (~52 canvas units wide) so the frame art can't cover its text.
+        const float TAB_X = 76f;
         const float TAB_W = 168f;
         const float TAB_H = 70f;
 
-        // The column does NOT follow the tab — its position is frozen at the
-        // original anchor (28 - GAP - COL_W) because the faction boxes sit
-        // exactly where Andrew wants them.
+        // The column does NOT follow the tab — frozen at the original anchor
+        // (28 - GAP - COL_W); only its TOP rides TOP_Y with the tab.
         const float COL_X = -93f;
 
         // ── Destinations (scene names verified in-game; see ARCHAEOLOGY.md —
@@ -88,7 +91,7 @@ namespace medick_Terrible_Inventory
                 // ── Master tab (always visible at the panel border) ──
                 _masterTab = NativeClone.Button(template, panel, GUARD, ToggleColumn);
                 NativeClone.HideIcon(_masterTab);
-                NativeClone.SetRect(_masterTab, new Vector2(TAB_X, COL_Y), new Vector2(TAB_W, TAB_H));
+                NativeClone.SetRect(_masterTab, new Vector2(TAB_X, TOP_Y), new Vector2(TAB_W, TAB_H));
                 StripLayoutElement(_masterTab);
                 NativeClone.SetRichLabel(_masterTab, MasterLabelText());
                 _masterLabel = NativeClone.Label(_masterTab);
@@ -98,7 +101,7 @@ namespace medick_Terrible_Inventory
                 _column.transform.SetParent(panel, false);
                 var crt = _column.AddComponent<RectTransform>();
                 crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(0f, 1f);
-                crt.anchoredPosition = new Vector2(COL_X, COL_Y);
+                crt.anchoredPosition = new Vector2(COL_X, TOP_Y);
                 crt.sizeDelta        = new Vector2(COL_W, 0f);
                 var vlg = _column.AddComponent<VerticalLayoutGroup>();
                 vlg.spacing = GAP;
