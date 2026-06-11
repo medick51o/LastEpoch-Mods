@@ -24,15 +24,21 @@ Zone-default fallback when no capture exists yet: 150.
    design decision. v2 hides/shows the minimap GameObject at runtime.)
 2. On `Minimap.Awake` (each zone): capture **that instance's** pre-write
    `RevealRadius` as the zone default (refreshed per zone, never latched
-   globally), then apply the current level.
+   globally), then apply the current level. **A value the mod itself wrote
+   is never adopted as a default** (last-written guard) — otherwise
+   pooled/cloned/re-awoken minimaps would compound LIMITED/SCOUT zone after
+   zone.
 3. On level change (dropdown or legend click): persist the pref, apply to the
    live minimap instance. Dead/absent instance → safe no-op; next zone
    applies. Selecting a level from the login screen is valid.
 4. BLIND hide scope: the **outermost ancestor whose name contains "minimap"**
    (case-insensitive); fallback = the Minimap's own GameObject. Never match
    "hud"/"corner" (v1 did — one rename away from hiding the entire HUD).
-   Remember the exact hidden GameObject; leaving BLIND restores it and
-   clears the memory.
+   Remember **every** GameObject BLIND hid (overlapping minimap lifetimes
+   across a BLIND→BLIND zone change are tracked individually); leaving BLIND
+   restores them all and clears the memory. **The restore is never gated on
+   a live Minimap instance** — leaving BLIND from a loading screen must
+   still un-hide.
 5. Engine reality, documented in UI copy: lowering the radius does not
    re-fog already-explored area; the next zone starts clean.
 
@@ -63,8 +69,13 @@ Native injection depends on game hierarchy details that EHG can change:
 template rows `"Toogle - Minion Health Bars"` / `"Dropdown - Language
 Selection"`, the `Header - Interface` anchor, and the
 `settings.transform.GetChild(0).GetChild(0)` root path. Every access is
-guarded; on failure the mod logs one warning and degrades to cfg-file-only
-configuration (fog control itself keeps working).
+guarded; on failure the mod logs **one latched warning per session** and
+degrades to cfg-file-only configuration (fog control itself keeps working).
+Clones are named last and destroyed on build failure, so a half-built row
+can never be mistaken for success later. Harmony patches are applied
+manually, one try/catch per patch class (`HarmonyDontPatchAll`), so a
+renamed game method disables that single feature instead of killing the
+whole mod at registration.
 
 ### Non-goals
 

@@ -16,6 +16,7 @@ namespace medick_FogOfWar
         public override void OnInitializeMelon()
         {
             Prefs.Init();
+            ApplyPatches();   // manual, per-patch degradation — see Patches file
             MelonLogger.Msg(
                 $"{BuildInfo.OfficialName} v{BuildInfo.Version} ready — vision level {Prefs.FogLevel.Value}");
         }

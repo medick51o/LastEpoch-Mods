@@ -25,7 +25,9 @@ namespace medick_FogOfWar
 
         public static void Save()
         {
-            try { Category.SaveToFile(); } catch { }
+            // printmsg: false — every save would otherwise log a console
+            // line per settings click; "one startup line" is the contract.
+            try { Category.SaveToFile(false); Dbg.Log("prefs saved"); } catch { }
         }
     }
 

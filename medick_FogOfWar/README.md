@@ -2,7 +2,7 @@
 
 *a fog control mod* — **fog_OF_war** for short. A [MelonLoader](https://melonwiki.xyz) mod for **Last Epoch** with a 6-level vision dial, living inside the game's own settings screen. Slide left to go in blind. Slide right because we all know why you're really here.
 
-> Nexus Mods: [The fog OF war](https://www.nexusmods.com/lastepoch/mods) · by medick · internal name `medick_The_fogOFwar`
+> Nexus Mods: The fog OF war · by medick · internal name `medick_The_fogOFwar`
 
 ## Levels
 
@@ -38,21 +38,23 @@ Settings-screen injection technique by **KG / war3i4i** ([LastEpochImprovements]
 ## Building from source
 
 ```bash
-dotnet build -c Release
+dotnet build medick_FogOfWar -c Release
 ```
 
 Requires Last Epoch (with MelonLoader installed) at the default Steam path; the build auto-copies the DLL into the game's Mods folder. Source layout:
 
 ```
-src/
-  FogOfWarMod.cs          MelonMod lifecycle
-  FogOfWarMod.Patches.cs  Harmony patches (Minimap.Awake, settings panel)
-  FogController.cs        Capture / apply / live BLIND hide+restore
-  FogLevels.cs            Level → radius contract (see SPEC.md)
-  SettingsUi.cs           The Terrible fog_OFwar settings category
-  NativeSettings.cs       KG-derived native settings injection helpers
-  BuildInfo.cs            Brand/version single source of truth
-  Prefs.cs                Persisted settings (frozen cfg path)
+medick_FogOfWar/
+  medick_FogOfWar.csproj
+  src/
+    FogOfWarMod.cs          MelonMod lifecycle (manual per-patch application)
+    FogOfWarMod.Patches.cs  Harmony patches (Minimap.Awake, settings panel)
+    FogController.cs        Capture / apply / live BLIND hide+restore
+    FogLevels.cs            Level → radius contract (see SPEC.md)
+    SettingsUi.cs           The Terrible fog_OFwar settings category
+    NativeSettings.cs       KG-derived native settings injection helpers
+    BuildInfo.cs            Brand/version single source of truth
+    Prefs.cs                Persisted settings (frozen cfg path)
 ```
 
 See [SPEC.md](SPEC.md) for the behavior contract and [CHANGELOG.md](CHANGELOG.md) for history.

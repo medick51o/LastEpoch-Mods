@@ -6,9 +6,8 @@ namespace medick_FogOfWar
     internal static class BuildInfo
     {
         public const string Name         = "medick_The_fogOFwar";
-        public const string DisplayName  = "Terrible fog_OFwar";
+        public const string DisplayName  = "Terrible fog_OFwar";   // settings category title
         public const string OfficialName = "MedicK's Terrible fog_OFwar";
-        public const string Tagline      = "a fog control mod";
         public const string Version      = "2.0.0";
         public const string Author       = "medick";
     }

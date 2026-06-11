@@ -35,20 +35,12 @@
       <HintPath>$(GM)Il2CppLE.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="Il2CppLE.Core">
-      <HintPath>$(GM)Il2CppLE.Core.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="Il2CppLE.UI.Controls">
       <HintPath>$(GM)Il2CppLE.UI.Controls.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Il2Cppmscorlib">
       <HintPath>$(GM)Il2Cppmscorlib.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Il2CppSystem.Core">
-      <HintPath>$(GM)Il2CppSystem.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
 
@@ -67,10 +59,6 @@
     </Reference>
     <Reference Include="Unity.Localization">
       <HintPath>$(GM)Unity.Localization.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>$(GM)UnityEngine.TextRenderingModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
