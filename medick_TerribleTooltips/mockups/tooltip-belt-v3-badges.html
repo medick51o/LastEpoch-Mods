@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Plated Belt — v3 Badge chips, current build preview</title>
+<style>
+  body { background:#0d0c10; color:#cfc8b8; font-family:Georgia, serif; margin:0; padding:30px 20px 80px; }
+  .wrap { max-width:1100px; margin:0 auto; }
+  h1 { color:#FF44FF; font-size:24px; margin:0 0 4px; }
+  .sub { color:#8a8478; font-style:italic; margin-bottom:26px; }
+  h2 { color:#C9A653; font-size:17px; border-bottom:1px solid #3a3320; padding-bottom:6px; margin:34px 0 12px; }
+  .note { color:#8a8478; font-size:13.5px; font-style:italic; margin:6px 0 14px; max-width:640px; }
+
+  .tt {
+    background:linear-gradient(180deg,#241c30 0%,#181222 55%,#15101e 100%);
+    border:1px solid #4a3a5e; border-radius:6px;
+    padding:22px 26px 18px; width:520px;
+    font-variant:small-caps; letter-spacing:.4px; font-size:17px; line-height:1.85;
+    box-shadow:0 8px 30px rgba(0,0,0,.65);
+  }
+  .tt .title { color:#FF8BFF; font-size:21px; letter-spacing:2px; text-align:center; }
+  .tt .type  { color:#9b8e6d; font-size:13px; letter-spacing:2px; text-align:center; margin-bottom:10px; }
+  .tt .forge { color:#C9A653; font-size:14px; text-align:center; margin:4px 0 8px; }
+  .tt .forge .zero { color:#ff5544; }
+  .tt .sep { border-top:1px solid #38304a; margin:10px 0; }
+  .tt .filter { font-variant:normal; font-style:italic; font-size:15px; color:#cfc8b8; }
+  .tt .filter .show { color:#FF44FF; text-decoration:underline; }
+  .tt .foot { display:flex; justify-content:flex-end; gap:14px; align-items:baseline; margin-top:8px; }
+  .tt .rule { color:#FA9E3D; font-size:19px; font-weight:bold; }
+  .tt .lvl  { color:#fff; font-size:15px; }
+
+  /* ── the chip — square corners (TMP mark quads are rectangles),
+        tier/grade colour at 40% alpha, warm-white ink, tight padding ── */
+  .chip {
+    display:inline-block; padding:0 5px; margin-right:5px;
+    color:#FFF6E6; border-radius:0;
+    font-size:15px; letter-spacing:.5px; line-height:1.5; vertical-align:baseline;
+  }
+  .bg-t1 { background:rgba(218,218,218,.40); }
+  .bg-t4 { background:rgba(119,172,255,.40); }
+  .bg-t5 { background:rgba(168,7,255,.40); }
+  .bg-t7 { background:rgba(255,68,255,.40); }
+  .bg-gA { background:rgba(250,158,61,.40); }
+  .bg-gB { background:rgba(168,7,255,.40); }
+  .bg-gC { background:rgba(119,172,255,.40); }
+  .bg-gF { background:rgba(218,218,218,.40); }
+  .bg-sealed { background:rgba(138,132,120,.40); }
+
+  /* affix name colours (TierColor mode) */
+  .t1{color:#DADADA;} .t4{color:#77ACFF;} .t5{color:#A807FF;} .t7{color:#FF44FF;}
+  .gC{color:#77ACFF;} .gF{color:#DADADA;}
+  .plain{color:#E8E2D2;}
+  .row { margin:3px 0; }
+
+  /* alpha tuning strip */
+  .swatchrow { display:flex; gap:26px; align-items:center; flex-wrap:wrap; background:#181222; border:1px solid #38304a; border-radius:6px; padding:16px 20px; width:fit-content; }
+  .swatchrow .lab { color:#8a8478; font-size:13px; margin-right:2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Plated Belt — what the current build should render</h1>
+  <div class="sub">Badge style · BadgeLeft layout · 40% plates · warm-white ink · tight chips (square corners — the engine's plates have no rounding)</div>
+
+  <div class="tt">
+    <div class="title">PLATED BELT</div>
+    <div class="type">BELT</div>
+    <div class="row"><span class="chip bg-gF">F</span><span class="gF">+48 Armor</span></div>
+    <div class="row"><span class="chip bg-gC">C</span><span class="gC">+3 Potion Slots</span></div>
+    <div class="forge">⚒ <span class="zero">0</span> Forging Potential</div>
+    <div class="sep"></div>
+
+    <div class="row"><span class="chip bg-t5">Tier 5</span><span class="chip bg-gA">A</span><span class="t5">58% increased Lightning Damage</span></div>
+    <div class="row"><span class="chip bg-t4">Tier 4</span><span class="chip bg-gC">C</span><span class="t4">28% increased Mana Regeneration</span></div>
+    <div class="row"><span class="chip bg-t7">Tier 7</span><span class="chip bg-gC">C</span><span class="t7">30% Increased Cooldown Recovery Speed</span></div>
+    <div class="sep"></div>
+
+    <div class="row plain">+32 Armor</div>
+    <div class="row plain">10% reduced Bonus Damage Taken from Critical Strikes</div>
+    <div class="sep"></div>
+
+    <div class="row"><span class="chip bg-sealed">Sealed</span><span class="chip bg-t1">Tier 1</span><span class="chip bg-gB">B</span><span class="t1">13% of Potion Health Converted to Ward</span></div>
+    <div class="sep"></div>
+
+    <div class="filter">Filter Rule: <span class="show">SHOW</span> Wanted Tier 7 (Can Edit Affixes &amp; Item Type)</div>
+    <div class="foot"><span class="rule">Rule#69</span><span class="lvl">Level 63</span></div>
+  </div>
+
+  <p class="note">⚠ the hybrid (+32 Armor / 10% crit) is drawn here exactly as the current build renders it: <b>bare, no chips</b> — it's not getting signal data at all (the formatter hunt is next on the list). The sealed line shows the full three-chip treatment: dim <i>Sealed</i> · Tier 1 · grade B.</p>
+
+  <h2>Tinkering dials — plate opacity (T7 chip shown)</h2>
+  <div class="swatchrow">
+    <span class="lab">25%</span><span class="chip" style="background:rgba(255,68,255,.25);">Tier 7</span>
+    <span class="lab">40% ← current</span><span class="chip" style="background:rgba(255,68,255,.40);">Tier 7</span>
+    <span class="lab">55%</span><span class="chip" style="background:rgba(255,68,255,.55);">Tier 7</span>
+    <span class="lab">70%</span><span class="chip" style="background:rgba(255,68,255,.70);">Tier 7</span>
+  </div>
+  <p class="note">remember the engine quirk: the plate sits ON TOP of the text, so the higher the opacity, the more the ink washes out — 70% is roughly where letters start to drown again. If 40% feels too faint in-game, 50–55% is probably the ceiling worth trying.</p>
+
+  <h2>Compact chips (if long lines still clip)</h2>
+  <div class="swatchrow">
+    <span class="chip bg-t7">T7</span><span class="chip bg-gC">C</span><span class="t7" style="font-variant:small-caps;">30% Increased Cooldown Recovery Speed</span>
+  </div>
+  <p class="note">held in reserve: "T7" instead of "Tier 7" — only if the tight chips still push long affix names off the tooltip edge.</p>
+</div>
+</body>
+</html>

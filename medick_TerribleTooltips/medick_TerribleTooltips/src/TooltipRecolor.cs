@@ -355,17 +355,22 @@ public static class TooltipRecolor
                 continue;
             }
 
-            // EHG Tier line — folded into the clean line unless deep view
+            // EHG Tier line — folded into the clean line. The signal
+            // already broadcasts the tier, so even in deep view the number
+            // NEVER repeats (Andrew: "i hate how it shows the tier again").
+            // Only the annotation earns a row: "max craftable"/"drop only"
+            // as a quiet dim note; a bare "Tier: 4" line shows nothing.
             if (s_tierRegex.IsMatch(line))
             {
                 if (deepTier)
                 {
-                    string stripped = s_colorTagRegex.Replace(line, "");
-                    string tc = null;
+                    string stripped = s_colorTagRegex.Replace(line, "").Trim();
                     Match tm2 = s_tierRegex.Match(stripped);
-                    if (tm2.Success && int.TryParse(tm2.Groups[1].Value, out int t2))
-                        tc = Colors.TierColor(t2);
-                    outLines.Add($"<color={tc ?? "#FFFFFF"}>{stripped.Trim()}</color>");
+                    string tail = stripped.Substring(tm2.Index + tm2.Length).Trim();
+                    if (tail.StartsWith("(") && tail.EndsWith(")") && tail.Length > 2)
+                        tail = tail.Substring(1, tail.Length - 2).Trim();
+                    if (tail.Length > 0)
+                        outLines.Add($"<color={Dim}>{tail}</color>");
                 }
                 continue;   // suppressed — the essay dies here
             }
