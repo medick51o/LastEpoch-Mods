@@ -60,6 +60,13 @@ internal static class SettingsUi
             Prefs.Layout,
             i => { Prefs.Layout.Value = (TooltipLayout)i; Prefs.Save(); });
 
+        NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Signal Style",
+            "<color=#FF44FF>Signal Style</color>",
+            "Badge = the Tier and Grade render as colored chips — tier-colored plate, contrast text — so the signal reads as a label while the affix text keeps the color story. " +
+            "PlainText = colored text only, no chips.",
+            Prefs.Style,
+            i => { Prefs.Style.Value = (SignalStyle)i; Prefs.Save(); });
+
         NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Name Color",
             "<color=#FF44FF>Affix Name Color</color>",
             "TierColor = the affix text itself wears its tier color, so you identify it instantly. " +

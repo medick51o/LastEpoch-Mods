@@ -17,6 +17,10 @@ One line per affix. The essay dies.
 - **Tooltip Layout** (dropdown): `BadgeLeft` — "Tier 5·A  affix text"
   (default) · `SignalRight` — signal at the right edge · `Trailing` —
   "affix text — Tier 5 A". Build it how you want.
+- **Signal Style** (dropdown): `Badge` (default) — Tier/Grade render as
+  colored chips: the chip wears the tier colour, the text inside flips
+  to contrast ink, so the signal reads as a *label* while the affix
+  text keeps the color story · `PlainText` — colored text, no chips.
 - **Affix Name Color** (dropdown): `TierColor` (default — the text wears
   its tier colour) or `GameDefault` (only the signal is coloured).
 - **Show Grade Letters** (toggle): want the S/A/B/C/F gone? It's gone.

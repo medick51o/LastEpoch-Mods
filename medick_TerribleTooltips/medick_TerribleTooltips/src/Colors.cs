@@ -57,4 +57,21 @@ public static class Colors
             < 95 => "#FA9E3D",  // A — gold
             _    => "#FF44FF",  // S — MYTHIC
         };
+
+    // ── Badge ink — dark text on bright chips, light text on dark ────
+    // (v3 Signal Style = Badge: the chip wears the tier/grade colour,
+    //  the text inside flips by luminance so it always reads. On this
+    //  palette only T5/B purple #A807FF takes the light ink.)
+    public static string BadgeTextColor(string hex)
+    {
+        try
+        {
+            int r = Convert.ToInt32(hex.Substring(1, 2), 16);
+            int g = Convert.ToInt32(hex.Substring(3, 2), 16);
+            int b = Convert.ToInt32(hex.Substring(5, 2), 16);
+            double lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255.0;
+            return lum >= 0.5 ? "#141210" : "#F2EFE6";
+        }
+        catch { return "#141210"; }
+    }
 }

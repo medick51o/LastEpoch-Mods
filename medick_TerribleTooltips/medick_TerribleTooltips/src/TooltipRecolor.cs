@@ -396,22 +396,45 @@ public static class TooltipRecolor
     {
         bool tintTier = Prefs.TooltipTierColors.Value;
         bool tintRank = Prefs.TooltipRankColors.Value;
+        bool badges   = Prefs.Style.Value == SignalStyle.Badge;
 
-        string sealedPart = sealedAffix ? $"<color={Dim}>Sealed</color>" : null;
-
-        string tierPart = tier > 0
-            ? (tintTier && tierHex != null
-                ? $"<color={tierHex}>Tier {tier}</color>"
-                : $"Tier {tier}")
+        // Badge style: TMP's <mark> tag draws a colored quad behind the
+        // text — the chip wears the tier/grade colour at ~80% alpha, the
+        // ink flips by luminance (Andrew's label vision: pink T7 plate,
+        // dark text, while the affix text stays pink — same family, two
+        // jobs). Padding spaces inside the mark give the chip its body.
+        string sealedPart = sealedAffix
+            ? (badges
+                ? $"<mark={Dim}CC><color=#141210> Sealed </color></mark>"
+                : $"<color={Dim}>Sealed</color>")
             : null;
+
+        string tierPart = null;
+        if (tier > 0)
+        {
+            if (tintTier && tierHex != null)
+                tierPart = badges
+                    ? $"<mark={tierHex}CC><color={Colors.BadgeTextColor(tierHex)}> Tier {tier} </color></mark>"
+                    : $"<color={tierHex}>Tier {tier}</color>";
+            else
+                tierPart = $"Tier {tier}";   // colors off → no chip, plain text
+        }
 
         string gradePart = null;
         if (Prefs.ShowGradeLetters.Value && grades.Count > 0)
         {
             var letters = new List<string>(grades.Count);
             foreach (var (color, letter) in grades)
-                letters.Add(tintRank ? $"<color={color}>{letter}</color>" : letter);
-            gradePart = string.Join($"<color={Dim}>·</color>", letters);
+            {
+                if (tintRank)
+                    letters.Add(badges
+                        ? $"<mark={color}CC><color={Colors.BadgeTextColor(color)}> {letter} </color></mark>"
+                        : $"<color={color}>{letter}</color>");
+                else
+                    letters.Add(letter);
+            }
+            gradePart = string.Join(
+                badges && tintRank ? " " : $"<color={Dim}>·</color>", letters);
         }
 
         // Name colour: tier colour by default (the WoW retina read);
@@ -424,8 +447,11 @@ public static class TooltipRecolor
                 name = $"<color={nameHex}>{cleanName}</color>";
         }
 
+        // Chips separate themselves visually; plain text needs the dot.
         string signal = JoinSignal(
-            Prefs.Layout.Value == TooltipLayout.BadgeLeft ? $"<color={Dim}>·</color>" : " ",
+            badges ? " "
+                   : (Prefs.Layout.Value == TooltipLayout.BadgeLeft
+                        ? $"<color={Dim}>·</color>" : " "),
             sealedPart, tierPart, gradePart);
 
         if (signal == null) return name;

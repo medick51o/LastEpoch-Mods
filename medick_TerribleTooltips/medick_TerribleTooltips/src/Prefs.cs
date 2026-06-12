@@ -37,6 +37,12 @@ public enum AffixNameColorMode
     GameDefault  // the game's own text color; only the Tier·Grade signal is colored
 }
 
+public enum SignalStyle
+{
+    Badge,      // colored chip behind "Tier 7" / grades — the label look ← default
+    PlainText   // colored text only, no chips
+}
+
 // All persisted settings. Category name, entry names and the cfg path are
 // FROZEN — the in-place upgrade path for v1.x users.
 internal static class Prefs
@@ -50,6 +56,7 @@ internal static class Prefs
 
     // v3 clean line
     public static MelonPreferences_Entry<TooltipLayout>       Layout;
+    public static MelonPreferences_Entry<SignalStyle>         Style;
     public static MelonPreferences_Entry<AffixNameColorMode>  NameColorMode;
     public static MelonPreferences_Entry<bool>                ShowGradeLetters;
     public static MelonPreferences_Entry<bool>                AlwaysShowRanges;
@@ -81,6 +88,8 @@ internal static class Prefs
         // v3 — THE CLEAN LINE (one line per affix; the essay dies)
         Layout = Category.CreateEntry("TooltipLayout", TooltipLayout.BadgeLeft,
             "Tooltip Layout", "Where the Tier·Grade signal sits on each affix line (BadgeLeft / SignalRight / Trailing)");
+        Style = Category.CreateEntry("SignalStyle", SignalStyle.Badge,
+            "Signal Style", "Badge = Tier/Grade as colored chips (label look); PlainText = colored text only");
         NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.TierColor,
             "Affix Name Color", "TierColor = affix text wears its tier color; GameDefault = game's own text color");
         ShowGradeLetters = Category.CreateEntry("ShowGradeLetters", true,
