@@ -398,14 +398,18 @@ public static class TooltipRecolor
         bool tintRank = Prefs.TooltipRankColors.Value;
         bool badges   = Prefs.Style.Value == SignalStyle.Badge;
 
-        // Badge style: TMP's <mark> tag draws a colored quad behind the
-        // text — the chip wears the tier/grade colour at ~80% alpha, the
-        // ink flips by luminance (Andrew's label vision: pink T7 plate,
-        // dark text, while the affix text stays pink — same family, two
-        // jobs). Padding spaces inside the mark give the chip its body.
+        // Badge style: TMP's <mark> tag draws a colored quad — and in this
+        // game's TMP the quad renders ON TOP of its own enclosed glyphs
+        // (in-game verified 2026-06-11: dark ink vanished under 80%-alpha
+        // plates; light ink survived). So the label look is built the only
+        // way the engine allows: TRANSLUCENT plate (40%) + bright ink that
+        // reads through the overlay. Tight chips (no padding spaces) keep
+        // long affix lines from clipping at the tooltip edge.
+        const string Ink = "#FFF6E6";
+
         string sealedPart = sealedAffix
             ? (badges
-                ? $"<mark={Dim}CC><color=#141210> Sealed </color></mark>"
+                ? $"<mark={Dim}66><color={Ink}>Sealed</color></mark>"
                 : $"<color={Dim}>Sealed</color>")
             : null;
 
@@ -414,7 +418,7 @@ public static class TooltipRecolor
         {
             if (tintTier && tierHex != null)
                 tierPart = badges
-                    ? $"<mark={tierHex}CC><color={Colors.BadgeTextColor(tierHex)}> Tier {tier} </color></mark>"
+                    ? $"<mark={tierHex}66><color={Ink}>Tier {tier}</color></mark>"
                     : $"<color={tierHex}>Tier {tier}</color>";
             else
                 tierPart = $"Tier {tier}";   // colors off → no chip, plain text
@@ -428,7 +432,7 @@ public static class TooltipRecolor
             {
                 if (tintRank)
                     letters.Add(badges
-                        ? $"<mark={color}CC><color={Colors.BadgeTextColor(color)}> {letter} </color></mark>"
+                        ? $"<mark={color}66><color={Ink}>{letter}</color></mark>"
                         : $"<color={color}>{letter}</color>");
                 else
                     letters.Add(letter);
