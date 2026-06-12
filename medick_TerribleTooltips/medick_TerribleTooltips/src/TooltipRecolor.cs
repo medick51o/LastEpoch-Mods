@@ -57,15 +57,57 @@ public static class TooltipRecolor
     // re-composes from these. Keyed by instance ID (Transforms don't hash).
     private static readonly Dictionary<int, (TextMeshProUGUI tmp, string original)> s_originals = new();
 
+    // Standalone Range widgets the game keeps REWRITING after we empty
+    // them (the rewrite happens inside/after UpdateLayout, where our
+    // re-entrancy latch blinds the postfix). Enforced every LateUpdate —
+    // the proven v2 pattern: s_tierColorCache wins the exact same war
+    // over tier colours by having the last word before render.
+    private static readonly Dictionary<int, TextMeshProUGUI> s_suppressedRanges = new();
+
     private static bool s_altHeld;
     private static bool s_relayouting;   // re-entrancy latch for our own UpdateLayout call
 
     private static bool DeepTier  => s_altHeld || Prefs.AlwaysShowTierDetails.Value;
     private static bool DeepRange => s_altHeld || Prefs.AlwaysShowRanges.Value;
 
+    // ── The native range switch (the puppeteer, found via ApiProbe) ───
+    // TooltipItemManager.showRangesInsteadOfDescriptionEnabled is the
+    // STATIC flag the game's TooltipMode system reads — with it true the
+    // tooltip runs in DefaultModRanges mode and RE-RENDERS the range rows
+    // continuously (why SetActive and text-emptying both lost the war —
+    // and why earlier models never cracked this). Driving the flag itself
+    // ends the war: ranges off = the game never draws them; Alt/pin = the
+    // game draws them natively. Runtime-only — the player's persisted
+    // setting is never written; original value restored when the master
+    // toggle goes off.
+    private static bool? s_nativeRangesOriginal;
+
+    private static void DriveNativeRangeSwitch()
+    {
+        try
+        {
+            bool cur = TooltipItemManager.showRangesInsteadOfDescriptionEnabled;
+            if (s_nativeRangesOriginal == null) s_nativeRangesOriginal = cur;
+
+            if (!Prefs.EnableTooltips.Value)
+            {
+                if (cur != s_nativeRangesOriginal.Value)
+                    TooltipItemManager.showRangesInsteadOfDescriptionEnabled = s_nativeRangesOriginal.Value;
+                return;
+            }
+
+            bool want = DeepRange;   // Alt held or the Always Show Ranges pin
+            if (cur != want)
+                TooltipItemManager.showRangesInsteadOfDescriptionEnabled = want;
+        }
+        catch { }
+    }
+
     // ── Called from TerribleTooltipsMod.OnLateUpdate() ────────────────
     public static void OnLateUpdate()
     {
+        DriveNativeRangeSwitch();
+
         // Alt deep view: state change → re-compose every cached TMP live.
         // Master toggle gates the re-render (a v2 fleet law: master OFF
         // means the mod touches nothing).
@@ -77,6 +119,34 @@ public static class TooltipRecolor
                 s_altHeld = alt;
                 if (Prefs.EnableTooltips.Value)
                     ReRenderFromOriginals();
+            }
+        }
+        catch { }
+
+        // ── Per-frame range enforcement (last word before render) ─────
+        try
+        {
+            if (Prefs.EnableTooltips.Value && !DeepRange && s_suppressedRanges.Count > 0)
+            {
+                var drop = new List<int>();
+                foreach (var kv in s_suppressedRanges)
+                {
+                    TextMeshProUGUI tmp = kv.Value;
+                    if (tmp == null) { drop.Add(kv.Key); continue; }
+                    try
+                    {
+                        if (!tmp.gameObject.activeInHierarchy) { drop.Add(kv.Key); continue; }
+                        string cur = tmp.text ?? "";
+                        if (cur == Marker) continue;             // still ours
+                        if (cur.IndexOf("Range:", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                            cur.IndexOf('\n') < 0)
+                            tmp.text = Marker;                   // rewritten — re-empty
+                        else
+                            drop.Add(kv.Key);                    // repurposed — not ours, let go
+                    }
+                    catch { drop.Add(kv.Key); }
+                }
+                foreach (int k in drop) s_suppressedRanges.Remove(k);
             }
         }
         catch { }
@@ -308,6 +378,7 @@ public static class TooltipRecolor
                             if (!DeepRange)
                             {
                                 tmp.text = Marker;
+                                s_suppressedRanges[tmp.GetInstanceID()] = tmp;
                                 composed++;
                                 continue;
                             }

@@ -1,0 +1,2412 @@
+{
+  "id": "0cdfmv0i",
+  "date": "2026-03-31 01:27:20",
+  "name": "Righteous Fire Runemaster (Autobomber)",
+  "class": "Runemaster",
+  "data": {
+    "embeds": [],
+    "profiles": [
+      {
+        "name": "Getting Started",
+        "class": 1,
+        "mastery": 3,
+        "level": 100,
+        "items": {
+          "head": 41,
+          "body": 17,
+          "waist": 22,
+          "finger1": 21,
+          "finger2": 19,
+          "weapon": 20,
+          "offhand": 23,
+          "neck": 24,
+          "hands": 25,
+          "feet": 27,
+          "relic": 18
+        },
+        "idols": [
+          null,
+          30,
+          30,
+          31,
+          null,
+          33,
+          30,
+          30,
+          30,
+          34,
+          30,
+          30,
+          null,
+          30,
+          37,
+          30,
+          38,
+          null,
+          30,
+          30,
+          null,
+          null,
+          null,
+          30
+        ],
+        "blessings": [
+          null,
+          null,
+          {
+            "itemType": 34,
+            "subType": 45
+          },
+          null,
+          {
+            "itemType": 34,
+            "subType": 83
+          },
+          null,
+          {
+            "itemType": 34,
+            "subType": 149
+          },
+          null,
+          {
+            "itemType": 34,
+            "subType": 199
+          },
+          {
+            "itemType": 34,
+            "subType": 223
+          }
+        ],
+        "passives": {
+          "history": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            3,
+            8,
+            8,
+            8,
+            8,
+            8,
+            56,
+            55,
+            55,
+            55,
+            55,
+            55,
+            55,
+            55,
+            55,
+            86,
+            86,
+            86,
+            86,
+            86,
+            86,
+            86,
+            86,
+            89,
+            89,
+            89,
+            89,
+            89,
+            89,
+            106,
+            106,
+            93,
+            93,
+            93,
+            93,
+            93,
+            97,
+            97,
+            97,
+            97,
+            97,
+            97,
+            97,
+            97,
+            97,
+            97,
+            98,
+            98,
+            98,
+            98,
+            98,
+            95,
+            95,
+            95,
+            95,
+            95,
+            99,
+            99,
+            99,
+            99,
+            99,
+            99,
+            101,
+            101,
+            101,
+            101,
+            101,
+            101,
+            101,
+            20,
+            20,
+            20,
+            20,
+            20,
+            20,
+            20,
+            20,
+            33,
+            32,
+            32,
+            32,
+            32,
+            32,
+            38,
+            38,
+            38,
+            38,
+            38,
+            38,
+            38,
+            38,
+            42,
+            42,
+            42,
+            42,
+            42,
+            42,
+            42,
+            42
+          ],
+          "position": 113
+        },
+        "weaver": {
+          "history": [],
+          "position": 0
+        },
+        "weaverItems": [],
+        "skillTrees": {
+          "sb44eQ": {
+            "history": [
+              20,
+              20,
+              25,
+              18,
+              18,
+              14,
+              14,
+              14,
+              14,
+              16,
+              16,
+              16,
+              16
+            ],
+            "position": 13
+          },
+          "fl71ds": {
+            "history": [
+              2,
+              2,
+              2,
+              6,
+              6,
+              6,
+              7,
+              7,
+              7,
+              8,
+              8,
+              8,
+              9,
+              11,
+              13,
+              14,
+              15,
+              21,
+              21,
+              21
+            ],
+            "position": 20
+          },
+          "rn7iv": {
+            "history": [
+              7,
+              34,
+              32,
+              32,
+              32,
+              26,
+              26,
+              26,
+              26,
+              13,
+              14,
+              21,
+              22,
+              14,
+              14,
+              16,
+              18,
+              16,
+              16,
+              16
+            ],
+            "position": 20
+          },
+          "fw3d": {
+            "history": [
+              17,
+              17,
+              28,
+              29,
+              29,
+              30,
+              11,
+              11,
+              11,
+              12,
+              13,
+              2,
+              2,
+              2,
+              2,
+              18,
+              18,
+              18,
+              18,
+              18
+            ],
+            "position": 20
+          },
+          "vm53dx": {
+            "history": [
+              27,
+              27,
+              11,
+              11,
+              11,
+              11,
+              12,
+              12,
+              12,
+              12,
+              12,
+              23,
+              23,
+              23,
+              28,
+              17,
+              17,
+              19,
+              19,
+              21
+            ],
+            "position": 20
+          }
+        },
+        "activeSkills": [
+          "EnchantWeapon",
+          "Runemaster 06 Flame Rush",
+          "FlameWard",
+          "Runemaster 04 Runic Invocation",
+          "Focus"
+        ],
+        "specializedSkills": [
+          "EnchantWeapon",
+          "Runemaster 06 Flame Rush",
+          "Runemaster 04 Runic Invocation",
+          "FlameWard",
+          "Focus"
+        ],
+        "quests": [
+          18,
+          48,
+          1,
+          49,
+          94,
+          3,
+          11,
+          5,
+          2,
+          34,
+          97,
+          35,
+          6,
+          96,
+          99,
+          29,
+          100,
+          9,
+          10,
+          13,
+          39,
+          14,
+          28,
+          12,
+          116,
+          37,
+          20,
+          24,
+          30,
+          36,
+          25,
+          31,
+          33,
+          32,
+          42,
+          44,
+          47,
+          43,
+          46,
+          45,
+          50,
+          51,
+          52,
+          53,
+          93,
+          58,
+          56,
+          54,
+          55,
+          57,
+          114,
+          121,
+          118,
+          119,
+          115,
+          120,
+          117,
+          123,
+          122,
+          124,
+          27
+        ],
+        "season": 4,
+        "statsTag": 4096
+      },
+      {
+        "name": "Late Game",
+        "class": 1,
+        "mastery": 3,
+        "level": 99,
+        "items": {
+          "head": 1,
+          "body": 2,
+          "waist": 3,
+          "finger1": 4,
+          "finger2": 5,
+          "weapon": 6,
+          "offhand": 7,
+          "neck": 8,
+          "hands": 9,
+          "feet": 10,
+          "relic": 11,
+          "altar": 12
+        },
+        "idols": [
+          15,
+          15,
+          null,
+          15,
+          15,
+          15,
+          null,
+          null,
+          null,
+          15,
+          14,
+          null,
+          null,
+          13,
+          15,
+          null,
+          16,
+          null,
+          null,
+          null,
+          15,
+          null,
+          null,
+          null,
+          15
+        ],
+        "blessings": [
+          null,
+          null,
+          {
+            "itemType": 34,
+            "subType": 45
+          },
+          null,
+          {
+            "itemType": 34,
+            "subType": 83
+          },
+          null,
+          {
+            "itemType": 34,
+            "subType": 149
+          },
+          null,
+          {
+            "itemType": 34,
+            "subType": 199
+          },
+          {
+            "itemType": 34,
+            "subType": 223
+          }
+        ],
+        "passives": {
+          "history": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            3,
+            8,
+            8,
+            8,
+            8,
+            8,
+            56,
+            55,
+            55,
+            55,
+            55,
+            55,
+            55,
+            55,
+            55,
+            86,
+            86,
+            86,
+            86,
+            86,
+            86,
+            86,
+            86,
+            89,
+            89,
+            89,
+            89,
+            89,
+            89,
+            106,
+            106,
+            93,
+            93,
+            93,
+            93,
+            93,
+            97,
+            97,
+            97,
+            97,
+            97,
+            97,
+            97,
+            97,
+            97,
+            97,
+            98,
+            98,
+            98,
+            98,
+            98,
+            95,
+            95,
+            95,
+            95,
+            95,
+            99,
+            99,
+            99,
+            99,
+            99,
+            99,
+            101,
+            101,
+            101,
+            101,
+            101,
+            101,
+            101,
+            20,
+            20,
+            20,
+            20,
+            20,
+            20,
+            20,
+            20,
+            33,
+            32,
+            32,
+            32,
+            32,
+            32,
+            38,
+            38,
+            38,
+            38,
+            38,
+            38,
+            38,
+            38,
+            42,
+            42,
+            42,
+            42,
+            42,
+            42,
+            42,
+            42
+          ],
+          "position": 113
+        },
+        "weaver": {
+          "history": [],
+          "position": 0
+        },
+        "weaverItems": [],
+        "skillTrees": {
+          "sb44eQ": {
+            "history": [
+              20,
+              20,
+              25,
+              18,
+              18,
+              14,
+              14,
+              14,
+              14,
+              16,
+              16,
+              16,
+              16
+            ],
+            "position": 13
+          },
+          "fl71ds": {
+            "history": [
+              2,
+              2,
+              2,
+              6,
+              6,
+              6,
+              7,
+              7,
+              7,
+              8,
+              8,
+              8,
+              9,
+              11,
+              13,
+              14,
+              15,
+              21,
+              21,
+              21
+            ],
+            "position": 20
+          },
+          "rn7iv": {
+            "history": [
+              7,
+              34,
+              32,
+              32,
+              32,
+              26,
+              26,
+              26,
+              26,
+              13,
+              14,
+              21,
+              22,
+              14,
+              14,
+              16,
+              18,
+              16,
+              16,
+              16
+            ],
+            "position": 20
+          },
+          "fw3d": {
+            "history": [
+              17,
+              17,
+              28,
+              29,
+              29,
+              30,
+              11,
+              11,
+              11,
+              12,
+              13,
+              2,
+              2,
+              2,
+              2,
+              18,
+              18,
+              18,
+              18,
+              18
+            ],
+            "position": 20
+          },
+          "vm53dx": {
+            "history": [
+              27,
+              27,
+              21,
+              11,
+              11,
+              11,
+              11,
+              12,
+              12,
+              12,
+              12,
+              12,
+              23,
+              23,
+              23,
+              28,
+              17,
+              17,
+              19,
+              19
+            ],
+            "position": 20
+          }
+        },
+        "activeSkills": [
+          "EnchantWeapon",
+          "Runemaster 06 Flame Rush",
+          "FlameWard",
+          "Runemaster 04 Runic Invocation",
+          "Focus"
+        ],
+        "specializedSkills": [
+          "EnchantWeapon",
+          "Runemaster 06 Flame Rush",
+          "Runemaster 04 Runic Invocation",
+          "FlameWard",
+          "Focus"
+        ],
+        "quests": [
+          18,
+          48,
+          1,
+          49,
+          94,
+          3,
+          11,
+          5,
+          2,
+          34,
+          97,
+          35,
+          6,
+          96,
+          99,
+          29,
+          100,
+          9,
+          10,
+          13,
+          39,
+          14,
+          28,
+          12,
+          116,
+          37,
+          20,
+          24,
+          30,
+          36,
+          25,
+          31,
+          33,
+          32,
+          42,
+          44,
+          47,
+          43,
+          46,
+          45,
+          50,
+          51,
+          52,
+          53,
+          93,
+          58,
+          56,
+          54,
+          55,
+          57,
+          114,
+          121,
+          118,
+          119,
+          115,
+          120,
+          117,
+          123,
+          122,
+          124,
+          27
+        ],
+        "season": 4,
+        "statsTag": 4096
+      }
+    ],
+    "items": {
+      "1": {
+        "itemType": 0,
+        "subType": 2,
+        "uniqueID": 412,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1016,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "2": {
+        "itemType": 1,
+        "subType": 4,
+        "uniqueID": 255,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1011,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "3": {
+        "itemType": 2,
+        "subType": 2,
+        "uniqueID": 404,
+        "affixes": [
+          {
+            "id": 13,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 100,
+            "tier": 5,
+            "roll": 1
+          }
+        ],
+        "corrupted": true
+      },
+      "4": {
+        "itemType": 21,
+        "subType": 3,
+        "uniqueID": 277,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          }
+        ]
+      },
+      "5": {
+        "itemType": 21,
+        "subType": 9,
+        "uniqueID": 360,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 100,
+            "tier": 5,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1016,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "6": {
+        "itemType": 9,
+        "subType": 10,
+        "uniqueID": 311,
+        "affixes": [
+          {
+            "id": 49,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 720,
+            "tier": 5,
+            "roll": 1
+          }
+        ],
+        "corrupted": true
+      },
+      "7": {
+        "itemType": 19,
+        "subType": 3,
+        "uniqueID": 74,
+        "affixes": [
+          {
+            "id": 13,
+            "tier": 7,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 974,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "8": {
+        "itemType": 20,
+        "subType": 13,
+        "uniqueID": 368,
+        "affixes": [
+          {
+            "id": 100,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          }
+        ],
+        "corrupted": true
+      },
+      "9": {
+        "itemType": 4,
+        "subType": 12,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 710,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 715,
+            "tier": 5,
+            "roll": 1
+          }
+        ],
+        "corrupted": true
+      },
+      "10": {
+        "itemType": 3,
+        "subType": 2,
+        "uniqueID": 306,
+        "affixes": [
+          {
+            "id": 28,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          }
+        ],
+        "corrupted": true
+      },
+      "11": {
+        "itemType": 22,
+        "subType": 63,
+        "uniqueID": 433,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          }
+        ],
+        "corrupted": true
+      },
+      "12": {
+        "itemType": 41,
+        "subType": 4,
+        "corrupted": true
+      },
+      "13": {
+        "itemType": 30,
+        "subType": 11,
+        "corrupted": true,
+        "affixes": [
+          {
+            "id": 111,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 240,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "14": {
+        "itemType": 29,
+        "subType": 11,
+        "corrupted": true,
+        "affixes": [
+          {
+            "id": 111,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 248,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "15": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "16": {
+        "itemType": 33,
+        "subType": 5,
+        "uniqueID": 211,
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "17": {
+        "itemType": 1,
+        "subType": 41,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "18": {
+        "itemType": 22,
+        "subType": 27,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "19": {
+        "itemType": 21,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "20": {
+        "itemType": 10,
+        "subType": 9,
+        "affixes": [
+          {
+            "id": 100,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 720,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "21": {
+        "itemType": 21,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 80,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "22": {
+        "itemType": 2,
+        "subType": 8,
+        "affixes": [
+          {
+            "id": 100,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "23": {
+        "itemType": 19,
+        "subType": 3,
+        "uniqueID": 74,
+        "affixes": []
+      },
+      "24": {
+        "itemType": 20,
+        "subType": 13,
+        "uniqueID": 368,
+        "affixes": []
+      },
+      "25": {
+        "itemType": 4,
+        "subType": 12,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 710,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 715,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "26": {
+        "itemType": 0,
+        "subType": 58,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 501,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 715,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "27": {
+        "itemType": 3,
+        "subType": 11,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 28,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 45,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 7,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "28": {
+        "itemType": 41,
+        "subType": 4,
+        "corrupted": true
+      },
+      "29": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "30": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "31": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "32": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "33": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "34": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "35": {
+        "itemType": 29,
+        "subType": 11,
+        "corrupted": true,
+        "affixes": [
+          {
+            "id": 111,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 248,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "36": {
+        "itemType": 30,
+        "subType": 11,
+        "corrupted": true,
+        "affixes": [
+          {
+            "id": 111,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 240,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "37": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "38": {
+        "itemType": 33,
+        "subType": 5,
+        "uniqueID": 211,
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "39": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "40": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "41": {
+        "itemType": 0,
+        "subType": 58,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 501,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 715,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "42": {
+        "itemType": 1,
+        "subType": 41,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "43": {
+        "itemType": 2,
+        "subType": 8,
+        "affixes": [
+          {
+            "id": 100,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "44": {
+        "itemType": 21,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 80,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "45": {
+        "itemType": 21,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "46": {
+        "itemType": 10,
+        "subType": 9,
+        "affixes": [
+          {
+            "id": 100,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 720,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "47": {
+        "itemType": 19,
+        "subType": 3,
+        "uniqueID": 74,
+        "affixes": []
+      },
+      "48": {
+        "itemType": 20,
+        "subType": 13,
+        "uniqueID": 368,
+        "affixes": []
+      },
+      "49": {
+        "itemType": 4,
+        "subType": 12,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 710,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 715,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "50": {
+        "itemType": 3,
+        "subType": 11,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 28,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 45,
+            "tier": 5,
+            "roll": 1
+          },
+          {
+            "id": 7,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "51": {
+        "itemType": 22,
+        "subType": 27,
+        "affixes": [
+          {
+            "id": 502,
+            "tier": 7,
+            "roll": 1
+          },
+          {
+            "id": 13,
+            "tier": 5,
+            "roll": 1
+          }
+        ]
+      },
+      "52": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "53": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "54": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "55": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "56": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "57": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "58": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "59": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "60": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "61": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "62": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "63": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "64": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "65": {
+        "itemType": 33,
+        "subType": 5,
+        "uniqueID": 211,
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "66": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "67": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      },
+      "68": {
+        "itemType": 26,
+        "subType": 1,
+        "affixes": [
+          {
+            "id": 842,
+            "tier": 1,
+            "roll": 1
+          },
+          {
+            "id": 852,
+            "tier": 1,
+            "roll": 1
+          }
+        ],
+        "corrupted": true,
+        "corruptedAffixes": [
+          {
+            "id": 1070,
+            "tier": 1,
+            "roll": 1
+          }
+        ]
+      }
+    },
+    "lootFilters": [],
+    "options": {
+      "shared": {
+        "player_channeling": true,
+        "enemy_chilled": true,
+        "boss_or_rare_enemy": true,
+        "enemy_branded": true,
+        "active_runes": 3
+      },
+      "node:mg-1:93": {
+        "flags": [
+          null,
+          true
+        ]
+      }
+    },
+    "activeEmbed": -1,
+    "activeProfile": 0,
+    "strAndWeak": {
+      "strengths": [
+        "Fairly Tanky",
+        "Solid Echo Clear",
+        "Low button gameplay",
+        "T-poses Gameplay"
+      ],
+      "weaknesses": [
+        "Mediocre DoT mitigation (compared to leech)",
+        "Weak single target",
+        "Unusual Gearing"
+      ]
+    },
+    "notes": {
+      "root": {
+        "children": [
+          {
+            "children": [
+              {
+                "detail": 0,
+                "format": 0,
+                "mode": "normal",
+                "style": "",
+                "text": "As of S4 day 4 I have beaten the new Omen Pinnacle boss with 1LP gear and can currently farm 1000c, Uber is possible with better gear.",
+                "type": "text",
+                "version": 1
+              }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "type": "paragraph",
+            "version": 1
+          },
+          {
+            "children": [
+              {
+                "detail": 0,
+                "format": 0,
+                "mode": "normal",
+                "style": "",
+                "text": "- Pinnacle kill: ",
+                "type": "text",
+                "version": 1
+              },
+              {
+                "children": [
+                  {
+                    "detail": 0,
+                    "format": 0,
+                    "mode": "normal",
+                    "style": "",
+                    "text": "https://www.twitch.tv/videos/2735564044",
+                    "type": "text",
+                    "version": 1
+                  }
+                ],
+                "direction": "ltr",
+                "format": "",
+                "indent": 0,
+                "type": "autolink",
+                "version": 1,
+                "rel": null,
+                "target": null,
+                "title": null,
+                "url": "https://www.twitch.tv/videos/2735564044"
+              }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "type": "paragraph",
+            "version": 1
+          },
+          {
+            "children": [
+              {
+                "detail": 0,
+                "format": 0,
+                "mode": "normal",
+                "style": "",
+                "text": "- Gear at the time of kill: ",
+                "type": "text",
+                "version": 1
+              },
+              {
+                "children": [
+                  {
+                    "detail": 0,
+                    "format": 0,
+                    "mode": "normal",
+                    "style": "",
+                    "text": "https://www.lastepochtools.com/planner/BakypDvx",
+                    "type": "text",
+                    "version": 1
+                  }
+                ],
+                "direction": "ltr",
+                "format": "",
+                "indent": 0,
+                "type": "autolink",
+                "version": 1,
+                "rel": null,
+                "target": null,
+                "title": null,
+                "url": "https://www.lastepochtools.com/planner/BakypDvx"
+              }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "type": "paragraph",
+            "version": 1
+          },
+          {
+            "children": [],
+            "direction": null,
+            "format": "",
+            "indent": 0,
+            "type": "paragraph",
+            "version": 1
+          },
+          {
+            "children": [
+              {
+                "detail": 0,
+                "format": 0,
+                "mode": "normal",
+                "style": "",
+                "text": "Guide:",
+                "type": "text",
+                "version": 1
+              }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "type": "paragraph",
+            "version": 1
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "detail": 0,
+                    "format": 0,
+                    "mode": "normal",
+                    "style": "",
+                    "text": "https://youtu.be/Z6VXbHmMA44",
+                    "type": "text",
+                    "version": 1
+                  }
+                ],
+                "direction": "ltr",
+                "format": "",
+                "indent": 0,
+                "type": "autolink",
+                "version": 1,
+                "rel": null,
+                "target": null,
+                "title": null,
+                "url": "https://youtu.be/Z6VXbHmMA44"
+              }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "type": "paragraph",
+            "version": 1
+          },
+          {
+            "children": [],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "type": "paragraph",
+            "version": 1
+          },
+          {
+            "children": [
+              {
+                "detail": 0,
+                "format": 0,
+                "mode": "normal",
+                "style": "",
+                "text": "There are arguments to be made for Cold or Lightning converted Fire Aura, such as different resist availabilities, uniques (eg. Frostbite Shackles for cold or Throne of Ambition), etc. So far I've used fire with pretty good success, will revisit other elements later.",
+                "type": "text",
+                "version": 1
+              }
+            ],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "type": "paragraph",
+            "version": 1
+          }
+        ],
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "type": "root",
+        "version": 1
+      }
+    }
+  },
+  "userId": 774375,
+  "public": true,
+  "folder": 0,
+  "accessed": 1776147471,
+  "mainset": "FlameWard",
+  "category": "endgame",
+  "game": "le",
+  "average_rating": 5,
+  "total_ratings": 2,
+  "metadata": {
+    "skills": [
+      "EnchantWeapon",
+      "Runemaster 06 Flame Rush",
+      "FlameWard",
+      "Runemaster 04 Runic Invocation",
+      "Focus"
+    ],
+    "authorYoutube": "https://www.youtube.com/c/FrozenSentinel",
+    "authorTwitch": "https://www.twitch.tv/FrozenSentinel",
+    "showcaseVideo": "https://www.youtube.com/watch?v=Z6VXbHmMA44"
+  },
+  "search_metadata": null,
+  "season": "4",
+  "shared": false,
+  "type": "planner",
+  "tags": null,
+  "user": {
+    "id": 774375,
+    "username": "FrozenSentinel",
+    "active": 1
+  }
+}

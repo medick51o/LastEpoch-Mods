@@ -1,0 +1,49 @@
+GAME API SIGNATURES — COSMETIC SYSTEM
+======================================
+Source: Il2CppLE.dll (46.8 MB, from MelonLoader/Il2CppAssemblies/)
+
+CLASS: CosmeticsManager (namespace Il2Cpp)
+------------------------------------------
+  Base: MonoBehaviour
+
+  Methods:
+    public UniTask<List<string>> GetOwnedCosmetics()   // <-- THE TARGET
+    public UniTask<int> GetCurrency()
+    public UniTask WarmUpCosmetics()
+
+  The GetOwnedCosmetics method is async (returns UniTask). It normally calls the
+  backend/server to retrieve the list of BackendID strings the player has purchased.
+
+
+CLASS: Cosmetic (namespace Il2CppLE.Services.Cosmetics)
+-------------------------------------------------------
+  Base: SerializedScriptableObject (Il2CppSirenix.OdinInspector)
+
+  Fields:
+    CosmeticEquipSlot slot
+    string DisplayName
+    string BackendID               // <-- unique ID per cosmetic item
+    int SortOrder
+    bool BorderlessShopIconInstead
+    bool IsPartOfSet
+    AssetReferenceSprite StoreSprite
+    AssetReferenceSprite StoreGameplayPlaycardSprite
+
+  Properties:
+    abstract CosmeticType Type { get; }
+    virtual bool PreviewMTXSupport { get; }
+    virtual bool SimpleVideoViewOnly { get; }
+
+  Methods:
+    virtual bool CanBeUsedInCosmeticEquipSlot(CosmeticEquipSlot slot)
+    virtual string GetSlotDisplayName()
+
+
+ENUM: CosmeticType (namespace Il2Cpp)
+--------------------------------------
+  (values not extracted — likely: Equipment, Pet, Portal, Skill, Title, etc.)
+
+
+ENUM: CosmeticEquipSlot (namespace Il2CppLE.Networking.Cosmetics)
+-----------------------------------------------------------------
+  (slot types for equipping cosmetics to character)
