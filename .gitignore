@@ -2,3 +2,7 @@ bin/
 obj/
 *.user
 .vs/
+
+# research scratch stays local — only ApiProbe is repo material
+research/*
+!research/ApiProbe/
