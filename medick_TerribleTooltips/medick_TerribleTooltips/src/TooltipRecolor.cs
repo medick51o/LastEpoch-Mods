@@ -57,9 +57,6 @@ public static class TooltipRecolor
     // re-composes from these. Keyed by instance ID (Transforms don't hash).
     private static readonly Dictionary<int, (TextMeshProUGUI tmp, string original)> s_originals = new();
 
-    // Standalone Range widgets hidden by the lean pass — restored on Alt.
-    private static readonly Dictionary<int, TextMeshProUGUI> s_hiddenRanges = new();
-
     private static bool s_altHeld;
     private static bool s_relayouting;   // re-entrancy latch for our own UpdateLayout call
 
@@ -112,25 +109,6 @@ public static class TooltipRecolor
             catch { }
         }
         foreach (int k in dead) s_originals.Remove(k);
-
-        // Hidden standalone Range widgets follow the deep-view state
-        try
-        {
-            var gone = new List<int>();
-            foreach (var kv in s_hiddenRanges)
-            {
-                if (kv.Value == null) { gone.Add(kv.Key); continue; }
-                try
-                {
-                    if (kv.Value.gameObject.activeSelf == DeepRange) continue;
-                    kv.Value.gameObject.SetActive(DeepRange);
-                    changed = true;
-                }
-                catch { gone.Add(kv.Key); }
-            }
-            foreach (int k in gone) s_hiddenRanges.Remove(k);
-        }
-        catch { }
 
         // Line counts changed → let the game re-measure (lean law)
         if (changed)
@@ -316,19 +294,21 @@ public static class TooltipRecolor
 
                         // ── Standalone Range-only TMP (single-line widget,
                         //    unique/set/legendary item sections) ──────────
-                        // "Ranges off" means off EVERYWHERE: hidden unless
-                        // deep view; tracked so Alt restores it live.
+                        // "Ranges off" means off EVERYWHERE. SetActive
+                        // hiding lost a tug-of-war (our re-measure call /
+                        // EHG's refresh re-activated the widget every
+                        // pass) — so the TEXT goes empty instead: the same
+                        // mechanism that collapses the affix essay
+                        // collapses this row, and EHG can re-activate the
+                        // widget all it wants, there's nothing in it.
                         if (hasRange && !hasKgGrade && !hasTier)
                         {
+                            s_originals[tmp.GetInstanceID()] = (tmp, text);
+
                             if (!DeepRange)
                             {
-                                try
-                                {
-                                    tmp.gameObject.SetActive(false);
-                                    s_hiddenRanges[tmp.GetInstanceID()] = tmp;
-                                    composed++;
-                                }
-                                catch { }
+                                tmp.text = Marker;
+                                composed++;
                                 continue;
                             }
 
@@ -342,13 +322,10 @@ public static class TooltipRecolor
                             if (inheritedColor == null && parent?.parent != null)
                                 parentGradeColor.TryGetValue(parent.parent.GetInstanceID(), out inheritedColor);
 
-                            if (inheritedColor != null)
-                                tmp.text = $"<color={inheritedColor}>{stripped}</color>";
-                            else
-                            {
-                                tmp.text  = stripped;
-                                tmp.color = Color.white;
-                            }
+                            tmp.text = (inheritedColor != null
+                                ? $"<color={inheritedColor}>{stripped}</color>"
+                                : stripped) + Marker;
+                            composed++;
                             continue;
                         }
 
@@ -563,7 +540,9 @@ public static class TooltipRecolor
         }
         outLines.AddRange(deepLines);
 
-        if (outLines.Count == 0) return original + Marker;   // nothing classified — bail honest
+        // Everything suppressed (e.g. a lone Range widget restored via the
+        // Alt path with ranges off again) → empty-but-marked is correct.
+        if (outLines.Count == 0) return Marker;
         return string.Join("\n", outLines) + Marker;
     }
 
