@@ -11,8 +11,8 @@
 //    Tier: 5 (max craftable)
 //    Range: 40% to 60%
 //
-//  OUTPUT (BadgeLeft, the default):
-//    Tier 5·A  58% increased Lightning Damage
+//  OUTPUT (BadgeLeft + Badge style, the defaults):
+//    [Tier 5][A]  58% increased Lightning Damage
 //
 //  Laws (see ARCHAEOLOGY.md):
 //  • Hook is UITooltipItem.UpdateLayout — UpdatePrefixAndSuffixesText is
@@ -21,15 +21,18 @@
 //    TMPs; it runs per tooltip layout, not per frame.
 //  • Composed output is MARKED (four zero-width spaces) and skipped on
 //    re-entry — deep-view output re-emits "Tier:"/"Range:" text that
-//    would otherwise be misclassified as standalone EHG widgets on the
-//    next UpdateLayout pass (comparison tooltips guarantee one) and get
-//    white-washed / wrongly cached. The fleet caught this; the marker
-//    is the same house pattern as GroundLabels (3 ZWSP) and
-//    FilterRuleTooltip (2 ZWSP) — this one is FOUR.
-//  • Standalone Tier/Range TMPs (set/unique separate widgets) KEEP the
-//    v2 recolor treatment — the essay-kill targets the craftable-affix
-//    TMPs where main line + Tier + Range live in ONE TMP. Removing
-//    whole game widgets is not our lane.
+//    would otherwise be misclassified on the next pass.
+//  • LEAN LAW (Andrew, 2026-06-11): suppressed lines must not leave
+//    blank real estate. We run AFTER layout measured the original essay,
+//    so after composing we re-invoke the game's own UpdateLayout ONCE
+//    (re-entrancy latched) and it re-measures the shortened text.
+//  • Unbracketed multi-line affix blocks (hybrid / sealed multi-stat —
+//    formatted by a game path the injector doesn't reach) get a
+//    SYNTHESIZED tier chip from their own "Tier:" line; no roll data =
+//    no grade chip, honestly.
+//  • Standalone single-line Range widgets (unique/set/legendary item
+//    sections) are HIDDEN unless deep view — "ranges off" means off
+//    everywhere. Hidden widgets are tracked and restored on Alt.
 //  • EHG resets standalone Tier TMP colours after UpdateLayout — the
 //    cache below re-applies them every LateUpdate.
 //  • Alt re-render composes from CACHED ORIGINALS (keyed GetInstanceID —
@@ -54,7 +57,14 @@ public static class TooltipRecolor
     // re-composes from these. Keyed by instance ID (Transforms don't hash).
     private static readonly Dictionary<int, (TextMeshProUGUI tmp, string original)> s_originals = new();
 
+    // Standalone Range widgets hidden by the lean pass — restored on Alt.
+    private static readonly Dictionary<int, TextMeshProUGUI> s_hiddenRanges = new();
+
     private static bool s_altHeld;
+    private static bool s_relayouting;   // re-entrancy latch for our own UpdateLayout call
+
+    private static bool DeepTier  => s_altHeld || Prefs.AlwaysShowTierDetails.Value;
+    private static bool DeepRange => s_altHeld || Prefs.AlwaysShowRanges.Value;
 
     // ── Called from TerribleTooltipsMod.OnLateUpdate() ────────────────
     public static void OnLateUpdate()
@@ -82,6 +92,8 @@ public static class TooltipRecolor
 
     private static void ReRenderFromOriginals()
     {
+        bool changed = false;
+
         var dead = new List<int>();
         foreach (var kv in s_originals)
         {
@@ -94,12 +106,64 @@ public static class TooltipRecolor
             try
             {
                 if (!(tmp.text ?? "").Contains(Marker)) { dead.Add(kv.Key); continue; }
-                tmp.text = Compose(original);
+                tmp.text = HasBracket(original) ? Compose(original) : ComposeUnbracketed(original);
+                changed = true;
             }
             catch { }
         }
         foreach (int k in dead) s_originals.Remove(k);
+
+        // Hidden standalone Range widgets follow the deep-view state
+        try
+        {
+            var gone = new List<int>();
+            foreach (var kv in s_hiddenRanges)
+            {
+                if (kv.Value == null) { gone.Add(kv.Key); continue; }
+                try
+                {
+                    if (kv.Value.gameObject.activeSelf == DeepRange) continue;
+                    kv.Value.gameObject.SetActive(DeepRange);
+                    changed = true;
+                }
+                catch { gone.Add(kv.Key); }
+            }
+            foreach (int k in gone) s_hiddenRanges.Remove(k);
+        }
+        catch { }
+
+        // Line counts changed → let the game re-measure (lean law)
+        if (changed)
+        {
+            bool active = false;
+            try { active = s_lastTooltip != null && s_lastTooltip.tooltipActive; } catch { }
+            if (active) RequestRelayout(s_lastTooltip, s_lastArgs);
+        }
     }
+
+    // UpdateLayout needs its original positioning arguments — the postfix
+    // captures them (typed object[] via Harmony __args) and we replay them
+    // verbatim for the re-measure.
+    private static UITooltipItem s_lastTooltip;
+    private static object[]      s_lastArgs;
+
+    private static void RequestRelayout(UITooltipItem ui, object[] args)
+    {
+        try
+        {
+            if (ui == null || args == null || args.Length < 3) return;
+            s_relayouting = true;
+            try
+            {
+                ui.UpdateLayout((Vector3)args[0], (Vector2)args[1], args[2] as RectTransform);
+            }
+            finally { s_relayouting = false; }
+        }
+        catch { s_relayouting = false; }
+    }
+
+    private static bool HasBracket(string text)
+        => s_kgGradeRegex.IsMatch(text) || s_kgGradeOnlyRegex.IsMatch(text);
 
     // ── Regex patterns (exact — load-bearing) ─────────────────────────
 
@@ -149,11 +213,15 @@ public static class TooltipRecolor
     [HarmonyPatch(typeof(UITooltipItem), "UpdateLayout")]
     internal static class Patch_UpdateLayout
     {
-        private static void Postfix(UITooltipItem __instance)
+        private static void Postfix(UITooltipItem __instance, object[] __args)
         {
+            if (s_relayouting) return;                  // our own re-measure call
             if (!Prefs.EnableTooltips.Value) return;
             try
             {
+                s_lastTooltip = __instance;             // for the Alt-path re-measure
+                s_lastArgs    = __args;
+
                 TextMeshProUGUI[] allTMPs =
                     UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>();
                 if (allTMPs == null) return;
@@ -161,9 +229,11 @@ public static class TooltipRecolor
                 // Prune stale originals while we're here
                 PruneOriginals();
 
+                int composed = 0;
+
                 // ── Pass 1: collect grade colour per parent instance ID so
                 //    standalone Range-only TMPs (set/unique siblings) can
-                //    inherit the correct grade colour.
+                //    inherit the correct grade colour in deep view.
                 var parentGradeColor = new Dictionary<int, string>();
                 foreach (TextMeshProUGUI tmp in allTMPs)
                 {
@@ -187,9 +257,6 @@ public static class TooltipRecolor
                         if (string.IsNullOrEmpty(text)) continue;
 
                         // Our own composed output — never re-ingest it.
-                        // (Deep-view output re-emits "Tier:"/"Range:" lines
-                        // that would land in the standalone-widget branches
-                        // below and get white-washed / wrongly cached.)
                         if (text.Contains(Marker)) continue;
 
                         // FilterRuleTooltip's lane — a user-named filter
@@ -199,12 +266,10 @@ public static class TooltipRecolor
 
                         bool hasTier  = text.Contains("Tier:");
                         bool hasRange = text.Contains("Range:");
-                        // The composer must ALSO wake on bracket-only TMPs:
+                        // Composer must ALSO wake on bracket-only TMPs:
                         // with EHG's tier-info display OFF there are no
-                        // Tier:/Range: lines at all — the whole point of the
-                        // clean line is that ours carries the signal so
-                        // players can turn EHG's essay off. '[' is the
-                        // cheap pre-gate before the regex runs.
+                        // Tier:/Range: lines at all. '[' is the cheap
+                        // pre-gate before the regex runs.
                         if (!hasTier && !hasRange && text.IndexOf('[') < 0) continue;
 
                         Match gm          = s_kgGradeRegex.Match(text);
@@ -213,7 +278,24 @@ public static class TooltipRecolor
                         bool hasKgGrade = gm.Success;
                         if (!hasTier && !hasRange && !hasKgGrade) continue;
 
-                        // ── EHG standalone Tier TMP (separate widget) ─────
+                        bool multiLine = text.IndexOf('\n') >= 0;
+
+                        // ── Unbracketed multi-line affix block ────────────
+                        // Hybrid / sealed multi-stat affixes come through a
+                        // game formatter the injector doesn't reach: no
+                        // bracket, no roll data — but the tier is right
+                        // there in the text. Synthesize the chip, kill the
+                        // essay. (Without this they were misclassified as
+                        // standalone widgets and tinted whole-block blue.)
+                        if (!hasKgGrade && multiLine)
+                        {
+                            s_originals[tmp.GetInstanceID()] = (tmp, text);
+                            tmp.text = ComposeUnbracketed(text);
+                            composed++;
+                            continue;
+                        }
+
+                        // ── EHG standalone Tier TMP (single-line widget) ──
                         // v2 treatment kept: recolor, never remove.
                         if (hasTier && !hasKgGrade)
                         {
@@ -232,10 +314,24 @@ public static class TooltipRecolor
                             continue;
                         }
 
-                        // ── Standalone Range-only TMP (separate widget) ───
-                        // v2 treatment kept: inherit grade colour via parent.
+                        // ── Standalone Range-only TMP (single-line widget,
+                        //    unique/set/legendary item sections) ──────────
+                        // "Ranges off" means off EVERYWHERE: hidden unless
+                        // deep view; tracked so Alt restores it live.
                         if (hasRange && !hasKgGrade && !hasTier)
                         {
+                            if (!DeepRange)
+                            {
+                                try
+                                {
+                                    tmp.gameObject.SetActive(false);
+                                    s_hiddenRanges[tmp.GetInstanceID()] = tmp;
+                                    composed++;
+                                }
+                                catch { }
+                                continue;
+                            }
+
                             string stripped = s_colorTagRegex.Replace(text, "");
                             stripped = s_kgExtraDataRegex.Replace(stripped, "").Trim();
 
@@ -263,9 +359,15 @@ public static class TooltipRecolor
                         // marker) = the original. Store it, then compose.
                         s_originals[tmp.GetInstanceID()] = (tmp, text);
                         tmp.text = Compose(text);
+                        composed++;
                     }
                     catch { }
                 }
+
+                // ── Lean law: we shrank texts AFTER the game measured the
+                //    essay — re-measure once so the blank rows collapse.
+                if (composed > 0)
+                    RequestRelayout(__instance, __args);
             }
             catch (Exception ex)
             {
@@ -294,14 +396,14 @@ public static class TooltipRecolor
         foreach (int k in dead) s_originals.Remove(k);
     }
 
-    // ── The composer ──────────────────────────────────────────────────
+    // ── The composer (bracketed affix TMPs) ───────────────────────────
     // Deterministic: always transforms ORIGINAL EHG text (bracket intact),
     // never its own output. Deep view = Alt held or per-detail pins.
     // Output carries the Marker so later passes skip it.
     private static string Compose(string original)
     {
-        bool deepTier  = s_altHeld || Prefs.AlwaysShowTierDetails.Value;
-        bool deepRange = s_altHeld || Prefs.AlwaysShowRanges.Value;
+        bool deepTier  = DeepTier;
+        bool deepRange = DeepRange;
 
         // TMP-level first grade colour — Range lines in deep view wear it
         // (v2 semantics).
@@ -357,20 +459,13 @@ public static class TooltipRecolor
 
             // EHG Tier line — folded into the clean line. The signal
             // already broadcasts the tier, so even in deep view the number
-            // NEVER repeats (Andrew: "i hate how it shows the tier again").
-            // Only the annotation earns a row: "max craftable"/"drop only"
-            // as a quiet dim note; a bare "Tier: 4" line shows nothing.
+            // NEVER repeats. Only the annotation earns a row.
             if (s_tierRegex.IsMatch(line))
             {
                 if (deepTier)
                 {
-                    string stripped = s_colorTagRegex.Replace(line, "").Trim();
-                    Match tm2 = s_tierRegex.Match(stripped);
-                    string tail = stripped.Substring(tm2.Index + tm2.Length).Trim();
-                    if (tail.StartsWith("(") && tail.EndsWith(")") && tail.Length > 2)
-                        tail = tail.Substring(1, tail.Length - 2).Trim();
-                    if (tail.Length > 0)
-                        outLines.Add($"<color={Dim}>{tail}</color>");
+                    string note = TierAnnotation(line);
+                    if (note != null) outLines.Add(note);
                 }
                 continue;   // suppressed — the essay dies here
             }
@@ -392,6 +487,96 @@ public static class TooltipRecolor
         }
 
         return string.Join("\n", outLines) + Marker;
+    }
+
+    // ── The composer (UNBRACKETED multi-line blocks) ──────────────────
+    // Hybrid / sealed multi-stat affixes: no roll data → no grade chip.
+    // Tier synthesized from the block's own "Tier:" line.
+    private static string ComposeUnbracketed(string original)
+    {
+        bool deepTier  = DeepTier;
+        bool deepRange = DeepRange;
+
+        string[] lines = original.Split('\n');
+
+        int tier = 0;
+        foreach (string line in lines)
+        {
+            Match tm = s_tierRegex.Match(line);
+            if (tm.Success && int.TryParse(tm.Groups[1].Value, out int t)) { tier = t; break; }
+        }
+        string tierHex = tier > 0 ? Colors.TierColor(tier) : null;
+
+        bool sealedFound = false;
+        var nameLines = new List<string>();
+        var deepLines = new List<string>();
+
+        foreach (string line in lines)
+        {
+            if (line.IndexOf("SEALED AFFIX", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                if (deepTier)
+                    deepLines.Add($"<color={Dim}>{s_colorTagRegex.Replace(line, "").Trim()}</color>");
+                else
+                    sealedFound = true;
+                continue;
+            }
+            if (s_tierRegex.IsMatch(line))
+            {
+                if (deepTier)
+                {
+                    string note = TierAnnotation(line);
+                    if (note != null) deepLines.Add(note);
+                }
+                continue;
+            }
+            if (line.StartsWith("Range:", StringComparison.OrdinalIgnoreCase))
+            {
+                if (deepRange)
+                {
+                    string stripped = s_colorTagRegex.Replace(line, "").Trim();
+                    deepLines.Add($"<color={tierHex ?? "#FFFFFF"}>{stripped}</color>");
+                }
+                continue;
+            }
+            string name = s_colorTagRegex.Replace(line, "").Trim();
+            if (name.Length > 0) nameLines.Add(name);
+        }
+
+        var outLines = new List<string>(nameLines.Count + deepLines.Count);
+        var noGrades = new List<(string color, string letter)>();
+        for (int i = 0; i < nameLines.Count; i++)
+        {
+            if (i == 0)
+            {
+                // First stat line carries the synthesized signal
+                outLines.Add(ComposeCleanLine(nameLines[0], tier, tierHex, noGrades, sealedFound));
+            }
+            else
+            {
+                string name = nameLines[i];
+                if (Prefs.NameColorMode.Value == AffixNameColorMode.TierColor &&
+                    Prefs.TooltipTierColors.Value && tierHex != null)
+                    name = $"<color={tierHex}>{name}</color>";
+                outLines.Add(name);
+            }
+        }
+        outLines.AddRange(deepLines);
+
+        if (outLines.Count == 0) return original + Marker;   // nothing classified — bail honest
+        return string.Join("\n", outLines) + Marker;
+    }
+
+    // "Tier: 5 (max craftable)" → dim "max craftable" · "Tier: 4" → null
+    private static string TierAnnotation(string line)
+    {
+        string stripped = s_colorTagRegex.Replace(line, "").Trim();
+        Match tm = s_tierRegex.Match(stripped);
+        if (!tm.Success) return null;
+        string tail = stripped.Substring(tm.Index + tm.Length).Trim();
+        if (tail.StartsWith("(") && tail.EndsWith(")") && tail.Length > 2)
+            tail = tail.Substring(1, tail.Length - 2).Trim();
+        return tail.Length > 0 ? $"<color={Dim}>{tail}</color>" : null;
     }
 
     // One affix, one line. Layout per Prefs.Layout; every part honors its

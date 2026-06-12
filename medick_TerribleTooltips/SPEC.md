@@ -197,3 +197,17 @@ Composition decisions:
   (pooled-TMP repurpose safety) and respects the EnableTooltips master.
 - Composer wakes on brackets alone (EHG tier-info OFF path — Andrew's
   in-game catch): implicits and unique/set mods get clean signals too.
+
+### Lean pass (2026-06-11 evening, Andrew's in-game findings)
+- Suppressed lines must not leave blank real estate: the postfix replays
+  the game's own UpdateLayout once (re-entrancy latched, original args
+  captured via __args) so the tooltip re-measures the shortened text.
+- "Ranges off" means off EVERYWHERE: standalone single-line Range widgets
+  (unique/set/legendary/corrupted sections) are now hidden (SetActive
+  false, tracked, Alt restores live) — supersedes the earlier "keep v2
+  treatment" clause for Range widgets specifically.
+- Unbracketed multi-line blocks (hybrid / sealed multi-stat — a game
+  formatter the injector doesn't reach): tier chip SYNTHESIZED from the
+  block's own Tier: line, no grade chip (no roll data — honest), names
+  tier-colored, essay lines suppressed. Previously misclassified as
+  standalone widgets and whole-block tinted.
