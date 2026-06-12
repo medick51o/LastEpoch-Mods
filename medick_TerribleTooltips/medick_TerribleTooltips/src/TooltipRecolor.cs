@@ -161,12 +161,20 @@ public static class TooltipRecolor
 
                         bool hasTier  = text.Contains("Tier:");
                         bool hasRange = text.Contains("Range:");
-                        if (!hasTier && !hasRange) continue;
+                        // The composer must ALSO wake on bracket-only TMPs:
+                        // with EHG's tier-info display OFF there are no
+                        // Tier:/Range: lines at all — the whole point of the
+                        // clean line is that ours carries the signal so
+                        // players can turn EHG's essay off. (v2 blind spot:
+                        // raw [5A] brackets showed through.) '[' is the
+                        // cheap pre-gate before the regex runs.
+                        if (!hasTier && !hasRange && text.IndexOf('[') < 0) continue;
 
                         Match gm          = s_kgGradeRegex.Match(text);
                         bool  isTierGrade = gm.Success;
                         if (!isTierGrade) gm = s_kgGradeOnlyRegex.Match(text);
                         bool hasKgGrade = gm.Success;
+                        if (!hasTier && !hasRange && !hasKgGrade) continue;
 
                         // ── EHG standalone Tier TMP (separate widget) ─────
                         // v2 treatment kept: recolor, never remove.
