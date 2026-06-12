@@ -39,13 +39,13 @@ internal static class SettingsUi
 
         NativeSettings.CreateToggle(settings, Cat, "TT - Tier Colors",
             "<color=#FF44FF>Tooltip: Tier Colors</color>",
-            "Colours each affix name by its crafting tier. T1 (gray) = weakest base, T7 (pink) = the best you can craft. Higher tier = stronger rolls and harder to land.",
+            "Master switch for tier colouring — tints the 'Tier N' signal and (when Affix Name Color = TierColor) the affix text itself. T1 (gray) = weakest base, T7 (pink) = the best you can craft.",
             Prefs.TooltipTierColors.Value,
             v => { Prefs.TooltipTierColors.Value = v; Prefs.Save(); });
 
         NativeSettings.CreateToggle(settings, Cat, "TT - Rank Colors",
             "<color=#FF44FF>Tooltip: Rank Colors</color>",
-            "Rank = how well an affix actually rolled within its tier. F (gray) = bottom of the range, S (pink) = near perfect roll. Same tier, very different power — ranks tell you the truth.",
+            "Colours the S/A/B/C/F grade letters by roll quality. F (gray) = bottom of the range, S (pink) = near perfect. Same tier, very different power — the grades tell you the truth. ('Show Grade Letters' below controls whether the letters appear at all.)",
             Prefs.TooltipRankColors.Value,
             v => { Prefs.TooltipRankColors.Value = v; Prefs.Save(); });
 
@@ -55,7 +55,7 @@ internal static class SettingsUi
         NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Layout",
             "<color=#FF44FF>Tooltip Layout</color>",
             "Where the Tier·Grade signal sits on each affix line. " +
-            "BadgeLeft = 'Tier 5·A' leads the line. SignalRight = signal at the right edge. " +
+            "BadgeLeft = 'Tier 5·A' leads the line. SignalRight = signal in a column at the right (long affix names gracefully fall back to Trailing). " +
             "Trailing = name — Tier 5 A. Pick how your eye likes to scan.",
             Prefs.Layout,
             i => { Prefs.Layout.Value = (TooltipLayout)i; Prefs.Save(); });
@@ -69,7 +69,7 @@ internal static class SettingsUi
 
         NativeSettings.CreateToggle(settings, Cat, "TT - Grade Letters",
             "<color=#FF44FF>Show Grade Letters</color>",
-            "The S/A/B/C/F roll grade on each affix line. Turn this off if you only want tiers — the letters are gone, no hard feelings.",
+            "The S/A/B/C/F roll grade on each affix line (coloured by 'Tooltip: Rank Colors' above). Turn this off if you only want tiers — the letters are gone, no hard feelings.",
             Prefs.ShowGradeLetters.Value,
             v => { Prefs.ShowGradeLetters.Value = v; Prefs.Save(); });
 
@@ -86,7 +86,7 @@ internal static class SettingsUi
             v => { Prefs.AlwaysShowTierDetails.Value = v; Prefs.Save(); });
 
         NativeSettings.CreateInfoRow(settings, Cat, "TT - Alt Hint",
-            "<color=#FA9E3D>Hold Alt = deep view</color>",
+            "<color=#FF44FF>Hold Alt = deep view</color>",
             "While hovering an item, hold Alt to reveal the full detail under each affix — ranges, craft info, everything the clean line tucked away. Release Alt and it's clean again.");
 
         // ── Color legend (honest info rows) ───────────────────────────

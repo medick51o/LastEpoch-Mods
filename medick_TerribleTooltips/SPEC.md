@@ -170,3 +170,30 @@ ships, since the legendary fix is in v2/GitHub but won't reach Nexus until v3.)
 **Audience order (conscious choice):** homies → sweats → WoW/D4 vets → Andrew.
 Mockups: `medick_TerribleTooltips/mockups/tooltip-flow-v3.html`.
 Parked ideas: player-custom color presets (fights "deepen, don't widen" — his call later).
+
+### v3 implementation notes (as built, 2026-06-11 — fleet-hardened)
+
+Settings rows added between "Tooltip: Rank Colors" and the color legends:
+Tooltip Layout (dropdown) · Affix Name Color (dropdown) · Show Grade
+Letters (toggle) · Always Show Ranges (toggle) · Always Show Tier Details
+(toggle) · "Hold Alt = deep view" (info row, mythic-pink title).
+
+Composition decisions:
+- Hybrid affixes render one clean line PER STAT (each with its own
+  signal) when EHG gives them separate lines; stacked-bracket lines
+  ("[F] [1S] +48 Armor") carry ALL grades in the signal (S·F style) —
+  the spec's "names joined" sketch was traded for wrap-safety; Andrew
+  may order the join after seeing it in-game.
+- Sealed: the "SEALED AFFIX" header folds into a dim "Sealed" element on
+  the next affix line's signal; deep view restores the full header.
+- SignalRight uses TMP <pos=68%>; names over ~30 chars fall back to
+  Trailing for that line (char count approximates rendered width —
+  honest limitation, documented in the setting copy).
+- Composed output carries a FOUR-zero-width-space marker and is skipped
+  on re-entry (deep-view output re-emits "Tier:"/"Range:" text that the
+  next UpdateLayout pass would misclassify as standalone EHG widgets —
+  comparison tooltips guarantee such a pass; the fleet caught the
+  white-wash). Alt re-render only touches TMPs still showing the marker
+  (pooled-TMP repurpose safety) and respects the EnableTooltips master.
+- Composer wakes on brackets alone (EHG tier-info OFF path — Andrew's
+  in-game catch): implicits and unique/set mods get clean signals too.

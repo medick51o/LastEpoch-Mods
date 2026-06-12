@@ -19,6 +19,13 @@
 //    intrinsically unpatchable (0xc0000005 even with an empty postfix).
 //  • The full-scene TMP scan is the only reliable way to find tooltip
 //    TMPs; it runs per tooltip layout, not per frame.
+//  • Composed output is MARKED (four zero-width spaces) and skipped on
+//    re-entry — deep-view output re-emits "Tier:"/"Range:" text that
+//    would otherwise be misclassified as standalone EHG widgets on the
+//    next UpdateLayout pass (comparison tooltips guarantee one) and get
+//    white-washed / wrongly cached. The fleet caught this; the marker
+//    is the same house pattern as GroundLabels (3 ZWSP) and
+//    FilterRuleTooltip (2 ZWSP) — this one is FOUR.
 //  • Standalone Tier/Range TMPs (set/unique separate widgets) KEEP the
 //    v2 recolor treatment — the essay-kill targets the craftable-affix
 //    TMPs where main line + Tier + Range live in ONE TMP. Removing
@@ -26,7 +33,8 @@
 //  • EHG resets standalone Tier TMP colours after UpdateLayout — the
 //    cache below re-applies them every LateUpdate.
 //  • Alt re-render composes from CACHED ORIGINALS (keyed GetInstanceID —
-//    Transforms don't hash), never from already-transformed text.
+//    Transforms don't hash) and ONLY onto TMPs still showing our marked
+//    output — a pooled TMP repurposed for another item is never stomped.
 // ================================================================
 
 namespace medick_Terrible_Tooltips;
@@ -34,6 +42,10 @@ namespace medick_Terrible_Tooltips;
 public static class TooltipRecolor
 {
     private const string Dim = "#8a8478";   // separator/dim ink (family palette)
+
+    // Composed-output sentinel: four zero-width spaces, built from char
+    // codes so the load-bearing bytes stay visible in review.
+    private static readonly string Marker = new string((char)0x200B, 4);
 
     // Tier TMPs EHG resets after UpdateLayout — re-apply every LateUpdate
     private static readonly List<(TextMeshProUGUI tmp, Color color)> s_tierColorCache = new();
@@ -47,14 +59,17 @@ public static class TooltipRecolor
     // ── Called from TerribleTooltipsMod.OnLateUpdate() ────────────────
     public static void OnLateUpdate()
     {
-        // Alt deep view: state change → re-compose every cached TMP live
+        // Alt deep view: state change → re-compose every cached TMP live.
+        // Master toggle gates the re-render (a v2 fleet law: master OFF
+        // means the mod touches nothing).
         try
         {
             bool alt = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
             if (alt != s_altHeld)
             {
                 s_altHeld = alt;
-                ReRenderFromOriginals();
+                if (Prefs.EnableTooltips.Value)
+                    ReRenderFromOriginals();
             }
         }
         catch { }
@@ -72,7 +87,16 @@ public static class TooltipRecolor
         {
             var (tmp, original) = kv.Value;
             if (tmp == null || !tmp.gameObject.activeInHierarchy) { dead.Add(kv.Key); continue; }
-            try { tmp.text = Compose(original); } catch { }
+            // Only re-render TMPs still showing OUR composed output. A
+            // pooled TMP repurposed for another item (vanilla text, or the
+            // master toggled off and back) has no marker — drop it instead
+            // of stamping a stale item's lines over it.
+            try
+            {
+                if (!(tmp.text ?? "").Contains(Marker)) { dead.Add(kv.Key); continue; }
+                tmp.text = Compose(original);
+            }
+            catch { }
         }
         foreach (int k in dead) s_originals.Remove(k);
     }
@@ -85,9 +109,17 @@ public static class TooltipRecolor
         @"\[(?:<color=[^>]+>)?(\d+)(?:</color>)?<color=([^>]+)>([SABCF])</color>\]",
         RegexOptions.Compiled);
 
-    // KG grade-only bracket (unique/set)  "[<color=…>A</color>]"
+    // KG grade-only bracket (unique/set/implicit)  "[<color=…>A</color>]"
     private static readonly Regex s_kgGradeOnlyRegex = new(
         @"\[<color=([^>]+)>([SABCF])</color>\]",
+        RegexOptions.Compiled);
+
+    // ANY KG bracket, tiered or grade-only, in line order — hybrid lines
+    // stack several ("[F] [1S] +48 Armor"), and SPEC's "grade per stat
+    // (S·S)" needs every one. Group 1 = optional tier digits,
+    // Group 2 = grade colour, Group 3 = letter.
+    private static readonly Regex s_kgAnyBracketRegex = new(
+        @"\[(?:(?:<color=[^>]+>)?(\d+)(?:</color>)?)?<color=([^>]+)>([SABCF])</color>\]",
         RegexOptions.Compiled);
 
     // Matches the EHG tier number in a Tier line/TMP
@@ -110,11 +142,6 @@ public static class TooltipRecolor
     // Strips KG's appended roll data  "[85.9%]"  or  "(0.923)"
     private static readonly Regex s_kgExtraDataRegex = new(
         @"\s*(?:\[\d+\.?\d*%?\]|\(\d+\.?\d*\))\s*$",
-        RegexOptions.Compiled);
-
-    // Strips ALL rich-text tags (for plain-length measurement)
-    private static readonly Regex s_anyTagRegex = new(
-        @"<[^>]+>",
         RegexOptions.Compiled);
 
     // ── Patch ─────────────────────────────────────────────────────────
@@ -159,14 +186,24 @@ public static class TooltipRecolor
                         string text = tmp?.text;
                         if (string.IsNullOrEmpty(text)) continue;
 
+                        // Our own composed output — never re-ingest it.
+                        // (Deep-view output re-emits "Tier:"/"Range:" lines
+                        // that would land in the standalone-widget branches
+                        // below and get white-washed / wrongly cached.)
+                        if (text.Contains(Marker)) continue;
+
+                        // FilterRuleTooltip's lane — a user-named filter
+                        // rule containing "Tier:"/"Range:" must not drag
+                        // the 'requires' TMP into the composer.
+                        try { if (tmp.gameObject.name == "requires") continue; } catch { }
+
                         bool hasTier  = text.Contains("Tier:");
                         bool hasRange = text.Contains("Range:");
                         // The composer must ALSO wake on bracket-only TMPs:
                         // with EHG's tier-info display OFF there are no
                         // Tier:/Range: lines at all — the whole point of the
                         // clean line is that ours carries the signal so
-                        // players can turn EHG's essay off. (v2 blind spot:
-                        // raw [5A] brackets showed through.) '[' is the
+                        // players can turn EHG's essay off. '[' is the
                         // cheap pre-gate before the regex runs.
                         if (!hasTier && !hasRange && text.IndexOf('[') < 0) continue;
 
@@ -222,9 +259,8 @@ public static class TooltipRecolor
                         // ── KG affix TMP → THE CLEAN LINE ─────────────────
                         if (!hasKgGrade) continue;
 
-                        // Fresh EHG-written text (bracket present) = the
-                        // original. Store it, then compose. Re-runs on
-                        // already-composed text never get here (no bracket).
+                        // Fresh EHG-written text (bracket present, no
+                        // marker) = the original. Store it, then compose.
                         s_originals[tmp.GetInstanceID()] = (tmp, text);
                         tmp.text = Compose(text);
                     }
@@ -261,6 +297,7 @@ public static class TooltipRecolor
     // ── The composer ──────────────────────────────────────────────────
     // Deterministic: always transforms ORIGINAL EHG text (bracket intact),
     // never its own output. Deep view = Alt held or per-detail pins.
+    // Output carries the Marker so later passes skip it.
     private static string Compose(string original)
     {
         bool deepTier  = s_altHeld || Prefs.AlwaysShowTierDetails.Value;
@@ -277,27 +314,44 @@ public static class TooltipRecolor
 
         string[] lines = original.Split('\n');
         var outLines = new List<string>(lines.Length);
+        bool sealedPending = false;
 
         foreach (string line in lines)
         {
-            // KG main affix line — compose the clean line
-            Match lg = s_kgGradeRegex.Match(line);
-            bool  lineTiered = lg.Success;
-            if (!lineTiered) lg = s_kgGradeOnlyRegex.Match(line);
-
-            if (lg.Success)
+            // KG main affix line — compose the clean line. Hybrid lines
+            // stack several brackets; every grade survives (S·S).
+            MatchCollection brackets = s_kgAnyBracketRegex.Matches(line);
+            if (brackets.Count > 0)
             {
-                int    tier        = lineTiered && int.TryParse(lg.Groups[1].Value, out int t) ? t : 0;
-                string gradeColor  = lg.Groups[lineTiered ? 2 : 1].Value;
-                string gradeLetter = lg.Groups[lineTiered ? 3 : 2].Value;
-                string tierHex     = tier > 0 ? Colors.TierColor(tier) : null;
+                int tier = 0;
+                var grades = new List<(string color, string letter)>();
+                foreach (Match b in brackets)
+                {
+                    if (tier == 0 && b.Groups[1].Success &&
+                        int.TryParse(b.Groups[1].Value, out int t))
+                        tier = t;
+                    grades.Add((b.Groups[2].Value, b.Groups[3].Value));
+                }
+                string tierHex = tier > 0 ? Colors.TierColor(tier) : null;
 
                 string clean = s_colorTagRegex.Replace(line, "");
                 clean = s_kgBracketStripRegex.Replace(clean, "");
                 clean = s_kgExtraDataRegex.Replace(clean, "");
                 clean = clean.Trim();
 
-                outLines.Add(ComposeCleanLine(clean, tier, tierHex, gradeColor, gradeLetter));
+                outLines.Add(ComposeCleanLine(clean, tier, tierHex, grades, sealedPending));
+                sealedPending = false;
+                continue;
+            }
+
+            // EHG sealed header — folds into a dim "Sealed" signal element
+            // on the next affix line; deep view restores the full header.
+            if (line.IndexOf("SEALED AFFIX", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                if (deepTier)
+                    outLines.Add($"<color={Dim}>{s_colorTagRegex.Replace(line, "").Trim()}</color>");
+                else
+                    sealedPending = true;
                 continue;
             }
 
@@ -328,20 +382,22 @@ public static class TooltipRecolor
                 continue;   // suppressed
             }
 
-            // Everything else (sealed headers, flavor) — untouched
+            // Everything else (flavor text) — untouched
             outLines.Add(line);
         }
 
-        return string.Join("\n", outLines);
+        return string.Join("\n", outLines) + Marker;
     }
 
     // One affix, one line. Layout per Prefs.Layout; every part honors its
     // own kill-switch (TierColors / RankColors / ShowGradeLetters / name mode).
     private static string ComposeCleanLine(string cleanName, int tier,
-        string tierHex, string gradeColor, string gradeLetter)
+        string tierHex, List<(string color, string letter)> grades, bool sealedAffix)
     {
-        bool tintTier  = Prefs.TooltipTierColors.Value;
-        bool tintRank  = Prefs.TooltipRankColors.Value;
+        bool tintTier = Prefs.TooltipTierColors.Value;
+        bool tintRank = Prefs.TooltipRankColors.Value;
+
+        string sealedPart = sealedAffix ? $"<color={Dim}>Sealed</color>" : null;
 
         string tierPart = tier > 0
             ? (tintTier && tierHex != null
@@ -349,50 +405,58 @@ public static class TooltipRecolor
                 : $"Tier {tier}")
             : null;
 
-        string gradePart = Prefs.ShowGradeLetters.Value
-            ? (tintRank ? $"<color={gradeColor}>{gradeLetter}</color>" : gradeLetter)
-            : null;
+        string gradePart = null;
+        if (Prefs.ShowGradeLetters.Value && grades.Count > 0)
+        {
+            var letters = new List<string>(grades.Count);
+            foreach (var (color, letter) in grades)
+                letters.Add(tintRank ? $"<color={color}>{letter}</color>" : letter);
+            gradePart = string.Join($"<color={Dim}>·</color>", letters);
+        }
 
         // Name colour: tier colour by default (the WoW retina read);
-        // untiered (unique/set) names borrow the grade colour, as in v2.
+        // untiered (unique/set/implicit) names borrow the grade colour, as in v2.
         string name = cleanName;
         if (Prefs.NameColorMode.Value == AffixNameColorMode.TierColor && tintTier)
         {
-            string nameHex = tierHex ?? gradeColor;
-            name = $"<color={nameHex}>{cleanName}</color>";
+            string nameHex = tierHex ?? (grades.Count > 0 ? grades[0].color : null);
+            if (nameHex != null)
+                name = $"<color={nameHex}>{cleanName}</color>";
         }
 
-        // No signal at all (untiered + letters off) → just the name
-        if (tierPart == null && gradePart == null) return name;
+        string signal = JoinSignal(
+            Prefs.Layout.Value == TooltipLayout.BadgeLeft ? $"<color={Dim}>·</color>" : " ",
+            sealedPart, tierPart, gradePart);
+
+        if (signal == null) return name;
 
         switch (Prefs.Layout.Value)
         {
             case TooltipLayout.SignalRight:
-            {
-                string signal = JoinSignal(tierPart, gradePart, " ");
                 // <pos> moves the caret absolutely — a long name would be
-                // overdrawn. Degrade gracefully to Trailing for long names.
-                if (cleanName.Length <= 34)
+                // overdrawn (char count is an approximation of rendered
+                // width; threshold is deliberately conservative). Long
+                // names degrade gracefully to Trailing.
+                if (cleanName.Length <= 30)
                     return $"{name}<pos=68%>{signal}";
                 return $"{name} <color={Dim}>—</color> {signal}";
-            }
+
             case TooltipLayout.Trailing:
-            {
-                string signal = JoinSignal(tierPart, gradePart, " ");
                 return $"{name} <color={Dim}>—</color> {signal}";
-            }
+
             default:   // BadgeLeft — Andrew's pick
-            {
-                string signal = JoinSignal(tierPart, gradePart, $"<color={Dim}>·</color>");
                 return $"{signal}  {name}";
-            }
         }
     }
 
-    private static string JoinSignal(string tierPart, string gradePart, string sep)
+    private static string JoinSignal(string sep, params string[] parts)
     {
-        if (tierPart == null) return gradePart;
-        if (gradePart == null) return tierPart;
-        return tierPart + sep + gradePart;
+        string result = null;
+        foreach (string p in parts)
+        {
+            if (p == null) continue;
+            result = result == null ? p : result + sep + p;
+        }
+        return result;
     }
 }

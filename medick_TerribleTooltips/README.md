@@ -37,7 +37,7 @@ Hover any item and the tooltip shows **which loot filter rule matched it** — i
 | Show Grade Letters | ON | The S/A/B/C/F grades — turn off if you only want tiers |
 | Always Show Ranges | OFF | Pin Range lines permanently (or just hold Alt to peek) |
 | Always Show Tier Details | OFF | Pin the full "Tier: 5 (max craftable)" line (or hold Alt) |
-| Ground Label Style | Tier+Rank | Dropdown: None / TierAndRank / TierOnly / RankOnly |
+| Ground Label Style | TierAndRank | Dropdown: None / TierAndRank / TierOnly / RankOnly |
 | Ground Labels: Filter Only | OFF | Only show brackets on loot-filter highlighted items |
 | Ground Labels: Hold Alt to Show | OFF | Hide brackets until you hold Alt (KG-style) |
 | Tooltip: Show Filter Rule # | NumberOnly | Off / NumberOnly / NumberAndName |
