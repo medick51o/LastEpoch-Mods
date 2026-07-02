@@ -18,19 +18,33 @@ One line per affix. The essay dies.
   (default) · `SignalRight` — signal at the right edge · `Trailing` —
   "affix text — Tier 5 A". Build it how you want.
 - **Signal Style** (dropdown): `Badge` (default) — Tier/Grade render as
-  colored chips: the chip wears the tier colour, the text inside flips
-  to contrast ink, so the signal reads as a *label* while the affix
-  text keeps the color story · `PlainText` — colored text, no chips.
+  colored chips: the chip wears the tier colour, the text inside renders
+  in one bright ink that stays readable on every chip, so the signal
+  reads as a *label* while the affix text keeps the color story ·
+  `PlainText` — colored text, no chips.
 - **Affix Name Color** (dropdown): `TierColor` (default — the text wears
   its tier colour) or `GameDefault` (only the signal is coloured).
 - **Show Grade Letters** (toggle): want the S/A/B/C/F gone? It's gone.
 - **Always Show Ranges / Always Show Tier Details** (toggles): pin the
   deep-view lines permanently if Alt isn't your style. Both default OFF.
 
+### Fixed — release-night fleet pass (2026-07-01)
+- **Ground labels are truly untouched again**: the clean-line composer
+  could capture a single-affix ground bracket (its wake gate had no
+  ground-label exclusion) and permanently mangle it into chip format.
+  The composer now excludes anything carrying the ground-label marker.
+- **Hold-Alt ground labels**: an item dropped while Alt was already held
+  now shows its brackets immediately (the swap previously fired only on
+  an Alt state *change*).
+
 ### Unchanged on purpose
-- Ground labels — the KG bracket is beloved; not one byte touched.
-- Standalone set/unique Tier/Range widgets keep the v2 recolor treatment
-  (they're separate game widgets, not our essay to kill).
+- Ground labels — the KG bracket is beloved; the bracket format renders
+  exactly as it always has (tonight's fixes only shield the labels from
+  the composer and make Alt-mode brackets appear instantly).
+- Standalone set/unique Tier widgets keep the v2 recolor treatment
+  (they're separate game widgets, not our essay to kill). Standalone
+  Range rows now follow the same ranges-hidden / Hold-Alt rule as the
+  rest of the tooltip — the lean pass superseded the keep-as-is plan.
 - All v1/v2 settings, the cfg path, every ecosystem treaty (LeHud truce,
   Fallen Star), and every crash law.
 

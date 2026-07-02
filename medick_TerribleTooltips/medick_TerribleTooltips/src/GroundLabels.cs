@@ -24,7 +24,7 @@ public static class GroundLabels
 {
     // Zero-width space marker — prevents double-processing a label.
     // Escapes, not literal chars: load-bearing bytes must be visible.
-    private const string Marker = "\u200B\u200B\u200B";
+    internal const string Marker = "\u200B\u200B\u200B";
 
     // EHG's trailing rule number: "Ruby Ring (53)" — parenthesized
     // (the bare-number regex was v1.4's silent failure)
@@ -127,7 +127,12 @@ public static class GroundLabels
         // ── Alt-key mode ──────────────────────────────────────────────
         if (Prefs.LabelAltKey.Value)
         {
-            SetText(tmp, plain + Marker);
+            // Respect the CURRENT Alt state: an item dropped while Alt is
+            // already held must show its brackets immediately — the OnUpdate
+            // swap only fires on a state CHANGE, and that change already
+            // happened before this label existed.
+            bool altNow = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+            SetText(tmp, (altNow ? bracketed : plain) + Marker);
             item.sceneFollower?.calculateDimensions();
 
             s_altCache.RemoveAll(e => e.label == item);

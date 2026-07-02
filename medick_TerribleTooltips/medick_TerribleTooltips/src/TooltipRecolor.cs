@@ -307,6 +307,14 @@ public static class TooltipRecolor
                         // Our own composed output — never re-ingest it.
                         if (text.Contains(Marker)) continue;
 
+                        // GroundLabels' output — a single-affix ground bracket
+                        // matches the grade regex, and composing it mangles the
+                        // label permanently (its 3-ZWSP marker survives inside
+                        // our 4-ZWSP one, so its own double-process guard then
+                        // skips the repair). Ground labels are not this
+                        // composer's territory.
+                        if (text.Contains(GroundLabels.Marker)) continue;
+
                         // FilterRuleTooltip's lane — a user-named filter
                         // rule containing "Tier:"/"Range:" must not drag
                         // the 'requires' TMP into the composer.

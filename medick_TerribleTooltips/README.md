@@ -33,6 +33,7 @@ Hover any item and the tooltip shows **which loot filter rule matched it** — i
 | Tooltip: Tier Colors | ON | Colours affix names by crafting tier |
 | Tooltip: Rank Colors | ON | Colours grade letters by roll quality |
 | Tooltip Layout | BadgeLeft | Where the Tier·Grade signal sits: BadgeLeft / SignalRight / Trailing |
+| Signal Style | Badge | Tier/Grade as coloured chips (Badge) or plain coloured text (PlainText) |
 | Affix Name Color | TierColor | Affix text in its tier colour, or the game's default text colour |
 | Show Grade Letters | ON | The S/A/B/C/F grades — turn off if you only want tiers |
 | Always Show Ranges | OFF | Pin Range lines permanently (or just hold Alt to peek) |
