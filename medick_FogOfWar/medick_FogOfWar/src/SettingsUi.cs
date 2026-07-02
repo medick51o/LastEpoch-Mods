@@ -26,7 +26,7 @@ namespace medick_FogOfWar
                 "Going in blind? OK @wudijo  |  Minimap disappears the moment you click — and comes right back when you leave.  The overlay map still opens — honor system.  |  Click to select."),
             (1, "fogOFwar - 1 HARD",
                 "<color=#E1E1E1>1  HARD</color>",
-                "Put in for filler, no one will use it.  |  Minimap visible but reveals nothing.  |  Click to select."),
+                "Put in for filler, no one will use it.  |  Minimap visible but reveals nothing. Already-explored fog stays revealed until your next zone.  |  Click to select."),
             (2, "fogOFwar - 2 LIMITED",
                 "<color=#77ACFF>2  LIMITED</color>",
                 "Also filler, also no one will use it.  |  69% of the default reveal radius. Nice.  |  Click to select."),

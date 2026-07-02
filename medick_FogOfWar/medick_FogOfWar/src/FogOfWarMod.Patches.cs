@@ -17,6 +17,7 @@ namespace medick_FogOfWar
         internal void ApplyPatches()
         {
             TryPatch(typeof(Patch_MinimapAwake),       "Minimap.Awake (fog control)");
+            TryPatch(typeof(Patch_MinimapUpdate),      "Minimap.Update (BLIND re-assert)");
             TryPatch(typeof(Patch_SettingsPanelAwake), "SettingsPanel.Awake (settings UI)");
         }
 
@@ -41,6 +42,20 @@ namespace medick_FogOfWar
             [HarmonyPostfix]
             public static void Postfix(Minimap __instance) =>
                 FogController.OnMinimapAwake(__instance);
+        }
+
+        // The game can re-activate a hidden minimap container without a new
+        // Awake (overlay-map close, cutscene end) — and the interop Minimap
+        // declares NO OnEnable to hook (verified against Il2CppLE.dll:
+        // Awake, OnDestroy, Update only). So the re-assert rides Update: a
+        // hidden minimap receives no Updates, an escaped one does, and the
+        // controller fast-exits for every non-BLIND level.
+        [HarmonyPatch(typeof(Minimap), nameof(Minimap.Update))]
+        private static class Patch_MinimapUpdate
+        {
+            [HarmonyPostfix]
+            public static void Postfix(Minimap __instance) =>
+                FogController.OnMinimapUpdate(__instance);
         }
 
         // Inject the "Terrible fog_OFwar" category into the game's own

@@ -157,15 +157,28 @@ namespace medick_FogOfWar
                 catch (Exception ex)
                 {
                     if (row) UnityEngine.Object.DestroyImmediate(row.gameObject);
-                    MelonLogger.Warning($"settings row '{title}' failed: {ex.Message}");
+                    WarnRowOnce(title, ex);
                     return null;
                 }
             }
             catch (Exception ex)
             {
-                MelonLogger.Warning($"settings row '{title}' failed: {ex.Message}");
+                WarnRowOnce(title, ex);
                 return null;
             }
+        }
+
+        // Row failures latch like everything else: injection re-runs on every
+        // settings open, and 6 rows x every open = warning spam that reads
+        // like the mod dying repeatedly instead of degrading once.
+        static bool _rowWarned;
+        static void WarnRowOnce(string title, Exception ex)
+        {
+            if (_rowWarned) return;
+            _rowWarned = true;
+            MelonLogger.Warning(
+                $"settings row '{title}' failed ({ex.Message}) — further row failures this session are silent; " +
+                "fog control still works via UserData/medick_The_fogOFwar.cfg");
         }
 
         static Toggle RebindButton(Transform row, Action onClick)

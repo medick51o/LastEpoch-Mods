@@ -23,6 +23,20 @@ starts here (succeeds The fog OF war v1.0 from April).
   settings helpers were copy-pasted from the sibling mod, header and log
   prefixes included.
 
+### Fixed in the release-night fable pass (2026-07-01)
+- BLIND now re-asserts itself when the game re-activates the minimap
+  without a fresh zone load (overlay-map close, cutscene end). No more
+  minimap popping back mid-BLIND.
+- Leaving BLIND can no longer resurrect a game-parked minimap: the mod
+  never adopts a container it did not itself hide.
+- The zone-default guard now remembers every radius the mod wrote this
+  session, closing the last pooled-instance path for the old compounding
+  LIMITED/SCOUT drift.
+- Settings row failures warn once per session instead of spamming on
+  every settings open.
+- The HARD legend row now says that already-explored fog stays revealed
+  until your next zone.
+
 ### Changed
 - **The level legend IS the control now** — each colour-coded row selects its
   level on click and the active row stays checked, radio-style (v1's legend
