@@ -1,11 +1,12 @@
 # Changelog — MedicK's Terrible Zoom
 
-## v2.0.0 — 2026-06-10
+## v1.0.0 — 2026-07-01
 
 Ground-up engineering pass and rebrand: **Camera Zoom** is now
 **MedicK's Terrible Zoom** ("Terrible Zoom" for short), joining the Terrible
 family. Internal name, DLL, preferences and the Nexus upgrade path are
-unchanged (`medick_CameraZoom`).
+unchanged (`medick_CameraZoom`). The version resets to **1.0.0** — the
+Terrible era starts here (succeeds Camera Zoom v1.2).
 
 ### Fixed
 - **The stuck camera (grizwad's report: "camera angle quit changing and got

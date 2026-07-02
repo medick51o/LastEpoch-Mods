@@ -10,7 +10,7 @@ namespace medick_CameraZoom
         public const string DisplayName  = "Terrible Zoom";
         public const string OfficialName = "MedicK's Terrible Zoom";
         public const string Tagline      = "a camera mod";
-        public const string Version      = "2.0.0";
+        public const string Version      = "1.0.0";
         public const string Author       = "medick";
     }
 }

@@ -10,7 +10,7 @@ namespace medick_CooldownTracker
         public const string DisplayName  = "Terrible Cooldowns";
         public const string OfficialName = "MedicK's Terrible Cooldowns";
         public const string Tagline      = "a cooldown tracker";
-        public const string Version      = "5.0.0";
+        public const string Version      = "1.0.0";
         public const string Author       = "medick";
     }
 }

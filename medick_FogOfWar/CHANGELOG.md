@@ -1,11 +1,12 @@
 # Changelog — MedicK's Terrible fog_OF_war
 
-## v2.0.0 — 2026-06-10
+## v1.0.0 — 2026-07-01
 
 Ground-up engineering pass and rebrand: **The fog OF war** is now
 **MedicK's Terrible fog_OF_war** ("fog_OF_war" for short), joining the
 Terrible family. Internal name, DLL, prefs and cfg path are unchanged
-(`medick_The_fogOFwar`).
+(`medick_The_fogOFwar`). The version resets to **1.0.0** — the Terrible era
+starts here (succeeds The fog OF war v1.0 from April).
 
 ### Fixed
 - **No more restarts. Ever.** v1's "BLIND requires a full game restart —

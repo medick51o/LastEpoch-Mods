@@ -1,11 +1,13 @@
 # Changelog — MedicK's Terrible Cooldowns
 
-## v5.0.0 — 2026-06-10
+## v1.0.0 — 2026-07-01
 
 Ground-up engineering pass and rebrand: **Cooldown Tracker** is now
 **MedicK's Terrible Cooldowns** ("Terrible Cooldowns" for short), joining
 Terrible Tooltips and Terrible Inventory. Internal name, DLL, preferences and
-the Nexus upgrade path are unchanged (`medick_CooldownTracker`).
+the Nexus upgrade path are unchanged (`medick_CooldownTracker`). The version
+resets to **1.0.0** — the Terrible era starts here (succeeds CooldownTracker
+v4.5).
 
 ### Added
 - **Console button badges** — short button labels render as real console-style
