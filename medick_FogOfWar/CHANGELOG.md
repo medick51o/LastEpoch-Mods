@@ -45,7 +45,7 @@ starts here (succeeds The fog OF war v1.0 from April).
 
 ---
 
-## v1.0.0 — 2026-04-12
+## v1.0 (The fog OF war) — 2026-04-12
 - Initial release: 6-level fog of war control (BLIND / HARD / LIMITED /
   NORMAL / SCOUT / ORACLE), Map Vision dropdown + level legend injected into
   the game's settings screen, persisted to UserData/medick_The_fogOFwar.cfg.

@@ -1,4 +1,4 @@
-# SPEC — MedicK's Terrible fog_OF_war v2.0.0
+# SPEC — MedicK's Terrible fog_OF_war v1.0.0 (the Terrible debut)
 
 *a fog control mod* — "fog_OF_war" for short. Internal name `medick_The_fogOFwar` (frozen: DLL, prefs category, cfg path, Nexus upgrade path).
 
@@ -19,9 +19,10 @@ Zone-default fallback when no capture exists yet: 150.
 
 ### Apply rules
 
-1. **Everything applies live. No restarts, ever.** (v1 required a full game
-   restart to enter or leave BLIND; that was a tooling limitation, not a
-   design decision. v2 hides/shows the minimap GameObject at runtime.)
+1. **Everything applies live. No restarts, ever.** (The April build required
+   a full game restart to enter or leave BLIND; that was a tooling
+   limitation, not a design decision. This release hides/shows the minimap
+   GameObject at runtime.)
 2. On `Minimap.Awake` (each zone): capture **that instance's** pre-write
    `RevealRadius` as the zone default (refreshed per zone, never latched
    globally), then apply the current level. **A value the mod itself wrote
@@ -62,7 +63,7 @@ Zone-default fallback when no capture exists yet: 150.
 - Prefs category: `medick_The_fogOFwar` (display "Map Vision")
 - Pref entry: `VisionLevel` (enum, default NORMAL)
 - Cfg file: `UserData/medick_The_fogOFwar.cfg` (autoload)
-- New in v2: `DebugLog` (bool, default false)
+- New in this release: `DebugLog` (bool, default false)
 
 ### Known fragility (accepted, guarded)
 

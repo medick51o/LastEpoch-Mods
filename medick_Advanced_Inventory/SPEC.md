@@ -119,7 +119,12 @@ v2; v1 had no preferences at all, so there is no legacy to migrate).
 - No stash tab rearranging/splitting (game limitation; "dump tab" philosophy).
 - No per-zone teleport favorites, no dungeon-key Y-press parity (candidate
   v2.1 items, recorded in ARCHAEOLOGY.md wishes).
-- Online gray-area warning stays in the Nexus copy, voice intact.
+- ~~Online gray-area warning stays in the Nexus copy, voice intact.~~
+  **Softened 2026-07-01 (Andrew's call, v2.0.0 release night):** the ⚠️
+  use-at-your-own-risk siren leaves the Nexus copy, replaced by one subtle
+  fine-print line ("may conflict with online play — recommended for offline
+  sessions") and VENDOR shipping **disabled by default**. Disclosure moved
+  from alarm-prose to quiet-print + opt-in design; never fully deleted.
 
 ## Engineering standard (family playbook)
 

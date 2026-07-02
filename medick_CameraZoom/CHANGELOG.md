@@ -13,16 +13,16 @@ Terrible era starts here (succeeds Camera Zoom v1.2).
   stuck under ground — restarting was the only fix").** Three compounding
   v1.x defects, all eliminated:
   - The originals-captured latch was set *before* the values were read — a
-    single failed read froze NaN originals in permanently. v2 latches only
-    after every value reads back finite, and retries otherwise.
+    single failed read froze NaN originals in permanently. The rewrite latches
+    only after every value reads back finite, and retries otherwise.
   - The live-zoom slider's range guard (`max <= min`) passes NaN straight
     through (NaN comparisons are always false), letting a drag write NaN
-    into `targetZoom` — and a NaN lerp never recovers. v2 never writes a
-    non-finite value to the camera and self-heals a poisoned zoom back to
-    the game default every frame.
+    into `targetZoom` — and a NaN lerp never recovers. The rewrite never
+    writes a non-finite value to the camera and self-heals a poisoned zoom
+    back to the game default every frame.
   - Unlocking the angle wrote a fabricated ±25° range because the real
-    `cameraAngleMin/Max` were never captured. v2 captures and restores the
-    game's actual limits.
+    `cameraAngleMin/Max` were never captured. The rewrite captures and
+    restores the game's actual limits.
 - New **Rescue** button restores every captured game default in one click —
   no restart required, ever.
 

@@ -26,7 +26,7 @@ Everything lives on the inventory panel. `QUICK TELEPORT` tab collapses/expands 
 
 Upgrading from Terrible Inventory v1.5.0: just replace the DLL. Coming from the old Advanced Inventory (v1.4 or earlier)? **Delete `medick_Advanced_Inventory.dll` first** — the DLL was renamed in the rebrand, and running both causes duplicate buttons.
 
-> ⚠️ STASH/VENDOR-from-anywhere is a gray area in online play — use at your own risk. Recommended for offline.
+> *Fine print: stash/vendor-from-anywhere may conflict with online play — recommended for offline sessions.*
 
 ## Credits
 
