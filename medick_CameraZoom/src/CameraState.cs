@@ -30,8 +30,11 @@ namespace medick_CameraZoom
 
         const int StallFrames = 300;   // ~5 s of failed reads before we call it stalled
         static int  _failStreak;
-        static int  _mgrId;       // which CameraManager the capture belongs to
-        static bool _wroteLock;   // we have written locked-angle values to THIS manager
+        static int  _mgrId;         // which CameraManager the capture belongs to
+        static bool _wroteLock;     // we have written locked-angle values to THIS manager
+        static bool _loggedCapture; // first capture logs loud; recaptures go to Dbg
+        static bool  _everCaptured;        // any successful capture this session
+        static float _lastGoodZoomDefault; // sane heal target for capture-less zones
 
         public static bool TryCapture(CameraManager mgr)
         {
@@ -43,7 +46,18 @@ namespace medick_CameraZoom
             // session becomes "the game default" everywhere, and the unlock
             // path enforces the wrong tilt for the rest of the night.
             int id;
-            try { id = mgr.GetInstanceID(); } catch { return false; }
+            try { id = mgr.GetInstanceID(); }
+            catch
+            {
+                // A live-but-unreadable manager must still count toward the
+                // stall warning, or the mod idles forever in silence.
+                if (++_failStreak == StallFrames)
+                {
+                    CaptureStalled = true;
+                    MelonLogger.Warning("camera manager unreadable — mod idle; a game update may have changed CameraManager");
+                }
+                return false;
+            }
             if (id != _mgrId)
             {
                 _mgrId         = id;
@@ -69,19 +83,20 @@ namespace medick_CameraZoom
                     Captured = true;                    // latch only after a fully clean read
                     CaptureStalled = false;
                     _failStreak = 0;
-                    MelonLogger.Msg(
+                    // Family law: one startup line. First capture announces
+                    // itself; per-zone recaptures log only with DebugLog on.
+                    string capMsg =
                         $"originals captured — zoomMin {zm:F1}, zoomDefault {zd:F1}, " +
-                        $"perScroll {zps:F1}, speed {zs:F1}, angle {ad:F1}° [{amin:F1}..{amax:F1}]");
+                        $"perScroll {zps:F1}, speed {zs:F1}, angle {ad:F1}° [{amin:F1}..{amax:F1}]";
+                    if (!_loggedCapture) { MelonLogger.Msg(capMsg); _loggedCapture = true; }
+                    else Dbg.Log(capMsg);
 
-                    // First-run feel: if the scroll/speed prefs are still at
-                    // their shipped defaults, adopt the game's own values —
-                    // installing the mod then changes nothing until YOU move
-                    // a slider. The extended zoom-out limit stays as shipped;
-                    // that one IS the mod.
-                    if (Prefs.ZoomPerScroll.Value == Prefs.PerScrollDefault && Differs(zps, Prefs.PerScrollDefault))
-                        Prefs.ZoomPerScroll.Value = Mathf.Clamp(zps, Prefs.PerScrollLo, Prefs.PerScrollHi);
-                    if (Prefs.ZoomSpeed.Value == Prefs.SpeedDefault && Differs(zs, Prefs.SpeedDefault))
-                        Prefs.ZoomSpeed.Value = Mathf.Clamp(zs, Prefs.SpeedLo, Prefs.SpeedHi);
+                    // (A "seed prefs from game values" pass was tried and
+                    // reverted here on release night: v1.x shipped these
+                    // defaults deliberately hotter than the game, and seeding
+                    // would have silently changed every upgrader's feel.)
+                    _everCaptured        = true;
+                    _lastGoodZoomDefault = zd;
                     return true;
                 }
                 failReason = "non-finite camera values";
@@ -105,7 +120,29 @@ namespace medick_CameraZoom
         // manager (or another camera mod) every frame.
         public static void Apply(CameraManager mgr)
         {
-            if (mgr == null || !Captured) return;       // never write before a clean capture
+            if (mgr == null) return;
+            if (!Captured)
+            {
+                // Config writes stay gated on a clean capture of THIS zone's
+                // manager, but rule-2 healing never sleeps: a poisoned live
+                // zoom must heal in ANY zone once the session knows a sane
+                // default (the per-zone latch must not resurrect grizwad).
+                if (_everCaptured)
+                {
+                    try
+                    {
+                        float t = mgr.targetZoom, c = mgr.currentZoom;
+                        if (!Finite(t) || !Finite(c))
+                        {
+                            mgr.targetZoom  = _lastGoodZoomDefault;
+                            mgr.currentZoom = _lastGoodZoomDefault;
+                            MelonLogger.Warning("camera zoom was NaN — healed back to a known default");
+                        }
+                    }
+                    catch { }
+                }
+                return;
+            }
             try
             {
                 float zoomMin = SaneZoomMin;

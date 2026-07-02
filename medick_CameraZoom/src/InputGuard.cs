@@ -16,7 +16,6 @@ namespace medick_CameraZoom
 
         public static void Apply(bool want)
         {
-            if (want == _applied) return;
             try
             {
                 var mgr = EpochInputManager.instance;
@@ -25,8 +24,21 @@ namespace medick_CameraZoom
                     if (!want) _applied = false;   // manager gone = nothing to restore
                     return;
                 }
-                mgr.forceDisableInput = want;
-                _applied = want;
+                if (want)
+                {
+                    // Re-assert while blocking: a scene change spawns a fresh
+                    // manager with the flag reset, and a sibling mod's guard
+                    // (Terrible Cooldowns runs the same technique) can flip it
+                    // under us. Trusting our own last write is how input locks
+                    // silently die; one Il2Cpp read per frame is cheap.
+                    if (!mgr.forceDisableInput) mgr.forceDisableInput = true;
+                    _applied = true;
+                }
+                else if (_applied)
+                {
+                    mgr.forceDisableInput = false;   // release once
+                    _applied = false;
+                }
             }
             catch { }
         }

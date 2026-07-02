@@ -108,7 +108,7 @@ namespace medick_CameraZoom
             // ── Status ────────────────────────────────────────────
             if (ready)
                 Widgets.StatusRow(x, ref y, cw, sc,
-                    $"live — zoom {liveCur:F1} → {liveTgt:F1} · tilt {(Prefs.LockAngle.Value ? "locked" : "game-controlled")} {liveAngle:F1}° · game default {CameraState.ZoomDefault:F1}",
+                    $"live — zoom {liveCur:F1} → {liveTgt:F1} · tilt {(Prefs.LockAngle.Value ? "locked" : "free")} {liveAngle:F1}° · game default {CameraState.ZoomDefault:F1}",
                     Theme.Ready);
             else if (hasMgr)
                 Widgets.StatusRow(x, ref y, cw, sc,
@@ -123,10 +123,10 @@ namespace medick_CameraZoom
             // ── ZOOM ──────────────────────────────────────────────
             Widgets.SectionHeader(x, ref y, cw, sc, "ZOOM");
             Widgets.SliderRow(x, ref y, cw, sc,
-                ZoomLabel("Zoom-out limit · lower = farther", CameraState.ZoomMin, "F0"),
+                "Zoom-out limit · lower = farther",
                 Prefs.ZoomMin, Prefs.ZoomMinLo, Prefs.ZoomMinHi, "F0");
             Widgets.SliderRow(x, ref y, cw, sc,
-                ZoomLabel("Scroll sensitivity (per notch)", CameraState.ZoomPerScroll, "F1"),
+                ZoomLabel("Scroll sensitivity", CameraState.ZoomPerScroll, "F1"),
                 Prefs.ZoomPerScroll, Prefs.PerScrollLo, Prefs.PerScrollHi, "F1");
             Widgets.SliderRow(x, ref y, cw, sc,
                 ZoomLabel("Zoom glide speed", CameraState.ZoomSpeed, "F1"),
@@ -152,7 +152,7 @@ namespace medick_CameraZoom
                 ZoomLabel("Lock camera tilt (angle)", CameraState.AngleDefault, "F0", "°"),
                 Prefs.LockAngle);
             if (Prefs.LockAngle.Value)
-                Widgets.SliderRow(x, ref y, cw, sc, "Locked tilt (degrees) · off = game controls it",
+                Widgets.SliderRow(x, ref y, cw, sc, "Locked tilt (degrees)",
                     Prefs.Angle, Prefs.AngleLo, Prefs.AngleHi, "F0");
             y += gapSect;
 

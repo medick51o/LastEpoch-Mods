@@ -33,11 +33,13 @@ Terrible era starts here (succeeds Camera Zoom v1.2).
 - Camera originals are captured per zone now, and unlocking the tilt restores
   the game's values once instead of enforcing the first zone's limits
   everywhere forever (the "tilt feels wrong in some zones" finickiness).
-- First install no longer changes your scroll feel: sensitivity and glide
-  speed adopt the game's own values until you move a slider. The extended
-  zoom-out limit stays as shipped, that one is the mod.
 - The zoom-out limit slider no longer drags the camera inward with it
   mid-drag.
+- The input pause re-asserts itself while active, so it survives zone
+  changes and coexists with Terrible Cooldowns' movement lock (both mods
+  repaired the same way tonight).
+- NaN healing now works even in a zone where value capture fails: the
+  camera can never be stranded on a poisoned zoom, anywhere.
 - Panel styles rebuild after a failed construction instead of latching
   broken.
 - Clearer labels: tilt is called tilt, the zoom limit says "lower = farther",
