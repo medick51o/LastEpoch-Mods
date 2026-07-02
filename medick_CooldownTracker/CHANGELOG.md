@@ -9,6 +9,12 @@ the Nexus upgrade path are unchanged (`medick_CooldownTracker`). The version
 resets to **1.0.0** — the Terrible era starts here (succeeds CooldownTracker
 v4.5).
 
+### Fixed in the release-night fable pass (2026-07-01)
+- Movement lock now survives zone changes and coexists with Terrible Zoom's
+  input guard: the lock re-asserts itself while active instead of trusting
+  its last write (a fresh scene's input manager spawns unlocked, and a
+  sibling mod can flip the shared flag).
+
 ### Added
 - **Console button badges** — short button labels render as real console-style
   buttons under each skill icon: round face buttons in authentic pad colours
