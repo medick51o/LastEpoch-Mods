@@ -9,6 +9,18 @@ namespace medick_CameraZoom
     {
         public static bool Visible;
 
+        // True while the mouse is over the open panel (screen→GUI Y flip).
+        // Read from OnUpdate to pause the game's own input via InputGuard.
+        public static bool PointerOver
+        {
+            get
+            {
+                if (!Visible) return false;
+                var m = Input.mousePosition;
+                return _rect.Contains(new Vector2(m.x, Screen.height - m.y));
+            }
+        }
+
         static Rect    _rect = new(Prefs.DefaultPanelX, Prefs.DefaultPanelY, 380, 30);
         static bool    _posLoaded;
         static bool    _dragging;
@@ -96,7 +108,7 @@ namespace medick_CameraZoom
             // ── Status ────────────────────────────────────────────
             if (ready)
                 Widgets.StatusRow(x, ref y, cw, sc,
-                    $"live — zoom {liveCur:F1} → {liveTgt:F1} · angle {(Prefs.LockAngle.Value ? "locked" : "default")} {liveAngle:F1}° · game default {CameraState.ZoomDefault:F1}",
+                    $"live — zoom {liveCur:F1} → {liveTgt:F1} · tilt {(Prefs.LockAngle.Value ? "locked" : "game-controlled")} {liveAngle:F1}° · game default {CameraState.ZoomDefault:F1}",
                     Theme.Ready);
             else if (hasMgr)
                 Widgets.StatusRow(x, ref y, cw, sc,
@@ -111,13 +123,13 @@ namespace medick_CameraZoom
             // ── ZOOM ──────────────────────────────────────────────
             Widgets.SectionHeader(x, ref y, cw, sc, "ZOOM");
             Widgets.SliderRow(x, ref y, cw, sc,
-                ZoomLabel("Zoom out limit", CameraState.ZoomMin, "F0"),
+                ZoomLabel("Zoom-out limit · lower = farther", CameraState.ZoomMin, "F0"),
                 Prefs.ZoomMin, Prefs.ZoomMinLo, Prefs.ZoomMinHi, "F0");
             Widgets.SliderRow(x, ref y, cw, sc,
-                ZoomLabel("Scroll sensitivity", CameraState.ZoomPerScroll, "F1"),
+                ZoomLabel("Scroll sensitivity (per notch)", CameraState.ZoomPerScroll, "F1"),
                 Prefs.ZoomPerScroll, Prefs.PerScrollLo, Prefs.PerScrollHi, "F1");
             Widgets.SliderRow(x, ref y, cw, sc,
-                ZoomLabel("Zoom speed", CameraState.ZoomSpeed, "F1"),
+                ZoomLabel("Zoom glide speed", CameraState.ZoomSpeed, "F1"),
                 Prefs.ZoomSpeed, Prefs.SpeedLo, Prefs.SpeedHi, "F1");
 
             if (ready)
@@ -126,7 +138,7 @@ namespace medick_CameraZoom
                 float hi = CameraState.ZoomDefault + 5f;
                 hi = Mathf.Max(hi, lo + 1f);   // a zoom-out limit above the default must not invert the range
                 float cur = Mathf.Clamp(liveTgt, lo, hi);
-                float next = Widgets.LiveSliderRow(x, ref y, cw, sc, "Target zoom (live)", cur, lo, hi, "F1");
+                float next = Widgets.LiveSliderRow(x, ref y, cw, sc, "Live zoom · drag moves the camera", cur, lo, hi, "F1");
                 if (Mathf.Abs(next - cur) > 0.05f && !float.IsNaN(next))
                 {
                     try { mgr.targetZoom = next; } catch { }
@@ -137,10 +149,10 @@ namespace medick_CameraZoom
             // ── ANGLE ─────────────────────────────────────────────
             Widgets.SectionHeader(x, ref y, cw, sc, "ANGLE");
             Widgets.SwitchRow(x, ref y, cw, sc,
-                ZoomLabel("Lock camera angle", CameraState.AngleDefault, "F0", "°"),
+                ZoomLabel("Lock camera tilt (angle)", CameraState.AngleDefault, "F0", "°"),
                 Prefs.LockAngle);
             if (Prefs.LockAngle.Value)
-                Widgets.SliderRow(x, ref y, cw, sc, "Locked angle (degrees)",
+                Widgets.SliderRow(x, ref y, cw, sc, "Locked tilt (degrees) · off = game controls it",
                     Prefs.Angle, Prefs.AngleLo, Prefs.AngleHi, "F0");
             y += gapSect;
 

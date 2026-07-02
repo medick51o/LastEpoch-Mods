@@ -13,10 +13,10 @@ namespace medick_CooldownTracker
     internal static class InputBlocker
     {
         static bool _applied;
+        static int  _mgrId;   // which EpochInputManager we actually wrote to
 
         public static void Apply(bool want)
         {
-            if (want == _applied) return;
             try
             {
                 var mgr = EpochInputManager.instance;
@@ -25,8 +25,15 @@ namespace medick_CooldownTracker
                     if (!want) _applied = false;   // manager gone = nothing left to restore
                     return;
                 }
+                // A scene change spawns a fresh manager with the flag reset —
+                // "applied" only counts if it was applied to THIS instance.
+                // (Andrew's report: panel open across a transition = movement
+                // lock silently off until the panel was toggled again.)
+                int id = mgr.GetInstanceID();
+                if (want == _applied && id == _mgrId) return;
                 mgr.forceDisableInput = want;
                 _applied = want;
+                _mgrId   = id;
             }
             catch { }
         }

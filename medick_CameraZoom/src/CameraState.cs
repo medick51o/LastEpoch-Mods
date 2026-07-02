@@ -29,12 +29,31 @@ namespace medick_CameraZoom
         public static float AngleDefault, AngleMin, AngleMax;
 
         const int StallFrames = 300;   // ~5 s of failed reads before we call it stalled
-        static int _failStreak;
+        static int  _failStreak;
+        static int  _mgrId;       // which CameraManager the capture belongs to
+        static bool _wroteLock;   // we have written locked-angle values to THIS manager
 
         public static bool TryCapture(CameraManager mgr)
         {
-            if (Captured) return true;
             if (mgr == null) return false;
+
+            // Each scene spins up a NEW CameraManager with its own shipped
+            // values (indoor zones tilt differently than overworld). The
+            // latch is per manager: without this, the first zone of the
+            // session becomes "the game default" everywhere, and the unlock
+            // path enforces the wrong tilt for the rest of the night.
+            int id;
+            try { id = mgr.GetInstanceID(); } catch { return false; }
+            if (id != _mgrId)
+            {
+                _mgrId         = id;
+                Captured       = false;
+                CaptureStalled = false;
+                _failStreak    = 0;
+                _wroteLock     = false;   // nothing written to this manager yet
+            }
+
+            if (Captured) return true;
             string failReason;
             try
             {
@@ -53,6 +72,16 @@ namespace medick_CameraZoom
                     MelonLogger.Msg(
                         $"originals captured — zoomMin {zm:F1}, zoomDefault {zd:F1}, " +
                         $"perScroll {zps:F1}, speed {zs:F1}, angle {ad:F1}° [{amin:F1}..{amax:F1}]");
+
+                    // First-run feel: if the scroll/speed prefs are still at
+                    // their shipped defaults, adopt the game's own values —
+                    // installing the mod then changes nothing until YOU move
+                    // a slider. The extended zoom-out limit stays as shipped;
+                    // that one IS the mod.
+                    if (Prefs.ZoomPerScroll.Value == Prefs.PerScrollDefault && Differs(zps, Prefs.PerScrollDefault))
+                        Prefs.ZoomPerScroll.Value = Mathf.Clamp(zps, Prefs.PerScrollLo, Prefs.PerScrollHi);
+                    if (Prefs.ZoomSpeed.Value == Prefs.SpeedDefault && Differs(zs, Prefs.SpeedDefault))
+                        Prefs.ZoomSpeed.Value = Mathf.Clamp(zs, Prefs.SpeedLo, Prefs.SpeedHi);
                     return true;
                 }
                 failReason = "non-finite camera values";
@@ -93,12 +122,18 @@ namespace medick_CameraZoom
                     if (Differs(mgr.cameraAngleDefault, a)) mgr.cameraAngleDefault = a;
                     if (Differs(mgr.cameraAngleMin, a))     mgr.cameraAngleMin     = a;
                     if (Differs(mgr.cameraAngleMax, a))     mgr.cameraAngleMax     = a;
+                    _wroteLock = true;
                 }
-                else
+                else if (_wroteLock)
                 {
-                    if (Differs(mgr.cameraAngleDefault, AngleDefault)) mgr.cameraAngleDefault = AngleDefault;
-                    if (Differs(mgr.cameraAngleMin, AngleMin))         mgr.cameraAngleMin     = AngleMin;
-                    if (Differs(mgr.cameraAngleMax, AngleMax))         mgr.cameraAngleMax     = AngleMax;
+                    // One-shot restore on the lock→unlock transition, then the
+                    // live angle fields belong to the game again. Continuous
+                    // enforcement here was the tilt-fight: zones set their own
+                    // limits and the mod kept re-imposing the captured ones.
+                    mgr.cameraAngleDefault = AngleDefault;
+                    mgr.cameraAngleMin     = AngleMin;
+                    mgr.cameraAngleMax     = AngleMax;
+                    _wroteLock = false;
                 }
 
                 // NaN self-heal + range enforcement on the live zoom.
@@ -109,8 +144,14 @@ namespace medick_CameraZoom
                     mgr.currentZoom = ZoomDefault;
                     MelonLogger.Warning("camera zoom was NaN — healed back to game default");
                 }
-                else if (tgt < zoomMin)
+                else if (tgt < zoomMin && GUIUtility.hotControl == 0)
+                {
+                    // Reclamp only when no panel slider is mid-drag: pulling
+                    // the limit slider past the current zoom would otherwise
+                    // drag the camera in with it, one-way (it never comes
+                    // back out when the slider returns).
                     mgr.targetZoom = zoomMin;
+                }
             }
             catch { }
         }
@@ -129,6 +170,7 @@ namespace medick_CameraZoom
                 mgr.cameraAngleMin     = AngleMin;
                 mgr.cameraAngleMax     = AngleMax;
                 mgr.resetZoom();
+                _wroteLock = false;   // everything is back to game-owned state
             }
             catch { }
         }

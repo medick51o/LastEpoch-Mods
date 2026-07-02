@@ -1,67 +1,50 @@
-# Last Epoch Mods by medick
+# MedicK's Terrible Mods for Last Epoch
 
-MelonLoader mods for **Last Epoch** (Il2Cpp · Unity 6000.0.42f1 · net6.0).
+The **Terrible family**: five MelonLoader mods for **Last Epoch** (Il2Cpp · Unity · net6.0), built to look and feel like they shipped with the game. "Filling the void, terribly."
 
-> Drop the compiled `.dll` into your `Last Epoch/Mods/` folder.  
-> Requires **MelonLoader 0.6.x** — https://melonwiki.xyz
+> Drop the compiled `.dll` into your `Last Epoch/Mods/` folder.
+> Requires **MelonLoader 0.7.2+**: https://melonwiki.xyz
 
----
-
-## Mods
-
-### [medick_CooldownTracker](./medick_CooldownTracker) — v4.4
-Floating skill icons that appear above your character's head while abilities are on cooldown.
-
-- Live input-mode detection — auto-switches between **Keyboard**, **Xbox**, and **PS5** layouts
-- Per-slot custom labels with two-line wrapping (type `Flame Ward` → displays stacked)
-- **[▼] Button Picker** for Xbox & PS5 face buttons, bumpers, triggers, sticks, D-pad
-- Per-mode independent label storage (keyboard labels never bleed into controller labels)
-- **Movement Lock** toggle — blocks character movement while the settings panel is open  
-  (uses `EpochInputManager.forceDisableInput`, the same mechanism as LEHelper)
-- Slot 6 (evade/dodge) fully supported
-- Persistent settings via MelonPreferences
-
-**Key:** `Home` — toggle settings panel
+Released July 1, 2026: the Terrible era. Recently rebranded mods restart at v1.0.0; internal DLL names never change, so upgrades just work.
 
 ---
 
-### [medick_CameraZoom](./medick_CameraZoom) — v1.2
-Extends Last Epoch's built-in scroll-wheel zoom and exposes all camera parameters live.
+## The mods
 
-- Sets `CameraManager.zoomMin` to allow scrolling much further out (default −40 vs game default ≈ −15)
-- Configurable **scroll sensitivity** (`zoomPerScroll`) and **lerp speed** (`zoomSpeed`)  
-- Live **Current Zoom** slider — drag to reposition the camera instantly
-- Optional **camera angle lock** with adjustable tilt
-- Captures and displays original game values so you can always reset
-- Persistent settings via MelonPreferences
+### [Terrible Tooltips](./medick_TerribleTooltips) — v3.0.0 · THE ULTIMATE OVERHAUL
+One line per affix: the essay dies. Tier and grade chips in the colour language every ARPG player already speaks, Hold-Alt deep view, ground label brackets, filter rule numbers. The flagship.
+`medick_Terrible_Tooltips.dll` · [Nexus #30](https://www.nexusmods.com/lastepoch/mods/30)
 
-**Key:** `End` — toggle settings panel
+### [Terrible Inventory](./medick_Advanced_Inventory) — v2.0.0
+STASH and STASH ALL buttons plus a collapsible Quick Teleport column, every visual cloned from the game's own UI. Formerly Advanced Inventory.
+`medick_Terrible_Inventory.dll` · [Nexus #29](https://www.nexusmods.com/lastepoch/mods/29)
+
+### [Terrible Cooldowns](./medick_CooldownTracker) — v1.0.0
+Your skill icons float above your character while they cool down: real skill artwork, console-style button badges (Xbox/PS5/KB auto-detect), Move mode. Formerly Cooldown Tracker (v4.x).
+`medick_CooldownTracker.dll` · [Nexus #26](https://www.nexusmods.com/lastepoch/mods/26) · Key: `Home`
+
+### [Terrible Zoom](./medick_CameraZoom) — v1.0.0
+Extended zoom-out, live camera tuning, tilt lock, and a Rescue button that restores everything the game shipped with. Formerly Camera Zoom (v1.x).
+`medick_CameraZoom.dll` · [Nexus #27](https://www.nexusmods.com/lastepoch/mods/27) · Key: `End`
+
+### [Terrible fog_OF_war](./medick_FogOfWar) — v1.0.0
+A six-level vision dial living inside the game's own settings screen: BLIND, HARD, LIMITED (69%), NORMAL, SCOUT, ORACLE. Slide left to go in blind. Slide right because we all know why you're really here.
+`medick_The_fogOFwar.dll`
 
 ---
 
-## Building from Source
+## Building from source
 
-Requirements:
-- .NET SDK 6.0+
-- MelonLoader 0.6.x installed in your Last Epoch directory
-- Last Epoch at the default Steam path  
-  `C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\`
+Requirements: .NET SDK 6.0+, MelonLoader 0.7.2+ installed in Last Epoch, game at the default Steam path (or edit the `<ML>`/`<GM>` paths in each `.csproj`).
 
 ```bash
-cd medick_CooldownTracker
-dotnet build -c Release
-# Output: bin/Release/net6.0/medick_CooldownTracker.dll
-
-cd ../medick_CameraZoom
-dotnet build -c Release
-# Output: bin/Release/net6.0/medick_CameraZoom.dll
+dotnet build <mod folder> -c Release
 ```
 
-If Last Epoch is installed at a non-default path, edit the `<ML>` and `<GM>` property  
-paths at the top of each `.csproj` file.
+Each mod folder carries its own README, CHANGELOG, and (where the build warranted one) a SPEC with the behavior contract.
 
 ---
 
 ## License
 
-MIT — fork freely, credit appreciated.
+MIT. Fork freely, credit appreciated.

@@ -44,7 +44,6 @@ namespace medick_CameraZoom
         public static void Ensure()
         {
             if (_ready) return;
-            _ready = true;
 
             try { _serif = Font.CreateDynamicFontFromOSFont("Georgia", 14); }
             catch { _serif = null; }
@@ -90,6 +89,10 @@ namespace medick_CameraZoom
             _sliderThumb.normal.background = Bordered(Accent, AccentDim);
             _sliderThumb.hover.background  = Bordered(Accent, Accent);
             _sliderThumb.border = new RectOffset(1, 1, 1, 1);
+
+            // Latched LAST: if any construction above ever throws, the next
+            // OnGUI frame retries instead of drawing with null styles forever.
+            _ready = true;
         }
 
         static Texture2D Bordered(Color fill, Color border)

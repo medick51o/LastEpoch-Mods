@@ -29,6 +29,12 @@ namespace medick_CameraZoom
                 else                       SettingsPanel.Visible = true;
             }
 
+            // Pause the game's own input while the pointer is on the open
+            // panel (or a panel control is mid-drag) — otherwise every slider
+            // drag is also a click-to-move command. Transition-only writes.
+            InputGuard.Apply(SettingsPanel.Visible
+                && (SettingsPanel.PointerOver || GUIUtility.hotControl != 0));
+
             try
             {
                 var mgr = CameraManager.instance;
@@ -48,6 +54,7 @@ namespace medick_CameraZoom
         // Leave the camera exactly as the game owns it if the mod unloads.
         public override void OnDeinitializeMelon()
         {
+            try { InputGuard.Restore(); } catch { }
             try { CameraState.RestoreToGame(CameraManager.instance); } catch { }
         }
 

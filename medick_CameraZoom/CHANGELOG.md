@@ -26,6 +26,23 @@ Terrible era starts here (succeeds Camera Zoom v1.2).
 - New **Rescue** button restores every captured game default in one click —
   no restart required, ever.
 
+### Fixed in the release-night fable pass (2026-07-01)
+- Panel clicks no longer leak into the game: input pauses while your pointer
+  is over the open panel (the Terrible Cooldowns technique), so tuning a
+  slider no longer sends your character jogging across the zone.
+- Camera originals are captured per zone now, and unlocking the tilt restores
+  the game's values once instead of enforcing the first zone's limits
+  everywhere forever (the "tilt feels wrong in some zones" finickiness).
+- First install no longer changes your scroll feel: sensitivity and glide
+  speed adopt the game's own values until you move a slider. The extended
+  zoom-out limit stays as shipped, that one is the mod.
+- The zoom-out limit slider no longer drags the camera inward with it
+  mid-drag.
+- Panel styles rebuild after a failed construction instead of latching
+  broken.
+- Clearer labels: tilt is called tilt, the zoom limit says "lower = farther",
+  and the live-zoom row says what it does.
+
 ### Added
 - Redesigned settings panel on the Terrible-family design system (dark
   LE-native palette, gold accent, custom switches/sliders, branded chrome).
