@@ -19,7 +19,7 @@ namespace medick_Terrible_Inventory
             Category     = MelonPreferences.CreateCategory("medick_Terrible_Inventory", "Terrible Inventory");
             ShowStash    = Category.CreateEntry("ShowStash",    true,  "Show the STASH button");
             ShowStashAll = Category.CreateEntry("ShowStashAll", true,  "Show the STASH ALL button");
-            ShowVendor   = Category.CreateEntry("ShowVendor",   true,  "Show the VENDOR button");
+            ShowVendor   = Category.CreateEntry("ShowVendor",   false, "Show the VENDOR button");
             ShowTeleport = Category.CreateEntry("ShowTeleport", true,  "Show the Quick Teleport menu");
             DebugLog     = Category.CreateEntry("DebugLog",     false, "Verbose log output");
         }

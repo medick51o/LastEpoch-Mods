@@ -34,6 +34,9 @@ a full excavation of the original development history (ARCHAEOLOGY.md).
   VENDOR, and the Quick Teleport menu (the "let users pick what they see"
   request from the original build, finally shipped), plus opt-in debug
   logging. Changes apply live.
+- **VENDOR ships disabled by default** — it's there if you want it: flip it
+  on in Settings → Terrible Inventory. (Existing users who already enabled
+  it keep their saved setting.)
 
 ### Engineering
 - One 53KB three-file tangle → `src/` modules; single version source (v1
