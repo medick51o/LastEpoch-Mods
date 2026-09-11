@@ -1,5 +1,5 @@
 # MedicK's Terrible Tooltips
-**by medick** — v3.0.2
+**by medick** — v3.0.1
 
 WoW / Diablo 4 style tier and grade colouring on item tooltips and ground labels. If your eyes were trained by twenty years of loot games, they already know how to read this mod — zero deciphering required.
 
@@ -47,7 +47,6 @@ Hover any item and the tooltip shows **which loot filter rule matched it** — i
 The panel also includes colour-legend reference rows (the tier ladder and the (PoG) S→F (RiP) grade ladder) so you never have to leave the game to remember what purple means.
 
 Settings persist to `UserData/medick_Terrible_Tooltips.cfg` — editable by hand if the in-game panel ever breaks after a game patch.
-Set `DebugLog = true` there to print a formatter trace for bug reports.
 
 ---
 

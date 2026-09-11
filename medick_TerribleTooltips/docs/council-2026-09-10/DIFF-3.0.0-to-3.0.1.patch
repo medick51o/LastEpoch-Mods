@@ -1,0 +1,574 @@
+diff --git a/medick_TerribleTooltips/medick_TerribleTooltips/medick_Terrible_Tooltips.csproj b/medick_TerribleTooltips/medick_TerribleTooltips/medick_Terrible_Tooltips.csproj
+index b43488e..2035bc7 100644
+--- a/medick_TerribleTooltips/medick_TerribleTooltips/medick_Terrible_Tooltips.csproj
++++ b/medick_TerribleTooltips/medick_TerribleTooltips/medick_Terrible_Tooltips.csproj
+@@ -4,7 +4,7 @@
+     <TargetFramework>net6.0</TargetFramework>
+     <AssemblyName>medick_Terrible_Tooltips</AssemblyName>
+     <RootNamespace>medick_Terrible_Tooltips</RootNamespace>
+-    <Version>3.0.0</Version>
++    <Version>3.0.1</Version>
+     <Nullable>disable</Nullable>
+     <LangVersion>latest</LangVersion>
+     <ImplicitUsings>disable</ImplicitUsings>
+diff --git a/medick_TerribleTooltips/medick_TerribleTooltips/src/AffixInjector.cs b/medick_TerribleTooltips/medick_TerribleTooltips/src/AffixInjector.cs
+index 00f4bf8..0dabb88 100644
+--- a/medick_TerribleTooltips/medick_TerribleTooltips/src/AffixInjector.cs
++++ b/medick_TerribleTooltips/medick_TerribleTooltips/src/AffixInjector.cs
+@@ -29,7 +29,6 @@ namespace medick_Terrible_Tooltips;
+ 
+ public static class AffixInjector
+ {
+-    // ── Shared bracket builder ────────────────────────────────────────
+ 
+     private static string InjectBracket(string affixStr, float rollFloat, int tier)
+     {
+@@ -66,6 +65,49 @@ public static class AffixInjector
+         }
+     }
+ 
++    // ── Patch: the affix WRAPPER (weaver idol affixes, hybrids) ──────
++    // v3.0.1 — Kaazkulaas's Nexus report: weaver affixes on idols graded
++    // on the ground label but came through the tooltip with no bracket.
++    // The ground label reads item.affixes directly (so IsIdolWeaver
++    // affixes are ordinary ItemAffix entries with a roll and a tier);
++    // the tooltip path for them never reached AffixFormatter. FormatAffix
++    // is the common ancestor every ItemAffix goes through before the
++    // per-kind formatter — so the bracket is injected HERE whenever the
++    // lower formatter didn't already do it. Same roll/tier sources as the
++    // normal path; nothing double-brackets.
++
++    private static readonly Regex s_anyBracketRegex = new(
++        @"\[(?:<color=[^>]+>\d+</color>)?<color=[^>]+>[SABCF]</color>\]",
++        RegexOptions.Compiled);
++
++    [HarmonyPatch(typeof(TooltipItemManager), nameof(TooltipItemManager.FormatAffix),
++        new[] { typeof(ItemDataUnpacked), typeof(ItemAffix), typeof(TooltipMode),
++                typeof(TooltipItemManager.SlotType), typeof(bool), typeof(int), typeof(int), typeof(bool),
++                typeof(bool), typeof(ValueRangeFormat), typeof(bool), typeof(bool) })]
++    internal static class Patch_FormatAffix
++    {
++        private static void Postfix(ItemDataUnpacked item, ItemAffix itemAffix,
++                                    ref string __result)
++        {
++            if (!Prefs.EnableTooltips.Value) return;
++            if (item == null || itemAffix == null) return;
++            try
++            {
++                if (string.IsNullOrEmpty(__result)) return;
++                if (s_anyBracketRegex.IsMatch(__result)) return;   // AffixFormatter already did it
++                __result = InjectBracket(__result, itemAffix.getRollFloat(), itemAffix.DisplayTier);
++                if (!s_wrapperLogged)
++                {
++                    s_wrapperLogged = true;
++                    Dbg.Log("bracket injected at FormatAffix (affix skipped AffixFormatter — weaver/hybrid path)");
++                }
++            }
++            catch { }
++        }
++
++        private static bool s_wrapperLogged;
++    }
++
+     // ── Patch: unique / legendary fixed mods ─────────────────────────
+     // THE FIX lives here. Roll source priority:
+     //   1. Fixed stat (can't roll / min == max)      → 1.0  (perfect by definition)
+diff --git a/medick_TerribleTooltips/medick_TerribleTooltips/src/BuildInfo.cs b/medick_TerribleTooltips/medick_TerribleTooltips/src/BuildInfo.cs
+index 7de9b95..6f50154 100644
+--- a/medick_TerribleTooltips/medick_TerribleTooltips/src/BuildInfo.cs
++++ b/medick_TerribleTooltips/medick_TerribleTooltips/src/BuildInfo.cs
+@@ -10,6 +10,6 @@ internal static class BuildInfo
+ {
+     public const string Name         = "Terrible Tooltips";   // MelonInfo name — FROZEN (Fallen Star ABI)
+     public const string OfficialName = "MedicK's Terrible Tooltips";
+-    public const string Version      = "3.0.0";   // bump in lockstep with <Version> in the csproj
++    public const string Version      = "3.0.1";   // bump in lockstep with <Version> in the csproj
+     public const string Author       = "medick";
+ }
+diff --git a/medick_TerribleTooltips/medick_TerribleTooltips/src/FilterRuleTooltip.cs b/medick_TerribleTooltips/medick_TerribleTooltips/src/FilterRuleTooltip.cs
+index 75bb066..3d6a912 100644
+--- a/medick_TerribleTooltips/medick_TerribleTooltips/src/FilterRuleTooltip.cs
++++ b/medick_TerribleTooltips/medick_TerribleTooltips/src/FilterRuleTooltip.cs
+@@ -40,6 +40,7 @@ public static class FilterRuleTooltip
+             if (item != null)
+             {
+                 s_pendingItem = item;
++                TooltipRecolor.MarkDirty();   // new tooltip content — the composer must look
+                 s_injected    = false;
+             }
+         }
+@@ -55,6 +56,7 @@ public static class FilterRuleTooltip
+             if (_item != null)
+             {
+                 s_pendingItem = _item;
++                TooltipRecolor.MarkDirty();
+                 s_injected    = false;
+             }
+         }
+diff --git a/medick_TerribleTooltips/medick_TerribleTooltips/src/TerribleTooltipsMod.cs b/medick_TerribleTooltips/medick_TerribleTooltips/src/TerribleTooltipsMod.cs
+index 378d0c0..c58825a 100644
+--- a/medick_TerribleTooltips/medick_TerribleTooltips/src/TerribleTooltipsMod.cs
++++ b/medick_TerribleTooltips/medick_TerribleTooltips/src/TerribleTooltipsMod.cs
+@@ -52,6 +52,7 @@ public class TerribleTooltipsMod : MelonMod
+ 
+         // Tooltip text pipeline (stage 1: bracket injection)
+         ok += TryPatch(typeof(AffixInjector.Patch_AffixFormatter),    "tooltip affix grades");
++        ok += TryPatch(typeof(AffixInjector.Patch_FormatAffix),       "weaver/hybrid affix grades");
+         ok += TryPatch(typeof(AffixInjector.Patch_UniqueFormatter),   "unique/legendary grades");
+         ok += TryPatch(typeof(AffixInjector.Patch_ImplicitFormatter), "implicit grades");
+ 
+diff --git a/medick_TerribleTooltips/medick_TerribleTooltips/src/TooltipRecolor.cs b/medick_TerribleTooltips/medick_TerribleTooltips/src/TooltipRecolor.cs
+index 88e9fab..4e3e504 100644
+--- a/medick_TerribleTooltips/medick_TerribleTooltips/src/TooltipRecolor.cs
++++ b/medick_TerribleTooltips/medick_TerribleTooltips/src/TooltipRecolor.cs
+@@ -67,6 +67,42 @@ public static class TooltipRecolor
+     private static bool s_altHeld;
+     private static bool s_relayouting;   // re-entrancy latch for our own UpdateLayout call
+ 
++    // ── Scan gate (v3.0.1 — speedscalzone's "mouseover stutter") ──────
++    // UpdateLayout is a POSITIONING call: a ground tooltip tracks its
++    // label, so while the player walks the game re-lays-out the tooltip
++    // EVERY FRAME — and v3.0.0 answered every one with a full-scene
++    // FindObjectsOfType<TextMeshProUGUI> plus regexes over every hit.
++    // That scan is now run only when the tooltip's CONTENT may have
++    // changed: a SetAs*Tooltip call (dirty flag), the native range
++    // switch flipping (the game re-renders), a tracked TMP losing our
++    // marker (the game rewrote it), or a slow fallback tick for paths
++    // nobody has mapped. Positioning-only frames cost nothing.
++    private static bool  s_dirty = true;
++    private static float s_lastScanTime = -1f;
++    private const  float FallbackScanInterval = 0.5f;   // seconds
++
++    internal static void MarkDirty() => s_dirty = true;
++
++    private static bool ShouldScan()
++    {
++        if (s_dirty) return true;
++        float now = Time.unscaledTime;
++        if (s_lastScanTime < 0f || now - s_lastScanTime >= FallbackScanInterval) return true;
++
++        // Cheap per-frame check: did the game overwrite something we composed?
++        foreach (var kv in s_originals)
++        {
++            TextMeshProUGUI tmp = kv.Value.tmp;
++            try
++            {
++                if (tmp == null || !tmp.gameObject.activeInHierarchy) continue;
++                if (!(tmp.text ?? "").Contains(Marker)) return true;
++            }
++            catch { }
++        }
++        return false;
++    }
++
+     private static bool DeepTier  => s_altHeld || Prefs.AlwaysShowTierDetails.Value;
+     private static bool DeepRange => s_altHeld || Prefs.AlwaysShowRanges.Value;
+ 
+@@ -98,7 +134,10 @@ public static class TooltipRecolor
+ 
+             bool want = DeepRange;   // Alt held or the Always Show Ranges pin
+             if (cur != want)
++            {
+                 TooltipItemManager.showRangesInsteadOfDescriptionEnabled = want;
++                MarkDirty();   // the game re-renders on this flip — fresh EHG text incoming
++            }
+         }
+         catch { }
+     }
+@@ -123,6 +162,17 @@ public static class TooltipRecolor
+         }
+         catch { }
+ 
++        // Dirty catch-up: if SetAs*Tooltip landed AFTER this frame's
++        // UpdateLayout (order unmapped), the postfix saw stale text — run
++        // the scan here, same frame, so the tooltip never opens vanilla.
++        try
++        {
++            if (s_dirty && Prefs.EnableTooltips.Value &&
++                s_lastTooltip != null && s_lastTooltip.tooltipActive)
++                RunScan(s_lastTooltip, s_lastArgs);
++        }
++        catch { }
++
+         // ── Per-frame range enforcement (last word before render) ─────
+         try
+         {
+@@ -265,183 +315,192 @@ public static class TooltipRecolor
+         {
+             if (s_relayouting) return;                  // our own re-measure call
+             if (!Prefs.EnableTooltips.Value) return;
+-            try
+-            {
+-                s_lastTooltip = __instance;             // for the Alt-path re-measure
+-                s_lastArgs    = __args;
++            s_lastTooltip = __instance;                 // for the Alt-path re-measure
++            s_lastArgs    = __args;
++            if (!ShouldScan()) return;                  // positioning-only frame — free
++            RunScan(__instance, __args);
++        }
++    }
+ 
+-                TextMeshProUGUI[] allTMPs =
+-                    UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>();
+-                if (allTMPs == null) return;
++    // The scan + compose pass. Runs from the UpdateLayout postfix (gated)
++    // and from the LateUpdate dirty catch-up.
++    private static void RunScan(UITooltipItem __instance, object[] __args)
++    {
++        s_dirty        = false;
++        s_lastScanTime = Time.unscaledTime;
++        try
++        {
++            TextMeshProUGUI[] allTMPs =
++                UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>();
++            if (allTMPs == null) return;
+ 
+-                // Prune stale originals while we're here
+-                PruneOriginals();
++            // Prune stale originals while we're here
++            PruneOriginals();
+ 
+-                int composed = 0;
++            int composed = 0;
+ 
+-                // ── Pass 1: collect grade colour per parent instance ID so
+-                //    standalone Range-only TMPs (set/unique siblings) can
+-                //    inherit the correct grade colour in deep view.
+-                var parentGradeColor = new Dictionary<int, string>();
+-                foreach (TextMeshProUGUI tmp in allTMPs)
+-                {
+-                    string t = tmp?.text;
+-                    if (string.IsNullOrEmpty(t)) continue;
+-                    Match gm = s_kgGradeRegex.Match(t);
+-                    bool  itg = gm.Success;
+-                    if (!itg) gm = s_kgGradeOnlyRegex.Match(t);
+-                    if (!gm.Success) continue;
+-                    string gc = itg ? gm.Groups[2].Value : gm.Groups[1].Value;
+-                    if (tmp.transform.parent != null)
+-                        parentGradeColor[tmp.transform.parent.GetInstanceID()] = gc;
+-                }
++            // ── Pass 1: collect grade colour per parent instance ID so
++            //    standalone Range-only TMPs (set/unique siblings) can
++            //    inherit the correct grade colour in deep view.
++            var parentGradeColor = new Dictionary<int, string>();
++            foreach (TextMeshProUGUI tmp in allTMPs)
++            {
++                string t = tmp?.text;
++                if (string.IsNullOrEmpty(t)) continue;
++                Match gm = s_kgGradeRegex.Match(t);
++                bool  itg = gm.Success;
++                if (!itg) gm = s_kgGradeOnlyRegex.Match(t);
++                if (!gm.Success) continue;
++                string gc = itg ? gm.Groups[2].Value : gm.Groups[1].Value;
++                if (tmp.transform.parent != null)
++                    parentGradeColor[tmp.transform.parent.GetInstanceID()] = gc;
++            }
+ 
+-                // ── Pass 2: compose ───────────────────────────────────────
+-                foreach (TextMeshProUGUI tmp in allTMPs)
++            // ── Pass 2: compose ───────────────────────────────────────
++            foreach (TextMeshProUGUI tmp in allTMPs)
++            {
++                try
+                 {
+-                    try
++                    string text = tmp?.text;
++                    if (string.IsNullOrEmpty(text)) continue;
++
++                    // Our own composed output — never re-ingest it.
++                    if (text.Contains(Marker)) continue;
++
++                    // GroundLabels' output — a single-affix ground bracket
++                    // matches the grade regex, and composing it mangles the
++                    // label permanently (its 3-ZWSP marker survives inside
++                    // our 4-ZWSP one, so its own double-process guard then
++                    // skips the repair). Ground labels are not this
++                    // composer's territory.
++                    if (text.Contains(GroundLabels.Marker)) continue;
++
++                    // FilterRuleTooltip's lane — a user-named filter
++                    // rule containing "Tier:"/"Range:" must not drag
++                    // the 'requires' TMP into the composer.
++                    try { if (tmp.gameObject.name == "requires") continue; } catch { }
++
++                    bool hasTier  = text.Contains("Tier:");
++                    bool hasRange = text.Contains("Range:");
++                    // Composer must ALSO wake on bracket-only TMPs:
++                    // with EHG's tier-info display OFF there are no
++                    // Tier:/Range: lines at all. '[' is the cheap
++                    // pre-gate before the regex runs.
++                    if (!hasTier && !hasRange && text.IndexOf('[') < 0) continue;
++
++                    Match gm          = s_kgGradeRegex.Match(text);
++                    bool  isTierGrade = gm.Success;
++                    if (!isTierGrade) gm = s_kgGradeOnlyRegex.Match(text);
++                    bool hasKgGrade = gm.Success;
++                    if (!hasTier && !hasRange && !hasKgGrade) continue;
++
++                    bool multiLine = text.IndexOf('\n') >= 0;
++
++                    // ── Unbracketed multi-line affix block ────────────
++                    // Hybrid / sealed multi-stat affixes come through a
++                    // game formatter the injector doesn't reach: no
++                    // bracket, no roll data — but the tier is right
++                    // there in the text. Synthesize the chip, kill the
++                    // essay. (Without this they were misclassified as
++                    // standalone widgets and tinted whole-block blue.)
++                    if (!hasKgGrade && multiLine)
+                     {
+-                        string text = tmp?.text;
+-                        if (string.IsNullOrEmpty(text)) continue;
+-
+-                        // Our own composed output — never re-ingest it.
+-                        if (text.Contains(Marker)) continue;
+-
+-                        // GroundLabels' output — a single-affix ground bracket
+-                        // matches the grade regex, and composing it mangles the
+-                        // label permanently (its 3-ZWSP marker survives inside
+-                        // our 4-ZWSP one, so its own double-process guard then
+-                        // skips the repair). Ground labels are not this
+-                        // composer's territory.
+-                        if (text.Contains(GroundLabels.Marker)) continue;
+-
+-                        // FilterRuleTooltip's lane — a user-named filter
+-                        // rule containing "Tier:"/"Range:" must not drag
+-                        // the 'requires' TMP into the composer.
+-                        try { if (tmp.gameObject.name == "requires") continue; } catch { }
+-
+-                        bool hasTier  = text.Contains("Tier:");
+-                        bool hasRange = text.Contains("Range:");
+-                        // Composer must ALSO wake on bracket-only TMPs:
+-                        // with EHG's tier-info display OFF there are no
+-                        // Tier:/Range: lines at all. '[' is the cheap
+-                        // pre-gate before the regex runs.
+-                        if (!hasTier && !hasRange && text.IndexOf('[') < 0) continue;
+-
+-                        Match gm          = s_kgGradeRegex.Match(text);
+-                        bool  isTierGrade = gm.Success;
+-                        if (!isTierGrade) gm = s_kgGradeOnlyRegex.Match(text);
+-                        bool hasKgGrade = gm.Success;
+-                        if (!hasTier && !hasRange && !hasKgGrade) continue;
+-
+-                        bool multiLine = text.IndexOf('\n') >= 0;
+-
+-                        // ── Unbracketed multi-line affix block ────────────
+-                        // Hybrid / sealed multi-stat affixes come through a
+-                        // game formatter the injector doesn't reach: no
+-                        // bracket, no roll data — but the tier is right
+-                        // there in the text. Synthesize the chip, kill the
+-                        // essay. (Without this they were misclassified as
+-                        // standalone widgets and tinted whole-block blue.)
+-                        if (!hasKgGrade && multiLine)
+-                        {
+-                            s_originals[tmp.GetInstanceID()] = (tmp, text);
+-                            tmp.text = ComposeUnbracketed(text);
+-                            composed++;
+-                            continue;
+-                        }
++                        s_originals[tmp.GetInstanceID()] = (tmp, text);
++                        tmp.text = ComposeUnbracketed(text);
++                        composed++;
++                        continue;
++                    }
+ 
+-                        // ── EHG standalone Tier TMP (single-line widget) ──
+-                        // v2 treatment kept: recolor, never remove.
+-                        if (hasTier && !hasKgGrade)
++                    // ── EHG standalone Tier TMP (single-line widget) ──
++                    // v2 treatment kept: recolor, never remove.
++                    if (hasTier && !hasKgGrade)
++                    {
++                        Match tm = s_tierRegex.Match(text);
++                        if (tm.Success &&
++                            int.TryParse(tm.Groups[1].Value, out int tier))
+                         {
+-                            Match tm = s_tierRegex.Match(text);
+-                            if (tm.Success &&
+-                                int.TryParse(tm.Groups[1].Value, out int tier))
++                            string hex = Colors.TierColor(tier);
++                            if (ColorUtility.TryParseHtmlString(hex, out Color col))
+                             {
+-                                string hex = Colors.TierColor(tier);
+-                                if (ColorUtility.TryParseHtmlString(hex, out Color col))
+-                                {
+-                                    tmp.color = col;
+-                                    s_tierColorCache.RemoveAll(p => p.tmp == tmp);
+-                                    s_tierColorCache.Add((tmp, col));
+-                                }
++                                tmp.color = col;
++                                s_tierColorCache.RemoveAll(p => p.tmp == tmp);
++                                s_tierColorCache.Add((tmp, col));
+                             }
+-                            continue;
+                         }
++                        continue;
++                    }
+ 
+-                        // ── Standalone Range-only TMP (single-line widget,
+-                        //    unique/set/legendary item sections) ──────────
+-                        // "Ranges off" means off EVERYWHERE. SetActive
+-                        // hiding lost a tug-of-war (our re-measure call /
+-                        // EHG's refresh re-activated the widget every
+-                        // pass) — so the TEXT goes empty instead: the same
+-                        // mechanism that collapses the affix essay
+-                        // collapses this row, and EHG can re-activate the
+-                        // widget all it wants, there's nothing in it.
+-                        if (hasRange && !hasKgGrade && !hasTier)
+-                        {
+-                            s_originals[tmp.GetInstanceID()] = (tmp, text);
+-
+-                            if (!DeepRange)
+-                            {
+-                                tmp.text = Marker;
+-                                s_suppressedRanges[tmp.GetInstanceID()] = tmp;
+-                                composed++;
+-                                continue;
+-                            }
+-
+-                            string stripped = s_colorTagRegex.Replace(text, "");
+-                            stripped = s_kgExtraDataRegex.Replace(stripped, "").Trim();
+-
+-                            string inheritedColor = null;
+-                            Transform parent = tmp.transform.parent;
+-                            if (parent != null)
+-                                parentGradeColor.TryGetValue(parent.GetInstanceID(), out inheritedColor);
+-                            if (inheritedColor == null && parent?.parent != null)
+-                                parentGradeColor.TryGetValue(parent.parent.GetInstanceID(), out inheritedColor);
++                    // ── Standalone Range-only TMP (single-line widget,
++                    //    unique/set/legendary item sections) ──────────
++                    // "Ranges off" means off EVERYWHERE. SetActive
++                    // hiding lost a tug-of-war (our re-measure call /
++                    // EHG's refresh re-activated the widget every
++                    // pass) — so the TEXT goes empty instead: the same
++                    // mechanism that collapses the affix essay
++                    // collapses this row, and EHG can re-activate the
++                    // widget all it wants, there's nothing in it.
++                    if (hasRange && !hasKgGrade && !hasTier)
++                    {
++                        s_originals[tmp.GetInstanceID()] = (tmp, text);
+ 
+-                            tmp.text = (inheritedColor != null
+-                                ? $"<color={inheritedColor}>{stripped}</color>"
+-                                : stripped) + Marker;
++                        if (!DeepRange)
++                        {
++                            tmp.text = Marker;
++                            s_suppressedRanges[tmp.GetInstanceID()] = tmp;
+                             composed++;
+                             continue;
+                         }
+ 
+-                        // ── KG affix TMP → THE CLEAN LINE ─────────────────
+-                        if (!hasKgGrade) continue;
++                        string stripped = s_colorTagRegex.Replace(text, "");
++                        stripped = s_kgExtraDataRegex.Replace(stripped, "").Trim();
+ 
+-                        // Fresh EHG-written text (bracket present, no
+-                        // marker) = the original. Store it, then compose.
+-                        s_originals[tmp.GetInstanceID()] = (tmp, text);
+-                        tmp.text = Compose(text);
++                        string inheritedColor = null;
++                        Transform parent = tmp.transform.parent;
++                        if (parent != null)
++                            parentGradeColor.TryGetValue(parent.GetInstanceID(), out inheritedColor);
++                        if (inheritedColor == null && parent?.parent != null)
++                            parentGradeColor.TryGetValue(parent.parent.GetInstanceID(), out inheritedColor);
++
++                        tmp.text = (inheritedColor != null
++                            ? $"<color={inheritedColor}>{stripped}</color>"
++                            : stripped) + Marker;
+                         composed++;
++                        continue;
+                     }
+-                    catch { }
+-                }
+ 
+-                // ── Lean law: we shrank texts AFTER the game measured the
+-                //    essay — re-measure once so the blank rows collapse.
+-                if (composed > 0)
+-                    RequestRelayout(__instance, __args);
++                    // ── KG affix TMP → THE CLEAN LINE ─────────────────
++                    if (!hasKgGrade) continue;
++
++                    // Fresh EHG-written text (bracket present, no
++                    // marker) = the original. Store it, then compose.
++                    s_originals[tmp.GetInstanceID()] = (tmp, text);
++                    tmp.text = Compose(text);
++                    composed++;
++                }
++                catch { }
+             }
+-            catch (Exception ex)
++
++            // ── Lean law: we shrank texts AFTER the game measured the
++            //    essay — re-measure once so the blank rows collapse.
++            if (composed > 0)
++                RequestRelayout(__instance, __args);
++        }
++        catch (Exception ex)
++        {
++            // Latched: UpdateLayout fires on every tooltip layout — an
++            // unlatched warning here would spam a whole farming session.
++            if (!s_recolorWarned)
+             {
+-                // Latched: UpdateLayout fires on every tooltip layout — an
+-                // unlatched warning here would spam a whole farming session.
+-                if (!s_recolorWarned)
+-                {
+-                    s_recolorWarned = true;
+-                    MelonLogger.Warning(
+-                        $"tooltip clean-line failing ({ex.Message}) — tooltips may look vanilla until restart");
+-                }
+-                else Dbg.Log("tooltip clean-line error: " + ex.Message);
++                s_recolorWarned = true;
++                MelonLogger.Warning(
++                    $"tooltip clean-line failing ({ex.Message}) — tooltips may look vanilla until restart");
+             }
++            else Dbg.Log("tooltip clean-line error: " + ex.Message);
+         }
+-
+-        private static bool s_recolorWarned;
+     }
+ 
++    private static bool s_recolorWarned;
++
+     private static void PruneOriginals()
+     {
+         if (s_originals.Count == 0) return;
+@@ -473,6 +532,7 @@ public static class TooltipRecolor
+         string[] lines = original.Split('\n');
+         var outLines = new List<string>(lines.Length);
+         bool sealedPending = false;
++        string lastTierHex = null;   // continuation lines of a multi-stat affix wear its tier colour
+ 
+         foreach (string line in lines)
+         {
+@@ -499,6 +559,7 @@ public static class TooltipRecolor
+ 
+                 outLines.Add(ComposeCleanLine(clean, tier, tierHex, grades, sealedPending));
+                 sealedPending = false;
++                lastTierHex   = tierHex;
+                 continue;
+             }
+ 
+@@ -538,6 +599,20 @@ public static class TooltipRecolor
+                 continue;   // suppressed
+             }
+ 
++            // Continuation stat line of a multi-stat affix (weaver idol
++            // "+17 Health / +2 Health Regen", hybrids) — the bracket sits
++            // on line one only; the rest wear the same tier colour so the
++            // affix reads as ONE thing. Flavor text on non-affix TMPs has
++            // no bracket above it, so lastTierHex is null and it passes
++            // through untouched, as before.
++            if (lastTierHex != null && line.Trim().Length > 0 &&
++                Prefs.NameColorMode.Value == AffixNameColorMode.TierColor &&
++                Prefs.TooltipTierColors.Value)
++            {
++                outLines.Add($"<color={lastTierHex}>{s_colorTagRegex.Replace(line, "").Trim()}</color>");
++                continue;
++            }
++
+             // Everything else (flavor text) — untouched
+             outLines.Add(line);
+         }

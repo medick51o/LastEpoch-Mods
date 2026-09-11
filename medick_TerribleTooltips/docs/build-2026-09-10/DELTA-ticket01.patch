@@ -1,0 +1,225 @@
+--- docs/build-2026-09-10/baseline/TooltipRecolor.cs	2026-09-10 20:22:29.635965200 -0700
++++ medick_TerribleTooltips/src/TooltipRecolor.cs	2026-09-10 20:25:56.184658100 -0700
+@@ -77,15 +77,20 @@
+     // switch flipping (the game re-renders), a tracked TMP losing our
+     // marker (the game rewrote it), or a slow fallback tick for paths
+     // nobody has mapped. Positioning-only frames cost nothing.
+-    private static bool  s_dirty = true;
++    private static int   s_dirtyUntilFrame = -1;
++    private static int   s_lastScanFrame = -1;
+     private static float s_lastScanTime = -1f;
++    private const  int   DirtyFrameWindow = 5;
+     private const  float FallbackScanInterval = 0.5f;   // seconds
+ 
+-    internal static void MarkDirty() => s_dirty = true;
++    internal static void MarkDirty()
++        => s_dirtyUntilFrame = Time.frameCount + DirtyFrameWindow;
+ 
+     private static bool ShouldScan()
+     {
+-        if (s_dirty) return true;
++        int frame = Time.frameCount;
++        if (frame == s_lastScanFrame) return false;     // never scan twice in one frame
++        if (frame <= s_dirtyUntilFrame) return true;
+         float now = Time.unscaledTime;
+         if (s_lastScanTime < 0f || now - s_lastScanTime >= FallbackScanInterval) return true;
+ 
+@@ -156,20 +161,23 @@
+             if (alt != s_altHeld)
+             {
+                 s_altHeld = alt;
++                MarkDirty();   // Alt can make the game rewrite TMPs after the cached originals pass
+                 if (Prefs.EnableTooltips.Value)
+                     ReRenderFromOriginals();
+             }
+         }
+         catch { }
+ 
+-        // Dirty catch-up: if SetAs*Tooltip landed AFTER this frame's
+-        // UpdateLayout (order unmapped), the postfix saw stale text — run
+-        // the scan here, same frame, so the tooltip never opens vanilla.
++        // Active-tooltip catch-up: keep evaluating the full scan gate even
++        // when a static inventory tooltip receives no more UpdateLayout calls.
+         try
+         {
+-            if (s_dirty && Prefs.EnableTooltips.Value &&
++            if (Prefs.EnableTooltips.Value &&
+                 s_lastTooltip != null && s_lastTooltip.tooltipActive)
+-                RunScan(s_lastTooltip, s_lastArgs);
++            {
++                if (ShouldScan())
++                    RunScan(s_lastTooltip, s_lastArgs);
++            }
+         }
+         catch { }
+ 
+@@ -326,7 +334,7 @@
+     // and from the LateUpdate dirty catch-up.
+     private static void RunScan(UITooltipItem __instance, object[] __args)
+     {
+-        s_dirty        = false;
++        s_lastScanFrame = Time.frameCount;
+         s_lastScanTime = Time.unscaledTime;
+         try
+         {
+--- docs/build-2026-09-10/baseline/AffixInjector.cs	2026-09-10 20:22:29.648627600 -0700
++++ medick_TerribleTooltips/src/AffixInjector.cs	2026-09-10 20:25:57.629209700 -0700
+@@ -30,6 +30,21 @@
+ public static class AffixInjector
+ {
+ 
++    private static void Trace(string hook, string result)
++    {
++        try
++        {
++            if (!Prefs.DebugLog.Value) return;
++            string text = (result ?? "")
++                .Replace("\r\n", " | ")
++                .Replace("\n", " | ")
++                .Replace("\r", " | ");
++            if (text.Length > 90) text = text.Substring(0, 90);
++            MelonLogger.Msg($"[trace] {hook}: {text}");
++        }
++        catch { }
++    }
++
+     private static string InjectBracket(string affixStr, float rollFloat, int tier)
+     {
+         double roll        = Math.Round(rollFloat * 100.0, 1);
+@@ -55,13 +70,15 @@
+         private static void Postfix(ItemDataUnpacked item, ItemAffix affix,
+                                     ref string __result)
+         {
+-            if (!Prefs.EnableTooltips.Value) return;
+-            if (item == null || affix == null) return;
+             try
+             {
++                if (!Prefs.EnableTooltips.Value) return;
++                if (item == null || affix == null) return;
+                 __result = InjectBracket(__result, affix.getRollFloat(), affix.DisplayTier);
++                TooltipRecolor.MarkDirty();
+             }
+             catch { }
++            finally { Trace("AffixFormatter", __result); }
+         }
+     }
+ 
+@@ -89,13 +106,14 @@
+         private static void Postfix(ItemDataUnpacked item, ItemAffix itemAffix,
+                                     ref string __result)
+         {
+-            if (!Prefs.EnableTooltips.Value) return;
+-            if (item == null || itemAffix == null) return;
+             try
+             {
++                if (!Prefs.EnableTooltips.Value) return;
++                if (item == null || itemAffix == null) return;
+                 if (string.IsNullOrEmpty(__result)) return;
+                 if (s_anyBracketRegex.IsMatch(__result)) return;   // AffixFormatter already did it
+                 __result = InjectBracket(__result, itemAffix.getRollFloat(), itemAffix.DisplayTier);
++                TooltipRecolor.MarkDirty();
+                 if (!s_wrapperLogged)
+                 {
+                     s_wrapperLogged = true;
+@@ -103,11 +121,24 @@
+                 }
+             }
+             catch { }
++            finally { Trace("FormatAffix(ItemAffix)", __result); }
+         }
+ 
+         private static bool s_wrapperLogged;
+     }
+ 
++    // Log-only trace for the second overload. Which affix path reaches it
++    // is intentionally left to runtime evidence rather than guessed here.
++    [HarmonyPatch(typeof(TooltipItemManager), nameof(TooltipItemManager.FormatAffix),
++        new[] { typeof(ItemDataUnpacked), typeof(AffixList.Affix), typeof(TooltipMode),
++                typeof(TooltipItemManager.SlotType), typeof(bool), typeof(int), typeof(int), typeof(bool),
++                typeof(bool), typeof(ValueRangeFormat), typeof(bool), typeof(bool) })]
++    internal static class Patch_FormatAffixListAffix
++    {
++        private static void Postfix(ref string __result)
++            => Trace("FormatAffix(AffixList.Affix)", __result);
++    }
++
+     // ── Patch: unique / legendary fixed mods ─────────────────────────
+     // THE FIX lives here. Roll source priority:
+     //   1. Fixed stat (can't roll / min == max)      → 1.0  (perfect by definition)
+@@ -121,10 +152,10 @@
+         private static void Postfix(ItemDataUnpacked item, ref string __result,
+                                     int uniqueModIndex, float modifierValue)
+         {
+-            if (!Prefs.EnableTooltips.Value) return;
+-            if (item == null) return;
+             try
+             {
++                if (!Prefs.EnableTooltips.Value) return;
++                if (item == null) return;
+                 if (item.uniqueID >= UniqueList.instance.uniques.Count) return;   // v1 had > (off-by-one)
+                 if (uniqueModIndex < 0) return;
+                 if (UniqueList.instance.uniques[item.uniqueID] is not { } uniqueEntry) return;
+@@ -162,8 +193,10 @@
+                 }
+ 
+                 __result = InjectBracket(__result, roll, tier: 0);
++                TooltipRecolor.MarkDirty();
+             }
+             catch { }
++            finally { Trace("UniqueBasicModFormatter", __result); }
+         }
+ 
+         private static bool s_fallbackWarned;
+@@ -185,14 +218,16 @@
+         private static void Postfix(ItemDataUnpacked item, int implicitNumber,
+                                     ref string __result)
+         {
+-            if (!Prefs.EnableTooltips.Value) return;
+-            if (item == null) return;
+             try
+             {
++                if (!Prefs.EnableTooltips.Value) return;
++                if (item == null) return;
+                 float roll = item.getImplictRollFloat((byte)implicitNumber);
+                 __result = InjectBracket(__result, roll, tier: 0);
++                TooltipRecolor.MarkDirty();
+             }
+             catch { }
++            finally { Trace("ImplicitFormatter", __result); }
+         }
+     }
+ }
+--- docs/build-2026-09-10/baseline/TerribleTooltipsMod.cs	2026-09-10 20:22:29.658472900 -0700
++++ medick_TerribleTooltips/src/TerribleTooltipsMod.cs	2026-09-10 20:25:59.066004500 -0700
+@@ -53,6 +53,7 @@
+         // Tooltip text pipeline (stage 1: bracket injection)
+         ok += TryPatch(typeof(AffixInjector.Patch_AffixFormatter),    "tooltip affix grades");
+         ok += TryPatch(typeof(AffixInjector.Patch_FormatAffix),       "weaver/hybrid affix grades");
++        ok += TryPatch(typeof(AffixInjector.Patch_FormatAffixListAffix), "affix overload trace");
+         ok += TryPatch(typeof(AffixInjector.Patch_UniqueFormatter),   "unique/legendary grades");
+         ok += TryPatch(typeof(AffixInjector.Patch_ImplicitFormatter), "implicit grades");
+ 
+--- docs/build-2026-09-10/baseline/medick_Terrible_Tooltips.csproj	2026-09-10 20:22:29.667460800 -0700
++++ medick_TerribleTooltips/medick_Terrible_Tooltips.csproj	2026-09-10 20:26:00.567790400 -0700
+@@ -81,7 +81,7 @@
+   </ItemGroup>
+ 
+   <!-- Auto-copy built DLL to Last Epoch Mods folder after each build -->
+-  <Target Name="CopyToMods" AfterTargets="Build">
++  <Target Name="CopyToMods" AfterTargets="Build" Condition="'$(DeployToMods)' != 'false'">
+     <Copy SourceFiles="$(TargetPath)"
+           DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\Mods\" />
+   </Target>
+--- docs/build-2026-09-10/baseline/CHANGELOG.md	2026-09-10 20:22:29.669045700 -0700
++++ CHANGELOG.md	2026-09-10 20:26:02.053566700 -0700
+@@ -1,5 +1,10 @@
+ # Changelog — MedicK's Terrible Tooltips
+ 
++## v3.0.2-dev (unreleased)
++- Keep tooltip scans eligible for five frames after content changes and evaluate the scan gate from LateUpdate while a tooltip is active.
++- Mark formatter injections dirty and add DebugLog-only traces for every injector plus both `FormatAffix` overloads.
++- Allow builds to skip the Mods-folder copy with `DeployToMods=false`.
++
+ ## v3.0.1 — Nexus bug-report pass
+ Two community reports, both fixed at the root.
+ 

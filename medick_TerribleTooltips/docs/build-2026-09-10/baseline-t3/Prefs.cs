@@ -116,63 +116,14 @@ internal static class Prefs
         DebugLog = Category.CreateEntry("DebugLog", false, "Verbose log output");
 
         Category.SetFilePath("UserData/medick_Terrible_Tooltips.cfg", autoload: true);
-        WarnOrphanedKeys();
     }
 
     public static void Save()
     {
         // printmsg: false — settings clicks must not spam the console;
         // "one startup line" is the family logging contract.
-        try { Category.SaveToFile(false); Dbg.Log("prefs saved"); }
-        catch (Exception ex)
-        {
-            // GLM/Kimi 2026-09-10: persistence failure must not be silent.
-            if (s_saveWarningLogged) return;
-            s_saveWarningLogged = true;
-            MelonLogger.Warning("prefs save failed: " + ex.Message);
-        }
+        try { Category.SaveToFile(false); Dbg.Log("prefs saved"); } catch { }
     }
-
-    // GLM/Kimi 2026-09-10: warn about cfg keys that have no registered preference.
-    private static void WarnOrphanedKeys()
-    {
-        if (s_orphanWarningChecked) return;
-        s_orphanWarningChecked = true;
-
-        try
-        {
-            const string path = "UserData/medick_Terrible_Tooltips.cfg";
-            if (!System.IO.File.Exists(path)) return;
-
-            var registered = new HashSet<string>(StringComparer.Ordinal)
-            {
-                "EnableTooltips", "TooltipTierColors", "TooltipRankColors",
-                "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowGradeLetters",
-                "AlwaysShowRanges", "AlwaysShowTierDetails", "GroundLabelStyle",
-                "GroundLabelFilterOnly", "GroundLabelAltKey", "ShowFilterRuleNumber",
-                "LabelRulePosition", "DebugLog"
-            };
-            var orphans = new HashSet<string>(StringComparer.Ordinal);
-
-            foreach (string raw in System.IO.File.ReadAllLines(path))
-            {
-                string line = raw.Trim();
-                if (line.Length == 0 || line[0] == '#' || line[0] == '[') continue;
-                int equals = line.IndexOf('=');
-                if (equals <= 0) continue;
-                string key = line.Substring(0, equals).Trim();
-                if (key.Length > 0 && !registered.Contains(key)) orphans.Add(key);
-            }
-
-            if (orphans.Count > 0)
-                MelonLogger.Warning("unregistered preference keys in cfg: " +
-                                    string.Join(", ", orphans.OrderBy(k => k)));
-        }
-        catch (Exception ex) { Dbg.Log("orphan preference scan failed: " + ex.Message); }
-    }
-
-    private static bool s_saveWarningLogged;
-    private static bool s_orphanWarningChecked;
 }
 
 internal static class Dbg

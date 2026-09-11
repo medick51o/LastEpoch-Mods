@@ -33,8 +33,7 @@ public static class TerribleTooltipsAPI
 
             if (matchingRuleNumber <= 0) return false;
             int orderedIndex = filter.rules.Count - matchingRuleNumber;
-            // Kimi 2026-09-10: mirror the internal resolver's lower-bound guard.
-            if (orderedIndex < 0 || orderedIndex >= filter.rules.Count) return false;
+            if (orderedIndex >= filter.rules.Count) return false;
 
             rule = filter.rules[orderedIndex];
             if (rule == null) return false;

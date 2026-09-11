@@ -67,79 +67,76 @@ public static class AffixInjector
     [HarmonyPatch(typeof(TooltipItemManager), nameof(TooltipItemManager.AffixFormatter))]
     internal static class Patch_AffixFormatter
     {
-        // Codex trace finding 2026-09-10: multi-stat calls pass affix=null, so resolve by SP.
         private static void Postfix(ItemDataUnpacked item, ItemAffix affix,
-                                    SP modProperty, int implicitIndex, int uniqueModIndex,
                                     ref string __result)
         {
             try
             {
                 if (!Prefs.EnableTooltips.Value) return;
-                if (item == null)
-                {
-                    LogItemNullOnce();
-                    return;
-                }
-
-                ItemAffix resolved = affix;
-                if (resolved == null && implicitIndex < 0 && uniqueModIndex < 0)
-                    resolved = ResolveByProperty(item, modProperty);
-                if (resolved == null) return;
-
-                __result = InjectBracket(__result, resolved.getRollFloat(), resolved.DisplayTier);
+                if (item == null || affix == null) return;
+                __result = InjectBracket(__result, affix.getRollFloat(), affix.DisplayTier);
                 TooltipRecolor.MarkDirty();
             }
-            catch (Exception ex) { Dbg.Log("multi-stat affix lookup failed: " + ex.Message); }
-            finally
-            {
-                Trace($"AffixFormatter item={(item == null ? "null" : "set")} " +
-                      $"affix={(affix == null ? "null" : "set")}", __result);
-            }
+            catch { }
+            finally { Trace("AffixFormatter", __result); }
         }
+    }
 
-        private static ItemAffix ResolveByProperty(ItemDataUnpacked item, SP modProperty)
+    // ── Patch: the affix WRAPPER (weaver idol affixes, hybrids) ──────
+    // v3.0.1 — Kaazkulaas's Nexus report: weaver affixes on idols graded
+    // on the ground label but came through the tooltip with no bracket.
+    // The ground label reads item.affixes directly (so IsIdolWeaver
+    // affixes are ordinary ItemAffix entries with a roll and a tier);
+    // the tooltip path for them never reached AffixFormatter. FormatAffix
+    // is the common ancestor every ItemAffix goes through before the
+    // per-kind formatter — so the bracket is injected HERE whenever the
+    // lower formatter didn't already do it. Same roll/tier sources as the
+    // normal path; nothing double-brackets.
+
+    private static readonly Regex s_anyBracketRegex = new(
+        @"\[(?:<color=[^>]+>\d+</color>)?<color=[^>]+>[SABCF]</color>\]",
+        RegexOptions.Compiled);
+
+    [HarmonyPatch(typeof(TooltipItemManager), nameof(TooltipItemManager.FormatAffix),
+        new[] { typeof(ItemDataUnpacked), typeof(ItemAffix), typeof(TooltipMode),
+                typeof(TooltipItemManager.SlotType), typeof(bool), typeof(int), typeof(int), typeof(bool),
+                typeof(bool), typeof(ValueRangeFormat), typeof(bool), typeof(bool) })]
+    internal static class Patch_FormatAffix
+    {
+        private static void Postfix(ItemDataUnpacked item, ItemAffix itemAffix,
+                                    ref string __result)
         {
-            ItemAffix match = null;
-            int matches = 0;
-            foreach (ItemAffix ia in item.affixes)
+            try
             {
-                if (ia == null) continue;
-                AffixList.Affix def = AffixList.instance.GetAffix(ia.affixId);
-                if (def != null && def.HasProperty(modProperty))
+                if (!Prefs.EnableTooltips.Value) return;
+                if (item == null || itemAffix == null) return;
+                if (string.IsNullOrEmpty(__result)) return;
+                if (s_anyBracketRegex.IsMatch(__result)) return;   // AffixFormatter already did it
+                __result = InjectBracket(__result, itemAffix.getRollFloat(), itemAffix.DisplayTier);
+                TooltipRecolor.MarkDirty();
+                if (!s_wrapperLogged)
                 {
-                    match = ia;
-                    matches++;
-                    if (matches > 1) break;
+                    s_wrapperLogged = true;
+                    Dbg.Log("bracket injected at FormatAffix (affix skipped AffixFormatter — weaver/hybrid path)");
                 }
             }
-
-            if (matches == 1) return match;
-            if (matches == 0)
-            {
-                if (!s_noMatchLogged)
-                {
-                    s_noMatchLogged = true;
-                    Dbg.Log($"multi-stat affix: no match for property {modProperty}");
-                }
-            }
-            else if (!s_ambiguousMatchLogged)
-            {
-                s_ambiguousMatchLogged = true;
-                Dbg.Log($"multi-stat affix: ambiguous match for property {modProperty}");
-            }
-            return null;
+            catch { }
+            finally { Trace("FormatAffix(ItemAffix)", __result); }
         }
 
-        private static void LogItemNullOnce()
-        {
-            if (s_itemNullLogged) return;
-            s_itemNullLogged = true;
-            Dbg.Log("AffixFormatter: item=null");
-        }
+        private static bool s_wrapperLogged;
+    }
 
-        private static bool s_itemNullLogged;
-        private static bool s_noMatchLogged;
-        private static bool s_ambiguousMatchLogged;
+    // Log-only trace for the second overload. Which affix path reaches it
+    // is intentionally left to runtime evidence rather than guessed here.
+    [HarmonyPatch(typeof(TooltipItemManager), nameof(TooltipItemManager.FormatAffix),
+        new[] { typeof(ItemDataUnpacked), typeof(AffixList.Affix), typeof(TooltipMode),
+                typeof(TooltipItemManager.SlotType), typeof(bool), typeof(int), typeof(int), typeof(bool),
+                typeof(bool), typeof(ValueRangeFormat), typeof(bool), typeof(bool) })]
+    internal static class Patch_FormatAffixListAffix
+    {
+        private static void Postfix(ref string __result)
+            => Trace("FormatAffix(AffixList.Affix)", __result);
     }
 
     // ── Patch: unique / legendary fixed mods ─────────────────────────

@@ -1,0 +1,19 @@
+[19:43:55.182] MedicK's Terrible fog_OF_war v1.0.0 ready — vision level BLIND
+[19:43:58.027] [Il2CppInterop] Registered mono type MelonLoader.Support.SM_Component in il2cpp domain
+[19:43:58.043] Registered mono icall UnityEngine.Transform::SetAsLastSibling in il2cpp domain
+[19:44:05.320] [medick_CameraZoom] originals captured — zoomMin -7.0, zoomDefault -17.5, perScroll 0.2, speed 2.5, angle 47.0° [35.0..49.0]
+[19:44:08.359] [Il2CppInterop] Registered mono type Il2CppInterop.Runtime.DelegateSupport+Il2CppToMonoDelegateReference in il2cpp domain
+[19:44:37.159] [Il2CppInterop] During invoking native->managed trampoline
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at Fallen_LE_Mods.Shared.GameReferencesCache.Postfix(LoadingScreen& __instance)
+   at DMD<Il2CppLE.UI.LoadingScreen::Disable>(LoadingScreen this)
+   at (il2cpp -> managed) Disable(IntPtr , Il2CppMethodInfo* )
+[19:48:13.924] [Il2CppInterop] During invoking native->managed trampoline
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at Fallen_LE_Mods.Shared.GameReferencesCache.Postfix(LoadingScreen& __instance)
+   at DMD<Il2CppLE.UI.LoadingScreen::Disable>(LoadingScreen this)
+   at (il2cpp -> managed) Disable(IntPtr , Il2CppMethodInfo* )
+[19:51:42.965] [Terrible Tooltips] settings hierarchy changed (toggle row template missing) — Terrible Tooltips settings UI unavailable; configure via UserData/medick_Terrible_Tooltips.cfg
+[19:51:42.966] [medick_Terrible_Inventory] settings hierarchy changed (toggle row template missing) — Terrible Inventory settings UI unavailable; configure via UserData/MelonPreferences.cfg
+[19:51:42.967] [medick_The_fogOFwar] settings hierarchy changed (template 'Toogle - Minion Health Bars' missing) — Terrible fog_OF_war settings UI unavailable; fog control still works via UserData/medick_The_fogOFwar.cfg
+[19:59:31.090] [Il2CppInterop] During invoking native->managed trampoline

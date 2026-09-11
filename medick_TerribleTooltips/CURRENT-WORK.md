@@ -1,0 +1,55 @@
+# CURRENT-WORK — Terrible Tooltips (read first, update every step)
+
+Updated: 2026-09-10 20:05 (Fable 5.1, /dispatch council in flight)
+
+## RESOLVED 21:14 — dropped-item labels
+- Launch 21:10 (TT 3.0.0 + Fallen + fog BLIND): labels still missing → TT 3.0.1 CLEARED, TT 3.0.0 cleared.
+- Launch 21:12 (TT 3.0.0 + Fallen, fog DLL renamed OFF): labels back. Single variable → **medick_The_fogOFwar v1.0.0 BLIND mode hides ground item labels** (its hide walks to the outermost ancestor named *minimap*; Player.log had 354 DMMapIcon.OnDisable NREs in the drop window).
+- 21:18 fog on at HARD → labels show. 21:20 fog on at BLIND, relog (offline) → labels gone. **CONFIRMED IN-HAND: fog BLIND at zone load hides ground item labels.** Cfg set back to HARD 21:21 until fixed. Fix = medick_FogOfWar\docs\build-2026-09-10\TICKET-02 (scope the hide; never a subtree containing GroundItemLabel; CanvasGroup hide with SetActive fallback) → 🔵 Codex builder DONE 21:27 (thread 01a08eb3-91d8-7800-bb0c-88fec9534c10); containment 21:28 = exactly the 4 write-set files (DELTA-ticket02.patch, 286 lines), conductor verify green, fog Mods DLL still Jul 12 v1.0.0; output at medick_FogOfWar\bin\Release\net6.0\ (24576 B, v1.0.1-dev) NOT deployed. 🟢 Gemini review 21:30 REJECT (BLOCKER: guard only protects labels present at zone-in; canvas empty then → outermost ancestor still hidden) → ACCEPTED → TICKET-02b (leaf-only hide, no ancestor walk) → Codex DONE 21:33 → containment clean, verify green → 🟢 Gemini 21:37 APPROVE_WITH_NOTES (one NOT PROVEN: does the frame vanish too — in-hand). **fog v1.0.1-dev DEPLOYED to Mods 21:38** (v1.0.0 kept as .1.0.0-restore); cfg HARD; Andrew to flip to BLIND in-game, zone, drop a cheap item, look at the minimap corner. Andrew in-hand 21:24: NORMAL and HARD show labels; only BLIND (v1.0.0) hides.
+- Tooltips 21:32 launch loaded the 3.0.2-dev DLL (console label still says "v3.0.1", 10/10 patches — BuildInfo not bumped; cosmetic, fix at release). The quit overwrote DebugLog→false as predicted; re-set to true 21:35 with the game closed. Also set GroundLabelFilterOnly=false (Andrew: "tiers on the ground stopped working" = FilterOnly ON + NO FILTER selected, by design). GroundLabelAltKey stays true (hold Alt).
+- 21:21: **3.0.2-dev tooltips DLL DEPLOYED** to Mods (65536 B; 3.0.0 kept as .3.0.0-restore) with DebugLog=true (cfg backed up) so the next launch captures the formatter trace. Andrew's in-hand check pending.
+- Andrew confirms on 3.0.0: multi-stat idol affixes show no tier (Kaazkulaas's report reproduced in-hand).
+
+## State right now
+- **Game Mods folder holds 3.0.0** (`medick_Terrible_Tooltips.dll`, md5 844dd166…, restored 20:00 from the July `.pre-sprint-2026-07-20.bak`). Suspect 3.0.1 DLL preserved as `Mods\medick_Terrible_Tooltips.dll.suspect-3.0.1` and `medick_TerribleTooltips\bin\suspect-3.0.1-2026-09-10.dll` (md5 6c987efa…).
+- Source tree = 3.0.1 exactly (rebuild hash matches the suspect DLL). NOT committed. Probe lines were added then removed; nothing probe-related is in the tree.
+- Incident: on 3.0.1, every item Andrew dropped from inventory showed NO ground label and could not be picked up; items lost. Cause NOT established. Fallen's Improved Tooltips threw two NREs (GameReferencesCache, loading screen) in the same session.
+- Andrew is relaunching on 3.0.0 to test whether dropped-item labels return. **Result pending.**
+
+## Council (docs/council-2026-09-10/, signed reads in signed/)
+- BRIEF.md (blind, facts only) · DIFF-3.0.0-to-3.0.1.patch · melonloader-excerpt.log · medick_Terrible_Tooltips.cfg
+- 🔵 Codex — DONE_WITH_CONCERNS (signed/SIGNED-codex.md): Q1 NOT PROVEN (no diff mechanism for ordinary labels; a conditional "Range:"-in-label blanking path exists but prerequisite unsupported); Q2 MATERIAL scan-gate hole with 6-step sequence; Q3 MATERIAL only one FormatAffix overload hooked; Q4 MATERIAL every-frame relapse case.
+- 🟢 Gemini — DONE_WITH_CONCERNS (signed/SIGNED-gemini.md, brain unreported, 1 retry): Q1 NOT PROVEN, ranks game label-toggle key ('Z') first, config second, Fallen third; Q2/Q3/Q4 agree with Codex.
+- ⚫ Grok — still running (task k8hkl1b5l).
+- Mirror for wrappers that refuse home paths: C:\Sync\Projects\tt-council-2026-09-10 (git-clean after all reads).
+
+## Top-to-bottom review (docs/review-2026-09-10/signed/) — Andrew's order 20:09, auto mode
+- 🔵 Astra (gpt-6-astra) — DONE_WITH_CONCERNS: 10 MATERIAL, rebuild AffixInjector/TooltipRecolor/NativeSettings, patch the rest.
+- 🟣➤🌙 Kimi (💸 96977/7190) — 3 MATERIAL incl. CheckFilter negative-index latent bug; top-3 cleanups.
+- 🟣➤🔷 GLM (💸 50636/3201) — 2 BLOCKER: master-off leaves tier colours stamped + Range rows blank; orphan cfg keys.
+- ⚫ Grok (robustness lens) — still running (task khv59rs97).
+- Cursor allowance: 10/week until 2026-09-23; 2 used tonight.
+
+## Build lane (docs/build-2026-09-10/)
+- 21:42 TRACE VERDICT (1025 [trace] lines): multi-stat affixes go through **AffixFormatter once per stat with `affix == null`** → the postfix guard bails → no bracket. Neither FormatAffix overload EVER fires (both hooks to be deleted). Fix = resolve the ItemAffix via `AffixList.instance.GetAffix(ia.affixId).HasProperty(modProperty)`.
+- 21:52 **TICKET-03 (Tier A, 8 items)** → 🔵 Codex builder, task ko1h1cscg, baseline-t3.md5. Items: A1 master-off restores vanilla (GLM ×2 BLOCKER) · A2 release native range switch (Astra) · A3 two-stat bracket via property lookup + delete the two dead FormatAffix hooks · A4 settings → MarkDirty/ReRenderNow · A5 CheckFilter `>= 0` guard (Kimi) · A6 loud failures + "no brackets in 20 scans" warning · A7 orphan-cfg-key warning · A8 version 3.0.2 + CHANGELOG/README. Andrew ruled "tier a do it" 21:51. Tier B queued for 3.0.3; Tier C (composer/settings rebuild) = its own spec.
+- Andrew in-hand 21:42: ground brackets back ([5C 4C 2C], [1F 1A]) after FilterOnly=false. Pending in-hand: stutter walk-test, Alt on two-stat idol, fog BLIND corner look.
+- At next quit: delete orphan keys `GroundLabels`/`SignalText` from Andrew's cfg by hand (game overwrites cfg on quit).
+- TICKET-01 (scan-gate frame window + LateUpdate ShouldScan + MarkDirty from injectors + formatter trace behind DebugLog + csproj DeployToMods switch) → 🔵 Codex builder DONE 20:27 (thread 01a08e7d-8956-7042-9b50-23404e4639a4).
+- Containment 20:28: actual delta = exactly the 5 write-set files (DELTA-ticket01.patch, 225 lines); nothing outside the fence; conductor re-ran verify: Build succeeded, 0 warnings; Mods folder DLL untouched (3.0.0, md5 844dd166…). Output DLL: medick_TerribleTooltips\bin\Release\net6.0\ (65536 B, 20:28) — NOT deployed.
+- 🟢 Gemini cross-vendor review 20:31: **APPROVE, zero findings** (REVIEW-ticket01-gemini.md). Footer brain unreported; Antigravity config = "Gemini 3.6 Flash (High)" → Google lineage, builder OpenAI → cross-vendor holds.
+- 3.0.2-dev DLL is gate-passed + review-adjudicated, NOT in-hand. Sits at medick_TerribleTooltips\bin\Release\net6.0\medick_Terrible_Tooltips.dll (65536 B). Deploy only after Andrew's 3.0.0 drop test is answered AND he says go.
+- ⚫ Grok council + review seats: overdue (>35 min, ~/.grok/active_sessions.json shows 0). Not blocking; retry once with a tighter ticket if still silent at the next checkpoint. Never a third identical retry.
+
+## Side finding (not tooltips)
+- Unity Player.log from the 3.0.1 session: 354 NullReferenceExceptions, all `DMM.DMMapIcon.OnDisable` / `SceneChangeableDMMapIcon.OnDisable` — minimap icons being disabled. Points at medick_The_fogOFwar BLIND mode (it SetActive(false)s minimap objects). Separate ticket for the fog mod.
+
+## Known facts from tonight's screenshots (3.0.1)
+- Two-stat affixes get no bracket in normal view; only a synthesized "Tier N" chip under Alt. The new FormatAffix(ItemAffix) postfix did NOT reach them.
+- Under Alt, one idol rendered literal "[1B] …" text: fresh game text was never composed → the 3.0.1 scan gate has a hole (suspected: dirty flag cleared by the LateUpdate catch-up before the game re-rendered; static inventory tooltips get no further UpdateLayout).
+
+## Next
+1. Andrew's 3.0.0 drop test → decides whether 3.0.1 is the cause of missing labels.
+2. Council synthesis → rulings for Andrew.
+3. If 3.0.1 is cleared: fix the scan-gate hole (dirty as a frame window, marker-loss check in LateUpdate), then instrument the formatter path (probe build) for the two-stat affix gap.
+4. Nothing ships without in-hand validation. No Nexus upload by Claude ever.

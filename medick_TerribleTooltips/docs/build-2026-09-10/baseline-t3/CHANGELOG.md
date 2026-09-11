@@ -1,16 +1,9 @@
 # Changelog — MedicK's Terrible Tooltips
 
-## v3.0.2 — the Nexus bug-report release
-- Fixed Kaazkulaas's two-stat/weaver affix report by resolving `AffixFormatter`'s null affix from the stat property; each stat line intentionally carries its own bracket (for example, two clean `[1F]` lines).
-- Fixed speedscalzone's mouseover stutter by keeping the content scan behind the five-frame dirty window and active-tooltip catch-up gate.
-- Fixed the Hold-Alt raw-bracket regression by marking formatter injections dirty so the composer catches the game's late text rewrite.
-- Master off now restores marked vanilla tooltip text, releases the native range switch, and stops reapplying tier colours.
-- Tooltip settings now invalidate an open tooltip, with layout/style/name-colour/grade-letter/pin changes re-rendered immediately; dropped ground labels still refresh on re-drop.
-- Guarded the public filter API against negative ordered indexes without changing its ABI.
-- Made preference-save and native-range failures loud, and added the 20-scan dead-affix-hook warning.
-- Added a startup warning that lists orphaned cfg keys without deleting them.
-- Kept the `DebugLog = true` formatter trace for actionable bug reports while removing the two trace-proven dead `FormatAffix` hooks.
-- Builds can still opt out of the Mods-folder copy with `DeployToMods=false`.
+## v3.0.2-dev (unreleased)
+- Keep tooltip scans eligible for five frames after content changes and evaluate the scan gate from LateUpdate while a tooltip is active.
+- Mark formatter injections dirty and add DebugLog-only traces for every injector plus both `FormatAffix` overloads.
+- Allow builds to skip the Mods-folder copy with `DeployToMods=false`.
 
 ## v3.0.1 — Nexus bug-report pass
 Two community reports, both fixed at the root.

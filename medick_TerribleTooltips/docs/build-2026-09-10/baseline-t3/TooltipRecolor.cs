@@ -66,7 +66,6 @@ public static class TooltipRecolor
 
     private static bool s_altHeld;
     private static bool s_relayouting;   // re-entrancy latch for our own UpdateLayout call
-    private static bool? s_masterPreviouslyEnabled;
 
     // ── Scan gate (v3.0.1 — speedscalzone's "mouseover stutter") ──────
     // UpdateLayout is a POSITIONING call: a ground tooltip tracks its
@@ -86,10 +85,6 @@ public static class TooltipRecolor
 
     internal static void MarkDirty()
         => s_dirtyUntilFrame = Time.frameCount + DirtyFrameWindow;
-
-    // GLM/Astra 2026-09-10: style and layout changes must rebuild an open tooltip now.
-    internal static void ReRenderNow()
-        => ReRenderFromOriginals();
 
     private static bool ShouldScan()
     {
@@ -127,29 +122,20 @@ public static class TooltipRecolor
     // setting is never written; original value restored when the master
     // toggle goes off.
     private static bool? s_nativeRangesOriginal;
-    private static bool s_nativeRangesWasEnabled;
 
     private static void DriveNativeRangeSwitch()
     {
         try
         {
             bool cur = TooltipItemManager.showRangesInsteadOfDescriptionEnabled;
-            bool enabled = Prefs.EnableTooltips.Value;
+            if (s_nativeRangesOriginal == null) s_nativeRangesOriginal = cur;
 
-            // Astra 2026-09-10: relinquish this native setting once on master-off.
-            if (!enabled)
+            if (!Prefs.EnableTooltips.Value)
             {
-                if (s_nativeRangesWasEnabled && s_nativeRangesOriginal != null &&
-                    cur != s_nativeRangesOriginal.Value)
+                if (cur != s_nativeRangesOriginal.Value)
                     TooltipItemManager.showRangesInsteadOfDescriptionEnabled = s_nativeRangesOriginal.Value;
-                s_nativeRangesOriginal = null;
-                s_nativeRangesWasEnabled = false;
                 return;
             }
-
-            if (!s_nativeRangesWasEnabled || s_nativeRangesOriginal == null)
-                s_nativeRangesOriginal = cur;
-            s_nativeRangesWasEnabled = true;
 
             bool want = DeepRange;   // Alt held or the Always Show Ranges pin
             if (cur != want)
@@ -158,23 +144,13 @@ public static class TooltipRecolor
                 MarkDirty();   // the game re-renders on this flip — fresh EHG text incoming
             }
         }
-        catch (Exception ex) { Dbg.Log("native range switch failed: " + ex.Message); }
+        catch { }
     }
 
     // ── Called from TerribleTooltipsMod.OnLateUpdate() ────────────────
     public static void OnLateUpdate()
     {
         DriveNativeRangeSwitch();
-
-        // GLM BLOCKER 2026-09-10: master-off must restore marked text and release caches.
-        try
-        {
-            bool enabled = Prefs.EnableTooltips.Value;
-            if (s_masterPreviouslyEnabled == true && !enabled)
-                RestoreVanillaOnMasterOff();
-            s_masterPreviouslyEnabled = enabled;
-        }
-        catch { }
 
         // Alt deep view: state change → re-compose every cached TMP live.
         // Master toggle gates the re-render (a v2 fleet law: master OFF
@@ -233,37 +209,10 @@ public static class TooltipRecolor
         }
         catch { }
 
-        if (!Prefs.EnableTooltips.Value || s_tierColorCache.Count == 0) return;
+        if (s_tierColorCache.Count == 0) return;
         s_tierColorCache.RemoveAll(p => p.tmp == null || !p.tmp.gameObject.activeInHierarchy);
         foreach (var (tmp, color) in s_tierColorCache)
             tmp.color = color;
-    }
-
-    private static void RestoreVanillaOnMasterOff()
-    {
-        int restored = 0;
-        foreach (var kv in s_originals)
-        {
-            var (tmp, original) = kv.Value;
-            try
-            {
-                if (tmp != null && (tmp.text ?? "").Contains(Marker))
-                {
-                    tmp.text = original;
-                    restored++;
-                }
-            }
-            catch { }
-        }
-
-        s_originals.Clear();
-        s_suppressedRanges.Clear();
-        s_tierColorCache.Clear();
-
-        bool active = false;
-        try { active = s_lastTooltip != null && s_lastTooltip.tooltipActive; } catch { }
-        if (active) RequestRelayout(s_lastTooltip, s_lastArgs);
-        Dbg.Log($"master off — restored {restored} TMPs");
     }
 
     private static void ReRenderFromOriginals()
@@ -392,8 +341,6 @@ public static class TooltipRecolor
             TextMeshProUGUI[] allTMPs =
                 UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>();
             if (allTMPs == null) return;
-
-            TrackFormatterHealth(allTMPs);
 
             // Prune stale originals while we're here
             PruneOriginals();
@@ -561,43 +508,6 @@ public static class TooltipRecolor
     }
 
     private static bool s_recolorWarned;
-    private static int s_emptyBracketScans;
-    private static bool s_affixHookWarned;
-
-    // GLM 2026-09-10: make a dead affix formatter hook visible instead of silently vanilla.
-    private static void TrackFormatterHealth(TextMeshProUGUI[] allTMPs)
-    {
-        bool active = false;
-        try { active = s_lastTooltip != null && s_lastTooltip.tooltipActive; } catch { }
-        if (!Prefs.EnableTooltips.Value || !active || allTMPs.Length == 0) return;
-
-        bool found = false;
-        foreach (TextMeshProUGUI tmp in allTMPs)
-        {
-            string text = tmp?.text;
-            if (string.IsNullOrEmpty(text)) continue;
-            if (text.Contains(Marker) ||
-                (!text.Contains(GroundLabels.Marker) && HasBracket(text)))
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (found)
-        {
-            s_emptyBracketScans = 0;
-            return;
-        }
-
-        s_emptyBracketScans++;
-        if (s_emptyBracketScans >= 20 && !s_affixHookWarned)
-        {
-            s_affixHookWarned = true;
-            MelonLogger.Warning(
-                "no affix brackets seen in 20 tooltip scans — the affix formatter hook may be dead after a game update; tooltips will look vanilla");
-        }
-    }
 
     private static void PruneOriginals()
     {

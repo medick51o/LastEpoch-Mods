@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>medick_Terrible_Tooltips</AssemblyName>
     <RootNamespace>medick_Terrible_Tooltips</RootNamespace>
-    <Version>3.0.2</Version>
+    <Version>3.0.1</Version>
     <Nullable>disable</Nullable>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
@@ -81,7 +81,7 @@
   </ItemGroup>
 
   <!-- Auto-copy built DLL to Last Epoch Mods folder after each build -->
-  <Target Name="CopyToMods" AfterTargets="Build" Condition="'$(DeployToMods)' != 'false'">
+  <Target Name="CopyToMods" AfterTargets="Build">
     <Copy SourceFiles="$(TargetPath)"
           DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\Mods\" />
   </Target>
