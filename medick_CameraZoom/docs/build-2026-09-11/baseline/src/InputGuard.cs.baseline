@@ -2,10 +2,14 @@ using Il2Cpp;
 
 namespace medick_CameraZoom
 {
-    // Input blocking is re-asserted every update while wanted and released
-    // once on close, only if this mod set forceDisableInput. Terrible
-    // Cooldowns runs the identical guard, so both sides respect each other's
-    // lock. Without the game's flag, panel drags also click-to-move.
+    // The one correct way to pause input in Last Epoch: the game's own
+    // EpochInputManager.forceDisableInput flag (the Terrible Cooldowns
+    // technique). Without it, every slider drag on the settings panel is
+    // ALSO a click-to-move command — the game reads its own input path,
+    // and IMGUI event consumption means nothing to it.
+    //
+    // The flag is only written when our desired state changes, so we never
+    // stomp another mod using it for its own reasons.
     internal static class InputGuard
     {
         static bool _applied;
@@ -27,12 +31,8 @@ namespace medick_CameraZoom
                     // (Terrible Cooldowns runs the same technique) can flip it
                     // under us. Trusting our own last write is how input locks
                     // silently die; one Il2Cpp read per frame is cheap.
-                    // council 2026-09-11 #1
-                    if (!mgr.forceDisableInput)
-                    {
-                        mgr.forceDisableInput = true;
-                        _applied = true;
-                    }
+                    if (!mgr.forceDisableInput) mgr.forceDisableInput = true;
+                    _applied = true;
                 }
                 else if (_applied)
                 {

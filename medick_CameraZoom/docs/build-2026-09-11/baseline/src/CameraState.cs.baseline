@@ -12,8 +12,7 @@ namespace medick_CameraZoom
     // There is NO zoomMax field, and writing Camera.main.fieldOfView is
     // useless (CameraManager overrides it every frame).
     //
-    // council 2026-09-11 #6
-    // Safety rules (the grizwad fixes — "camera stuck under ground,
+    // v2 safety rules (the grizwad fixes — "camera stuck under ground,
     // restart was the only fix" can no longer happen):
     //  1. Originals latch ONLY after every value reads back finite — a
     //     partial capture retries next frame instead of freezing NaNs in.
@@ -93,7 +92,7 @@ namespace medick_CameraZoom
                     else Dbg.Log(capMsg);
 
                     // (A "seed prefs from game values" pass was tried and
-                    // reverted here on release night: earlier releases shipped these
+                    // reverted here on release night: v1.x shipped these
                     // defaults deliberately hotter than the game, and seeding
                     // would have silently changed every upgrader's feel.)
                     _everCaptured        = true;
@@ -105,7 +104,7 @@ namespace medick_CameraZoom
             catch (System.Exception ex) { failReason = ex.Message; }
 
             // Failed with a live manager: surface a stall instead of silently
-            // idling forever — the diagnosability gap that hid the earlier bug class.
+            // idling forever — the diagnosability gap that hid v1.x's bug class.
             if (++_failStreak == StallFrames)
             {
                 CaptureStalled = true;

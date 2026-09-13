@@ -1,0 +1,16 @@
+# VERIFY-OUTPUT — conductor re-run 2026-09-11 (repo root)
+$ dotnet build -c Release --nologo -v q -p:DeployToMods=false
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.68
+
+# built DLL
+-rwxr-xr-x 1 andre 197609 25088 2026-09-11 01:58 bin/Release/net6.0/medick_CameraZoom.dll
+2ef9a852d165615397489966376be28e *bin/Release/net6.0/medick_CameraZoom.dll
+
+# game Mods DLL (must be unchanged: 24064 B, 2026-07-01 21:00, 14c5806947db8a1a4321ffa746d8069e)
+-rwxr-xr-x 1 andre 197609 24064 2026-07-01 21:00 /c/Program Files (x86)/Steam/steamapps/common/Last Epoch/Mods/medick_CameraZoom.dll
+14c5806947db8a1a4321ffa746d8069e */c/Program Files (x86)/Steam/steamapps/common/Last Epoch/Mods/medick_CameraZoom.dll

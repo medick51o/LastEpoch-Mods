@@ -15,10 +15,6 @@ namespace medick_CameraZoom
     // every frame). End toggles the settings panel; see README.md.
     public partial class CameraZoomMod : MelonMod
     {
-        const int CameraManagerFailureFrames = 300;
-        static int _cameraManagerFailureStreak;
-        static bool _cameraManagerFailureLogged;
-
         public override void OnInitializeMelon()
         {
             Prefs.Init();
@@ -27,8 +23,7 @@ namespace medick_CameraZoom
 
         public override void OnUpdate()
         {
-            // council 2026-09-11 #4
-            if (Input.GetKeyDown(KeyCode.End) && !TypingInGameField())
+            if (Input.GetKeyDown(KeyCode.End))
             {
                 if (SettingsPanel.Visible) SettingsPanel.Close();
                 else                       SettingsPanel.Visible = true;
@@ -43,37 +38,11 @@ namespace medick_CameraZoom
             try
             {
                 var mgr = CameraManager.instance;
-                if (mgr == null)
-                {
-                    _cameraManagerFailureStreak = 0;
-                    return;
-                }
+                if (mgr == null) return;
                 CameraState.TryCapture(mgr);
                 CameraState.Apply(mgr);
-                _cameraManagerFailureStreak = 0;
             }
-            catch
-            {
-                // council 2026-09-11 #5
-                if (_cameraManagerFailureStreak < int.MaxValue)
-                    _cameraManagerFailureStreak++;
-                if (_cameraManagerFailureStreak == CameraManagerFailureFrames
-                    && !_cameraManagerFailureLogged)
-                {
-                    _cameraManagerFailureLogged = true;
-                    MelonLogger.Warning("camera manager unreachable for 300 updates — mod idle; a game update may have changed CameraManager");
-                }
-            }
-        }
-
-        static bool TypingInGameField()
-        {
-            try
-            {
-                var mgr = EpochInputManager.instance;
-                return mgr != null && mgr.IsInputFieldActive;
-            }
-            catch { return false; }
+            catch { /* CameraManager not yet active */ }
         }
 
         public override void OnGUI()

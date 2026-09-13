@@ -1,0 +1,261 @@
+diff --git a/medick_CameraZoom/CHANGELOG.md b/medick_CameraZoom/CHANGELOG.md
+index 7401fd9..b0b6085 100644
+--- a/medick_CameraZoom/CHANGELOG.md
++++ b/medick_CameraZoom/CHANGELOG.md
+@@ -1,5 +1,18 @@
+ # Changelog — MedicK's Terrible Zoom
+ 
++## v1.0.1 — council pass (2026-09-11)
++
++- Input blocking now releases only locks this mod acquired, respecting Terrible Cooldowns' identical guard.
++- Non-finite camera and panel preferences reset to their defaults with one warning naming every repaired key.
++- The End key no longer toggles the settings panel while a game input field is active.
++- Camera-manager access failures now produce one diagnostic warning after 300 consecutive updates.
++- Version-free safety comments and the documented Last Epoch and MelonLoader versions now reflect game 1.4.7.
++
++<!-- council 2026-09-11 #7 -->
++### Legacy config keys
++
++`FOV`, `MinFOV`, `MaxFOV`, `SmoothSpeed`, and `RmbModifier` under `[medick_CameraZoom]` are pre-Terrible keys that no code reads; they are ignored and safe to delete by hand. A `[kg_CameraZoom]` section in the same file belongs to a different mod and is not touched. No code deletes either.
++
+ ## v1.0.0 — 2026-07-01
+ 
+ Ground-up engineering pass and rebrand: **Camera Zoom** is now
+diff --git a/medick_CameraZoom/README.md b/medick_CameraZoom/README.md
+index 796c332..6a01832 100644
+--- a/medick_CameraZoom/README.md
++++ b/medick_CameraZoom/README.md
+@@ -27,7 +27,7 @@
+ 
+ ## Installation
+ 
+-1. Install [MelonLoader 0.6.x](https://melonwiki.xyz) into Last Epoch
++1. Install [MelonLoader 0.7.x](https://melonwiki.xyz) (tested on 0.7.2 Open-Beta, game 1.4.7) into Last Epoch
+ 2. Drop `medick_CameraZoom.dll` into `Last Epoch/Mods/`
+ 3. Load into a zone, scroll out, press `End` to tune
+ 
+diff --git a/medick_CameraZoom/medick_CameraZoom.csproj b/medick_CameraZoom/medick_CameraZoom.csproj
+index 6ec3e05..0a79e0b 100644
+--- a/medick_CameraZoom/medick_CameraZoom.csproj
++++ b/medick_CameraZoom/medick_CameraZoom.csproj
+@@ -5,6 +5,7 @@
+     <AssemblyName>medick_CameraZoom</AssemblyName>
+     <RootNamespace>medick_CameraZoom</RootNamespace>
+     <Nullable>disable</Nullable>
++    <Version>1.0.1</Version>
+   </PropertyGroup>
+ 
+   <!-- ── Reference paths ── adjust if your game is elsewhere ── -->
+@@ -13,6 +14,11 @@
+     <GM>C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\Il2CppAssemblies\</GM>
+   </PropertyGroup>
+ 
++  <ItemGroup>
++    <!-- council 2026-09-11 #8 -->
++    <Compile Remove="docs\**\*.cs" />
++  </ItemGroup>
++
+   <ItemGroup>
+     <Reference Include="MelonLoader">
+       <HintPath>$(ML)MelonLoader.dll</HintPath>
+diff --git a/medick_CameraZoom/src/BuildInfo.cs b/medick_CameraZoom/src/BuildInfo.cs
+index d093818..c0148a6 100644
+--- a/medick_CameraZoom/src/BuildInfo.cs
++++ b/medick_CameraZoom/src/BuildInfo.cs
+@@ -10,7 +10,7 @@ namespace medick_CameraZoom
+         public const string DisplayName  = "Terrible Zoom";
+         public const string OfficialName = "MedicK's Terrible Zoom";
+         public const string Tagline      = "a camera mod";
+-        public const string Version      = "1.0.0";
++        public const string Version      = "1.0.1";
+         public const string Author       = "medick";
+     }
+ }
+diff --git a/medick_CameraZoom/src/CameraState.cs b/medick_CameraZoom/src/CameraState.cs
+index 1ebccab..4cbf905 100644
+--- a/medick_CameraZoom/src/CameraState.cs
++++ b/medick_CameraZoom/src/CameraState.cs
+@@ -12,7 +12,8 @@ namespace medick_CameraZoom
+     // There is NO zoomMax field, and writing Camera.main.fieldOfView is
+     // useless (CameraManager overrides it every frame).
+     //
+-    // v2 safety rules (the grizwad fixes — "camera stuck under ground,
++    // council 2026-09-11 #6
++    // Safety rules (the grizwad fixes — "camera stuck under ground,
+     // restart was the only fix" can no longer happen):
+     //  1. Originals latch ONLY after every value reads back finite — a
+     //     partial capture retries next frame instead of freezing NaNs in.
+@@ -92,7 +93,7 @@ namespace medick_CameraZoom
+                     else Dbg.Log(capMsg);
+ 
+                     // (A "seed prefs from game values" pass was tried and
+-                    // reverted here on release night: v1.x shipped these
++                    // reverted here on release night: earlier releases shipped these
+                     // defaults deliberately hotter than the game, and seeding
+                     // would have silently changed every upgrader's feel.)
+                     _everCaptured        = true;
+@@ -104,7 +105,7 @@ namespace medick_CameraZoom
+             catch (System.Exception ex) { failReason = ex.Message; }
+ 
+             // Failed with a live manager: surface a stall instead of silently
+-            // idling forever — the diagnosability gap that hid v1.x's bug class.
++            // idling forever — the diagnosability gap that hid the earlier bug class.
+             if (++_failStreak == StallFrames)
+             {
+                 CaptureStalled = true;
+diff --git a/medick_CameraZoom/src/CameraZoomMod.cs b/medick_CameraZoom/src/CameraZoomMod.cs
+index ee3cf96..c2dd3d3 100644
+--- a/medick_CameraZoom/src/CameraZoomMod.cs
++++ b/medick_CameraZoom/src/CameraZoomMod.cs
+@@ -15,6 +15,10 @@ namespace medick_CameraZoom
+     // every frame). End toggles the settings panel; see README.md.
+     public partial class CameraZoomMod : MelonMod
+     {
++        const int CameraManagerFailureFrames = 300;
++        static int _cameraManagerFailureStreak;
++        static bool _cameraManagerFailureLogged;
++
+         public override void OnInitializeMelon()
+         {
+             Prefs.Init();
+@@ -23,7 +27,8 @@ namespace medick_CameraZoom
+ 
+         public override void OnUpdate()
+         {
+-            if (Input.GetKeyDown(KeyCode.End))
++            // council 2026-09-11 #4
++            if (Input.GetKeyDown(KeyCode.End) && !TypingInGameField())
+             {
+                 if (SettingsPanel.Visible) SettingsPanel.Close();
+                 else                       SettingsPanel.Visible = true;
+@@ -38,11 +43,37 @@ namespace medick_CameraZoom
+             try
+             {
+                 var mgr = CameraManager.instance;
+-                if (mgr == null) return;
++                if (mgr == null)
++                {
++                    _cameraManagerFailureStreak = 0;
++                    return;
++                }
+                 CameraState.TryCapture(mgr);
+                 CameraState.Apply(mgr);
++                _cameraManagerFailureStreak = 0;
++            }
++            catch
++            {
++                // council 2026-09-11 #5
++                if (_cameraManagerFailureStreak < int.MaxValue)
++                    _cameraManagerFailureStreak++;
++                if (_cameraManagerFailureStreak == CameraManagerFailureFrames
++                    && !_cameraManagerFailureLogged)
++                {
++                    _cameraManagerFailureLogged = true;
++                    MelonLogger.Warning("camera manager unreachable for 300 updates — mod idle; a game update may have changed CameraManager");
++                }
++            }
++        }
++
++        static bool TypingInGameField()
++        {
++            try
++            {
++                var mgr = EpochInputManager.instance;
++                return mgr != null && mgr.IsInputFieldActive;
+             }
+-            catch { /* CameraManager not yet active */ }
++            catch { return false; }
+         }
+ 
+         public override void OnGUI()
+diff --git a/medick_CameraZoom/src/InputGuard.cs b/medick_CameraZoom/src/InputGuard.cs
+index ae2e8fa..b336392 100644
+--- a/medick_CameraZoom/src/InputGuard.cs
++++ b/medick_CameraZoom/src/InputGuard.cs
+@@ -2,14 +2,10 @@ using Il2Cpp;
+ 
+ namespace medick_CameraZoom
+ {
+-    // The one correct way to pause input in Last Epoch: the game's own
+-    // EpochInputManager.forceDisableInput flag (the Terrible Cooldowns
+-    // technique). Without it, every slider drag on the settings panel is
+-    // ALSO a click-to-move command — the game reads its own input path,
+-    // and IMGUI event consumption means nothing to it.
+-    //
+-    // The flag is only written when our desired state changes, so we never
+-    // stomp another mod using it for its own reasons.
++    // Input blocking is re-asserted every update while wanted and released
++    // once on close, only if this mod set forceDisableInput. Terrible
++    // Cooldowns runs the identical guard, so both sides respect each other's
++    // lock. Without the game's flag, panel drags also click-to-move.
+     internal static class InputGuard
+     {
+         static bool _applied;
+@@ -31,8 +27,12 @@ namespace medick_CameraZoom
+                     // (Terrible Cooldowns runs the same technique) can flip it
+                     // under us. Trusting our own last write is how input locks
+                     // silently die; one Il2Cpp read per frame is cheap.
+-                    if (!mgr.forceDisableInput) mgr.forceDisableInput = true;
+-                    _applied = true;
++                    // council 2026-09-11 #1
++                    if (!mgr.forceDisableInput)
++                    {
++                        mgr.forceDisableInput = true;
++                        _applied = true;
++                    }
+                 }
+                 else if (_applied)
+                 {
+diff --git a/medick_CameraZoom/src/Prefs.cs b/medick_CameraZoom/src/Prefs.cs
+index 85f09d8..ec2227e 100644
+--- a/medick_CameraZoom/src/Prefs.cs
++++ b/medick_CameraZoom/src/Prefs.cs
+@@ -1,3 +1,4 @@
++using System.Collections.Generic;
+ using MelonLoader;
+ 
+ namespace medick_CameraZoom
+@@ -31,15 +32,40 @@ namespace medick_CameraZoom
+         public static void Init()
+         {
+             var cat = MelonPreferences.CreateCategory("medick_CameraZoom");
+-            ZoomMin       = cat.CreateEntry("ZoomMin",       ZoomMinDefault,   "Zoom-out limit. More negative = further out. Game default ≈ -15");
+-            ZoomPerScroll = cat.CreateEntry("ZoomPerScroll", PerScrollDefault, "Zoom change per scroll notch. Game default ≈ 1-2");
+-            ZoomSpeed     = cat.CreateEntry("ZoomSpeed",     SpeedDefault,     "Camera lerp speed to target zoom. Game default ≈ 5-8");
++            // council 2026-09-11 #6
++            ZoomMin       = cat.CreateEntry("ZoomMin",       ZoomMinDefault,   "Zoom-out limit. More negative = further out. Game 1.4.7 ships zoomMin -7.0 (default zoom -17.5)");
++            ZoomPerScroll = cat.CreateEntry("ZoomPerScroll", PerScrollDefault, "Zoom change per scroll notch. Game 1.4.7 ships 0.2");
++            ZoomSpeed     = cat.CreateEntry("ZoomSpeed",     SpeedDefault,     "Camera lerp speed to target zoom. Game 1.4.7 ships 2.5");
+             LockAngle     = cat.CreateEntry("LockAngle",     false,            "Lock camera viewing angle (prevents tilting)");
+             Angle         = cat.CreateEntry("Angle",         AngleDefaultPref, "Camera tilt angle when locked (degrees)");
+             MenuScale     = cat.CreateEntry("MenuScale",     1.0f, "Settings panel scale");
+             PanelX        = cat.CreateEntry("PanelX", DefaultPanelX, "Settings panel screen X");
+             PanelY        = cat.CreateEntry("PanelY", DefaultPanelY, "Settings panel screen Y");
+             DebugLog      = cat.CreateEntry("DebugLog",     false, "Verbose log output");
++            Sanitize();
++        }
++
++        // council 2026-09-11 #3
++        static void Sanitize()
++        {
++            var repaired = new List<string>();
++            RepairFinite(ZoomMin, "ZoomMin", repaired);
++            RepairFinite(ZoomPerScroll, "ZoomPerScroll", repaired);
++            RepairFinite(ZoomSpeed, "ZoomSpeed", repaired);
++            RepairFinite(Angle, "Angle", repaired);
++            RepairFinite(MenuScale, "MenuScale", repaired);
++            RepairFinite(PanelX, "PanelX", repaired);
++            RepairFinite(PanelY, "PanelY", repaired);
++
++            if (repaired.Count > 0)
++                MelonLogger.Warning("Repaired non-finite preferences: " + string.Join(", ", repaired));
++        }
++
++        static void RepairFinite(MelonPreferences_Entry<float> entry, string key, List<string> repaired)
++        {
++            if (float.IsFinite(entry.Value)) return;
++            entry.Value = entry.DefaultValue;
++            repaired.Add(key);
+         }
+ 
+         public static void Save()

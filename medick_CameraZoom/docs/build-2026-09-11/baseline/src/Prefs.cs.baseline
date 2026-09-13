@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MelonLoader;
 
 namespace medick_CameraZoom
@@ -32,40 +31,15 @@ namespace medick_CameraZoom
         public static void Init()
         {
             var cat = MelonPreferences.CreateCategory("medick_CameraZoom");
-            // council 2026-09-11 #6
-            ZoomMin       = cat.CreateEntry("ZoomMin",       ZoomMinDefault,   "Zoom-out limit. More negative = further out. Game 1.4.7 ships zoomMin -7.0 (default zoom -17.5)");
-            ZoomPerScroll = cat.CreateEntry("ZoomPerScroll", PerScrollDefault, "Zoom change per scroll notch. Game 1.4.7 ships 0.2");
-            ZoomSpeed     = cat.CreateEntry("ZoomSpeed",     SpeedDefault,     "Camera lerp speed to target zoom. Game 1.4.7 ships 2.5");
+            ZoomMin       = cat.CreateEntry("ZoomMin",       ZoomMinDefault,   "Zoom-out limit. More negative = further out. Game default ≈ -15");
+            ZoomPerScroll = cat.CreateEntry("ZoomPerScroll", PerScrollDefault, "Zoom change per scroll notch. Game default ≈ 1-2");
+            ZoomSpeed     = cat.CreateEntry("ZoomSpeed",     SpeedDefault,     "Camera lerp speed to target zoom. Game default ≈ 5-8");
             LockAngle     = cat.CreateEntry("LockAngle",     false,            "Lock camera viewing angle (prevents tilting)");
             Angle         = cat.CreateEntry("Angle",         AngleDefaultPref, "Camera tilt angle when locked (degrees)");
             MenuScale     = cat.CreateEntry("MenuScale",     1.0f, "Settings panel scale");
             PanelX        = cat.CreateEntry("PanelX", DefaultPanelX, "Settings panel screen X");
             PanelY        = cat.CreateEntry("PanelY", DefaultPanelY, "Settings panel screen Y");
             DebugLog      = cat.CreateEntry("DebugLog",     false, "Verbose log output");
-            Sanitize();
-        }
-
-        // council 2026-09-11 #3
-        static void Sanitize()
-        {
-            var repaired = new List<string>();
-            RepairFinite(ZoomMin, "ZoomMin", repaired);
-            RepairFinite(ZoomPerScroll, "ZoomPerScroll", repaired);
-            RepairFinite(ZoomSpeed, "ZoomSpeed", repaired);
-            RepairFinite(Angle, "Angle", repaired);
-            RepairFinite(MenuScale, "MenuScale", repaired);
-            RepairFinite(PanelX, "PanelX", repaired);
-            RepairFinite(PanelY, "PanelY", repaired);
-
-            if (repaired.Count > 0)
-                MelonLogger.Warning("Repaired non-finite preferences: " + string.Join(", ", repaired));
-        }
-
-        static void RepairFinite(MelonPreferences_Entry<float> entry, string key, List<string> repaired)
-        {
-            if (float.IsFinite(entry.Value)) return;
-            entry.Value = entry.DefaultValue;
-            repaired.Add(key);
         }
 
         public static void Save()

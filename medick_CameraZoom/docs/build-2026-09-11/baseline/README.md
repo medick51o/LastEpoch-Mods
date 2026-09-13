@@ -27,7 +27,7 @@
 
 ## Installation
 
-1. Install [MelonLoader 0.7.x](https://melonwiki.xyz) (tested on 0.7.2 Open-Beta, game 1.4.7) into Last Epoch
+1. Install [MelonLoader 0.6.x](https://melonwiki.xyz) into Last Epoch
 2. Drop `medick_CameraZoom.dll` into `Last Epoch/Mods/`
 3. Load into a zone, scroll out, press `End` to tune
 

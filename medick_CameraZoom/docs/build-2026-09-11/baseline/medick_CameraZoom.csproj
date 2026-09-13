@@ -5,7 +5,6 @@
     <AssemblyName>medick_CameraZoom</AssemblyName>
     <RootNamespace>medick_CameraZoom</RootNamespace>
     <Nullable>disable</Nullable>
-    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <!-- ── Reference paths ── adjust if your game is elsewhere ── -->
@@ -13,11 +12,6 @@
     <ML>C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\net6\</ML>
     <GM>C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\Il2CppAssemblies\</GM>
   </PropertyGroup>
-
-  <ItemGroup>
-    <!-- council 2026-09-11 #8 -->
-    <Compile Remove="docs\**\*.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="MelonLoader">

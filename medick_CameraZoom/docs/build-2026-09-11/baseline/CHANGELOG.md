@@ -1,18 +1,5 @@
 # Changelog — MedicK's Terrible Zoom
 
-## v1.0.1 — council pass (2026-09-11)
-
-- Input blocking now releases only locks this mod acquired, respecting Terrible Cooldowns' identical guard.
-- Non-finite camera and panel preferences reset to their defaults with one warning naming every repaired key.
-- The End key no longer toggles the settings panel while a game input field is active.
-- Camera-manager access failures now produce one diagnostic warning after 300 consecutive updates.
-- Version-free safety comments and the documented Last Epoch and MelonLoader versions now reflect game 1.4.7.
-
-<!-- council 2026-09-11 #7 -->
-### Legacy config keys
-
-`FOV`, `MinFOV`, `MaxFOV`, `SmoothSpeed`, and `RmbModifier` under `[medick_CameraZoom]` are pre-Terrible keys that no code reads; they are ignored and safe to delete by hand. A `[kg_CameraZoom]` section in the same file belongs to a different mod and is not touched. No code deletes either.
-
 ## v1.0.0 — 2026-07-01
 
 Ground-up engineering pass and rebrand: **Camera Zoom** is now

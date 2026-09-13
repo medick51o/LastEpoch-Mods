@@ -1,0 +1,10 @@
+8b44fd407671e2a429a59d6321994637 *medick_CameraZoom.csproj
+7981a24e005a51a347663d6f195c0256 *README.md
+32a7427dccb93fe0ca5fa98b8b19f0bf *CHANGELOG.md
+20f28861017b84481eeed176612921a8 *src/BuildInfo.cs
+47f5127a7d10e1b341116213aa55bb76 *src/CameraState.cs
+e5cceee1ab22cfc39569bf8339c61e67 *src/CameraZoomMod.cs
+cd488d20fcb463e9867ebdf31cd4ee8b *src/CameraZoomMod.Patches.cs
+1405013e4b40d68d5005c26e000c4748 *src/InputGuard.cs
+08b046efd228d10c497f376eda9f52bf *src/Prefs.cs
+74dd4339d79d905b1feeb0215604428e *src/UI/SettingsPanel.cs

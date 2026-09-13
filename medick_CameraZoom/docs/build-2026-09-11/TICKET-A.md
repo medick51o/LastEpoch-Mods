@@ -1,0 +1,38 @@
+# TICKET-A — Terrible Zoom Tier A → v1.0.1
+
+## TASK (the boss's words, verbatim)
+"go thru all my release mods we havent went over tonight that have been release on nexusmods. have the council go through each one and do the extensive review i want astra doing the same work as we did on terrible tool tips and terrible inventory. just the released ones on nexusmods not the private or github one exclusives. go in automode for the night and prepare all the changes for me to review in the morning. if the astra seat runs out wait the 5 hours and pick up where you last left off."
+
+## CONTEXT
+Repo `C:\Users\andre\Downloads\LastEpoch-Mods\medick_CameraZoom` (source `src\*.cs`, `src\UI\*.cs`, build `medick_CameraZoom.csproj`). MelonLoader + HarmonyX mod for Last Epoch 1.4.7, IL2CPP interop (`Il2Cpp` namespace), net6.0, Unity 6000.0.42f1. Council findings this ticket implements: `docs\council-2026-09-11\SYNTHESIS.md` (read for mechanism, not instructions; finding numbers below refer to its agreement table). Baselines + md5: `docs\build-2026-09-11\baseline\` (source copies carry a `.baseline` suffix so the compile glob ignores them; `MD5SUMS.txt` lists the originals). The pre-ticket build of this exact source is green: 0 warnings, 0 errors. The csproj currently has NO copy-to-Mods target, NO `<Version>` element and NO `<Compile Remove>` — verify that yourself first (item A6a) before touching anything else. Game stub for member checks (read-only): `C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\Il2CppAssemblies\Il2CppLE.dll` — `Il2Cpp.EpochInputManager` exposes `IsInputFieldActive` (property) and `InputFieldActive()` (method); the conductor verified both names exist in the stub metadata.
+
+DO NOT change the zoom direction, the reclamp comparison in CameraState.Apply, the ZoomMin range constants, the live-zoom slider range, or the "More negative = further out" wording — the council disputes the sign convention and that is a Tier B in-hand decision for the boss. This ticket must not change what the camera does.
+
+## ITEMS (all required)
+A1 — `InputGuard.Apply` (src\InputGuard.cs ~27-41): set `_applied = true` ONLY when this mod actually flipped `forceDisableInput` from false to true (inside the `if (!mgr.forceDisableInput)` branch). Do not set `_applied` when the flag was already true. Keep the re-assert (while wanted) and the release-once logic otherwise unchanged. Rewrite the header comment (lines ~5-12) so it describes the real semantics: re-asserted every update while wanted, released once on close, and only if this mod set it; mention that Terrible Cooldowns runs the identical guard so both sides now respect each other's lock. (Finding 1: GLM, Astra, Gemini, Kimi)
+A2 — `Prefs.Init` (src\Prefs.cs ~31-43): after the entries are created, add a `Sanitize()` step: for ZoomMin, ZoomPerScroll, ZoomSpeed, Angle, MenuScale, PanelX, PanelY — if the loaded value is NaN or infinite (`float.IsFinite` false), reset it to the entry's default. Log ONE `MelonLogger.Warning` naming every key repaired (nothing when none). Do not clamp finite floats (CameraState.Sane and the panel already clamp at use) and do not touch the bool entries. (Finding 3: Astra, Kimi, Gemini, GLM)
+A3 — `CameraZoomMod.OnUpdate` (src\CameraZoomMod.cs ~26-30): do not toggle the panel on End while the player is typing. Add a private static helper `TypingInGameField()` that returns `EpochInputManager.instance.IsInputFieldActive` inside try/catch (null manager or any exception → false), and gate the End toggle on `!TypingInGameField()`. If `IsInputFieldActive` does not compile as a bool property against the stub, use the `InputFieldActive()` method instead and say so in the report. Do not change how the panel closes otherwise. (Finding 4: Gemini, Kimi, GLM, Astra)
+A4 — `CameraZoomMod.OnUpdate` (src\CameraZoomMod.cs ~38-45): the bare `catch { }` around the camera block hides a throwing `CameraManager.instance` getter forever. Add a static int consecutive-failure counter: reset to 0 on a successful pass through the try; increment in the catch; when it reaches 300 (same constant idea as CameraState.StallFrames), log ONE `MelonLogger.Warning` ("camera manager unreachable for 300 updates — mod idle; a game update may have changed CameraManager") and never repeat it for the session. Diagnostic only; no behaviour change. (Finding 5: Kimi, Astra)
+A5 — Comment/doc only, no code changes: (a) src\CameraState.cs ~14-23, ~94-97, ~106-107: retcon "v2 safety rules" / "v1.x shipped" / "v1.x's bug class" to version-free phrasing ("safety rules", "earlier releases", "the earlier bug class"); keep every technical explanation. (b) src\Prefs.cs ~34-36: replace the guessed "Game default ≈ -15" / "≈ 1-2" / "≈ 5-8" fragments with the values the game reported on 1.4.7: ZoomMin description keeps its first sentence and the "More negative = further out." sentence EXACTLY as-is and replaces only the "Game default ≈ -15" part with "Game 1.4.7 ships zoomMin -7.0 (default zoom -17.5)"; ZoomPerScroll → "Game 1.4.7 ships 0.2"; ZoomSpeed → "Game 1.4.7 ships 2.5". (c) README.md Installation step 1: "Install MelonLoader 0.7.x (tested on 0.7.2 Open-Beta, game 1.4.7)". Leave the rest of README alone. (Finding 6: Kimi, GLM, Astra)
+A6 — Mechanical: (a) csproj: confirm there is no copy/deploy target (if one DID exist, it would need `Condition="'$(DeployToMods)' != 'false'"` — but there is none, so add nothing of the kind); add `<Version>1.0.1</Version>` to the first PropertyGroup; add an ItemGroup with `<Compile Remove="docs\**\*.cs" />` (the sibling mods carry the same line; it keeps review baselines under docs\ out of the build); do NOT add any copy-to-Mods target. (b) `BuildInfo.Version` → "1.0.1". (c) CHANGELOG.md: new top section "## v1.0.1 — council pass (2026-09-11)" with one honest line per item A1-A5, plus a short "Legacy config keys" note: FOV, MinFOV, MaxFOV, SmoothSpeed, RmbModifier under `[medick_CameraZoom]` are pre-Terrible keys no code reads — ignored and safe to delete by hand; a `[kg_CameraZoom]` section in the same file belongs to a different mod and is not touched. NO code deletes anything. (Findings 7, 8)
+
+## EXPECTED OUTCOME
+1. `dotnet build -c Release --nologo -v q -p:DeployToMods=false` (run from the repo root) → Build succeeded, 0 warnings, 0 errors.
+2. NOTHING copied into `C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\Mods\`: `medick_CameraZoom.dll` there must remain 24,064 bytes dated 2026-07-01 21:00 (md5 14c5806947db8a1a4321ffa746d8069e). Check it and print the result.
+3. Each item present, each with a one-line comment naming the council finding it closes (e.g. `// council 2026-09-11 #1`).
+4. Report: status word first (DONE / DONE_WITH_CONCERNS / BLOCKED); build command + tail; per-item one-liner with file:line; the Mods-folder check; anything not done and why.
+
+## CONSTRAINTS
+Minimum change per item; no refactors; no new files; keep comment style; do not touch files outside the WRITE SET; no game run; no commit; no deploy; `--no-restore` is acceptable if NuGet config is unreadable in the sandbox.
+
+## MUST NOT
+No spawns, no sub-agents, no edits outside the WRITE SET, no commits, no copying anything into the game's Mods folder, no running the game, no change to camera behaviour (see CONTEXT).
+
+## OUTPUT FORMAT
+Status word first, then the four report parts above. Under 60 lines.
+
+## WRITE SET
+medick_CameraZoom.csproj · src\BuildInfo.cs · src\CameraZoomMod.cs · src\InputGuard.cs · src\Prefs.cs · src\CameraState.cs (comments only) · README.md · CHANGELOG.md
+
+## LAWS
+"'I could not tell what you meant' is a good outcome. Propose, don't guess."
