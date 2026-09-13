@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Last Epoch Mods — Release Worksheet 2026-09-12</title>
+<style>
+  :root {
+    --bg: #14151a;
+    --card: #1c1e26;
+    --card2: #20222c;
+    --border: #33364a;
+    --text: #e7e8ee;
+    --muted: #9a9db3;
+    --accent: #8a7bff;
+    --accent2: #6ee7c9;
+    --warn: #ffb454;
+    --mono: "Consolas", "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 20px 16px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 18px; }
+  .summary {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 22px;
+    font-size: 0.92rem;
+  }
+  .summary ul { margin: 8px 0 0; padding-left: 20px; }
+  .summary li { margin-bottom: 4px; }
+  .push-result {
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: #12271c;
+    border: 1px solid #244d34;
+    border-radius: 6px;
+    color: var(--accent2);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    word-break: break-all;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 22px;
+  }
+  .card .ver {
+    display: inline-block;
+    background: var(--accent);
+    color: #14151a;
+    font-weight: 600;
+    font-size: 0.78rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .row { margin: 10px 0; font-size: 0.9rem; }
+  .row .label { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; display: block; margin-bottom: 3px; }
+  a { color: var(--accent2); text-decoration: none; word-break: break-all; }
+  a:hover { text-decoration: underline; }
+  .links a { display: inline-block; margin-right: 14px; margin-bottom: 4px; }
+  .zipbox {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+  .zipbox .path { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); word-break: break-all; margin-top: 2px; }
+  .zipbox .meta { margin-top: 6px; font-size: 0.8rem; color: var(--muted); }
+  .zipbox .meta b { color: var(--text); font-family: var(--mono); }
+  ol.checklist { margin: 6px 0 0; padding-left: 22px; font-size: 0.88rem; }
+  ol.checklist li { margin-bottom: 6px; }
+  textarea {
+    width: 100%;
+    background: #0f1015;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    resize: vertical;
+    min-height: 90px;
+  }
+  .ta-wrap { position: relative; margin-top: 4px; }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--accent);
+    color: #14151a;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .copy-btn.copied { background: var(--accent2); }
+  .checks {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    font-size: 0.85rem;
+  }
+  .checks label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .checks input { width: 16px; height: 16px; }
+  .placeholder { color: var(--warn); }
+  hr.sep { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+</style>
+</head>
+<body>
+
+<h1>Last Epoch Mods — Release Worksheet</h1>
+<div class="sub">2026-09-12 &middot; Andrew uploads to Nexus himself; nothing here was posted for you.</div>
+
+<div class="summary">
+  <b>Six-line summary</b>
+  <ul>
+    <li>Terrible Tooltips v3.1.0 built, deployed to the game's Mods folder (game was closed), zipped, and PillProbe dev code removed for good.</li>
+    <li>Terrible Inventory v2.0.1 verified against the in-hand-tested Mods DLL (identical) and zipped.</li>
+    <li>Terrible Cooldowns, Terrible Zoom, and fog_OF_war v1.0.1 verified and zipped from their staged builds &mdash; <span class="placeholder">none of the three were deployed to the game</span>, they are still in-hand-pending per the ticket.</li>
+    <li>Old release zips/DLLs restored (not dropped) before committing; five per-mod commits plus one repo-file commit went to <code>main</code>.</li>
+    <li>Gemini cross-vendor review of the Tooltips border/tint work is PENDING &mdash; the wmw-gemini MCP seat was unreachable this session.</li>
+    <li>This worksheet is for your in-hand checks and Nexus uploads &mdash; nothing on this page was sent anywhere.</li>
+  </ul>
+  <div class="push-result" id="push-result">Push result loads after the push step completes &mdash; see the report for the final hashes.</div>
+</div>
+
+<!-- ================= TOOLTIPS ================= -->
+<div class="card">
+  <h2>Terrible Tooltips <span class="ver">v3.1.0</span></h2>
+  <div class="row links">
+    <span class="label">GitHub</span>
+    <a href="https://github.com/medick51o/LastEpoch-Mods/tree/main/medick_TerribleTooltips" target="_blank">Repo folder (main)</a>
+    <a href="https://github.com/medick51o/LastEpoch-Mods/commit/601a9be89a8be76c308c927983006e4f47ea1e2c" target="_blank">Commit 601a9be</a>
+  </div>
+  <div class="row">
+    <span class="label">Nexus page</span>
+    <a href="https://www.nexusmods.com/lastepoch/mods/30" target="_blank">nexusmods.com/lastepoch/mods/30</a>
+  </div>
+  <div class="row">
+    <span class="label">Zip to upload</span>
+    <div class="zipbox">
+      <a href="file:///C:/Users/andre/Downloads/LastEpoch-Mods/medick_TerribleTooltips/release/medick_Terrible_Tooltips_v3.1.0.zip">medick_Terrible_Tooltips_v3.1.0.zip</a>
+      <div class="path">C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\release\medick_Terrible_Tooltips_v3.1.0.zip</div>
+      <div class="meta">Size: <b>46,326 B</b> &middot; MD5: <b>ccebaf34e0db58b4f4ffb9ede26cc162</b></div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="label">In-hand before upload (deployed &amp; live-tested already tonight, re-confirm)</span>
+    <ol class="checklist">
+      <li>Launch the game once with the new DLL (already in the Mods folder).</li>
+      <li>Hover an item with a Tier 6 or 7 affix (an exalted is easiest).</li>
+      <li>Confirm the affix sentence shows the light-purple greater-affix tint.</li>
+      <li>Confirm the Tier | Grade signal sits inside a drawn box with a divider.</li>
+    </ol>
+  </div>
+  <div class="row">
+    <span class="label">Nexus FILE DESCRIPTION (player-facing)</span>
+    <div class="ta-wrap">
+      <button class="copy-btn" data-target="ta-tt-desc">Copy</button>
+      <textarea id="ta-tt-desc" readonly>WoW/Diablo-style tier and grade tooltip colouring — now with a cleaner default look.
+Tier 6/7 (greater) affixes get a light-purple tint on their whole sentence; Tier 1-5 stay plain white.
+The Tier | Grade signal now renders as plain coloured text inside a bordered box with a divider, replacing the old badge chips.
+Wrapped affix lines and two-stat affixes render the box and divider correctly.
+The filter rule number is now larger and bold.
+On Last Epoch 1.4.7 the in-game settings rows don't build - edit UserData\medick_Terrible_Tooltips.cfg with the game closed (see README for the full key table).</textarea>
+    </div>
+  </div>
+  <div class="row">
+    <span class="label">Nexus CHANGELOG entry</span>
+    <div class="ta-wrap">
+      <button class="copy-btn" data-target="ta-tt-changelog">Copy</button>
+      <textarea id="ta-tt-changelog" readonly>v3.1.0 - the clean-signal release
+- Greater-affix tint: Tier 6/7 affix sentences now render in a light purple; Tier 1-5 stay plain white.
+- New default look: the Tier-Grade signal is now plain coloured text - "Tier N | Grade" - drawn inside a bordered box with a divider, replacing the old badge/plate chips.
+- Wrapped affix lines and two-stat affix rows now get the box and divider correctly.
+- The filter rule number now renders at 120% size, bold.
+- New settings: SignalStyle, AffixNameColor, GreaterAffixTint, UnitBorder, TierWord, UnitSeparator, DividerStyle, BorderColorMode, BorderThickness, BorderPadX, BorderPadY, BorderDebug (see README for the full table of defaults).</textarea>
+    </div>
+  </div>
+  <div class="row">
+    <span class="label">Nexus PAGE DESCRIPTION update (BBCode)</span>
+    <div class="ta-wrap">
+      <button class="copy-btn" data-target="ta-tt-page">Copy</button>
+      <textarea id="ta-tt-page" readonly rows="18">[size=5][b]v3.1.0 - the clean-signal release[/b][/size]
+
+[b]New default look:[/b] the Tier-Grade signal is now plain coloured text - "Tier N | Grade" - drawn inside a bordered box with a divider between tier and grade, replacing the old badge/plate chips.
+
+[b]Greater-affix tint:[/b] Tier 6/7 affix sentences now render in a light purple ([color=#C990FF]#C990FF[/color]); Tier 1-5 stay plain white.
+
+Wrapped affix lines and two-stat affix rows now get the box and divider correctly. The filter rule number renders larger and bold.
+
+[b]Settings on Last Epoch 1.4.7:[/b] the in-game settings rows for this mod do not build on 1.4.7. Edit the keys below directly in [i]UserData/medick_Terrible_Tooltips.cfg[/i] with the game closed, then relaunch.
+
+[size=3][b]Key settings (cfg)[/b][/size]
+[list]
+[*][b]SignalStyle[/b] (default PlainText) - PlainText = coloured text only; Badge = coloured chips
+[*][b]AffixNameColor[/b] (default GreaterAffix) - GreaterAffix = only T6/7 text tinted; TierColor; GameDefault
+[*][b]GreaterAffixTint[/b] (default #C990FF) - the greater-affix tint colour
+[*][b]UnitBorder[/b] (default true) - draw a thin border around the Tier-Grade unit
+[*][b]TierWord[/b] (default Spelled) - Spelled ("Tier 7") or Compact ("T7")
+[*][b]UnitSeparator[/b] (default Bar) - Bar ("Tier 7 | A") or Dot ("Tier 7 dot A")
+[*][b]DividerStyle[/b] (default Strip) - full-height divider image, or Glyph
+[*][b]BorderColorMode[/b] (default Neutral) - Neutral outline or TierColor at 60% alpha
+[*][b]BorderThickness / BorderPadX / BorderPadY[/b] - geometry of the border (clamped ranges in the README)
+[/list]
+
+See the full README on GitHub for every cfg key and its default.</textarea>
+    </div>
+  </div>
+  <div class="checks">
+    <label><input type="checkbox" data-key="tt-inhand"> In-hand done</label>
+    <label><input type="checkbox" data-key="tt-zip"> Zip uploaded</label>
+    <label><input type="checkbox" data-key="tt-changelog"> Changelog pasted</label>
+    <label><input type="checkbox" data-key="tt-desc"> Description updated</label>
+  </div>
+</div>
+
+<!-- ================= INVENTORY ================= -->
+<div class="card">
+  <h2>Terrible Inventory <span class="ver">v2.0.1</span></h2>
+  <div class="row links">
+    <span class="label">GitHub</span>
+    <a href="https://github.com/medick51o/LastEpoch-Mods/tree/main/medick_Advanced_Inventory" target="_blank">Repo folder (main)</a>
+    <a href="https://github.com/medick51o/LastEpoch-Mods/commit/0b7462d0ea2685d0907e90ffa6e025845e5abe2c" target="_blank">Commit 0b7462d</a>
+  </div>
+  <div class="row">
+    <span class="label">Nexus page</span>
+    <a href="https://www.nexusmods.com/lastepoch/mods/29" target="_blank">nexusmods.com/lastepoch/mods/29</a>
+  </div>
+  <div class="row">
+    <span class="label">Zip to upload</span>
+    <div class="zipbox">
+      <a href="file:///C:/Users/andre/Downloads/LastEpoch-Mods/medick_Advanced_Inventory/release/medick_Terrible_Inventory_v2.0.1.zip">medick_Terrible_Inventory_v2.0.1.zip</a>
+      <div class="path">C:\Users\andre\Downloads\LastEpoch-Mods\medick_Advanced_Inventory\release\medick_Terrible_Inventory_v2.0.1.zip</div>
+      <div class="meta">Size: <b>21,450 B</b> &middot; MD5: <b>9427a199e449d14b4282d7e81883d5f7</b></div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="label">In-hand before upload (already played since 09-10 22:51, re-confirm)</span>
+    <ol class="checklist">
+      <li>Open your inventory and press STASH ALL &mdash; everything moves to stash, no errors in the Melon log.</li>
+      <li>Try Quick Teleport to a waypoint your character has <b>unlocked</b> &mdash; travel succeeds.</li>
+      <li>Try Quick Teleport to a waypoint your character has <b>not</b> unlocked &mdash; travel fails closed (no crash, no teleport).</li>
+    </ol>
+  </div>
+  <div class="row">
+    <span class="label">Nexus FILE DESCRIPTION (player-facing)</span>
+    <div class="ta-wrap">
+      <button class="copy-btn" data-target="ta-inv-desc">Copy</button>
+      <textarea id="ta-inv-desc" readonly>Council-hardening pass on top of the v2.0.0 ground-up rebuild - STASH, STASH ALL, VENDOR, and Quick Teleport all unchanged in behaviour.
+Travel now fails closed with a log message if waypoint-unlock data can't be read, instead of guessing.
+STASH ALL is now more resilient: it skips slots that changed mid-move and reports failures and totals instead of silently stopping.
+Removed an unused force-enable path so travel only ever uses the game's own waypoint-click logic.
+Controller/keyboard input handling is more robust across rebinds and scene changes.
+See the CHANGELOG for the full engineering list.</textarea>
+    </div>
+  </div>
+  <div class="row">
+    <span class="label">Nexus CHANGELOG entry</span>
+    <div class="ta-wrap">
+      <button class="copy-btn" data-target="ta-inv-changelog">Copy</button>
+      <textarea id="ta-inv-changelog" readonly>v2.0.1 - council pass (2026-09-10)
+- Travel now fails closed, with a one-time debug message, when waypoint unlock data is unreadable.
+- Removed the unproven WaypointManager force-enable so travel uses only the game's waypoint-click path.
+- STASH ALL binds queued positions to item-object identity, skips changed slots, and reports move failures and totals.
+- Scene loads now reset the STASH ALL re-entrancy guard.
+- IL2CPP delegate retention is keyed by live controls, replacing rebinds and pruning destroyed controls.
+- Added opt-out deployment, resilient Sort-icon lookup, current compatibility wording, and the 2.0.1 version bump.</textarea>
+    </div>
+  </div>
+  <div class="checks">
+    <label><input type="checkbox" data-key="inv-inhand"> In-hand done</label>
+    <label><input type="checkbox" data-key="inv-zip"> Zip uploaded</label>
+    <label><input type="checkbox" data-key="inv-changelog"> Changelog pasted</label>
+    <label><input type="checkbox" data-key="inv-desc"> Description updated</label>
+  </div>
+</div>
+
+<!-- ================= COOLDOWNS ================= -->
+<div class="card">
+  <h2>Terrible Cooldowns <span class="ver">v1.0.1</span></h2>
+  <div class="row links">
+    <span class="label">GitHub</span>
+    <a href="https://github.com/medick51o/LastEpoch-Mods/tree/main/medick_CooldownTracker" target="_blank">Repo folder (main)</a>
+    <a href="https://github.com/medick51o/LastEpoch-Mods/commit/058e68b9c2238407b9444e3b270066abc0c400a3" target="_blank">Commit 058e68b</a>
+  </div>
+  <div class="row">
+    <span class="label">Nexus page</span>
+    <a href="https://www.nexusmods.com/lastepoch/mods/26" target="_blank">nexusmods.com/lastepoch/mods/26</a>
+  </div>
+  <div class="row">
+    <span class="label">Zip to upload</span>
+    <div class="zipbox">
+      <a href="file:///C:/Users/andre/Downloads/LastEpoch-Mods/medick_CooldownTracker/release/medick_CooldownTracker_v1.0.1.zip">medick_CooldownTracker_v1.0.1.zip</a>
+      <div class="path">C:\Users\andre\Downloads\LastEpoch-Mods\medick_CooldownTracker\release\medick_CooldownTracker_v1.0.1.zip</div>
+      <div class="meta">Size: <b>25,814 B</b> &middot; MD5: <b>8f7e64d44106f711d7797a0ef00a9e4d</b></div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="label placeholder">Not yet deployed to the game &mdash; still staged</span>
+    <ol class="checklist">
+      <li>Copy <code>bin\Release\net6.0\medick_CooldownTracker.dll</code> over the Mods DLL (back up the old one first), launch, load a zone. Log must show it ready with no "Repaired invalid preferences" line.</li>
+      <li>Press Home; panel opens exactly as before; all seven slots and settings carry over untouched.</li>
+      <li>Zoom test: open Terrible Zoom's panel with its lock on, open and close the Cooldowns panel &mdash; Zoom's lock must still hold.</li>
+      <li>Fire two skills with different cooldowns; icons float above the character as before.</li>
+      <li>Grep the Melon log for "re-registered from a different live AbilityBarIcon" and note whether it appears.</li>
+    </ol>
+  </div>
+  <div class="row">
+    <span class="label">Nexus FILE DESCRIPTION (player-facing)</span>
+    <div class="ta-wrap">
+      <button class="copy-btn" data-target="ta-cd-desc">Copy</button>
+      <textarea id="ta-cd-desc" readonly>Floating skill-cooldown icons above your character, with console-button badges and move mode - unchanged from v1.0.0.
+Fixed: opening this mod's panel no longer breaks Terrible Zoom's input lock.
+Bad or corrupted settings values (NaN, out-of-range) now reset to safe defaults instead of losing the panel.
+The main camera lookup is now cached per frame for a small performance win.
+Diagnostic warning added if a second action bar is detected re-using a tracked slot.
+See the CHANGELOG for the full list.</textarea>
+    </div>
+  </div>
+  <div class="row">
+    <span class="label">Nexus CHANGELOG entry</span>
+    <div class="ta-wrap">
+      <button class="copy-btn" data-target="ta-cd-changelog">Copy</button>
+      <textarea id="ta-cd-changelog" readonly>v1.0.1 - council pass (2026-09-11)
+- Movement lock now releases the shared input flag only when this mod set it.
+- Invalid non-finite geometry preferences reset to defaults, and input mode values are clamped to valid ranges.
+- The main camera lookup is cached once per frame and safely skipped when unavailable.
+- Live replacement of a slot by a different action-bar icon now emits a diagnostic and one warning per session.
+- Stale version-numbered implementation history was removed from source comments.
+- Installation now names MelonLoader 0.7.x and the tested game/loader versions.</textarea>
+    </div>
+  </div>
+  <div class="checks">
+    <label><input type="checkbox" data-key="cd-inhand"> In-hand done</label>
+    <label><input type="checkbox" data-key="cd-zip"> Zip uploaded</label>
+    <label><input type="checkbox" data-key="cd-changelog"> Changelog pasted</label>
+    <label><input type="checkbox" data-key="cd-desc"> Description updated</label>
+  </div>
+</div>
+
+<!-- ================= ZOOM ================= -->
+<div class="card">
+  <h2>Terrible Zoom <span class="ver">v1.0.1</span></h2>
+  <div class="row links">
+    <span class="label">GitHub</span>
+    <a href="https://github.com/medick51o/LastEpoch-Mods/tree/main/medick_CameraZoom" target="_blank">Repo folder (main)</a>
+    <a href="https://github.com/medick51o/LastEpoch-Mods/commit/05e6e3dffc551f8cbadf92df0ff8e2ab3dd2e0ba" target="_blank">Commit 05e6e3d</a>
+  </div>
+  <div class="row">
+    <span class="label">Nexus page</span>
+    <a href="https://www.nexusmods.com/lastepoch/mods/27" target="_blank">nexusmods.com/lastepoch/mods/27</a>
+  </div>
+  <div class="row">
+    <span class="label">Zip to upload</span>
+    <div class="zipbox">
+      <a href="file:///C:/Users/andre/Downloads/LastEpoch-Mods/medick_CameraZoom/release/medick_CameraZoom_v1.0.1.zip">medick_CameraZoom_v1.0.1.zip</a>
+      <div class="path">C:\Users\andre\Downloads\LastEpoch-Mods\medick_CameraZoom\release\medick_CameraZoom_v1.0.1.zip</div>
+      <div class="meta">Size: <b>15,662 B</b> &middot; MD5: <b>592aee6ebf181c2d5675441122654452</b></div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="label placeholder">Not yet deployed to the game &mdash; still staged</span>
+    <ol class="checklist">
+      <li>Copy <code>bin\Release\net6.0\medick_CameraZoom.dll</code> over the Mods DLL (back up the old one first), launch, load a zone. Camera must feel exactly as before.</li>
+      <li>Press End; panel opens at the same position/scale as before; close it, movement returns.</li>
+      <li>Cooldowns test (both mods): each mod's panel lock must hold while the other mod's panel opens and closes.</li>
+      <li>Open chat, type a word, press End &mdash; no panel opens; Esc out of chat, press End &mdash; panel opens.</li>
+      <li>Direction test: scroll while the panel is open and note whether the zoom value goes up or down toward the limit; report which way is "out".</li>
+    </ol>
+  </div>
+  <div class="row">
+    <span class="label">Nexus FILE DESCRIPTION (player-facing)</span>
+    <div class="ta-wrap">
+      <button class="copy-btn" data-target="ta-zm-desc">Copy</button>
+      <textarea id="ta-zm-desc" readonly>Extended zoom-out range, live tuning, angle lock, and a Rescue button - unchanged from v1.0.0.
+Fixed: opening this mod's panel no longer breaks Terrible Cooldowns' input lock (mirrors that mod's fix).
+Non-finite camera or panel preferences reset to defaults with a warning instead of corrupting your view.
+The End key no longer toggles the panel while you're typing in chat or a search box.
+One-time warning added if the camera manager becomes unreachable after a future game update.
+See the CHANGELOG for the full list.</textarea>
+    </div>
+  </div>
+  <div class="row">
+    <span class="label">Nexus CHANGELOG entry</span>
+    <div class="ta-wrap">
+      <button class="copy-btn" data-target="ta-zm-changelog">Copy</button>
+      <textarea id="ta-zm-changelog" readonly>v1.0.1 - council pass (2026-09-11)
+- Input blocking now releases only locks this mod acquired, respecting Terrible Cooldowns' identical guard.
+- Non-finite camera and panel preferences reset to their defaults with one warning naming every repaired key.
+- The End key no longer toggles the settings panel while a game input field is active.
+- Camera-manager access failures now produce one diagnostic warning after 300 consecutive updates.
+- Version-free safety comments and the documented Last Epoch and MelonLoader versions now reflect game 1.4.7.</textarea>
+    </div>
+  </div>
+  <div class="checks">
+    <label><input type="checkbox" data-key="zm-inhand"> In-hand done</label>
+    <label><input type="checkbox" data-key="zm-zip"> Zip uploaded</label>
+    <label><input type="checkbox" data-key="zm-changelog"> Changelog pasted</label>
+    <label><input type="checkbox" data-key="zm-desc"> Description updated</label>
+  </div>
+</div>
+
+<!-- ================= FOG ================= -->
+<div class="card">
+  <h2>fog_OF_war <span class="ver">v1.0.1</span></h2>
+  <div class="row links">
+    <span class="label">GitHub</span>
+    <a href="https://github.com/medick51o/LastEpoch-Mods/tree/main/medick_FogOfWar" target="_blank">Repo folder (main)</a>
+    <a href="https://github.com/medick51o/LastEpoch-Mods/commit/68dfae259309bddf749c06a2b1a72b99a3622dd4" target="_blank">Commit 68dfae2</a>
+  </div>
+  <div class="row">
+    <span class="label">Nexus page</span>
+    <span class="placeholder">Nexus ID unknown</span> &mdash;
+    <a href="https://www.nexusmods.com/users/myaccount?tab=files" target="_blank">open your Nexus files list</a>
+  </div>
+  <div class="row">
+    <span class="label">Zip to upload</span>
+    <div class="zipbox">
+      <a href="file:///C:/Users/andre/Downloads/LastEpoch-Mods/medick_FogOfWar/release/medick_The_fogOFwar_v1.0.1.zip">medick_The_fogOFwar_v1.0.1.zip</a>
+      <div class="path">C:\Users\andre\Downloads\LastEpoch-Mods\medick_FogOfWar\release\medick_The_fogOFwar_v1.0.1.zip</div>
+      <div class="meta">Size: <b>16,190 B</b> &middot; MD5: <b>4eca1d2363d945e14cde26715bc897e5</b></div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="label placeholder">Not yet deployed to the game &mdash; still staged (game currently runs the 1.0.1-dev BLIND fix from last night)</span>
+    <ol class="checklist">
+      <li>Copy <code>medick_FogOfWar\bin\Release\net6.0\medick_The_fogOFwar.dll</code> over the Mods DLL (back it up first), launch, load a zone with VisionLevel = HARD. Log must show it ready, no new warnings.</li>
+      <li>Set VisionLevel = BLIND, zone in, check the minimap corner is fully gone (no empty frame left behind).</li>
+      <li>In BLIND, drop an item, walk away and back &mdash; the ground label must show and the item must be pickable.</li>
+      <li>Leave BLIND (set HARD, zone in) &mdash; minimap comes back, no warnings.</li>
+      <li>Open Settings once and quit; check the new Melon log for the "settings hierarchy changed" line and note the listed root children.</li>
+    </ol>
+  </div>
+  <div class="row">
+    <span class="label">Nexus FILE DESCRIPTION (player-facing)</span>
+    <div class="ta-wrap">
+      <button class="copy-btn" data-target="ta-fg-desc">Copy</button>
+      <textarea id="ta-fg-desc" readonly>6-level vision dial (BLIND to SCOUT), living in the game's own settings screen - unchanged from v1.0.0.
+Fixed the BLIND-mode bug where hiding the minimap also hid ground item labels, making loot invisible and unpickable.
+BLIND-mode hide is now transactional and rolls back cleanly if anything goes wrong mid-change.
+Added once-per-session warnings (not spam) for a few silent failure paths, including failed settings saves.
+On Last Epoch 1.4.7 the in-game settings rows don't build - edit UserData\medick_The_fogOFwar.cfg with the game closed.
+See the CHANGELOG for the full list.</textarea>
+    </div>
+  </div>
+  <div class="row">
+    <span class="label">Nexus CHANGELOG entry</span>
+    <div class="ta-wrap">
+      <button class="copy-btn" data-target="ta-fg-changelog">Copy</button>
+      <textarea id="ta-fg-changelog" readonly>v1.0.1 - BLIND no longer hides ground item labels
+BLIND now hides only the minimap object itself, never a parent container, because ground item labels live under the same parent and are spawned after zone-in. It uses a reversible CanvasGroup when possible, retaining SetActive only as a fallback.
+
+Council pass (2026-09-11)
+- Made the CanvasGroup hide transactional so partial interop writes roll back or remain tracked for a later restore.
+- Latched protected-item-UI and apply-failure warnings once per session to prevent log spam.
+- Pruned destroyed minimap entries before tracking each new BLIND target.
+- Added a once-per-session warning when the zone-default radius cannot be read and the 150 fallback is used.
+- Added a once-per-session warning when a settings save fails.
+- Added direct settings-root child names to missing-template diagnostics, capped at 60 names.
+- On Last Epoch 1.4.7 the in-game settings rows do not build; UserData/medick_The_fogOFwar.cfg is the control until the adapter is repaired.</textarea>
+    </div>
+  </div>
+  <div class="checks">
+    <label><input type="checkbox" data-key="fg-inhand"> In-hand done</label>
+    <label><input type="checkbox" data-key="fg-zip"> Zip uploaded</label>
+    <label><input type="checkbox" data-key="fg-changelog"> Changelog pasted</label>
+    <label><input type="checkbox" data-key="fg-desc"> Description updated</label>
+  </div>
+</div>
+
+<script>
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var ta = document.getElementById(btn.getAttribute('data-target'));
+      if (!ta) return;
+      ta.focus();
+      ta.select();
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(ta.value);
+        } else {
+          document.execCommand('copy');
+        }
+      } catch (e) {
+        try { document.execCommand('copy'); } catch (e2) {}
+      }
+      var original = btn.textContent;
+      btn.textContent = 'Copied';
+      btn.classList.add('copied');
+      setTimeout(function () { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+
+  // Checkbox persistence (this browser only)
+  var STORE_KEY = 'le-release-worksheet-2026-09-12';
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch (e) { state = {}; }
+  document.querySelectorAll('.checks input[type=checkbox]').forEach(function (cb) {
+    var key = cb.getAttribute('data-key');
+    if (state[key]) cb.checked = true;
+    cb.addEventListener('change', function () {
+      state[key] = cb.checked;
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+    });
+  });
+</script>
+
+</body>
+</html>
