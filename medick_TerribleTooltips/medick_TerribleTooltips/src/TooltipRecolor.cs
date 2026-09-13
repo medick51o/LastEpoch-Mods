@@ -523,8 +523,8 @@ public static class TooltipRecolor
                             parentGradeColor.TryGetValue(parent.parent.GetInstanceID(), out inheritedColor);
 
                         tmp.text = (inheritedColor != null
-                            ? $"<color={inheritedColor}>{stripped}</color>"
-                            : stripped) + Marker;
+                            ? $"<size=90%><color={inheritedColor}>{stripped}</color></size>"
+                            : $"<size=90%>{stripped}</size>") + Marker;
                         composed++;
                         continue;
                     }
@@ -630,7 +630,8 @@ public static class TooltipRecolor
         string[] lines = original.Split('\n');
         var outLines = new List<string>(lines.Length);
         bool sealedPending = false;
-        string lastTierHex = null;   // continuation lines of a multi-stat affix wear its tier colour
+        string lastTierHex = null;   // continuation lines of a multi-stat affix wear its first-line colour
+        int lastTier = 0;
 
         foreach (string line in lines)
         {
@@ -658,6 +659,7 @@ public static class TooltipRecolor
                 outLines.Add(ComposeCleanLine(clean, tier, tierHex, grades, sealedPending));
                 sealedPending = false;
                 lastTierHex   = tierHex;
+                lastTier      = tier;
                 continue;
             }
 
@@ -692,7 +694,7 @@ public static class TooltipRecolor
                 {
                     string stripped = s_colorTagRegex.Replace(line, "");
                     stripped = s_kgExtraDataRegex.Replace(stripped, "").Trim();
-                    outLines.Add($"<color={tmpGradeColor}>{stripped}</color>");
+                    outLines.Add($"<size=90%><color={tmpGradeColor}>{stripped}</color></size>");
                 }
                 continue;   // suppressed
             }
@@ -703,6 +705,15 @@ public static class TooltipRecolor
             // affix reads as ONE thing. Flavor text on non-affix TMPs has
             // no bracket above it, so lastTierHex is null and it passes
             // through untouched, as before.
+            if (lastTierHex != null && line.Trim().Length > 0 &&
+                Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix)
+            {
+                string continuation = s_colorTagRegex.Replace(line, "").Trim();
+                if (Prefs.TooltipTierColors.Value && (lastTier == 6 || lastTier == 7))
+                    continuation = $"<color={GreaterAffixHex()}>{continuation}</color>";
+                outLines.Add(continuation);
+                continue;
+            }
             if (lastTierHex != null && line.Trim().Length > 0 &&
                 Prefs.NameColorMode.Value == AffixNameColorMode.TierColor &&
                 Prefs.TooltipTierColors.Value)
@@ -764,7 +775,7 @@ public static class TooltipRecolor
                 if (deepRange)
                 {
                     string stripped = s_colorTagRegex.Replace(line, "").Trim();
-                    deepLines.Add($"<color={tierHex ?? "#FFFFFF"}>{stripped}</color>");
+                    deepLines.Add($"<size=90%><color={tierHex ?? "#FFFFFF"}>{stripped}</color></size>");
                 }
                 continue;
             }
@@ -787,6 +798,9 @@ public static class TooltipRecolor
                 if (Prefs.NameColorMode.Value == AffixNameColorMode.TierColor &&
                     Prefs.TooltipTierColors.Value && tierHex != null)
                     name = $"<color={tierHex}>{name}</color>";
+                else if (Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix &&
+                         Prefs.TooltipTierColors.Value && (tier == 6 || tier == 7))
+                    name = $"<color={GreaterAffixHex()}>{name}</color>";
                 outLines.Add(name);
             }
         }
@@ -807,7 +821,24 @@ public static class TooltipRecolor
         string tail = stripped.Substring(tm.Index + tm.Length).Trim();
         if (tail.StartsWith("(") && tail.EndsWith(")") && tail.Length > 2)
             tail = tail.Substring(1, tail.Length - 2).Trim();
-        return tail.Length > 0 ? $"<color={Dim}>{tail}</color>" : null;
+        return tail.Length > 0 ? $"<size=90%><color={Dim}>{tail}</color></size>" : null;
+    }
+
+    private static bool s_greaterAffixTintWarned;
+
+    private static string GreaterAffixHex()
+    {
+        string value = Prefs.GreaterAffixTint.Value;
+        if (Regex.IsMatch(value ?? "", @"^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$"))
+            return value;
+
+        if (!s_greaterAffixTintWarned)
+        {
+            s_greaterAffixTintWarned = true;
+            MelonLogger.Warning(
+                $"invalid GreaterAffixTint '{value}'; using {Colors.GreaterAffixTintDefault}");
+        }
+        return Colors.GreaterAffixTintDefault;
     }
 
     // One affix, one line. Layout per Prefs.Layout; every part honors its
@@ -831,18 +862,21 @@ public static class TooltipRecolor
         string sealedPart = sealedAffix
             ? (badges
                 ? $"<mark={Dim}66><color={Ink}>Sealed</color></mark>"
-                : $"<color={Dim}>Sealed</color>")
+                : $"<size=90%><color={Dim}>Sealed</color></size>")
             : null;
 
         string tierPart = null;
         if (tier > 0)
         {
+            string tierWord = Prefs.TierWord.Value == TierWordStyle.Compact
+                ? $"T{tier}"
+                : $"Tier {tier}";
             if (tintTier && tierHex != null)
                 tierPart = badges
-                    ? $"<mark={tierHex}66><color={Ink}>Tier {tier}</color></mark>"
-                    : $"<color={tierHex}>Tier {tier}</color>";
+                    ? $"<mark={tierHex}66><color={Ink}>{tierWord}</color></mark>"
+                    : $"<color={tierHex}>{tierWord}</color>";
             else
-                tierPart = $"Tier {tier}";   // colors off → no chip, plain text
+                tierPart = tierWord;   // colors off → no chip, plain text
         }
 
         string gradePart = null;
@@ -871,13 +905,34 @@ public static class TooltipRecolor
             if (nameHex != null)
                 name = $"<color={nameHex}>{cleanName}</color>";
         }
+        else if (Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix &&
+                 tintTier && (tier == 6 || tier == 7))
+        {
+            name = $"<color={GreaterAffixHex()}>{cleanName}</color>";
+        }
 
-        // Chips separate themselves visually; plain text needs the dot.
-        string signal = JoinSignal(
-            badges ? " "
-                   : (Prefs.Layout.Value == TooltipLayout.BadgeLeft
-                        ? $"<color={Dim}>·</color>" : " "),
-            sealedPart, tierPart, gradePart);
+        // Chips separate themselves visually; plain text uses the configured divider.
+        string signal;
+        if (badges)
+        {
+            signal = JoinSignal(" ", sealedPart, tierPart, gradePart);
+        }
+        else
+        {
+            string signalSeparator = Prefs.Layout.Value == TooltipLayout.BadgeLeft
+                ? $"<color={Dim}>·</color>"
+                : " ";
+            string dividerGlyph = Prefs.UnitSeparator.Value == UnitSeparatorStyle.Dot ? "·" : "|";
+            string divider = Prefs.DividerStyle.Value == DividerStyle.Strip
+                ? $" <color=#00000000>{dividerGlyph}</color> "
+                : $" <color={Dim}>{dividerGlyph}</color> ";
+            string unit = null;
+            if (tierPart != null && gradePart != null)
+                unit = $"<link=\"ttu\">{tierPart}</link><link=\"ttd\">{divider}</link><link=\"ttu\">{gradePart}</link>";
+            else if (tierPart != null || gradePart != null)
+                unit = $"<link=\"ttu\">{tierPart ?? gradePart}</link>";
+            signal = JoinSignal(signalSeparator, sealedPart, unit);
+        }
 
         if (signal == null) return name;
 

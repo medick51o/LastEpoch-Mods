@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D1a — Plain signal</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:24px;background:#0d0c10;color:#cfc8b8;font-family:Georgia,serif}.caption{color:#FF44FF;font-size:22px;margin:0 0 6px}.renderer{color:#8A8478;font:italic 13px Georgia,serif;margin:0 0 18px}.deck{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}.card{width:520px}.tt{background:linear-gradient(180deg,#241c30,#181222 55%,#15101e);border:1px solid #4a3a5e;border-radius:6px;padding:22px 26px 18px;width:520px;font-variant:small-caps;letter-spacing:.4px;font-size:17px;line-height:1.85;box-shadow:0 8px 30px rgba(0,0,0,.65)}
+.title{color:#FF8BFF;font-size:21px;letter-spacing:2px;text-align:center}.type{color:#9b8e6d;font-size:13px;letter-spacing:2px;text-align:center;margin-bottom:10px}.view,.option{color:#8A8478;font-size:12px;text-align:center}.forge{color:#C9A653;font-size:14px;text-align:center;margin:4px 0 8px}.zero{color:#ff5544}.sep{border-top:1px solid #38304a;margin:10px 0}.row{margin:3px 0}.filter{font-variant:normal;font-style:italic;font-size:15px;color:#cfc8b8}.show{color:#FF44FF;text-decoration:underline}.foot{display:flex;justify-content:flex-end;gap:14px;align-items:baseline;margin-top:8px}.rule{color:#FA9E3D;font-size:19px;font-weight:bold}.lvl{color:#fff;font-size:15px}.weaver{position:relative}.weaver::before{content:"";position:absolute;z-index:0;inset:0 calc(0px - 26px);background:rgba(120,60,180,0.35)}.weaver>*{position:relative;z-index:1}.sealed{font-size:90%}
+.t1,.gF{color:#DADADA}.t3{color:#16FF0E}.t4,.gC{color:#77ACFF}.t5,.gB{color:#A807FF}.t7,.gS{color:#FF44FF}.gA{color:#FA9E3D}.dim{color:#8A8478}.plain{color:#E8E2D2}.detail{font-size:90%;line-height:1.35;margin-left:18px}.code{width:520px;white-space:pre-wrap;overflow-wrap:anywhere;background:#111016;border:1px solid #38304a;color:#E8E2D2;padding:8px 10px;margin:8px 0 0;font:11px/1.35 Consolas,monospace;font-variant:normal}.swatches{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-top:20px;padding:12px 14px;background:#181222;border:1px solid #38304a}.set{display:flex;gap:6px;align-items:center}.set-label{color:#8A8478;font-size:12px;margin-right:3px}.sw{color:#0d0c10;font:12px/24px Arial,sans-serif;text-align:center;width:34px;height:24px;border:1px solid #4a3a5e}
+</style>
+</head>
+<body>
+<div class="caption">D1a: no plate, coloured signal, neutral sentence (Astra)</div>
+<div class="renderer">Renderer note: D1 overdraw approximation applies where chips exist; this no-plate variant draws no chip quads.</div>
+<main class="deck">
+  <section class="card">
+    <div class="tt">
+      <div class="title">PLATED BELT</div><div class="type">BELT</div>
+      <div class="row"><span class="gF">F</span>&nbsp; <span class="gF">+48 Armor</span></div><div class="row"><span class="gC">C</span>&nbsp; <span class="gC">+3 Potion Slots</span></div>
+      <div class="forge">⚒ <span class="zero">0</span> Forging Potential</div><div class="sep"></div>
+      <div class="row"><span class="t5">Tier 5</span> <span class="dim">·</span> <span class="gA">A</span>&nbsp; <span class="plain">58% increased Lightning Damage</span></div>
+      <div class="row"><span class="t4">Tier 4</span> <span class="dim">·</span> <span class="gC">C</span>&nbsp; <span class="plain">28% increased Mana Regeneration</span></div>
+      <div class="row"><span class="t7">Tier 7</span> <span class="dim">·</span> <span class="gC">C</span>&nbsp; <span class="plain">30% increased Cooldown Recovery Speed</span></div><div class="sep"></div>
+      <div class="row"><span class="dim sealed">Sealed</span>&nbsp; <span class="t1">Tier 1</span> <span class="dim">·</span> <span class="gB">B</span>&nbsp; <span class="plain">13% of Potion Health Converted to Ward</span></div>
+      <div class="sep"></div><div class="filter">Filter Rule: <span class="show">SHOW</span> Wanted Tier 7 (Can Edit Affixes &amp; Item Type)</div><div class="foot"><span class="rule">Rule#69</span><span class="lvl">Level 63</span></div>
+    </div>
+    <pre class="code">&lt;color=#A807FF&gt;Tier 5&lt;/color&gt; &lt;color=#8A8478&gt;·&lt;/color&gt; &lt;color=#FA9E3D&gt;A&lt;/color&gt;  58% increased Lightning Damage</pre>
+  </section>
+  <section class="card">
+    <div class="tt">
+      <div class="title">ORNATE IDOL</div><div class="type">GRAND IDOL</div><div class="sep"></div>
+      <div class="row"><span class="t5">Tier 5</span> <span class="dim">·</span> <span class="gS">S</span>&nbsp; <span class="plain">+15% Fire Damage</span></div>
+      <div class="row"><span class="t1">Tier 1</span> <span class="dim">·</span> <span class="gF">F</span>&nbsp; <span class="plain">+3% Physical Penetration</span></div>
+      <div class="row"><span class="t1">Tier 1</span> <span class="dim">·</span> <span class="gF">F</span>&nbsp; <span class="plain">+3% Minion Physical Penetration</span></div>
+      <div class="row weaver"><span class="t3">Tier 3</span> <span class="dim">·</span> <span class="gB">B</span>&nbsp; <span class="plain">+2 to Level of Fire Skills</span></div>
+    </div>
+    <pre class="code">&lt;color=#A807FF&gt;Tier 5&lt;/color&gt; &lt;color=#8A8478&gt;·&lt;/color&gt; &lt;color=#FA9E3D&gt;A&lt;/color&gt;  58% increased Lightning Damage</pre>
+  </section>
+  <section class="card">
+    <div class="tt">
+      <div class="title">PLATED BELT</div><div class="type">BELT</div><div class="view">HOLD-ALT DEEP VIEW</div><div class="option">name-colour option</div>
+      <div class="row"><span class="gF">F</span>&nbsp; <span class="gF">+48 Armor</span></div><div class="row"><span class="gC">C</span>&nbsp; <span class="gC">+3 Potion Slots</span></div>
+      <div class="forge">⚒ <span class="zero">0</span> Forging Potential</div><div class="sep"></div>
+      <div class="row"><span class="t5">Tier 5</span> <span class="dim">·</span> <span class="gA">A</span>&nbsp; <span class="t5">58% increased Lightning Damage</span></div><div class="detail dim">max craftable</div><div class="detail"><span class="dim">Range: </span><span class="gA">40% to 60%</span></div>
+      <div class="row"><span class="t4">Tier 4</span> <span class="dim">·</span> <span class="gC">C</span>&nbsp; <span class="t4">28% increased Mana Regeneration</span></div><div class="detail dim">max craftable</div><div class="detail"><span class="dim">Range: </span><span class="gC">40% to 60%</span></div>
+      <div class="row"><span class="t7">Tier 7</span> <span class="dim">·</span> <span class="gC">C</span>&nbsp; <span class="t7">30% increased Cooldown Recovery Speed</span></div><div class="detail dim">max craftable</div><div class="detail"><span class="dim">Range: </span><span class="gC">40% to 60%</span></div><div class="sep"></div>
+      <div class="row"><span class="dim sealed">Sealed</span>&nbsp; <span class="t1">Tier 1</span> <span class="dim">·</span> <span class="gB">B</span>&nbsp; <span class="t1">13% of Potion Health Converted to Ward</span></div><div class="detail dim">max craftable</div><div class="detail"><span class="dim">Range: </span><span class="gB">40% to 60%</span></div>
+      <div class="sep"></div><div class="filter">Filter Rule: <span class="show">SHOW</span> Wanted Tier 7 (Can Edit Affixes &amp; Item Type)</div><div class="foot"><span class="rule">Rule#69</span><span class="lvl">Level 63</span></div>
+    </div>
+    <pre class="code">&lt;color=#A807FF&gt;Tier 5&lt;/color&gt; &lt;color=#8A8478&gt;·&lt;/color&gt; &lt;color=#FA9E3D&gt;A&lt;/color&gt;  58% increased Lightning Damage</pre>
+  </section>
+</main>
+<div class="swatches"><div class="set"><span class="set-label">Tiers</span><span class="sw" style="background:#DADADA">T1</span><span class="sw" style="background:#E1E1E1">T2</span><span class="sw" style="background:#16FF0E">T3</span><span class="sw" style="background:#77ACFF">T4</span><span class="sw" style="background:#A807FF">T5</span><span class="sw" style="background:#FA9E3D">T6</span><span class="sw" style="background:#FF44FF">T7</span></div><div class="set"><span class="set-label">Grades</span><span class="sw" style="background:#DADADA">F</span><span class="sw" style="background:#77ACFF">C</span><span class="sw" style="background:#A807FF">B</span><span class="sw" style="background:#FA9E3D">A</span><span class="sw" style="background:#FF44FF">S</span></div></div>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>D2 fuller box + full-height divider</title>
+<style>
+  body{margin:0;background:#0b0810;color:#e8e2d3;font-family:Georgia,"Times New Roman",serif;padding:28px}
+  h1{font-size:18px;color:#c990ff;margin:0 0 4px;font-weight:normal}
+  .sub{font-size:12px;color:#8a8478;margin-bottom:22px;font-style:italic}
+  .row-outer{display:flex;gap:28px;flex-wrap:wrap}
+  .tip{width:470px;background:linear-gradient(180deg,#1a1224,#120c1a);border:1px solid #3a2a4a;border-radius:6px;padding:18px 22px 16px;box-shadow:0 0 0 1px #000 inset}
+  .name{text-align:center;font-variant:small-caps;font-size:22px;letter-spacing:1px;color:#ff44ff}
+  .base{text-align:center;font-variant:small-caps;font-size:12px;color:#8a8478;letter-spacing:2px;margin-bottom:10px}
+  hr{border:0;border-top:1px solid #3a2a4a;margin:10px 0}
+  .lbl{font-size:11px;color:#8a8478;font-style:italic;font-variant:normal;margin:0 0 8px}
+  .foot{font-size:11px;color:#8a8478;margin-top:26px;font-variant:normal}
+
+  /* --- 3.1.0 unit-border box --- */
+  .row{display:flow-root;margin:9px 0;font-variant:small-caps;font-size:17px;line-height:1.3}
+  .box{
+    float:left;
+    display:inline-flex;
+    align-items:stretch;
+    border:2px solid rgba(138,116,168,0.9);
+    border-radius:4px;
+    padding:2.5px 6px;
+    margin:1px 0.5em 0 0;
+    background:transparent;
+    vertical-align:middle;
+  }
+  .box .cell{display:flex;align-items:center;font-size:14px;letter-spacing:.5px;white-space:nowrap}
+  .box .divider{width:2px;align-self:stretch;background:rgba(138,116,168,0.9);margin:0 5px}
+  .box.lone .cell{padding:0 1px}
+  .sent{color:#efe9dc}
+  .tint{color:#C990FF}
+
+  /* weaver translucent bar */
+  .weaver{background:rgba(168,7,255,0.10);border-radius:5px;padding:6px 8px 2px;margin:9px 0}
+  .weaver .row{margin:6px 0}
+
+  .sw{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;margin-right:4px}
+</style></head><body>
+<h1>3.1.0 unit border — fuller box + full-height divider (left: Tier N, right: TN)</h1>
+<div class="sub">Box = 2px solid #8A74A8 @90%, no fill, rounded 4px, padding 6px/2.5px. Full-height divider strip splits Tier | Grade. T6/T7 sentences #C990FF, T1–T5 white.</div>
+
+<div class="row-outer">
+
+<!-- LEFT: Strip / spelled -->
+<div class="tip">
+<div class="lbl">Divider style: Strip · TierWord: Tier N</div>
+<div class="name">Scrivening Quill</div><div class="base">mage relic</div>
+
+<div class="row"><span class="box lone"><span class="cell" style="color:#DADADA">F</span></span><span class="sent">+16 Ward per Second</span></div>
+<hr>
+<div class="row"><span class="box"><span class="cell" style="color:#FA9E3D">Tier 6</span><span class="divider"></span><span class="cell" style="color:#FA9E3D">A</span></span><span class="sent tint">+13 Intelligence</span></div>
+
+<div class="row"><span class="box"><span class="cell" style="color:#77ACFF">Tier 4</span><span class="divider"></span><span class="cell" style="color:#DADADA">F</span></span><span class="sent">+1 to Static</span></div>
+<div class="row"><span class="box"><span class="cell" style="color:#77ACFF">Tier 4</span><span class="divider"></span><span class="cell" style="color:#DADADA">F</span></span><span class="sent">32% increased Lightning Damage</span></div>
+
+<div class="row"><span class="box"><span class="cell" style="color:#16FF0E">Tier 3</span><span class="divider"></span><span class="cell" style="color:#77ACFF">C</span></span><span class="sent">+19% Necrotic Resistance</span></div>
+
+<div class="row"><span class="box"><span class="cell" style="color:#DADADA">Tier 1</span><span class="divider"></span><span class="cell" style="color:#DADADA">F</span></span><span class="sent">+5% Poison Resistance</span></div>
+
+<div class="weaver">
+<div class="row"><span class="box"><span class="cell" style="color:#77ACFF">Tier 4</span><span class="divider"></span><span class="cell" style="color:#DADADA">F</span></span><span class="sent">+6 Attunement</span></div>
+<div class="row"><span class="box"><span class="cell" style="color:#77ACFF">Tier 4</span><span class="divider"></span><span class="cell" style="color:#DADADA">F</span></span><span class="sent">14% increased Mana Regen</span></div>
+</div>
+
+<div class="row"><span class="box"><span class="cell" style="color:#FF44FF">Tier 7</span><span class="divider"></span><span class="cell" style="color:#FA9E3D">A</span></span><span class="sent tint">49% increased Effect of Suffixes for Idols in Refracted Slots</span></div>
+
+</div>
+
+<!-- RIGHT: Strip / compact -->
+<div class="tip">
+<div class="lbl">Divider style: Strip · TierWord: Compact (TN)</div>
+<div class="name">Scrivening Quill</div><div class="base">mage relic</div>
+
+<div class="row"><span class="box lone"><span class="cell" style="color:#DADADA">F</span></span><span class="sent">+16 Ward per Second</span></div>
+<hr>
+<div class="row"><span class="box"><span class="cell" style="color:#FA9E3D">T6</span><span class="divider"></span><span class="cell" style="color:#FA9E3D">A</span></span><span class="sent tint">+13 Intelligence</span></div>
+
+<div class="row"><span class="box"><span class="cell" style="color:#77ACFF">T4</span><span class="divider"></span><span class="cell" style="color:#DADADA">F</span></span><span class="sent">+1 to Static</span></div>
+<div class="row"><span class="box"><span class="cell" style="color:#77ACFF">T4</span><span class="divider"></span><span class="cell" style="color:#DADADA">F</span></span><span class="sent">32% increased Lightning Damage</span></div>
+
+<div class="row"><span class="box"><span class="cell" style="color:#16FF0E">T3</span><span class="divider"></span><span class="cell" style="color:#77ACFF">C</span></span><span class="sent">+19% Necrotic Resistance</span></div>
+
+<div class="row"><span class="box"><span class="cell" style="color:#DADADA">T1</span><span class="divider"></span><span class="cell" style="color:#DADADA">F</span></span><span class="sent">+5% Poison Resistance</span></div>
+
+<div class="weaver">
+<div class="row"><span class="box"><span class="cell" style="color:#77ACFF">T4</span><span class="divider"></span><span class="cell" style="color:#DADADA">F</span></span><span class="sent">+6 Attunement</span></div>
+<div class="row"><span class="box"><span class="cell" style="color:#77ACFF">T4</span><span class="divider"></span><span class="cell" style="color:#DADADA">F</span></span><span class="sent">14% increased Mana Regen</span></div>
+</div>
+
+<div class="row"><span class="box"><span class="cell" style="color:#FF44FF">T7</span><span class="divider"></span><span class="cell" style="color:#FA9E3D">A</span></span><span class="sent tint">49% increased Effect of Suffixes for Idols in Refracted Slots</span></div>
+
+</div>
+
+</div>
+
+<div class="foot">
+Tier colours: <span class="sw" style="background:#DADADA"></span>T1 <span class="sw" style="background:#E1E1E1"></span>T2 <span class="sw" style="background:#16FF0E"></span>T3 <span class="sw" style="background:#77ACFF"></span>T4 <span class="sw" style="background:#A807FF"></span>T5 <span class="sw" style="background:#FA9E3D"></span>T6 <span class="sw" style="background:#FF44FF"></span>T7 &nbsp;·&nbsp; browser approximation; in-game = runtime 9-slice Image under the glyphs.
+</div>
+</body></html>

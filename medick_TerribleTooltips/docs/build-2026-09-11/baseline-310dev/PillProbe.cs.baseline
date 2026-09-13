@@ -1,0 +1,751 @@
+// ================================================================
+//  PillProbe.cs — TICKET-D2-PROBE native-clone chip experiment.
+//
+//  Degrade rule: if no native sprite donor is usable, change nothing,
+//  log the text-path fallback, and latch this probe off for the session.
+//  Every mutation is preference-gated, reversible, and isolated from
+//  the existing tooltip composer. Clones never participate in layout,
+//  raycasts, localization, animation, or native button behaviour.
+//
+//  One tooltip generation is TMP instance id + text hash. Unchanged
+//  generations only re-synchronize the owned pill geometry.
+// ================================================================
+
+namespace medick_Terrible_Tooltips;
+
+internal static class PillProbe
+{
+    private const string OwnedPillName = "TT_PillProbe";
+    private const string OwnedLabelName = "TT_PillProbeLabel";
+
+    private static readonly Regex s_tagRegex = new(@"<[^>]*>", RegexOptions.Compiled);
+    private static readonly Regex s_tierRegex = new(@"Tier\s*(\d)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex s_gradeRegex = new(@"(?<![A-Za-z])[FCBAS](?![A-Za-z])", RegexOptions.Compiled);
+
+    private static readonly Dictionary<int, PillState> s_statesByTmp = new();
+    private static readonly Dictionary<int, TooltipWatch> s_watches = new();
+    private static readonly List<int> s_deadKeys = new();
+
+    private static Transform s_donor;
+    private static string s_donorPath;
+    private static bool s_dumpDone;
+    private static bool s_runtimeArmed;
+    private static bool s_latchedOff;
+    private static bool s_failureLogged;
+
+    private sealed class PillState
+    {
+        public UITooltipItem Tooltip;
+        public TextMeshProUGUI Target;
+        public GameObject Pill;
+        public RectTransform PillRect;
+        public TextMeshProUGUI Label;
+        public Vector4 SavedMargin;
+        public bool MarginApplied;
+        public bool HiddenLogged;
+        public bool PlacedLogged;
+        public float Width;
+        public float Height;
+    }
+
+    private sealed class TooltipWatch
+    {
+        public UITooltipItem Tooltip;
+        public TextMeshProUGUI Sentinel;
+        public PillState Current;
+        public int TmpId;
+        public int TextHash;
+        public PillTierMode Mode;
+        public bool NoGreaterLogged;
+    }
+
+    [HarmonyPatch(typeof(UITooltipItem), "UpdateLayout")]
+    internal static class Patch_UpdateLayout
+    {
+        private static void Postfix(UITooltipItem __instance, object[] __args)
+        {
+            try { Run(__instance); }
+            catch (Exception ex) { Fail("UpdateLayout", ex); }
+        }
+    }
+
+    internal static void OnLateUpdate()
+    {
+        try
+        {
+            if (!Enabled())
+            {
+                DisarmAtRuntime();
+                return;
+            }
+
+            if (s_latchedOff) return;
+            Arm();
+
+            s_deadKeys.Clear();
+            foreach (var pair in s_statesByTmp)
+            {
+                PillState state = pair.Value;
+                if (state.Target == null || state.Pill == null)
+                {
+                    RestoreMargin(state);
+                    if (state.Pill != null) UnityEngine.Object.DestroyImmediate(state.Pill);
+                    s_deadKeys.Add(pair.Key);
+                    continue;
+                }
+
+                if (!TooltipIsActive(state.Tooltip))
+                {
+                    Hide(state, "tooltip inactive");
+                    continue;
+                }
+
+                int tooltipId = state.Tooltip.GetInstanceID();
+                if (!s_watches.TryGetValue(tooltipId, out TooltipWatch watch) ||
+                    watch.Current != state)
+                {
+                    Hide(state, "not the current target");
+                    continue;
+                }
+
+                string text = state.Target.text ?? "";
+                if (!state.Target.gameObject.activeInHierarchy || !AffixRule(state.Target, out _))
+                {
+                    Hide(state, "target no longer parses as an affix line");
+                    continue;
+                }
+
+                if (state.Target.GetInstanceID() != watch.TmpId || TextHash(text) != watch.TextHash)
+                {
+                    Hide(state, "tooltip content changed");
+                    continue;
+                }
+
+                if (state.Pill.activeSelf) SyncGeometry(state);
+            }
+
+            foreach (int key in s_deadKeys) s_statesByTmp.Remove(key);
+            s_deadKeys.Clear();
+        }
+        catch (Exception ex) { Fail("LateUpdate", ex); }
+    }
+
+    private static void Run(UITooltipItem tooltip)
+    {
+        if (!Enabled())
+        {
+            DisarmAtRuntime();
+            return;
+        }
+
+        if (s_latchedOff) return;
+        Arm();
+
+        if (!TooltipIsActive(tooltip))
+        {
+            HideCurrent(tooltip, "tooltip inactive");
+            return;
+        }
+
+        int tooltipId = tooltip.GetInstanceID();
+        PillTierMode mode = Prefs.PillTiers.Value;
+        if (s_watches.TryGetValue(tooltipId, out TooltipWatch existing) &&
+            existing.Sentinel != null && existing.Sentinel.gameObject.activeInHierarchy &&
+            existing.Mode == mode &&
+            (existing.Current == null ||
+             (existing.Current.Target != null && existing.Current.Pill != null)))
+        {
+            string currentText = existing.Sentinel.text ?? "";
+            if (existing.Sentinel.GetInstanceID() == existing.TmpId &&
+                TextHash(currentText) == existing.TextHash)
+            {
+                if (existing.Current != null && existing.Current.Pill != null &&
+                    !existing.Current.Pill.activeSelf)
+                {
+                    existing.Current.Pill.SetActive(true);
+                    existing.Current.HiddenLogged = false;
+                    existing.Current.MarginApplied = true;
+                    SyncGeometry(existing.Current);
+                }
+                else if (existing.Current != null && existing.Current.Pill != null)
+                {
+                    SyncGeometry(existing.Current);
+                }
+                return;
+            }
+        }
+
+        if (!s_dumpDone)
+        {
+            DumpHierarchy(tooltip.transform);
+            s_dumpDone = true;
+        }
+
+        TextMeshProUGUI[] tmps = tooltip.GetComponentsInChildren<TextMeshProUGUI>(true);
+        TextMeshProUGUI firstAffix = FirstAffix(tmps, false, out string firstRule);
+        if (firstAffix != null)
+            Msg($"affix target rule: {firstRule} → {FullPath(firstAffix.transform)}");
+
+        if (s_donor == null)
+        {
+            s_donor = SelectDonor(tooltip, firstAffix, tmps, out s_donorPath);
+            if (s_donor == null)
+            {
+                Msg("no donor found — degrading to the text path (nothing changed)");
+                CleanupAll();
+                s_latchedOff = true;
+                s_runtimeArmed = false;
+                return;
+            }
+        }
+
+        TextMeshProUGUI target = mode == PillTierMode.All
+            ? firstAffix
+            : FirstAffix(tmps, true, out _);
+
+        TooltipWatch watch = existing ?? new TooltipWatch { Tooltip = tooltip };
+        watch.Tooltip = tooltip;
+        watch.Mode = mode;
+
+        if (target == null)
+        {
+            if (watch.Current != null) Hide(watch.Current, "no current target");
+            watch.Current = null;
+            watch.Sentinel = firstAffix;
+            watch.TmpId = firstAffix != null ? firstAffix.GetInstanceID() : 0;
+            watch.TextHash = firstAffix != null ? TextHash(firstAffix.text ?? "") : 0;
+            if (mode == PillTierMode.GreaterOnly && !watch.NoGreaterLogged)
+            {
+                Msg("no T6/T7 line on this item — no pill (GreaterOnly)");
+                watch.NoGreaterLogged = true;
+            }
+            s_watches[tooltipId] = watch;
+            return;
+        }
+
+        watch.NoGreaterLogged = false;
+        if (watch.Current != null && watch.Current.Target != target)
+            Hide(watch.Current, "target changed");
+
+        int targetId = target.GetInstanceID();
+        if (!s_statesByTmp.TryGetValue(targetId, out PillState state) || state.Target == null)
+        {
+            state = CreatePill(tooltip, target);
+            s_statesByTmp[targetId] = state;
+        }
+        else
+        {
+            state.Tooltip = tooltip;
+        }
+
+        string targetText = target.text ?? "";
+        ParseSignal(targetText, out int tier, out char grade, out bool hasTier);
+        if (!hasTier) Msg($"tier missing on '{First30(targetText)}' — using Tier ?");
+
+        state.Label.text =
+            $"<color={(hasTier ? Colors.TierColor(tier) : "#DADADA")}>Tier {(hasTier ? tier.ToString() : "?")}</color> " +
+            $"<color=#8A8478>|</color> <color={GradeColor(grade)}>{grade}</color>";
+        state.Label.fontSize = target.fontSize * 0.9f;
+        state.Label.enableAutoSizing = false;
+        state.Label.enableWordWrapping = false;
+        state.Label.alignment = TextAlignmentOptions.Center;
+        state.Label.raycastTarget = false;
+        state.Label.margin = Vector4.zero;
+
+        state.Pill.SetActive(true);
+        state.HiddenLogged = false;
+        ApplyMarginAndGeometry(state);
+
+        watch.Sentinel = target;
+        watch.Current = state;
+        watch.TmpId = targetId;
+        watch.TextHash = TextHash(targetText);
+        s_watches[tooltipId] = watch;
+
+        if (!state.PlacedLogged)
+        {
+            Msg($"pill placed on '{First30(targetText)}' tier={(hasTier ? tier.ToString() : "?")} " +
+                $"grade={grade} at {state.PillRect.anchoredPosition} size {state.Width:0.##}x{state.Height:0.##} " +
+                $"donor={s_donorPath}");
+            state.PlacedLogged = true;
+        }
+    }
+
+    private static PillState CreatePill(UITooltipItem tooltip, TextMeshProUGUI target)
+    {
+        GameObject pill = UnityEngine.Object.Instantiate(s_donor.gameObject, target.transform.parent);
+        try
+        {
+            for (int i = pill.transform.childCount - 1; i >= 0; i--)
+                UnityEngine.Object.DestroyImmediate(pill.transform.GetChild(i).gameObject);
+
+            StripPillComponents(pill);
+            pill.name = OwnedPillName;
+
+            Image image = pill.GetComponent<Image>();
+            if (image == null || image.sprite == null)
+                throw new InvalidOperationException("accepted donor clone lost its Image sprite");
+            image.raycastTarget = false;
+            image.color = Color.white;
+
+            LayoutElement layout = pill.AddComponent<LayoutElement>();
+            layout.ignoreLayout = true;
+
+            RectTransform pillRect = pill.GetComponent<RectTransform>();
+            pillRect.anchorMin = new Vector2(0f, 1f);
+            pillRect.anchorMax = new Vector2(0f, 1f);
+            pillRect.pivot = new Vector2(0f, 1f);
+            pillRect.localRotation = Quaternion.identity;
+            pillRect.localScale = Vector3.one;
+
+            GameObject labelObject = UnityEngine.Object.Instantiate(target.gameObject, pill.transform);
+            for (int i = labelObject.transform.childCount - 1; i >= 0; i--)
+                UnityEngine.Object.DestroyImmediate(labelObject.transform.GetChild(i).gameObject);
+            StripLabelComponents(labelObject);
+            labelObject.name = OwnedLabelName;
+
+            TextMeshProUGUI label = labelObject.GetComponent<TextMeshProUGUI>();
+            if (label == null)
+                throw new InvalidOperationException("target TMP clone lost TextMeshProUGUI");
+
+            RectTransform labelRect = labelObject.GetComponent<RectTransform>();
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.pivot = new Vector2(0.5f, 0.5f);
+            labelRect.offsetMin = Vector2.zero;
+            labelRect.offsetMax = Vector2.zero;
+            labelRect.localRotation = Quaternion.identity;
+            labelRect.localScale = Vector3.one;
+
+            if (IsSolidWhiteSquare(image.sprite))
+                Msg($"donor sprite is a solid white square: {image.sprite.name}");
+
+            return new PillState
+            {
+                Tooltip = tooltip,
+                Target = target,
+                Pill = pill,
+                PillRect = pillRect,
+                Label = label,
+                SavedMargin = target.margin
+            };
+        }
+        catch
+        {
+            try { if (pill != null) UnityEngine.Object.DestroyImmediate(pill); } catch { }
+            throw;
+        }
+    }
+
+    private static void StripPillComponents(GameObject go)
+    {
+        foreach (Component component in go.GetComponents<Component>())
+        {
+            if (component is RectTransform || component is Image || component.GetType().Name == "CanvasRenderer") continue;
+            UnityEngine.Object.DestroyImmediate(component);
+        }
+    }
+
+    private static void StripLabelComponents(GameObject go)
+    {
+        foreach (Component component in go.GetComponents<Component>())
+        {
+            if (component is RectTransform || component is TextMeshProUGUI || component.GetType().Name == "CanvasRenderer") continue;
+            UnityEngine.Object.DestroyImmediate(component);
+        }
+    }
+
+    private static void ApplyMarginAndGeometry(PillState state)
+    {
+        state.Label.ForceMeshUpdate();
+        state.Target.ForceMeshUpdate();
+
+        float width = state.Label.preferredWidth + 12f;
+        float height = FirstLineHeight(state.Target);
+        Vector4 next = new(state.SavedMargin.x + width + 6f, state.SavedMargin.y,
+                           state.SavedMargin.z, state.SavedMargin.w);
+        state.Target.margin = next;
+        state.MarginApplied = true;
+        state.Target.ForceMeshUpdate();
+
+        state.Width = width;
+        state.Height = height;
+        SyncGeometry(state);
+        if (!state.PlacedLogged)
+        {
+            Msg($"size label={state.Label.preferredWidth:0.##}+12={width:0.##}, firstLine={height:0.##}");
+            Msg($"margin {state.SavedMargin} → {next}");
+        }
+    }
+
+    private static void SyncGeometry(PillState state)
+    {
+        if (state.Target == null || state.PillRect == null || state.Label == null) return;
+
+        state.Label.fontSize = state.Target.fontSize * 0.9f;
+        state.Label.ForceMeshUpdate();
+        state.Target.ForceMeshUpdate();
+
+        float width = state.Label.preferredWidth + 12f;
+        float height = FirstLineHeight(state.Target);
+        Vector4 margin = new(state.SavedMargin.x + width + 6f, state.SavedMargin.y,
+                             state.SavedMargin.z, state.SavedMargin.w);
+        if (state.Target.margin != margin) state.Target.margin = margin;
+
+        TMP_LineInfo line = state.Target.textInfo.lineInfo[0];
+        RectTransform targetRect = state.Target.rectTransform;
+        Vector3 targetTop = new(targetRect.rect.xMin + state.SavedMargin.x, line.ascender, 0f);
+        Vector3 worldTop = targetRect.TransformPoint(targetTop);
+        Transform parent = state.PillRect.parent;
+        Vector3 parentTop = parent.InverseTransformPoint(worldTop);
+
+        state.PillRect.sizeDelta = new Vector2(width, height);
+        state.PillRect.localPosition = parentTop;
+        state.Width = width;
+        state.Height = height;
+    }
+
+    private static float FirstLineHeight(TextMeshProUGUI tmp)
+    {
+        if (tmp.textInfo == null || tmp.textInfo.lineCount < 1)
+            throw new InvalidOperationException("target TMP has no rendered first line");
+        TMP_LineInfo line = tmp.textInfo.lineInfo[0];
+        float height = line.lineHeight;
+        if (height <= 0f) height = line.ascender - line.descender;
+        if (height <= 0f) height = tmp.fontSize;
+        return height;
+    }
+
+    private static TextMeshProUGUI FirstAffix(TextMeshProUGUI[] tmps, bool greaterOnly, out string rule)
+    {
+        rule = null;
+        if (tmps == null) return null;
+        foreach (TextMeshProUGUI tmp in tmps)
+        {
+            if (tmp == null || tmp.name == OwnedLabelName || !AffixRule(tmp, out string matched)) continue;
+            if (greaterOnly)
+            {
+                ParseSignal(tmp.text ?? "", out int tier, out _, out bool hasTier);
+                if (!hasTier || (tier != 6 && tier != 7)) continue;
+            }
+            rule = matched;
+            return tmp;
+        }
+        return null;
+    }
+
+    private static bool AffixRule(TextMeshProUGUI tmp, out string rule)
+    {
+        rule = null;
+        if (tmp == null) return false;
+        string text = tmp.text ?? "";
+        if (text.StartsWith("Tier ", StringComparison.OrdinalIgnoreCase))
+        {
+            rule = "text starts with 'Tier '";
+            return true;
+        }
+        if (text.IndexOf("<mark=", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            rule = "text contains '<mark='";
+            return true;
+        }
+        if ((tmp.name ?? "").IndexOf("Affix", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            rule = "object name contains 'Affix'";
+            return true;
+        }
+        return false;
+    }
+
+    private static void ParseSignal(string richText, out int tier, out char grade, out bool hasTier)
+    {
+        string plain = s_tagRegex.Replace(richText ?? "", "");
+        Match tierMatch = s_tierRegex.Match(plain);
+        tier = 0;
+        hasTier = tierMatch.Success && int.TryParse(tierMatch.Groups[1].Value, out tier);
+        if (!hasTier) tier = 0;
+
+        int start = tierMatch.Success ? tierMatch.Index + tierMatch.Length : 0;
+        Match gradeMatch = s_gradeRegex.Match(plain, start);
+        grade = gradeMatch.Success ? char.ToUpperInvariant(gradeMatch.Value[0]) : '?';
+    }
+
+    private static string GradeColor(char grade)
+        => grade switch
+        {
+            'F' => "#DADADA",
+            'C' => "#77ACFF",
+            'B' => "#A807FF",
+            'A' => "#FA9E3D",
+            'S' => "#FF44FF",
+            _ => "#DADADA"
+        };
+
+    private static Transform SelectDonor(UITooltipItem tooltip, TextMeshProUGUI firstAffix,
+                                         TextMeshProUGUI[] tmps, out string donorPath)
+    {
+        donorPath = null;
+        Image image = NearbyImage(firstAffix);
+        LogDonorTry(1, "parent/sibling Image of first affix TMP", image);
+        if (Usable(image, out donorPath)) return image.transform;
+
+        TextMeshProUGUI range = null;
+        foreach (TextMeshProUGUI tmp in tmps)
+        {
+            if (tmp != null && (tmp.text ?? "").StartsWith("Range:", StringComparison.OrdinalIgnoreCase))
+            {
+                range = tmp;
+                break;
+            }
+        }
+        image = NearbyImage(range);
+        LogDonorTry(2, "parent/sibling Image of Range: TMP", image);
+        if (Usable(image, out donorPath)) return image.transform;
+
+        Image[] images = tooltip.GetComponentsInChildren<Image>(true);
+        image = NamedImage(images, "Weaver", "Sealed", "Enchant", "Highlight");
+        LogDonorTry(3, "tooltip Image named Weaver/Sealed/Enchant/Highlight", image);
+        if (Usable(image, out donorPath)) return image.transform;
+
+        image = NamedImage(images, "Potential", "Weaver", "LP", "Frame", "Badge", "Pill", "Tag");
+        LogDonorTry(4, "tooltip Image named Potential/Weaver/LP/Frame/Badge/Pill/Tag", image);
+        if (Usable(image, out donorPath)) return image.transform;
+
+        image = InventorySortImage();
+        LogDonorTry(5, "Inventory Sort button background Image", image);
+        if (Usable(image, out donorPath)) return image.transform;
+
+        image = null;
+        foreach (Image candidate in images)
+        {
+            if (candidate != null && candidate.sprite != null && candidate.sprite.border != Vector4.zero)
+            {
+                image = candidate;
+                break;
+            }
+        }
+        LogDonorTry(6, "sliceable tooltip Image", image);
+        if (Usable(image, out donorPath)) return image.transform;
+        return null;
+    }
+
+    private static Image NearbyImage(TextMeshProUGUI tmp)
+    {
+        if (tmp == null || tmp.transform.parent == null) return null;
+        Transform parent = tmp.transform.parent;
+        Image image = parent.GetComponent<Image>();
+        if (image != null && image.sprite != null) return image;
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Transform sibling = parent.GetChild(i);
+            if (sibling == tmp.transform) continue;
+            image = sibling.GetComponent<Image>();
+            if (image != null && image.sprite != null) return image;
+        }
+        return null;
+    }
+
+    private static Image NamedImage(Image[] images, params string[] needles)
+    {
+        foreach (Image image in images)
+        {
+            if (image == null || image.sprite == null) continue;
+            string name = image.name ?? "";
+            foreach (string needle in needles)
+                if (name.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0) return image;
+        }
+        return null;
+    }
+
+    private static Image InventorySortImage()
+    {
+        string[] inventoryNames = { "Inventory", "Inventory Canvas", "InventoryCanvas", "Canvas/Inventory" };
+        foreach (string inventoryName in inventoryNames)
+        {
+            GameObject inventory = GameObject.Find(inventoryName);
+            if (inventory == null || !inventory.activeInHierarchy) continue;
+            Transform sort = FindNamed(inventory.transform, "Sort");
+            if (sort == null) continue;
+            GameObject found = GameObject.Find(ScenePath(sort));
+            if (found == null) continue;
+            Image image = found.GetComponent<Image>();
+            if (image == null) image = found.GetComponentInChildren<Image>(true);
+            if (image != null && image.sprite != null) return image;
+        }
+
+        string[] sortNames = { "Sort", "SortButton", "Sort Button" };
+        foreach (string sortName in sortNames)
+        {
+            GameObject found = GameObject.Find(sortName);
+            if (found == null || !found.activeInHierarchy ||
+                FullPath(found.transform).IndexOf("Inventory", StringComparison.OrdinalIgnoreCase) < 0)
+                continue;
+            Image image = found.GetComponent<Image>();
+            if (image == null) image = found.GetComponentInChildren<Image>(true);
+            if (image != null && image.sprite != null) return image;
+        }
+        return null;
+    }
+
+    private static Transform FindNamed(Transform root, string needle)
+    {
+        if ((root.name ?? "").IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0) return root;
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Transform found = FindNamed(root.GetChild(i), needle);
+            if (found != null) return found;
+        }
+        return null;
+    }
+
+    private static bool Usable(Image image, out string path)
+    {
+        path = image != null ? FullPath(image.transform) : null;
+        return image != null && image.sprite != null;
+    }
+
+    private static void LogDonorTry(int number, string what, Image image)
+        => Msg($"donor try {number}: {what} → {(image != null ? FullPath(image.transform) : "none")}");
+
+    private static void DumpHierarchy(Transform root)
+    {
+        int images = 0;
+        int tmps = 0;
+        DumpNode(root, root.name ?? "<unnamed>", ref images, ref tmps);
+        Msg($"dump done: {images} images, {tmps} tmps");
+    }
+
+    private static void DumpNode(Transform node, string path, ref int images, ref int tmps)
+    {
+        Image image = node.GetComponent<Image>();
+        if (image != null)
+        {
+            images++;
+            Sprite sprite = image.sprite;
+            Rect rect = image.rectTransform.rect;
+            Msg($"IMG {path} sprite={(sprite != null ? sprite.name : "null")} type={image.type} " +
+                $"border={(sprite != null ? sprite.border.ToString() : "-")} rect={rect.width:0.##}x{rect.height:0.##} " +
+                $"raycast={image.raycastTarget}");
+        }
+
+        TextMeshProUGUI tmp = node.GetComponent<TextMeshProUGUI>();
+        if (tmp != null)
+        {
+            tmps++;
+            string text = tmp.text ?? "";
+            Msg($"TMP {path} len={text.Length} first30='{First30(text)}' margin={tmp.margin}");
+        }
+
+        for (int i = 0; i < node.childCount; i++)
+        {
+            Transform child = node.GetChild(i);
+            DumpNode(child, path + "/" + (child.name ?? "<unnamed>"), ref images, ref tmps);
+        }
+    }
+
+    private static string FullPath(Transform transform)
+    {
+        if (transform == null) return "none";
+        var parts = new List<string>();
+        for (Transform current = transform; current != null; current = current.parent)
+            parts.Add(current.name ?? "<unnamed>");
+        parts.Reverse();
+        return string.Join("/", parts);
+    }
+
+    private static string ScenePath(Transform transform) => FullPath(transform);
+
+    private static string First30(string text)
+    {
+        string clean = (text ?? "").Replace('\r', ' ').Replace('\n', ' ').Replace("'", "’");
+        return clean.Length <= 30 ? clean : clean.Substring(0, 30);
+    }
+
+    private static bool IsSolidWhiteSquare(Sprite sprite)
+    {
+        if (sprite == null || Math.Abs(sprite.rect.width - sprite.rect.height) > 0.01f ||
+            sprite.border != Vector4.zero) return false;
+
+        string name = sprite.name ?? "";
+        return name.IndexOf("white", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("square", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static bool TooltipIsActive(UITooltipItem tooltip)
+    {
+        try { return tooltip != null && tooltip.tooltipActive && tooltip.gameObject.activeInHierarchy; }
+        catch { return false; }
+    }
+
+    private static bool Enabled()
+        => Prefs.PillProbe != null && Prefs.PillProbe.Value &&
+           Prefs.EnableTooltips != null && Prefs.EnableTooltips.Value;
+
+    private static void Arm()
+    {
+        if (s_runtimeArmed) return;
+        s_runtimeArmed = true;
+        Msg($"armed (PillTiers={Prefs.PillTiers.Value}, GreaterAffixTint={Prefs.GreaterAffixTint.Value})");
+    }
+
+    private static void DisarmAtRuntime()
+    {
+        if (!s_runtimeArmed && s_statesByTmp.Count == 0) return;
+        CleanupAll();
+        s_runtimeArmed = false;
+        Msg("runtime off — pills destroyed and margins restored");
+    }
+
+    private static void HideCurrent(UITooltipItem tooltip, string reason)
+    {
+        if (tooltip == null) return;
+        if (s_watches.TryGetValue(tooltip.GetInstanceID(), out TooltipWatch watch) && watch.Current != null)
+            Hide(watch.Current, reason);
+    }
+
+    private static void Hide(PillState state, string reason)
+    {
+        if (state == null) return;
+        bool wasVisible = state.Pill != null && state.Pill.activeSelf;
+        RestoreMargin(state);
+        if (state.Pill != null) state.Pill.SetActive(false);
+        if ((wasVisible || !state.HiddenLogged) && !state.HiddenLogged)
+        {
+            Msg("pill hidden: " + reason);
+            state.HiddenLogged = true;
+        }
+    }
+
+    private static void RestoreMargin(PillState state)
+    {
+        if (state == null || !state.MarginApplied) return;
+        try { if (state.Target != null) state.Target.margin = state.SavedMargin; }
+        catch { }
+        state.MarginApplied = false;
+    }
+
+    private static void CleanupAll()
+    {
+        foreach (PillState state in s_statesByTmp.Values)
+        {
+            RestoreMargin(state);
+            try { if (state.Pill != null) UnityEngine.Object.DestroyImmediate(state.Pill); }
+            catch { }
+        }
+        s_statesByTmp.Clear();
+        s_watches.Clear();
+    }
+
+    internal static void Fail(string stage, Exception ex)
+    {
+        if (s_failureLogged) return;
+        s_failureLogged = true;
+        Msg($"FAIL at {stage}: {ex.GetType().Name}: {ex.Message}");
+        CleanupAll();
+        s_latchedOff = true;
+        s_runtimeArmed = false;
+    }
+
+    private static int TextHash(string text) => StringComparer.Ordinal.GetHashCode(text ?? "");
+    private static void Msg(string message) => MelonLogger.Msg("[PillProbe] " + message);
+}

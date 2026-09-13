@@ -36,6 +36,7 @@ public class TerribleTooltipsMod : MelonMod
     public override void OnLateUpdate()
     {
         TooltipRecolor.OnLateUpdate();
+        UnitBorder.OnLateUpdate();
     }
 
     public override void OnApplicationQuit()
@@ -67,6 +68,8 @@ public class TerribleTooltipsMod : MelonMod
 
         // Settings panel
         ok += TryPatch(typeof(SettingsUi.Patch_SettingsPanel),        "settings panel");
+
+        ok += TryPatch(typeof(UnitBorder.Patch_UpdateLayout), "unit border");
 
         return ok;
     }

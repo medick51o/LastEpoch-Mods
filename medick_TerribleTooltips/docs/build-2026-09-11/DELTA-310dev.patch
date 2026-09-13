@@ -1,0 +1,259 @@
+--- docs/build-2026-09-11/baseline-310dev/TooltipRecolor.cs.baseline	2026-09-11 14:09:57.724026000 -0700
++++ medick_TerribleTooltips/src/TooltipRecolor.cs	2026-09-11 14:22:02.372847400 -0700
+@@ -523,8 +523,8 @@
+                             parentGradeColor.TryGetValue(parent.parent.GetInstanceID(), out inheritedColor);
+ 
+                         tmp.text = (inheritedColor != null
+-                            ? $"<color={inheritedColor}>{stripped}</color>"
+-                            : stripped) + Marker;
++                            ? $"<size=90%><color={inheritedColor}>{stripped}</color></size>"
++                            : $"<size=90%>{stripped}</size>") + Marker;
+                         composed++;
+                         continue;
+                     }
+@@ -630,7 +630,8 @@
+         string[] lines = original.Split('\n');
+         var outLines = new List<string>(lines.Length);
+         bool sealedPending = false;
+-        string lastTierHex = null;   // continuation lines of a multi-stat affix wear its tier colour
++        string lastTierHex = null;   // continuation lines of a multi-stat affix wear its first-line colour
++        int lastTier = 0;
+ 
+         foreach (string line in lines)
+         {
+@@ -658,6 +659,7 @@
+                 outLines.Add(ComposeCleanLine(clean, tier, tierHex, grades, sealedPending));
+                 sealedPending = false;
+                 lastTierHex   = tierHex;
++                lastTier      = tier;
+                 continue;
+             }
+ 
+@@ -692,7 +694,7 @@
+                 {
+                     string stripped = s_colorTagRegex.Replace(line, "");
+                     stripped = s_kgExtraDataRegex.Replace(stripped, "").Trim();
+-                    outLines.Add($"<color={tmpGradeColor}>{stripped}</color>");
++                    outLines.Add($"<size=90%><color={tmpGradeColor}>{stripped}</color></size>");
+                 }
+                 continue;   // suppressed
+             }
+@@ -704,6 +706,15 @@
+             // no bracket above it, so lastTierHex is null and it passes
+             // through untouched, as before.
+             if (lastTierHex != null && line.Trim().Length > 0 &&
++                Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix)
++            {
++                string continuation = s_colorTagRegex.Replace(line, "").Trim();
++                if (Prefs.TooltipTierColors.Value && (lastTier == 6 || lastTier == 7))
++                    continuation = $"<color={GreaterAffixHex()}>{continuation}</color>";
++                outLines.Add(continuation);
++                continue;
++            }
++            if (lastTierHex != null && line.Trim().Length > 0 &&
+                 Prefs.NameColorMode.Value == AffixNameColorMode.TierColor &&
+                 Prefs.TooltipTierColors.Value)
+             {
+@@ -764,7 +775,7 @@
+                 if (deepRange)
+                 {
+                     string stripped = s_colorTagRegex.Replace(line, "").Trim();
+-                    deepLines.Add($"<color={tierHex ?? "#FFFFFF"}>{stripped}</color>");
++                    deepLines.Add($"<size=90%><color={tierHex ?? "#FFFFFF"}>{stripped}</color></size>");
+                 }
+                 continue;
+             }
+@@ -787,6 +798,9 @@
+                 if (Prefs.NameColorMode.Value == AffixNameColorMode.TierColor &&
+                     Prefs.TooltipTierColors.Value && tierHex != null)
+                     name = $"<color={tierHex}>{name}</color>";
++                else if (Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix &&
++                         Prefs.TooltipTierColors.Value && (tier == 6 || tier == 7))
++                    name = $"<color={GreaterAffixHex()}>{name}</color>";
+                 outLines.Add(name);
+             }
+         }
+@@ -807,7 +821,24 @@
+         string tail = stripped.Substring(tm.Index + tm.Length).Trim();
+         if (tail.StartsWith("(") && tail.EndsWith(")") && tail.Length > 2)
+             tail = tail.Substring(1, tail.Length - 2).Trim();
+-        return tail.Length > 0 ? $"<color={Dim}>{tail}</color>" : null;
++        return tail.Length > 0 ? $"<size=90%><color={Dim}>{tail}</color></size>" : null;
++    }
++
++    private static bool s_greaterAffixTintWarned;
++
++    private static string GreaterAffixHex()
++    {
++        string value = Prefs.GreaterAffixTint.Value;
++        if (Regex.IsMatch(value ?? "", @"^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$"))
++            return value;
++
++        if (!s_greaterAffixTintWarned)
++        {
++            s_greaterAffixTintWarned = true;
++            MelonLogger.Warning(
++                $"invalid GreaterAffixTint '{value}'; using {Colors.GreaterAffixTintDefault}");
++        }
++        return Colors.GreaterAffixTintDefault;
+     }
+ 
+     // One affix, one line. Layout per Prefs.Layout; every part honors its
+@@ -831,7 +862,7 @@
+         string sealedPart = sealedAffix
+             ? (badges
+                 ? $"<mark={Dim}66><color={Ink}>Sealed</color></mark>"
+-                : $"<color={Dim}>Sealed</color>")
++                : $"<size=90%><color={Dim}>Sealed</color></size>")
+             : null;
+ 
+         string tierPart = null;
+@@ -871,6 +902,11 @@
+             if (nameHex != null)
+                 name = $"<color={nameHex}>{cleanName}</color>";
+         }
++        else if (Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix &&
++                 tintTier && (tier == 6 || tier == 7))
++        {
++            name = $"<color={GreaterAffixHex()}>{cleanName}</color>";
++        }
+ 
+         // Chips separate themselves visually; plain text needs the dot.
+         string signal = JoinSignal(
+--- docs/build-2026-09-11/baseline-310dev/Prefs.cs.baseline	2026-09-11 14:09:57.678767400 -0700
++++ medick_TerribleTooltips/src/Prefs.cs	2026-09-11 14:22:03.622207600 -0700
+@@ -33,14 +33,15 @@
+ 
+ public enum AffixNameColorMode
+ {
+-    TierColor,   // affix text wears its tier color (the WoW retina read) ← default
+-    GameDefault  // the game's own text color; only the Tier·Grade signal is colored
++    TierColor,   // affix text wears its tier color (the WoW retina read)
++    GameDefault, // the game's own text color; only the Tier·Grade signal is colored
++    GreaterAffix // only Tier 6/7 affix text wears the ruled greater-affix tint ← default
+ }
+ 
+ public enum SignalStyle
+ {
+-    Badge,      // colored chip behind "Tier 7" / grades — the label look ← default
+-    PlainText   // colored text only, no chips
++    Badge,      // colored chip behind "Tier 7" / grades — the label look
++    PlainText   // colored text only, no chips ← default
+ }
+ 
+ public enum PillTierMode
+@@ -97,10 +98,10 @@
+         // v3 — THE CLEAN LINE (one line per affix; the essay dies)
+         Layout = Category.CreateEntry("TooltipLayout", TooltipLayout.BadgeLeft,
+             "Tooltip Layout", "Where the Tier·Grade signal sits on each affix line (BadgeLeft / SignalRight / Trailing)");
+-        Style = Category.CreateEntry("SignalStyle", SignalStyle.Badge,
+-            "Signal Style", "Badge = Tier/Grade as colored chips (label look); PlainText = colored text only");
+-        NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.TierColor,
+-            "Affix Name Color", "TierColor = affix text wears its tier color; GameDefault = game's own text color");
++        Style = Category.CreateEntry("SignalStyle", SignalStyle.PlainText,
++            "Signal Style", "PlainText = colored text only (default); Badge = Tier/Grade as colored chips");
++        NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.GreaterAffix,
++            "Affix Name Color", "GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier color; GameDefault = game's own text color");
+         ShowGradeLetters = Category.CreateEntry("ShowGradeLetters", true,
+             "Show Grade Letters", "The S/A/B/C/F roll grade on each affix line");
+         AlwaysShowRanges = Category.CreateEntry("AlwaysShowRanges", false,
+@@ -127,7 +128,7 @@
+             "D2 PROBE: clone one native pill onto one affix line. Experimental; logs loudly; off by default.");
+         PillTiers = Category.CreateEntry("PillTiers", PillTierMode.All,
+             "Which tiers get the probe pill: All, or only Tier 6/7 (greater affixes).");
+-        GreaterAffixTint = Category.CreateEntry("GreaterAffixTint", "#C990FF",
++        GreaterAffixTint = Category.CreateEntry("GreaterAffixTint", Colors.GreaterAffixTintDefault,
+             "GREATER-AFFIX TINT for Tier 6/7 affix sentences (ruled 2026-09-11). Consumed by the 3.1.0 composer ticket; the probe only logs it.");
+ 
+         Category.SetFilePath("UserData/medick_Terrible_Tooltips.cfg", autoload: true);
+@@ -165,7 +166,8 @@
+                 "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowGradeLetters",
+                 "AlwaysShowRanges", "AlwaysShowTierDetails", "GroundLabelStyle",
+                 "GroundLabelFilterOnly", "GroundLabelAltKey", "ShowFilterRuleNumber",
+-                "LabelRulePosition", "DebugLog"
++                "LabelRulePosition", "DebugLog", "PillProbe", "PillTiers",
++                "GreaterAffixTint"
+             };
+             var orphans = new HashSet<string>(StringComparer.Ordinal);
+ 
+--- docs/build-2026-09-11/baseline-310dev/FilterRuleTooltip.cs.baseline	2026-09-11 14:09:57.632687900 -0700
++++ medick_TerribleTooltips/src/FilterRuleTooltip.cs	2026-09-11 14:12:41.426138200 -0700
+@@ -115,7 +115,7 @@
+ 
+             string ruleTag;
+             if (mode == FilterRuleDisplay.NumberOnly)
+-                ruleTag = $"<size=200%><color={Gold}>Rule#{displayNum}</color></size>";
++                ruleTag = $"<size=120%><b><color={Gold}>Rule#{displayNum}</color></b></size>";
+             else
+                 ruleTag = $"<color={Gold}>Rule #{displayNum}: {GetRuleName(rule)}</color>";
+ 
+--- docs/build-2026-09-11/baseline-310dev/Colors.cs.baseline	2026-09-11 14:09:57.627950400 -0700
++++ medick_TerribleTooltips/src/Colors.cs	2026-09-11 14:15:54.417133600 -0700
+@@ -13,6 +13,8 @@
+ //
+ //  Grades:  F <50 · C <70 · B <80 · A <95 · S ≥95  (roll × 100)
+ //  Gray F is a feature: "telling the player ya that roll sucks bro"
++//  greater-affix tint, ruled 2026-09-11, deliberately outside the palette:
++//    #C990FF
+ //
+ //  These hex values are canonical — marketing copy drifts get corrected
+ //  TO this file, never the reverse. Thresholds inherited from KG.
+@@ -23,6 +25,8 @@
+ 
+ public static class Colors
+ {
++    public const string GreaterAffixTintDefault = "#C990FF";
++
+     // ── Tier colour — keyed by crafting tier number ──────────────────
+     public static string TierColor(int tier)
+         => tier switch
+@@ -58,20 +62,4 @@
+             _    => "#FF44FF",  // S — MYTHIC
+         };
+ 
+-    // ── Badge ink — dark text on bright chips, light text on dark ────
+-    // (v3 Signal Style = Badge: the chip wears the tier/grade colour,
+-    //  the text inside flips by luminance so it always reads. On this
+-    //  palette only T5/B purple #A807FF takes the light ink.)
+-    public static string BadgeTextColor(string hex)
+-    {
+-        try
+-        {
+-            int r = Convert.ToInt32(hex.Substring(1, 2), 16);
+-            int g = Convert.ToInt32(hex.Substring(3, 2), 16);
+-            int b = Convert.ToInt32(hex.Substring(5, 2), 16);
+-            double lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255.0;
+-            return lum >= 0.5 ? "#141210" : "#F2EFE6";
+-        }
+-        catch { return "#141210"; }
+-    }
+ }
+--- docs/build-2026-09-11/baseline-310dev/CHANGELOG.md.baseline	2026-09-11 14:09:57.747959800 -0700
++++ CHANGELOG.md	2026-09-11 14:12:44.007800800 -0700
+@@ -1,9 +1,12 @@
+ # Changelog — MedicK's Terrible Tooltips
+ 
+-## v3.1.0-dev (unreleased) — D2 probe
+-- Added an off-by-default probe that clones one native Image pill onto one affix line.
+-- Added All / GreaterOnly probe targeting and the ruled `#C990FF` greater-affix tint preference.
+-- Added fail-loud hierarchy/donor diagnostics with reversible margin and pooled-tooltip cleanup.
++## v3.1.0-dev (unreleased)
++- Added the ruled `#C990FF` greater-affix tint for Tier 6/7 affix sentences; T1–T5 stay game-default white.
++- Made the plain-text `Tier N·grade` signal the default while retaining Badge as an option.
++- Reduced the filter rule number to 120% and made it bold.
++- Dimmed sealed labels and composer-owned Alt/pinned detail rows to 90%.
++- Included the D2 native-pill probe, off by default, with All / GreaterOnly targeting.
++- Removed the unused badge text-colour helper.
+ 
+ ## v3.0.2 — the Nexus bug-report release
+ - Fixed Kaazkulaas's two-stat/weaver affix report by resolving `AffixFormatter`'s null affix from the stat property; each stat line intentionally carries its own bracket (for example, two clean `[1F]` lines).
+--- docs/build-2026-09-11/baseline-310dev/README.md.baseline	2026-09-11 14:09:57.760894000 -0700
++++ README.md	2026-09-11 14:12:45.332410300 -0700
+@@ -61,6 +61,7 @@
+ | T5 | Purple |
+ | T6 | Orange-Gold |
+ | T7 | Mythic Pink |
++| T6–T7 affix sentence (default) | `#C990FF` Greater-Affix Tint |
+ 
+ ## Grade Letters
+ | Letter | Meaning |

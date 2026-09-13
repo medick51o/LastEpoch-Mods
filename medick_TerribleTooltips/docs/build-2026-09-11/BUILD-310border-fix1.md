@@ -1,0 +1,5 @@
+# BUILD-310border-fix1 — built by Codex 15:37 (conductor hit its limit before containment); verified + DEPLOYED by the team lead 17:42
+DLL: medick_TerribleTooltips\medick_TerribleTooltips\bin\Release\net6.0\medick_Terrible_Tooltips.dll — 97792 B — md5 f3b85f4db6ed70a04c973b15ffd1a457 — v3.1.0-dev. Team-lead rebuild: 0 warnings, 0 errors, DLL unchanged. Containment vs baseline-310borderfix1.md5: exactly UnitBorder.cs, Prefs.cs, CHANGELOG.md. Delta: DELTA-310border-fix1.patch.
+Items verified in source: border.layer = tmp layer (371) · 32×32 ring, BorderThickness pref default 2 (clamped) · BorderDebug pref (magenta ring + per-row dbg line) · once-only canvas/mode/cam/mask/layer line · degenerate-rect guard · SetAllDirty after enable toggle.
+Deployed to Mods 17:42 with cfg BorderDebug=true (cfg backup .pre-fix1.bak). Gemini review: PENDING (dev build, in-hand first).
+In-hand: launch → hover an exalted → expect a fat MAGENTA ring around Tier N · G on every row. Console: one "[UnitBorder] canvas=… mode=… cam=… mask=… layer(tmp)=… layer(border)=…" line and per-row "[UnitBorder] dbg row=…" lines. Then set BorderDebug=false (game closed) for the real look.

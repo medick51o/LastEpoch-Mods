@@ -1,0 +1,739 @@
+// ================================================================
+//  UnitBorder.cs — runtime 9-slice outline for the clean-line unit.
+//
+//  The composer marks the PlainText Tier·Grade unit with a TMP link.
+//  This feature measures that link once per text generation and keeps a
+//  fresh, non-layout Image sibling immediately below the TMP glyphs.
+// ================================================================
+
+namespace medick_Terrible_Tooltips;
+
+internal static class UnitBorder
+{
+    private const string OwnedBorderName = "TT_UnitBorder";
+    private const string LinkOpen = "<link=\"ttu\">";
+    private const string LinkClose = "</link>";
+
+    private static readonly string Marker = new string((char)0x200B, 4);
+    private static readonly Regex s_tagRegex = new(@"<[^>]*>", RegexOptions.Compiled);
+    private static readonly Regex s_unitTierRegex = new(
+        @"(?:Tier\s*(\d+)|\bT(\d+))",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    private static readonly Dictionary<int, TooltipState> s_tooltips = new();
+    private static readonly List<int> s_deadTooltipKeys = new();
+
+    private static readonly Texture2D[] s_textures = new Texture2D[5];
+    private static readonly Texture2D[] s_debugTextures = new Texture2D[5];
+    private static readonly Sprite[] s_sprites = new Sprite[5];
+    private static readonly Sprite[] s_debugSprites = new Sprite[5];
+    private static int s_ownedBorderCount;
+    private static bool s_runtimeActive;
+    private static bool s_latchedOff;
+    private static bool s_failureLogged;
+    private static bool s_offLogged;
+    private static bool s_linkFallbackLogged;
+    private static bool s_wrappedLogged;
+    private static bool s_canvasLogged;
+    private static bool s_degenerateLogged;
+
+    private sealed class TooltipState
+    {
+        public UITooltipItem Tooltip;
+        public readonly List<RowState> Rows = new();
+        public int ScanToken;
+        public int LoggedFingerprint;
+        public bool HasLoggedFingerprint;
+    }
+
+    private sealed class RowState
+    {
+        public UITooltipItem Tooltip;
+        public TextMeshProUGUI Tmp;
+        public GameObject Border;
+        public RectTransform BorderRect;
+        public Image BorderImage;
+        public bool OwnsBorder;
+        public int TmpId;
+        public int TextHash;
+        public int SeenToken;
+        public int Tier;
+        public float Left;
+        public float Right;
+        public float Bottom;
+        public float Top;
+        public BorderColorMode ColorMode;
+        public bool Debug;
+    }
+
+    [HarmonyPatch(typeof(UITooltipItem), "UpdateLayout")]
+    internal static class Patch_UpdateLayout
+    {
+        private static void Postfix(UITooltipItem __instance, object[] __args)
+        {
+            try { Run(__instance); }
+            catch (Exception ex) { Fail("UpdateLayout", ex); }
+        }
+    }
+
+    internal static void OnLateUpdate()
+    {
+        try
+        {
+            if (!GateEnabled())
+            {
+                HandleGateOff();
+                return;
+            }
+
+            if (s_latchedOff) return;
+            s_runtimeActive = true;
+            if (s_ownedBorderCount == 0) return;
+
+            s_deadTooltipKeys.Clear();
+            foreach (var pair in s_tooltips)
+            {
+                TooltipState tooltipState = pair.Value;
+                if (tooltipState.Tooltip == null)
+                {
+                    DestroyRows(tooltipState);
+                    s_deadTooltipKeys.Add(pair.Key);
+                    continue;
+                }
+
+                for (int i = tooltipState.Rows.Count - 1; i >= 0; i--)
+                {
+                    RowState row = tooltipState.Rows[i];
+                    if (row.Tmp == null || row.Border == null)
+                    {
+                        DestroyRow(row);
+                        tooltipState.Rows.RemoveAt(i);
+                        continue;
+                    }
+
+                    string text = row.Tmp.text ?? "";
+                    if (!row.Tmp.gameObject.activeInHierarchy || !IsCandidateText(text))
+                        Hide(row);
+                }
+            }
+
+            foreach (int key in s_deadTooltipKeys) s_tooltips.Remove(key);
+            s_deadTooltipKeys.Clear();
+        }
+        catch (Exception ex) { Fail("LateUpdate", ex); }
+    }
+
+    private static void Run(UITooltipItem tooltip)
+    {
+        if (!GateEnabled())
+        {
+            HandleGateOff();
+            return;
+        }
+
+        if (s_latchedOff) return;
+        s_runtimeActive = true;
+        if (tooltip == null) return;
+
+        int tooltipId = tooltip.GetInstanceID();
+        if (!s_tooltips.TryGetValue(tooltipId, out TooltipState tooltipState) ||
+            tooltipState.Tooltip == null || tooltipState.Tooltip != tooltip)
+        {
+            if (tooltipState != null) DestroyRows(tooltipState);
+            tooltipState = new TooltipState { Tooltip = tooltip };
+            s_tooltips[tooltipId] = tooltipState;
+        }
+
+        tooltipState.ScanToken++;
+        if (tooltipState.ScanToken == 0) tooltipState.ScanToken = 1;
+        int scanToken = tooltipState.ScanToken;
+        int fingerprint = 17;
+        int candidates = 0;
+        int placed = 0;
+
+        TextMeshProUGUI[] tmps = tooltip.GetComponentsInChildren<TextMeshProUGUI>(false);
+        if (tmps == null) return;
+
+        foreach (TextMeshProUGUI tmp in tmps)
+        {
+            if (tmp == null) continue;
+            string text = tmp.text ?? "";
+            if (!IsCandidateText(text)) continue;
+
+            candidates++;
+            int tmpId = tmp.GetInstanceID();
+            int textHash = TextHash(text);
+            fingerprint = unchecked(fingerprint * 31 + tmpId);
+            fingerprint = unchecked(fingerprint * 31 + textHash);
+
+            RowState row = FindRow(tooltipState, tmpId);
+            if (row != null) row.SeenToken = scanToken;
+
+            if (row != null && row.Tmp != null && row.Border != null &&
+                row.TextHash == textHash)
+            {
+                row.Tooltip = tooltip;
+                row.Tmp = tmp;
+                if (!EnsureSprite(out Sprite sprite, out bool debug)) return;
+                ApplySprite(row, sprite, debug);
+                if (!row.Border.activeSelf) row.Border.SetActive(true);
+                ApplyColor(row);
+                if (SyncGeometry(row, candidates))
+                {
+                    placed++;
+                    LogCanvasOnce(row);
+                    LogDebugPlacement(row, candidates);
+                }
+                continue;
+            }
+
+            tmp.ForceMeshUpdate();
+            if (!TryMeasure(tmp, text, out Bounds bounds, out int tier))
+            {
+                if (row != null) Hide(row);
+                continue;
+            }
+
+            if (!EnsureSprite(out Sprite selectedSprite, out bool selectedDebug)) return;
+            if (row == null || row.Border == null)
+            {
+                if (row != null)
+                {
+                    tooltipState.Rows.Remove(row);
+                    DestroyRow(row);
+                }
+                row = CreateRow(tooltip, tmp, tmpId, selectedSprite, selectedDebug);
+                tooltipState.Rows.Add(row);
+            }
+
+            row.Tooltip = tooltip;
+            row.Tmp = tmp;
+            row.TmpId = tmpId;
+            row.TextHash = textHash;
+            row.SeenToken = scanToken;
+            row.Tier = tier;
+            row.Left = bounds.Left;
+            row.Right = bounds.Right;
+            row.Bottom = bounds.Bottom;
+            row.Top = bounds.Top;
+            ApplySprite(row, selectedSprite, selectedDebug);
+            ApplyColor(row);
+            if (!row.Border.activeSelf) row.Border.SetActive(true);
+            if (SyncGeometry(row, candidates))
+            {
+                placed++;
+                LogCanvasOnce(row);
+                LogDebugPlacement(row, candidates);
+            }
+        }
+
+        foreach (RowState row in tooltipState.Rows)
+            if (row.SeenToken != scanToken) Hide(row);
+
+        if (candidates > 0 &&
+            (!tooltipState.HasLoggedFingerprint || tooltipState.LoggedFingerprint != fingerprint))
+        {
+            tooltipState.HasLoggedFingerprint = true;
+            tooltipState.LoggedFingerprint = fingerprint;
+            MelonLogger.Msg($"[UnitBorder] placed {placed}/{candidates} rows path=runtime-9slice");
+        }
+    }
+
+    private readonly struct Bounds
+    {
+        public Bounds(float left, float right, float bottom, float top)
+        {
+            Left = left;
+            Right = right;
+            Bottom = bottom;
+            Top = top;
+        }
+
+        public float Left { get; }
+        public float Right { get; }
+        public float Bottom { get; }
+        public float Top { get; }
+    }
+
+    private static bool TryMeasure(TextMeshProUGUI tmp, string richText,
+                                   out Bounds bounds, out int tier)
+    {
+        bounds = default;
+        tier = ParseTier(richText);
+
+        TMP_TextInfo info = tmp.textInfo;
+        if (info == null || info.characterInfo == null || info.characterCount <= 0)
+            return false;
+
+        int characterCount = Math.Min(info.characterCount, info.characterInfo.Length);
+        int start = -1;
+        int end = -1;
+
+        if (info.linkInfo != null && info.linkCount > 0)
+        {
+            int linkCount = Math.Min(info.linkCount, info.linkInfo.Length);
+            for (int i = 0; i < linkCount; i++)
+            {
+                TMP_LinkInfo link = info.linkInfo[i];
+                if (link != null && string.Equals(link.GetLinkID(), "ttu", StringComparison.Ordinal))
+                {
+                    start = link.linkTextfirstCharacterIndex;
+                    end = start + link.linkTextLength;
+                    break;
+                }
+            }
+
+            if (start < 0) return false;
+        }
+        else
+        {
+            int wanted = PlainUnitLength(richText);
+            if (wanted <= 0) return false;
+            start = 0;
+            int visible = 0;
+            for (int i = 0; i < characterCount; i++)
+            {
+                TMP_CharacterInfo character = info.characterInfo[i];
+                if (character == null || !character.isVisible || character.character == (char)0x200B)
+                    continue;
+                visible++;
+                if (visible >= wanted)
+                {
+                    end = i + 1;
+                    break;
+                }
+            }
+            if (end < 0) end = characterCount;
+
+            if (!s_linkFallbackLogged)
+            {
+                s_linkFallbackLogged = true;
+                MelonLogger.Msg("[UnitBorder] linkInfo empty; using prefix count");
+            }
+        }
+
+        start = Math.Max(0, start);
+        end = Math.Min(characterCount, end);
+        bool found = false;
+        float left = float.MaxValue;
+        float right = float.MinValue;
+        float bottom = float.MaxValue;
+        float top = float.MinValue;
+
+        for (int i = start; i < end; i++)
+        {
+            TMP_CharacterInfo character = info.characterInfo[i];
+            if (character == null || !character.isVisible || character.character == (char)0x200B)
+                continue;
+            if (character.lineNumber != 0)
+            {
+                LogWrappedOnce();
+                return false;
+            }
+
+            found = true;
+            left = Math.Min(left, character.bottomLeft.x);
+            bottom = Math.Min(bottom, character.bottomLeft.y);
+            right = Math.Max(right, character.topRight.x);
+            top = Math.Max(top, character.topRight.y);
+        }
+
+        if (!found) return false;
+
+        float rightPad = 6f;
+        for (int i = end; i < characterCount; i++)
+        {
+            TMP_CharacterInfo sentenceCharacter = info.characterInfo[i];
+            if (sentenceCharacter == null || !sentenceCharacter.isVisible ||
+                sentenceCharacter.character == (char)0x200B)
+                continue;
+            float clearance = sentenceCharacter.bottomLeft.x - 1f - right;
+            rightPad = Math.Min(rightPad, Math.Max(0f, clearance));
+            break;
+        }
+
+        bounds = new Bounds(left - 6f, right + rightPad, bottom - 2f, top + 2f);
+        return true;
+    }
+
+    private static RowState CreateRow(UITooltipItem tooltip, TextMeshProUGUI tmp, int tmpId,
+                                      Sprite sprite, bool debug)
+    {
+        GameObject border = null;
+        try
+        {
+            border = new GameObject(
+                OwnedBorderName,
+                Il2CppInterop.Runtime.Il2CppType.Of<RectTransform>(),
+                Il2CppInterop.Runtime.Il2CppType.Of<Image>(),
+                Il2CppInterop.Runtime.Il2CppType.Of<LayoutElement>());
+            border.transform.SetParent(tmp.transform.parent, false);
+            border.layer = tmp.gameObject.layer;
+
+            if (border.GetComponent("CanvasRenderer") == null)
+                throw new InvalidOperationException("Image did not create its required CanvasRenderer");
+
+            RectTransform rect = border.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.localRotation = Quaternion.identity;
+            rect.localScale = Vector3.one;
+
+            Image image = border.GetComponent<Image>();
+            image.sprite = sprite;
+            image.type = Image.Type.Sliced;
+            image.fillCenter = debug;
+            image.pixelsPerUnitMultiplier = 1f;
+            image.raycastTarget = false;
+            image.material = null;
+            image.enabled = false;
+            image.enabled = true;
+            image.SetAllDirty();
+
+            LayoutElement layout = border.GetComponent<LayoutElement>();
+            layout.ignoreLayout = true;
+
+            s_ownedBorderCount++;
+            return new RowState
+            {
+                Tooltip = tooltip,
+                Tmp = tmp,
+                TmpId = tmpId,
+                Border = border,
+                BorderRect = rect,
+                BorderImage = image,
+                OwnsBorder = true,
+                ColorMode = (BorderColorMode)(-1),
+                Debug = !debug
+            };
+        }
+        catch
+        {
+            try { if (border != null) UnityEngine.Object.DestroyImmediate(border); } catch { }
+            throw;
+        }
+    }
+
+    private static bool SyncGeometry(RowState row, int rowNumber)
+    {
+        if (row.Tmp == null || row.BorderRect == null || row.Tmp.transform.parent == null) return false;
+
+        RectTransform tmpRect = row.Tmp.rectTransform;
+        Transform parent = row.Tmp.transform.parent;
+        Vector3 topLeft = parent.InverseTransformPoint(
+            tmpRect.TransformPoint(new Vector3(row.Left, row.Top, 0f)));
+        Vector3 topRight = parent.InverseTransformPoint(
+            tmpRect.TransformPoint(new Vector3(row.Right, row.Top, 0f)));
+        Vector3 bottomLeft = parent.InverseTransformPoint(
+            tmpRect.TransformPoint(new Vector3(row.Left, row.Bottom, 0f)));
+        Vector3 bottomRight = parent.InverseTransformPoint(
+            tmpRect.TransformPoint(new Vector3(row.Right, row.Bottom, 0f)));
+
+        float left = Math.Min(Math.Min(topLeft.x, topRight.x), Math.Min(bottomLeft.x, bottomRight.x));
+        float right = Math.Max(Math.Max(topLeft.x, topRight.x), Math.Max(bottomLeft.x, bottomRight.x));
+        float bottom = Math.Min(Math.Min(topLeft.y, topRight.y), Math.Min(bottomLeft.y, bottomRight.y));
+        float top = Math.Max(Math.Max(topLeft.y, topRight.y), Math.Max(bottomLeft.y, bottomRight.y));
+
+        float width = right - left;
+        float height = top - bottom;
+        if (width < 4f || height < 4f)
+        {
+            Hide(row);
+            LogDegenerateOnce(rowNumber, width, height);
+            return false;
+        }
+
+        float anchorX = 0f;
+        float anchorY = 0f;
+        RectTransform parentRect = parent as RectTransform;
+        if (parentRect != null)
+        {
+            anchorX = parentRect.rect.xMin;
+            anchorY = parentRect.rect.yMax;
+        }
+
+        row.BorderRect.anchorMin = new Vector2(0f, 1f);
+        row.BorderRect.anchorMax = new Vector2(0f, 1f);
+        row.BorderRect.pivot = new Vector2(0f, 1f);
+        row.BorderRect.anchoredPosition = new Vector2(left - anchorX, top - anchorY);
+        row.BorderRect.sizeDelta = new Vector2(right - left, top - bottom);
+        row.BorderRect.localRotation = Quaternion.identity;
+        row.BorderRect.localScale = Vector3.one;
+        row.BorderRect.SetSiblingIndex(row.Tmp.transform.GetSiblingIndex());
+        return true;
+    }
+
+    private static void ApplyColor(RowState row)
+    {
+        BorderColorMode mode = Prefs.BorderColorMode.Value;
+        bool debug = Prefs.BorderDebug != null && Prefs.BorderDebug.Value;
+        if (row.BorderImage == null || (row.ColorMode == mode && row.Debug == debug)) return;
+
+        Color color = new(138f / 255f, 116f / 255f, 168f / 255f, 0.9f);
+        if (debug)
+        {
+            color = new Color(1f, 0f, 1f, 1f);
+        }
+        else if (mode == BorderColorMode.TierColor && row.Tier > 0 &&
+            ColorUtility.TryParseHtmlString(Colors.TierColor(row.Tier), out Color tierColor))
+        {
+            tierColor.a = 0.75f;
+            color = tierColor;
+        }
+
+        row.BorderImage.color = color;
+        row.ColorMode = mode;
+        row.Debug = debug;
+    }
+
+    private static void ApplySprite(RowState row, Sprite sprite, bool debug)
+    {
+        if (row.BorderImage == null) return;
+        row.BorderImage.sprite = sprite;
+        row.BorderImage.fillCenter = debug;
+        row.BorderImage.pixelsPerUnitMultiplier = 1f;
+    }
+
+    private static bool EnsureSprite(out Sprite sprite, out bool debug)
+    {
+        int thickness = BorderThickness();
+        debug = Prefs.BorderDebug != null && Prefs.BorderDebug.Value;
+        Sprite[] sprites = debug ? s_debugSprites : s_sprites;
+        Texture2D[] textures = debug ? s_debugTextures : s_textures;
+        sprite = sprites[thickness];
+        if (sprite != null) return true;
+
+        try
+        {
+            Texture2D texture = new(32, 32, TextureFormat.RGBA32, false);
+            texture.filterMode = FilterMode.Bilinear;
+            texture.wrapMode = TextureWrapMode.Clamp;
+
+            for (int y = 0; y < 32; y++)
+            {
+                for (int x = 0; x < 32; x++)
+                {
+                    bool edge = x < thickness || x >= 32 - thickness ||
+                                y < thickness || y >= 32 - thickness;
+                    bool corner = (x < 2 || x >= 30) && (y < 2 || y >= 30);
+                    Color pixel = edge ? Color.white :
+                        debug ? new Color(1f, 1f, 1f, 0.25f) : Color.clear;
+                    texture.SetPixel(x, y, corner ? Color.clear : pixel);
+                }
+            }
+
+            texture.Apply();
+            sprite = Sprite.Create(
+                texture,
+                new Rect(0f, 0f, 32f, 32f),
+                new Vector2(0.5f, 0.5f),
+                100f,
+                0u,
+                SpriteMeshType.FullRect,
+                new Vector4(6f, 6f, 6f, 6f));
+            if (sprite == null) throw new InvalidOperationException("Sprite.Create returned null");
+            sprite.name = debug
+                ? $"TT_UnitBorder_t{thickness}_debug"
+                : $"TT_UnitBorder_t{thickness}";
+            textures[thickness] = texture;
+            sprites[thickness] = sprite;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Fail("sprite", ex);
+            return false;
+        }
+    }
+
+    private static int BorderThickness()
+    {
+        int value = Prefs.BorderThickness != null ? Prefs.BorderThickness.Value : 2;
+        int clamped = Math.Clamp(value, 1, 4);
+        if (Prefs.BorderThickness != null && value != clamped)
+            Prefs.BorderThickness.Value = clamped;
+        return clamped;
+    }
+
+    private static void LogCanvasOnce(RowState row)
+    {
+        if (s_canvasLogged) return;
+        s_canvasLogged = true;
+
+        Component canvas = null;
+        try
+        {
+            Il2CppSystem.Type canvasType = Il2CppSystem.Type.GetType(
+                "UnityEngine.Canvas, UnityEngine.UIModule");
+            if (canvasType != null) canvas = row.Tmp.GetComponentInParent(canvasType);
+        }
+        catch { }
+
+        Camera camera = RuntimeProperty(canvas, "worldCamera") as Camera;
+        string canvasName = canvas != null ? canvas.name : "none";
+        string mode = RuntimeProperty(canvas, "renderMode")?.ToString() ?? "-";
+        string cameraName = camera != null ? camera.name : "none";
+        string mask = camera != null ? camera.cullingMask.ToString() : "-";
+        MelonLogger.Msg(
+            $"[UnitBorder] canvas={canvasName} mode={mode} cam={cameraName} mask={mask} " +
+            $"layer(tmp)={row.Tmp.gameObject.layer} layer(border)={row.Border.layer}");
+    }
+
+    private static void LogDebugPlacement(RowState row, int rowNumber)
+    {
+        if (Prefs.BorderDebug == null || !Prefs.BorderDebug.Value) return;
+
+        Vector2 position = row.BorderRect.anchoredPosition;
+        Vector2 size = row.BorderRect.sizeDelta;
+        int sibling = row.Border.transform.GetSiblingIndex();
+        int siblingCount = row.Border.transform.parent.childCount;
+        string spriteName = row.BorderImage.sprite != null ? row.BorderImage.sprite.name : "null";
+        Component canvasRenderer = row.Border.GetComponent("CanvasRenderer");
+        string cull = RuntimeProperty(canvasRenderer, "cull")?.ToString() ?? "-";
+        MelonLogger.Msg(
+            $"[UnitBorder] dbg row={rowNumber} pos=({position.x:0.##},{position.y:0.##}) " +
+            $"size=({size.x:0.##},{size.y:0.##}) sib={sibling}/{siblingCount} " +
+            $"layer={row.Border.layer} enabled={row.BorderImage.enabled} " +
+            $"cull={cull} sprite={spriteName}");
+    }
+
+    private static void LogDegenerateOnce(int rowNumber, float width, float height)
+    {
+        if (s_degenerateLogged) return;
+        s_degenerateLogged = true;
+        MelonLogger.Msg($"[UnitBorder] degenerate rect on row {rowNumber} ({width:0.##}×{height:0.##})");
+    }
+
+    private static object RuntimeProperty(object instance, string propertyName)
+    {
+        if (instance == null) return null;
+        try { return instance.GetType().GetProperty(propertyName)?.GetValue(instance); }
+        catch { return null; }
+    }
+
+    private static RowState FindRow(TooltipState tooltipState, int tmpId)
+    {
+        foreach (RowState row in tooltipState.Rows)
+            if (row.TmpId == tmpId) return row;
+        return null;
+    }
+
+    private static int ParseTier(string richText)
+    {
+        string plain = s_tagRegex.Replace(UnitRichText(richText), "");
+        Match match = s_unitTierRegex.Match(plain);
+        if (!match.Success) return 0;
+        string digits = match.Groups[1].Success ? match.Groups[1].Value : match.Groups[2].Value;
+        return int.TryParse(digits, out int tier) ? tier : 0;
+    }
+
+    private static int PlainUnitLength(string richText)
+        => s_tagRegex.Replace(UnitRichText(richText), "").Length;
+
+    private static string UnitRichText(string richText)
+    {
+        if (string.IsNullOrEmpty(richText)) return "";
+        int start = richText.IndexOf(LinkOpen, StringComparison.Ordinal);
+        if (start < 0) return "";
+        start += LinkOpen.Length;
+        int end = richText.IndexOf(LinkClose, start, StringComparison.Ordinal);
+        if (end < start) return "";
+        return richText.Substring(start, end - start);
+    }
+
+    private static bool IsCandidateText(string text)
+        => text.EndsWith(Marker, StringComparison.Ordinal) &&
+           text.Contains(LinkOpen, StringComparison.Ordinal);
+
+    private static bool GateEnabled()
+        => Prefs.UnitBorder != null && Prefs.UnitBorder.Value &&
+           Prefs.EnableTooltips != null && Prefs.EnableTooltips.Value &&
+           Prefs.Style != null && Prefs.Style.Value == SignalStyle.PlainText;
+
+    private static bool MasterAndPrefEnabled()
+        => Prefs.UnitBorder != null && Prefs.UnitBorder.Value &&
+           Prefs.EnableTooltips != null && Prefs.EnableTooltips.Value;
+
+    private static void HandleGateOff()
+    {
+        if (!MasterAndPrefEnabled())
+        {
+            if (s_runtimeActive || s_ownedBorderCount > 0)
+            {
+                CleanupAll();
+                if (!s_offLogged)
+                {
+                    s_offLogged = true;
+                    MelonLogger.Msg("[UnitBorder] off — borders removed");
+                }
+            }
+            s_runtimeActive = false;
+            return;
+        }
+
+        if (!s_runtimeActive) return;
+        HideAll();
+        s_runtimeActive = false;
+    }
+
+    private static void HideAll()
+    {
+        foreach (TooltipState tooltipState in s_tooltips.Values)
+            foreach (RowState row in tooltipState.Rows)
+                Hide(row);
+    }
+
+    private static void Hide(RowState row)
+    {
+        if (row?.Border != null && row.Border.activeSelf) row.Border.SetActive(false);
+    }
+
+    private static void DestroyRows(TooltipState tooltipState)
+    {
+        if (tooltipState == null) return;
+        foreach (RowState row in tooltipState.Rows) DestroyRow(row);
+        tooltipState.Rows.Clear();
+    }
+
+    private static void DestroyRow(RowState row)
+    {
+        if (row == null || !row.OwnsBorder) return;
+        try { if (row.Border != null) UnityEngine.Object.DestroyImmediate(row.Border); }
+        catch { }
+        row.Border = null;
+        row.BorderRect = null;
+        row.BorderImage = null;
+        row.OwnsBorder = false;
+        if (s_ownedBorderCount > 0) s_ownedBorderCount--;
+    }
+
+    private static void CleanupAll()
+    {
+        foreach (TooltipState tooltipState in s_tooltips.Values) DestroyRows(tooltipState);
+        s_tooltips.Clear();
+        s_ownedBorderCount = 0;
+    }
+
+    private static void LogWrappedOnce()
+    {
+        if (s_wrappedLogged) return;
+        s_wrappedLogged = true;
+        MelonLogger.Msg("[UnitBorder] unit wrapped; row skipped");
+    }
+
+    private static void Fail(string stage, Exception ex)
+    {
+        if (!s_failureLogged)
+        {
+            s_failureLogged = true;
+            MelonLogger.Warning(
+                $"[UnitBorder] OFF ({stage}: {ex.GetType().Name}: {ex.Message}) — plain coloured text");
+        }
+        CleanupAll();
+        s_latchedOff = true;
+        s_runtimeActive = false;
+    }
+
+    private static int TextHash(string text) => StringComparer.Ordinal.GetHashCode(text ?? "");
+}

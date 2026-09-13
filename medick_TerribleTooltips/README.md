@@ -1,5 +1,5 @@
 # MedicK's Terrible Tooltips
-**by medick** — v3.0.2
+**by medick** — v3.1.0
 
 WoW / Diablo 4 style tier and grade colouring on item tooltips and ground labels. If your eyes were trained by twenty years of loot games, they already know how to read this mod — zero deciphering required.
 
@@ -25,29 +25,45 @@ Hover any item and the tooltip shows **which loot filter rule matched it** — i
 
 ---
 
-## Settings (in-game Settings panel → scroll to "Terrible Tooltips")
+## Settings (cfg)
 
-| Setting | Default | What it does |
+**On Last Epoch 1.4.7 the in-game settings rows for this mod do not build.** Edit the
+cfg keys below directly in `UserData/medick_Terrible_Tooltips.cfg` with the game
+closed, then relaunch.
+
+| Cfg key | Default | What it does |
 |---|---|---|
-| Terrible Tooltips | ON | Master switch — enables all tooltip colouring |
-| Tooltip: Tier Colors | ON | Colours affix names by crafting tier |
-| Tooltip: Rank Colors | ON | Colours grade letters by roll quality |
-| Tooltip Layout | BadgeLeft | Where the Tier·Grade signal sits: BadgeLeft / SignalRight / Trailing |
-| Signal Style | Badge | Tier/Grade as coloured chips (Badge) or plain coloured text (PlainText) |
-| Affix Name Color | TierColor | Affix text in its tier colour, or the game's default text colour |
-| Show Grade Letters | ON | The S/A/B/C/F grades — turn off if you only want tiers |
-| Always Show Ranges | OFF | Pin Range lines permanently (or just hold Alt to peek) |
-| Always Show Tier Details | OFF | Pin the full "Tier: 5 (max craftable)" line (or hold Alt) |
-| Ground Label Style | TierAndRank | Dropdown: None / TierAndRank / TierOnly / RankOnly |
-| Ground Labels: Filter Only | OFF | Only show brackets on loot-filter highlighted items |
-| Ground Labels: Hold Alt to Show | OFF | Hide brackets until you hold Alt (KG-style) |
-| Tooltip: Show Filter Rule # | NumberOnly | Off / NumberOnly / NumberAndName |
-| Ground Label: Rule # Position | EHGDefault | Where EHG's rule number sits relative to the brackets |
+| EnableTooltips | true | Master switch — enables all tooltip colouring |
+| TooltipTierColors | true | Colours affix names by crafting tier |
+| TooltipRankColors | true | Colours grade letters by roll quality |
+| TooltipLayout | BadgeLeft | Where the Tier·Grade signal sits: BadgeLeft / SignalRight / Trailing |
+| SignalStyle | PlainText | PlainText = coloured text only (default); Badge = Tier/Grade as coloured chips |
+| AffixNameColor | GreaterAffix | GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier colour; GameDefault = the game's own text colour |
+| ShowGradeLetters | true | The S/A/B/C/F grades — set false if you only want tiers |
+| AlwaysShowRanges | false | Pin EHG's "Range: X to Y" lines permanently (default hidden, hold Alt to peek) |
+| AlwaysShowTierDetails | false | Pin EHG's full "Tier: N (max craftable)" line (default folded in, hold Alt to peek) |
+| GroundLabelStyle | TierAndRank | None / TierAndRank / TierOnly / RankOnly |
+| GroundLabelFilterOnly | false | Only show ground labels on loot-filter highlighted items |
+| GroundLabelAltKey | false | Hide ground brackets until you hold Alt (KG-style) |
+| ShowFilterRuleNumber | NumberOnly | Off / NumberOnly / NumberAndName |
+| LabelRulePosition | EHGDefault | Where EHG's filter rule number sits on the ground label: Start / End / EHGDefault |
+| DebugLog | false | Verbose log output — turn on for a formatter trace when filing a bug report |
+| GreaterAffixTint | `#C990FF` | The greater-affix tint colour applied to Tier 6/7 affix sentences |
+| UnitBorder | true | Draw a thin border around the Tier·Grade unit under the text (PlainText style only) |
+| TierWord | Spelled | Spelled ("Tier 7") or Compact ("T7") in the tooltip signal. Ground labels unaffected |
+| UnitSeparator | Bar | Bar = "Tier 7 \| A" (default); Dot = "Tier 7·A". Ground labels unaffected |
+| DividerStyle | Strip | Strip = full-height divider image (default); Glyph = show the selected \| or · glyph |
+| BorderColorMode | Neutral | Neutral = the muted #5A4670 outline; TierColor = the tier colour at 60% alpha |
+| BorderThickness | 2 | Border thickness in texels (clamped 1–4) |
+| BorderPadX | 6 | Horizontal unit-border padding (clamped 2–12) |
+| BorderPadY | 2 | Vertical unit-border padding base (clamped 0–6, plus 0.5 units) |
+| BorderDebug | false | Draw the unit border in diagnostic magenta with a translucent centre and log every placement |
 
-The panel also includes colour-legend reference rows (the tier ladder and the (PoG) S→F (RiP) grade ladder) so you never have to leave the game to remember what purple means.
+The in-game panel, where it does build, also includes colour-legend reference rows
+(the tier ladder and the (PoG) S→F (RiP) grade ladder) so you never have to leave
+the game to remember what purple means.
 
-Settings persist to `UserData/medick_Terrible_Tooltips.cfg` — editable by hand if the in-game panel ever breaks after a game patch.
-Set `DebugLog = true` there to print a formatter trace for bug reports.
+Settings persist to `UserData/medick_Terrible_Tooltips.cfg`.
 
 ---
 
@@ -61,6 +77,7 @@ Set `DebugLog = true` there to print a formatter trace for bug reports.
 | T5 | Purple |
 | T6 | Orange-Gold |
 | T7 | Mythic Pink |
+| T6–T7 affix sentence (default) | `#C990FF` Greater-Affix Tint |
 
 ## Grade Letters
 | Letter | Meaning |

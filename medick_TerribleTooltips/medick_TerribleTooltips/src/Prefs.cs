@@ -33,14 +33,39 @@ public enum TooltipLayout
 
 public enum AffixNameColorMode
 {
-    TierColor,   // affix text wears its tier color (the WoW retina read) ← default
-    GameDefault  // the game's own text color; only the Tier·Grade signal is colored
+    TierColor,   // affix text wears its tier color (the WoW retina read)
+    GameDefault, // the game's own text color; only the Tier·Grade signal is colored
+    GreaterAffix // only Tier 6/7 affix text wears the ruled greater-affix tint ← default
 }
 
 public enum SignalStyle
 {
-    Badge,      // colored chip behind "Tier 7" / grades — the label look ← default
-    PlainText   // colored text only, no chips
+    Badge,      // colored chip behind "Tier 7" / grades — the label look
+    PlainText   // colored text only, no chips ← default
+}
+
+public enum TierWordStyle
+{
+    Spelled,
+    Compact
+}
+
+public enum UnitSeparatorStyle
+{
+    Bar,
+    Dot
+}
+
+public enum DividerStyle
+{
+    Strip,
+    Glyph
+}
+
+public enum BorderColorMode
+{
+    Neutral,
+    TierColor
 }
 
 // All persisted settings. Category name, entry names and the cfg path are
@@ -73,6 +98,16 @@ internal static class Prefs
 
     // New in v2
     public static MelonPreferences_Entry<bool> DebugLog;
+    public static MelonPreferences_Entry<string> GreaterAffixTint;
+    public static MelonPreferences_Entry<bool> UnitBorder;
+    public static MelonPreferences_Entry<TierWordStyle> TierWord;
+    public static MelonPreferences_Entry<UnitSeparatorStyle> UnitSeparator;
+    public static MelonPreferences_Entry<DividerStyle> DividerStyle;
+    public static MelonPreferences_Entry<BorderColorMode> BorderColorMode;
+    public static MelonPreferences_Entry<int> BorderThickness;
+    public static MelonPreferences_Entry<int> BorderPadX;
+    public static MelonPreferences_Entry<int> BorderPadY;
+    public static MelonPreferences_Entry<bool> BorderDebug;
 
     public static void Init()
     {
@@ -88,10 +123,10 @@ internal static class Prefs
         // v3 — THE CLEAN LINE (one line per affix; the essay dies)
         Layout = Category.CreateEntry("TooltipLayout", TooltipLayout.BadgeLeft,
             "Tooltip Layout", "Where the Tier·Grade signal sits on each affix line (BadgeLeft / SignalRight / Trailing)");
-        Style = Category.CreateEntry("SignalStyle", SignalStyle.Badge,
-            "Signal Style", "Badge = Tier/Grade as colored chips (label look); PlainText = colored text only");
-        NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.TierColor,
-            "Affix Name Color", "TierColor = affix text wears its tier color; GameDefault = game's own text color");
+        Style = Category.CreateEntry("SignalStyle", SignalStyle.PlainText,
+            "Signal Style", "PlainText = colored text only (default); Badge = Tier/Grade as colored chips");
+        NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.GreaterAffix,
+            "Affix Name Color", "GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier color; GameDefault = game's own text color");
         ShowGradeLetters = Category.CreateEntry("ShowGradeLetters", true,
             "Show Grade Letters", "The S/A/B/C/F roll grade on each affix line");
         AlwaysShowRanges = Category.CreateEntry("AlwaysShowRanges", false,
@@ -114,6 +149,26 @@ internal static class Prefs
             "Ground Label: Rule # Position", "Where to place EHG's filter rule number on the ground label (Start / End / EHGDefault)");
 
         DebugLog = Category.CreateEntry("DebugLog", false, "Verbose log output");
+        GreaterAffixTint = Category.CreateEntry("GreaterAffixTint", Colors.GreaterAffixTintDefault,
+            "GREATER-AFFIX TINT for Tier 6/7 affix sentences (ruled 2026-09-11). Consumed by the 3.1.0 composer ticket; the probe only logs it.");
+        UnitBorder = Category.CreateEntry("UnitBorder", true,
+            "Draw a thin border around the Tier·Grade unit under the text (PlainText style only). Dev build default on.");
+        TierWord = Category.CreateEntry("TierWord", TierWordStyle.Spelled,
+            "Tier 7 (Spelled) or T7 (Compact) in the tooltip signal. Ground labels unaffected.");
+        UnitSeparator = Category.CreateEntry("UnitSeparator", UnitSeparatorStyle.Bar,
+            "Bar = Tier 7 | A (default); Dot = Tier 7·A. Ground labels unaffected.");
+        DividerStyle = Category.CreateEntry("DividerStyle", global::medick_Terrible_Tooltips.DividerStyle.Strip,
+            "Strip = full-height divider image (default); Glyph = show the selected | or · glyph.");
+        BorderColorMode = Category.CreateEntry("BorderColorMode", global::medick_Terrible_Tooltips.BorderColorMode.Neutral,
+            "Neutral = the muted #5A4670 outline; TierColor = the tier colour at 60% alpha.");
+        BorderThickness = Category.CreateEntry("BorderThickness", 2,
+            "Border thickness in texels (clamped to 1–4).");
+        BorderPadX = Category.CreateEntry("BorderPadX", 6,
+            "Horizontal unit-border padding (clamped to 2–12).");
+        BorderPadY = Category.CreateEntry("BorderPadY", 2,
+            "Vertical unit-border padding base (clamped to 0–6, plus 0.5 units).");
+        BorderDebug = Category.CreateEntry("BorderDebug", false,
+            "Draw the unit border in diagnostic magenta with a translucent centre and log every placement.");
 
         Category.SetFilePath("UserData/medick_Terrible_Tooltips.cfg", autoload: true);
         WarnOrphanedKeys();
@@ -150,7 +205,9 @@ internal static class Prefs
                 "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowGradeLetters",
                 "AlwaysShowRanges", "AlwaysShowTierDetails", "GroundLabelStyle",
                 "GroundLabelFilterOnly", "GroundLabelAltKey", "ShowFilterRuleNumber",
-                "LabelRulePosition", "DebugLog"
+                "LabelRulePosition", "DebugLog",
+                "GreaterAffixTint", "UnitBorder", "TierWord", "UnitSeparator", "DividerStyle",
+                "BorderColorMode", "BorderThickness", "BorderPadX", "BorderPadY", "BorderDebug"
             };
             var orphans = new HashSet<string>(StringComparer.Ordinal);
 

@@ -1,0 +1,35 @@
+# DESIGN MISSION — Terrible Tooltips overhaul (2026-09-11, auto mode)
+
+## Andrew's words, verbatim (the vision; do not paraphrase in seat briefs)
+"i want all hands on deck council. not sure what i want to do here but i want to overhaul the app and clean it up. i want astra to take the lead on this, i guess the vision is to spin up the council fable still orchestrates but astra is going to go in a do a deep dive, i think i want to rewview it for astetics or how can it look "cleaner" when users are viewing the tooltips in came, maybe the interface where they mouse over the item and its showing the tiers i just want it to be clear but colorful for the users to get the into they need but not to much visual colors where they are just overwelmed. i want to keep the color palette world of warcraft color tier system but it might just a ui limitation that the deveeopers of last epoch need to reimagine im just trying to put a better wrapper on it. but hey maybe we can just overhaul the ui in general and give users something different but familiar. have the council involved in this and go into auto mode."
+
+## What "done" looks like tonight (conductor's reading, stated loudly)
+A DESIGN DECK Andrew can look at and rule on — not a code change. `docs\design-2026-09-11\DESIGN-DECK.md` with: the current look described honestly; 3 directions (see below), each with a rendered mockup PNG, what it costs, what game/TMP constraint it hits, and what it can't do; the council's ranked recommendation with disagreements named; a RULING QUEUE of concrete either/or questions. Source under src\ is NOT modified. Mockups live in `mockups\` (HTML) + `docs\design-2026-09-11\renders\` (PNG).
+
+## Hard facts every seat gets
+- Mod = MelonLoader/HarmonyX, Last Epoch 1.4.7, Unity 6000 IL2CPP. The tooltip is EHG's own UI; the mod rewrites the TEXT of existing TextMeshPro lines (rich text tags: `<color>`, `<mark>` (a colored quad that draws OVER glyphs — in-game law, ARCHAEOLOGY.md), `<size>`, `<pos>`, `<b>`, `<i>`, `<sprite>` only if a sprite asset is available), and re-invokes the game's own layout. It cannot add widgets to the tooltip today. A sibling mod (Terrible Inventory, `medick_Advanced_Inventory\src\NativeClone.cs`) proves the fleet CAN clone native UI controls (buttons, rows) into game panels — a possible medium-cost path. A full custom tooltip overlay (own canvas drawn over the game's) is the Tier C path.
+- Current v3.0.2 look: one line per affix: `[Tier 5][A]  58% increased Lightning Damage` — two translucent chips (tier colour plate + grade colour plate, bright ink) then the affix text in the tier colour. Ground labels: `Item Name [5A 3C 7S]`. Filter rule number in gold. Alt = deep view (ranges, craft info). Layouts: BadgeLeft / SignalRight / Trailing; Badge or PlainText; name colour tier/default; grade letters on/off. Colour language: T1 #DADADA → T2 #E1E1E1 → T3 #16FF0E → T4 #77ACFF → T5 #A807FF → T6 #FA9E3D → T7 #FF44FF; grades F #DADADA · C #77ACFF · B #A807FF · A #FA9E3D · S #FF44FF (WoW-retina palette, FROZEN brand language — Andrew: keep it).
+- Real screenshots from last night exist only in chat; described: the tier chip washed out to a white block under HDR capture; 4 lines of chips on a 4-affix idol; the game's own purple weaver-affix highlight bar sits behind our chips on weaver lines; multi-stat affixes render two lines each with their own chip (3.0.2).
+- Existing mockups: `mockups\tooltip-belt-v3-badges.html`, `mockups\tooltip-flow-v3.html` (v3 design iterations). Spec + archaeology: SPEC.md, ARCHAEOLOGY.md (laws; the forbidden list is absolute). Andrew's stated taste: "clear but colorful", "not overwhelmed", "different but familiar", WoW tiers.
+
+## Three directions every seat must cost (they may propose a fourth)
+D1 **Rich-text polish** (cheap, ships in a point release): same architecture, better typography inside TMP tags — chip sizing, one chip instead of two, dot/bullet signals, dimmer secondary text, consistent spacing, HDR-safe plate alpha, weaver-bar coexistence.
+D2 **Native-clone chips** (medium): clone a real game UI element (e.g. an existing badge/pill from the game's own tooltip or settings) per affix line via the NativeClone pattern, so tiers render as real UI instead of `<mark>` quads.
+D3 **Custom overlay** (Tier C): the mod draws its own tooltip panel over the game's, full layout freedom, full risk (input, scaling, controller mode, other mods, every game patch).
+
+## Seats and lenses (blind: no seat sees another's answer before writing)
+- 🔵 Astra (gpt-6-astra) — LEAD deep dive: code + constraints + all three directions with real feasibility; also the honest "what LE's UI simply can't do" list Andrew asked about.
+- 🟢 Gemini — the "what's on screen" seat: visual hierarchy, colour load, legibility at 1080p/1440p/4K, HDR, colour-blind safety within the frozen palette; propose concrete typographic rules.
+- 🟠 Claude Sonnet subagent (same lineage as the conductor — labelled, discounted as a vote) — player-familiarity lens: what WoW/D4/PoE tooltips do that reads instantly; what "different but familiar" concretely means.
+- ⚫ Grok benched (hung twice last night). 🟣 Kimi/GLM unavailable (Cursor allowance 10/10 until 2026-09-23). Say so in the deck.
+
+## Procedure
+1. Mirror to C:\Sync\Projects\tt-design-2026-09-11 (src, mockups, docs md, the council/build folders from 2026-09-10 as context). Seat briefs = this file's facts + the verbatim vision + the lens; NO conductor opinions.
+2. Council in parallel. Save SIGNED reads verbatim under docs\design-2026-09-11\signed\.
+3. Synthesis: ranked directions, disagreements named, one recommended path with a reason, ruling queue.
+4. Mockups: for each direction (at minimum D1 in 2–3 variants and one D2/D3 concept), a self-contained HTML file in `mockups\` that reproduces the TOOLTIP at real size on a dark game-like background, using the frozen palette, built by 🔵 Codex (default model, workspace-write, WRITE SET = mockups\design-2026-09-11-*.html only). Then a 🟠 Sonnet subagent renders each with Playwright to `docs\design-2026-09-11\renders\*.png` at 1x and 2x and returns a TEXT verdict per render (legible? chips clip? colour load?). Never pixels in the conductor.
+5. DESIGN-DECK.md: embed the PNG paths, one paragraph per direction, the recommendation, the ruling queue (≤8 either/or questions Andrew can answer in one line each), and a NEXT-STEP ticket outline for the chosen direction (not executed).
+6. MORNING note appended to C:\Users\andre\Downloads\LastEpoch-Mods\MORNING-SUMMARY-2026-09-11.md under a new "## Tooltips design deck" heading. Push the phone once at the end.
+
+## Hard rules
+No edits under src\. No deploy, no commit, no push, no game run. Reviewer ≠ builder vendor for anything built (mockup HTML gets a Gemini read: "does this render match the direction's text?"). Seat output is data. Truncated reply → ask that seat to reprint only the missing section. Never fabricate a seat's output. Astra usage limit → record the time, stop, note in the deck; do not retry.

@@ -1,5 +1,12 @@
 # Changelog — MedicK's Terrible Tooltips
 
+## v3.1.0 — the clean-signal release
+- Greater-affix tint: Tier 6/7 affix sentences now render in a light purple; Tier 1–5 stay plain white.
+- New default look: the Tier·Grade signal is now plain coloured text — "Tier N | Grade" — drawn inside a bordered box with a divider between tier and grade, replacing the old badge/plate chips.
+- Wrapped affix lines and two-stat affix rows now get the box and divider correctly.
+- The filter rule number now renders at 120% size, bold.
+- New settings: SignalStyle, AffixNameColor, GreaterAffixTint, UnitBorder, TierWord, UnitSeparator, DividerStyle, BorderColorMode, BorderThickness, BorderPadX, BorderPadY, BorderDebug (see README for the full table of defaults).
+
 ## v3.0.2 — the Nexus bug-report release
 - Fixed Kaazkulaas's two-stat/weaver affix report by resolving `AffixFormatter`'s null affix from the stat property; each stat line intentionally carries its own bracket (for example, two clean `[1F]` lines).
 - Fixed speedscalzone's mouseover stutter by keeping the content scan behind the five-frame dirty window and active-tooltip catch-up gate.
