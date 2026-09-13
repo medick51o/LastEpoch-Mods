@@ -46,11 +46,10 @@ namespace medick_FogOfWar
 
         // The game can re-activate a hidden minimap container without a new
         // Awake (overlay-map close, cutscene end) — and the interop Minimap
-        // declares NO OnEnable to hook (verified against Il2CppLE.dll: Awake,
-        // OnDestroy, Update only). So the re-assert rides Update. Under the
-        // CanvasGroup path the active minimap still receives Update every frame,
-        // costing one enum compare plus the IsHidden scan; only the SetActive
-        // fallback silences Update. // council 2026-09-11 #4
+        // declares NO OnEnable to hook (verified against Il2CppLE.dll:
+        // Awake, OnDestroy, Update only). So the re-assert rides Update: a
+        // hidden minimap receives no Updates, an escaped one does, and the
+        // controller fast-exits for every non-BLIND level.
         [HarmonyPatch(typeof(Minimap), nameof(Minimap.Update))]
         private static class Patch_MinimapUpdate
         {

@@ -1,20 +1,5 @@
 # Changelog — MedicK's Terrible fog_OF_war
 
-## v1.0.1 — BLIND no longer hides ground item labels
-
-BLIND now hides only the minimap object itself, never a parent container, because ground item labels live under the same parent and are spawned after zone-in. It uses a reversible `CanvasGroup` when possible, retaining `SetActive` only as a fallback.
-
-### Council pass (2026-09-11)
-
-- A1 — Made the CanvasGroup hide transactional so partial interop writes roll back or remain tracked for a later restore. <!-- council 2026-09-11 #1 -->
-- A2 — Latched protected-item-UI and apply-failure warnings once per session to prevent log spam. <!-- council 2026-09-11 #5 -->
-- A3 — Pruned destroyed minimap entries before tracking each new BLIND target. <!-- council 2026-09-11 #3 -->
-- A4 — Added a once-per-session warning when the zone-default radius cannot be read and the 150 fallback is used. <!-- council 2026-09-11 #6 -->
-- A5 — Added a once-per-session warning when a settings save fails. <!-- council 2026-09-11 #7 -->
-- A6 — Added direct settings-root child names to missing-template diagnostics, capped at 60 names. <!-- council 2026-09-11 #8 -->
-- A7 — Corrected the BLIND Update-cost comments, leaf-only spec, MelonLoader requirement, patch map, and 1.4.7 cfg-only guidance. <!-- council 2026-09-11 #4, #13, #14 -->
-- On Last Epoch 1.4.7 the in-game settings rows do not build; `UserData/medick_The_fogOFwar.cfg` is the control until the adapter is repaired.
-
 ## v1.0.0 — 2026-07-01
 
 Ground-up engineering pass and rebrand: **The fog OF war** is now

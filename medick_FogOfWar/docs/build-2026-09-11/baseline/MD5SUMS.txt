@@ -1,0 +1,8 @@
+e25d72d4430521d1560c964466598e3f *medick_FogOfWar/medick_FogOfWar.csproj
+ec37b77b2f39c8f0e94dbc4848fb055e *medick_FogOfWar/src/FogController.cs
+d5c21638dcf64890ba850c3be5f855db *medick_FogOfWar/src/FogOfWarMod.Patches.cs
+ffecfd5a4de6cb5c734cff585ac50eed *medick_FogOfWar/src/Prefs.cs
+e4b9cce30d0da6b7285b0e832356e246 *medick_FogOfWar/src/NativeSettings.cs
+859318953aac7aa725e476f86fc674ff *README.md
+7d8a6fc98ba875f10f2cb8b88a35df82 *SPEC.md
+22471c81f768f1b73da502c6d52b588d *CHANGELOG.md

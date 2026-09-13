@@ -1,4 +1,4 @@
-# SPEC — MedicK's Terrible fog_OF_war v1.0.1 (the Terrible debut)
+# SPEC — MedicK's Terrible fog_OF_war v1.0.0 (the Terrible debut)
 
 *a fog control mod* — "fog_OF_war" for short. Internal name `medick_The_fogOFwar` (frozen: DLL, prefs category, cfg path, Nexus upgrade path).
 
@@ -32,17 +32,14 @@ Zone-default fallback when no capture exists yet: 150.
 3. On level change (dropdown or legend click): persist the pref, apply to the
    live minimap instance. Dead/absent instance → safe no-op; next zone
    applies. Selecting a level from the login screen is valid.
-4. BLIND hides **only `minimap.gameObject`**, never an ancestor: the ground-label
-   canvas can share an ancestor and labels spawn at runtime (2026-09-10
-   incident). The hide uses a `CanvasGroup` (alpha 0, no raycasts, not
-   interactable) when the object accepts one, and `SetActive(false)` otherwise.
-   If the leaf itself contains a `GroundItemLabel` or `UITooltipItem`, the hide
-   is refused and BLIND degrades to HARD behaviour with a warning. Remember
-   **every** GameObject BLIND hid (overlapping minimap lifetimes across a
-   BLIND→BLIND zone change are tracked individually); leaving BLIND restores
-   them all and clears the memory. **The restore is never gated on a live
-   Minimap instance** — leaving BLIND from a loading screen must still un-hide.
-   <!-- council 2026-09-11 #13 — replace the obsolete ancestor-scope contract. -->
+4. BLIND hide scope: the **outermost ancestor whose name contains "minimap"**
+   (case-insensitive); fallback = the Minimap's own GameObject. Never match
+   "hud"/"corner" (v1 did — one rename away from hiding the entire HUD).
+   Remember **every** GameObject BLIND hid (overlapping minimap lifetimes
+   across a BLIND→BLIND zone change are tracked individually); leaving BLIND
+   restores them all and clears the memory. **The restore is never gated on
+   a live Minimap instance** — leaving BLIND from a loading screen must
+   still un-hide.
 5. Engine reality, documented in UI copy: lowering the radius does not
    re-fog already-explored area; the next zone starts clean.
 

@@ -1,0 +1,286 @@
+--- docs/build-2026-09-10/baseline/FogController.cs	2026-09-10 21:21:27.205542100 -0700
++++ medick_FogOfWar/src/FogController.cs	2026-09-10 21:24:30.307588300 -0700
+@@ -1,5 +1,6 @@
+ using System;
+ using System.Collections.Generic;
++using Il2Cpp;
+ using Il2CppLE.UI.Minimap;
+ using MelonLoader;
+ using UnityEngine;
+@@ -16,7 +17,17 @@
+     internal static class FogController
+     {
+         static Minimap _minimap;                            // current zone's instance
+-        static readonly List<GameObject> _hidden = new();   // everything BLIND hid
++        static readonly List<HiddenTarget> _hidden = new(); // everything BLIND hid
++
++        sealed class HiddenTarget
++        {
++            public GameObject GameObject;
++            public CanvasGroup CanvasGroup;
++            public bool AddedCanvasGroup;
++            public float Alpha;
++            public bool BlocksRaycasts;
++            public bool Interactable;
++        }
+ 
+         // EVERY radius written this session (capped): pooled minimap
+         // instances can alternate, so a single remembered value lets an old
+@@ -51,6 +62,7 @@
+             if (_shutdown || _restoring) return;
+             if (!FogLevels.HidesMinimap(Prefs.FogLevel.Value)) return;
+             if (minimap == null) return;
++            if (IsHidden(minimap)) return;
+             _minimap = minimap;
+             Apply();
+         }
+@@ -131,8 +143,9 @@
+             ShowHidden();
+         }
+ 
+-        // Hide scope: the OUTERMOST ancestor whose name contains "minimap"
+-        // (case-insensitive), falling back to the Minimap's own GameObject.
++        // Hide scope: the OUTERMOST safe ancestor whose name contains
++        // "minimap" (case-insensitive), falling back to the Minimap's own
++        // GameObject. Ground labels and item tooltips are never valid scope.
+         // v1 also matched "hud" and "corner" while walking up — one rename
+         // away from deactivating the entire HUD. Never again.
+         //
+@@ -144,18 +157,42 @@
+             try
+             {
+                 Transform best = null;
++                int rejected = 0;
+                 for (Transform t = minimap.transform; t != null; t = t.parent)
++                {
+                     if (t.name.IndexOf("minimap", StringComparison.OrdinalIgnoreCase) >= 0)
++                    {
++                        if (HasProtectedItemUI(t.gameObject, out string protectedType))
++                        {
++                            rejected++;
++                            Dbg.Log($"BLIND target rejected: {t.name} contains {protectedType}");
++                            continue;
++                        }
+                         best = t;
++                    }
++                }
+                 var target = best != null ? best.gameObject : minimap.gameObject;
+ 
++                // The fallback is normally the leaf Minimap object, but still
++                // inspect it: uncertainty must fail visible, never eat loot UI.
++                if (best == null && HasProtectedItemUI(target, out string fallbackProtectedType))
++                {
++                    Dbg.Log($"BLIND — minimap not hidden: fallback {target.name} contains {fallbackProtectedType}");
++                    return;
++                }
++
++                string reason = best != null
++                    ? $"outermost safe minimap-named ancestor ({rejected} protected candidate(s) rejected)"
++                    : "fallback Minimap GameObject; no safe minimap-named ancestor";
++                Dbg.Log($"BLIND target chosen: {target.name} — {reason}");
++
+                 foreach (var known in _hidden)
+                 {
+                     try
+                     {
+-                        if (known == target)
++                        if (known.GameObject == target)
+                         {
+-                            if (target.activeSelf) target.SetActive(false);
++                            ReassertHidden(known);
+                             return;                  // already tracked
+                         }
+                     }
+@@ -167,9 +204,45 @@
+                 // next ShowHidden — a ghost minimap resurrected from the pool.
+                 if (!target.activeSelf) return;
+ 
++                CanvasGroup group = null;
++                bool addedGroup = false;
++                try
++                {
++                    group = target.GetComponent<CanvasGroup>();
++                    if (group == null)
++                    {
++                        group = target.AddComponent<CanvasGroup>();
++                        addedGroup = true;
++                    }
++
++                    var hidden = new HiddenTarget
++                    {
++                        GameObject = target,
++                        CanvasGroup = group,
++                        AddedCanvasGroup = addedGroup,
++                        Alpha = group.alpha,
++                        BlocksRaycasts = group.blocksRaycasts,
++                        Interactable = group.interactable
++                    };
++                    group.alpha = 0f;
++                    group.blocksRaycasts = false;
++                    group.interactable = false;
++                    _hidden.Add(hidden);
++                    Dbg.Log("BLIND — minimap hidden with CanvasGroup: " + target.name);
++                    return;
++                }
++                catch
++                {
++                    // CanvasGroup is the preferred path, but some IL2CPP
++                    // objects cannot take new components. Restore any partial
++                    // addition before using the deactivation fallback.
++                    try { if (addedGroup && group != null) UnityEngine.Object.Destroy(group); }
++                    catch { }
++                }
++
+                 target.SetActive(false);
+-                _hidden.Add(target);
+-                Dbg.Log("BLIND — minimap hidden: " + target.name);
++                _hidden.Add(new HiddenTarget { GameObject = target });
++                Dbg.Log("BLIND — minimap hidden with SetActive fallback: " + target.name);
+             }
+             catch (Exception ex)
+             {
+@@ -177,6 +250,69 @@
+             }
+         }
+ 
++        static bool HasProtectedItemUI(GameObject candidate, out string protectedType)
++        {
++            try
++            {
++                if (candidate.GetComponentInChildren<GroundItemLabel>(true) != null)
++                {
++                    protectedType = nameof(GroundItemLabel);
++                    return true;
++                }
++                if (candidate.GetComponentInChildren<UITooltipItem>(true) != null)
++                {
++                    protectedType = nameof(UITooltipItem);
++                    return true;
++                }
++            }
++            catch (Exception ex)
++            {
++                protectedType = "uninspectable item UI (" + ex.Message + ")";
++                return true;
++            }
++
++            protectedType = null;
++            return false;
++        }
++
++        static bool IsHidden(Minimap minimap)
++        {
++            for (int i = 0; i < _hidden.Count; i++)
++            {
++                try
++                {
++                    var hidden = _hidden[i];
++                    var target = hidden.GameObject;
++                    if (target == null) continue;
++                    var minimapTransform = minimap.transform;
++                    if (minimapTransform != target.transform
++                        && !minimapTransform.IsChildOf(target.transform)) continue;
++
++                    if (hidden.CanvasGroup != null)
++                        return hidden.CanvasGroup.alpha == 0f
++                            && !hidden.CanvasGroup.blocksRaycasts
++                            && !hidden.CanvasGroup.interactable;
++                    return !target.activeSelf;
++                }
++                catch { }
++            }
++            return false;
++        }
++
++        static void ReassertHidden(HiddenTarget hidden)
++        {
++            if (hidden.CanvasGroup != null)
++            {
++                hidden.CanvasGroup.alpha = 0f;
++                hidden.CanvasGroup.blocksRaycasts = false;
++                hidden.CanvasGroup.interactable = false;
++            }
++            else if (hidden.GameObject.activeSelf)
++            {
++                hidden.GameObject.SetActive(false);
++            }
++        }
++
+         static void ShowHidden()
+         {
+             _restoring = true;   // our SetActive(true) can fire Awake on
+@@ -189,8 +325,19 @@
+                 {
+                     try
+                     {
+-                        var go = _hidden[i];
+-                        if (go != null && !go.activeSelf)
++                        var hidden = _hidden[i];
++                        var go = hidden.GameObject;
++                        if (go == null) continue;
++                        if (hidden.CanvasGroup != null)
++                        {
++                            hidden.CanvasGroup.alpha = hidden.Alpha;
++                            hidden.CanvasGroup.blocksRaycasts = hidden.BlocksRaycasts;
++                            hidden.CanvasGroup.interactable = hidden.Interactable;
++                            if (hidden.AddedCanvasGroup)
++                                UnityEngine.Object.Destroy(hidden.CanvasGroup);
++                            Dbg.Log("minimap CanvasGroup restored: " + go.name);
++                        }
++                        else if (!go.activeSelf)
+                         {
+                             go.SetActive(true);
+                             Dbg.Log("minimap restored: " + go.name);
+--- docs/build-2026-09-10/baseline/BuildInfo.cs	2026-09-10 21:22:04.706915000 -0700
++++ medick_FogOfWar/src/BuildInfo.cs	2026-09-10 21:24:32.220730700 -0700
+@@ -9,7 +9,7 @@
+         // The OF stands alone on purpose. You know why. ("bastos" branding)
+         public const string DisplayName  = "Terrible fog_OF_war";   // settings category title
+         public const string OfficialName = "MedicK's Terrible fog_OF_war";
+-        public const string Version      = "1.0.0";
++        public const string Version      = "1.0.1";
+         public const string Author       = "medick";
+     }
+ }
+--- docs/build-2026-09-10/baseline/medick_FogOfWar.csproj	2026-09-10 21:21:27.225960800 -0700
++++ medick_FogOfWar/medick_FogOfWar.csproj	2026-09-10 21:25:46.708024500 -0700
+@@ -3,6 +3,7 @@
+   <PropertyGroup>
+     <TargetFramework>net6.0</TargetFramework>
+     <AssemblyName>medick_The_fogOFwar</AssemblyName>
++    <Version>1.0.1</Version>
+     <RootNamespace>medick_FogOfWar</RootNamespace>
+     <Nullable>disable</Nullable>
+     <LangVersion>latest</LangVersion>
+@@ -53,6 +54,10 @@
+       <HintPath>$(GM)UnityEngine.UI.dll</HintPath>
+       <Private>false</Private>
+     </Reference>
++    <Reference Include="UnityEngine.UIModule">
++      <HintPath>$(GM)UnityEngine.UIModule.dll</HintPath>
++      <Private>false</Private>
++    </Reference>
+     <Reference Include="Unity.TextMeshPro">
+       <HintPath>$(GM)Unity.TextMeshPro.dll</HintPath>
+       <Private>false</Private>
+@@ -64,7 +69,7 @@
+   </ItemGroup>
+ 
+   <!-- Auto-copy built DLL to Last Epoch Mods folder after each build -->
+-  <Target Name="CopyToMods" AfterTargets="Build">
++  <Target Name="CopyToMods" AfterTargets="Build" Condition="'$(DeployToMods)' != 'false'">
+     <Copy SourceFiles="$(TargetPath)"
+           DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\Mods\" />
+   </Target>
+--- docs/build-2026-09-10/baseline/CHANGELOG.md	2026-09-10 21:21:27.237974600 -0700
++++ CHANGELOG.md	2026-09-10 21:24:36.170766700 -0700
+@@ -1,5 +1,9 @@
+ # Changelog — MedicK's Terrible fog_OF_war
+ 
++## v1.0.1 — BLIND no longer hides ground item labels
++
++BLIND now rejects every minimap container that also contains a `GroundItemLabel` or `UITooltipItem`, preventing dropped-item labels and item tooltips from disappearing. It hides the selected safe target with a reversible `CanvasGroup` when possible, retaining `SetActive` only as a fallback.
++
+ ## v1.0.0 — 2026-07-01
+ 
+ Ground-up engineering pass and rebrand: **The fog OF war** is now

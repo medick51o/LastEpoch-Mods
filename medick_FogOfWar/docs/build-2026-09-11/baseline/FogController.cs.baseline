@@ -37,11 +37,6 @@ namespace medick_FogOfWar
         const int WrittenCap = 32;
         static bool _restoring;   // ShowHidden in progress — the Update postfix must not react
         static bool _shutdown;    // mod unloading — nothing may re-hide after RestoreDefaults
-        // council 2026-09-11 #5 — repeating failure-path warnings are session-latched.
-        static bool _protectedUiWarned;
-        static bool _applyFailedWarned;
-        // council 2026-09-11 #6 — a failed zone-default read must be visible once.
-        static bool _zoneDefaultWarned;
 
         static bool WrittenBefore(float v)
         {
@@ -62,10 +57,8 @@ namespace medick_FogOfWar
             // a container this mod hid (overlay-map close, cutscene end, HUD
             // refresh) — hide it again. Hosted on Update because the interop
             // Minimap declares no OnEnable to hook (verified against
-            // Il2CppLE.dll). Under the CanvasGroup path the active minimap still
-            // receives Update every frame, so the postfix costs one enum compare
-            // plus the IsHidden scan; only the SetActive fallback silences Update.
-            // council 2026-09-11 #4
+            // Il2CppLE.dll); a hidden minimap receives no Updates, so this
+            // costs nothing in BLIND and two cheap checks per frame outside it.
             if (_shutdown || _restoring) return;
             if (!FogLevels.HidesMinimap(Prefs.FogLevel.Value)) return;
             if (minimap == null) return;
@@ -94,14 +87,7 @@ namespace medick_FogOfWar
                     Dbg.Log($"zone default RevealRadius captured: {pre:F0}");
                 }
             }
-            catch (Exception ex)
-            {
-                if (!_zoneDefaultWarned)
-                {
-                    _zoneDefaultWarned = true;
-                    MelonLogger.Warning($"zone default RevealRadius unreadable ({ex.Message}) — LIMITED/SCOUT scale off the 150 fallback until a game update restores it");
-                }
-            }
+            catch { }
             Apply();
         }
 
@@ -139,11 +125,7 @@ namespace medick_FogOfWar
             }
             catch (Exception ex)
             {
-                if (!_applyFailedWarned)
-                {
-                    _applyFailedWarned = true;
-                    MelonLogger.Warning("apply failed: " + ex.Message + " — further occurrences this session are silent");
-                }
+                MelonLogger.Warning("apply failed: " + ex.Message);
             }
         }
 
@@ -181,11 +163,7 @@ namespace medick_FogOfWar
                 // BLIND intentionally degrades to HARD behaviour.
                 if (HasProtectedItemUI(target, out string protectedType))
                 {
-                    if (!_protectedUiWarned)
-                    {
-                        _protectedUiWarned = true;
-                        MelonLogger.Warning($"BLIND — minimap not hidden: leaf {target.name} contains {protectedType}; degrading to HARD behaviour — further occurrences this session are silent");
-                    }
+                    MelonLogger.Warning($"BLIND — minimap not hidden: leaf {target.name} contains {protectedType}; degrading to HARD behaviour");
                     return;
                 }
 
@@ -204,13 +182,6 @@ namespace medick_FogOfWar
                     catch { }                        // collected entry — ignore
                 }
 
-                // council 2026-09-11 #3 — bound BLIND's per-frame scan across dead zones.
-                _hidden.RemoveAll(hidden =>
-                {
-                    try { return hidden.GameObject == null; }
-                    catch { return true; }
-                });
-
                 // Never adopt something the mod didn't hide: a game-parked
                 // (pooled, inactive) target would get force-activated by the
                 // next ShowHidden — a ghost minimap resurrected from the pool.
@@ -218,8 +189,6 @@ namespace medick_FogOfWar
 
                 CanvasGroup group = null;
                 bool addedGroup = false;
-                HiddenTarget hidden = null;
-                bool entryAdded = false;
                 try
                 {
                     group = target.GetComponent<CanvasGroup>();
@@ -229,7 +198,7 @@ namespace medick_FogOfWar
                         addedGroup = true;
                     }
 
-                    hidden = new HiddenTarget
+                    var hidden = new HiddenTarget
                     {
                         GameObject = target,
                         CanvasGroup = group,
@@ -238,33 +207,15 @@ namespace medick_FogOfWar
                         BlocksRaycasts = group.blocksRaycasts,
                         Interactable = group.interactable
                     };
-                    // council 2026-09-11 #1 — register the snapshot before mutation.
-                    _hidden.Add(hidden);
-                    entryAdded = true;
                     group.alpha = 0f;
                     group.blocksRaycasts = false;
                     group.interactable = false;
+                    _hidden.Add(hidden);
                     Dbg.Log("BLIND — minimap hidden with CanvasGroup: " + target.name);
                     return;
                 }
                 catch
                 {
-                    if (entryAdded)
-                    {
-                        try
-                        {
-                            group.alpha = hidden.Alpha;
-                            group.blocksRaycasts = hidden.BlocksRaycasts;
-                            group.interactable = hidden.Interactable;
-                        }
-                        catch
-                        {
-                            MelonLogger.Warning("minimap hide partially applied — will restore on leaving BLIND");
-                            return;
-                        }
-                        _hidden.Remove(hidden);
-                    }
-
                     // CanvasGroup is the preferred path, but some IL2CPP
                     // objects cannot take new components. Restore any partial
                     // addition before using the deactivation fallback.

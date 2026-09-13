@@ -1,0 +1,319 @@
+--- docs/build-2026-09-11/baseline/medick_FogOfWar.csproj.baseline	2026-09-11 02:25:43.681413000 -0700
++++ medick_FogOfWar/medick_FogOfWar.csproj	2026-09-11 02:28:40.200769500 -0700
+@@ -68,6 +68,11 @@
+     </Reference>
+   </ItemGroup>
+ 
++  <ItemGroup>
++    <!-- council 2026-09-11 #16 — inert here because docs\ is a sibling; kept for parity with sibling mods. -->
++    <Compile Remove="docs\**\*.cs" />
++  </ItemGroup>
++
+   <!-- Auto-copy built DLL to Last Epoch Mods folder after each build -->
+   <Target Name="CopyToMods" AfterTargets="Build" Condition="'$(DeployToMods)' != 'false'">
+     <Copy SourceFiles="$(TargetPath)"
+--- docs/build-2026-09-11/baseline/FogController.cs.baseline	2026-09-11 02:25:43.710420400 -0700
++++ medick_FogOfWar/src/FogController.cs	2026-09-11 02:28:35.352437500 -0700
+@@ -37,6 +37,11 @@
+         const int WrittenCap = 32;
+         static bool _restoring;   // ShowHidden in progress — the Update postfix must not react
+         static bool _shutdown;    // mod unloading — nothing may re-hide after RestoreDefaults
++        // council 2026-09-11 #5 — repeating failure-path warnings are session-latched.
++        static bool _protectedUiWarned;
++        static bool _applyFailedWarned;
++        // council 2026-09-11 #6 — a failed zone-default read must be visible once.
++        static bool _zoneDefaultWarned;
+ 
+         static bool WrittenBefore(float v)
+         {
+@@ -57,8 +62,10 @@
+             // a container this mod hid (overlay-map close, cutscene end, HUD
+             // refresh) — hide it again. Hosted on Update because the interop
+             // Minimap declares no OnEnable to hook (verified against
+-            // Il2CppLE.dll); a hidden minimap receives no Updates, so this
+-            // costs nothing in BLIND and two cheap checks per frame outside it.
++            // Il2CppLE.dll). Under the CanvasGroup path the active minimap still
++            // receives Update every frame, so the postfix costs one enum compare
++            // plus the IsHidden scan; only the SetActive fallback silences Update.
++            // council 2026-09-11 #4
+             if (_shutdown || _restoring) return;
+             if (!FogLevels.HidesMinimap(Prefs.FogLevel.Value)) return;
+             if (minimap == null) return;
+@@ -87,7 +94,14 @@
+                     Dbg.Log($"zone default RevealRadius captured: {pre:F0}");
+                 }
+             }
+-            catch { }
++            catch (Exception ex)
++            {
++                if (!_zoneDefaultWarned)
++                {
++                    _zoneDefaultWarned = true;
++                    MelonLogger.Warning($"zone default RevealRadius unreadable ({ex.Message}) — LIMITED/SCOUT scale off the 150 fallback until a game update restores it");
++                }
++            }
+             Apply();
+         }
+ 
+@@ -125,7 +139,11 @@
+             }
+             catch (Exception ex)
+             {
+-                MelonLogger.Warning("apply failed: " + ex.Message);
++                if (!_applyFailedWarned)
++                {
++                    _applyFailedWarned = true;
++                    MelonLogger.Warning("apply failed: " + ex.Message + " — further occurrences this session are silent");
++                }
+             }
+         }
+ 
+@@ -163,7 +181,11 @@
+                 // BLIND intentionally degrades to HARD behaviour.
+                 if (HasProtectedItemUI(target, out string protectedType))
+                 {
+-                    MelonLogger.Warning($"BLIND — minimap not hidden: leaf {target.name} contains {protectedType}; degrading to HARD behaviour");
++                    if (!_protectedUiWarned)
++                    {
++                        _protectedUiWarned = true;
++                        MelonLogger.Warning($"BLIND — minimap not hidden: leaf {target.name} contains {protectedType}; degrading to HARD behaviour — further occurrences this session are silent");
++                    }
+                     return;
+                 }
+ 
+@@ -182,6 +204,13 @@
+                     catch { }                        // collected entry — ignore
+                 }
+ 
++                // council 2026-09-11 #3 — bound BLIND's per-frame scan across dead zones.
++                _hidden.RemoveAll(hidden =>
++                {
++                    try { return hidden.GameObject == null; }
++                    catch { return true; }
++                });
++
+                 // Never adopt something the mod didn't hide: a game-parked
+                 // (pooled, inactive) target would get force-activated by the
+                 // next ShowHidden — a ghost minimap resurrected from the pool.
+@@ -189,6 +218,8 @@
+ 
+                 CanvasGroup group = null;
+                 bool addedGroup = false;
++                HiddenTarget hidden = null;
++                bool entryAdded = false;
+                 try
+                 {
+                     group = target.GetComponent<CanvasGroup>();
+@@ -198,7 +229,7 @@
+                         addedGroup = true;
+                     }
+ 
+-                    var hidden = new HiddenTarget
++                    hidden = new HiddenTarget
+                     {
+                         GameObject = target,
+                         CanvasGroup = group,
+@@ -207,15 +238,33 @@
+                         BlocksRaycasts = group.blocksRaycasts,
+                         Interactable = group.interactable
+                     };
++                    // council 2026-09-11 #1 — register the snapshot before mutation.
++                    _hidden.Add(hidden);
++                    entryAdded = true;
+                     group.alpha = 0f;
+                     group.blocksRaycasts = false;
+                     group.interactable = false;
+-                    _hidden.Add(hidden);
+                     Dbg.Log("BLIND — minimap hidden with CanvasGroup: " + target.name);
+                     return;
+                 }
+                 catch
+                 {
++                    if (entryAdded)
++                    {
++                        try
++                        {
++                            group.alpha = hidden.Alpha;
++                            group.blocksRaycasts = hidden.BlocksRaycasts;
++                            group.interactable = hidden.Interactable;
++                        }
++                        catch
++                        {
++                            MelonLogger.Warning("minimap hide partially applied — will restore on leaving BLIND");
++                            return;
++                        }
++                        _hidden.Remove(hidden);
++                    }
++
+                     // CanvasGroup is the preferred path, but some IL2CPP
+                     // objects cannot take new components. Restore any partial
+                     // addition before using the deactivation fallback.
+--- docs/build-2026-09-11/baseline/FogOfWarMod.Patches.cs.baseline	2026-09-11 02:25:43.740249300 -0700
++++ medick_FogOfWar/src/FogOfWarMod.Patches.cs	2026-09-11 02:28:38.968727800 -0700
+@@ -46,10 +46,11 @@
+ 
+         // The game can re-activate a hidden minimap container without a new
+         // Awake (overlay-map close, cutscene end) — and the interop Minimap
+-        // declares NO OnEnable to hook (verified against Il2CppLE.dll:
+-        // Awake, OnDestroy, Update only). So the re-assert rides Update: a
+-        // hidden minimap receives no Updates, an escaped one does, and the
+-        // controller fast-exits for every non-BLIND level.
++        // declares NO OnEnable to hook (verified against Il2CppLE.dll: Awake,
++        // OnDestroy, Update only). So the re-assert rides Update. Under the
++        // CanvasGroup path the active minimap still receives Update every frame,
++        // costing one enum compare plus the IsHidden scan; only the SetActive
++        // fallback silences Update. // council 2026-09-11 #4
+         [HarmonyPatch(typeof(Minimap), nameof(Minimap.Update))]
+         private static class Patch_MinimapUpdate
+         {
+--- docs/build-2026-09-11/baseline/Prefs.cs.baseline	2026-09-11 02:25:43.768439200 -0700
++++ medick_FogOfWar/src/Prefs.cs	2026-09-11 02:28:36.553388900 -0700
+@@ -1,3 +1,4 @@
++using System;
+ using MelonLoader;
+ 
+ namespace medick_FogOfWar
+@@ -10,6 +11,7 @@
+         public static MelonPreferences_Category Category;
+         public static MelonPreferences_Entry<MapVisionLevel> FogLevel;
+         public static MelonPreferences_Entry<bool> DebugLog;
++        static bool _saveFailedWarned;
+ 
+         public static void Init()
+         {
+@@ -27,7 +29,14 @@
+         {
+             // printmsg: false — every save would otherwise log a console
+             // line per settings click; "one startup line" is the contract.
+-            try { Category.SaveToFile(false); Dbg.Log("prefs saved"); } catch { }
++            try { Category.SaveToFile(false); Dbg.Log("prefs saved"); }
++            catch (Exception ex)
++            {
++                // council 2026-09-11 #7 — report persistence failure once per session.
++                if (_saveFailedWarned) return;
++                _saveFailedWarned = true;
++                MelonLogger.Warning($"prefs save failed ({ex.Message}) — your vision level may not persist to the next launch");
++            }
+         }
+     }
+ 
+--- docs/build-2026-09-11/baseline/NativeSettings.cs.baseline	2026-09-11 02:25:43.799146700 -0700
++++ medick_FogOfWar/src/NativeSettings.cs	2026-09-11 02:28:37.739584100 -0700
+@@ -46,6 +46,25 @@
+         static Transform Root(SettingsPanelTabNavigable settings) =>
+             settings.transform.GetChild(0).GetChild(0);
+ 
++        // council 2026-09-11 #8 — expose renamed 1.4.7 rows without risking injection.
++        static string RootChildNames(Transform root)
++        {
++            try
++            {
++                int childCount = root.childCount;
++                int shown = Math.Min(childCount, 60);
++                var names = new string[shown];
++                for (int i = 0; i < shown; i++) names[i] = root.GetChild(i).name;
++                string result = string.Join(" | ", names);
++                if (childCount > shown) result += " | …";
++                return result;
++            }
++            catch
++            {
++                return "root children unreadable";
++            }
++        }
++
+         // Probe everything the fog UI depends on, before building anything.
+         // One missing piece → one latched warning → caller skips injection.
+         // (The dropdown template is NOT probed — fog's UI is legend-rows-only
+@@ -55,8 +74,8 @@
+             try
+             {
+                 Transform root = Root(settings);
+-                if (!root.Find(ToggleTemplate)) { WarnDegradedOnce($"template '{ToggleTemplate}' missing"); return false; }
+-                if (!root.Find(HeaderAnchor))   { WarnDegradedOnce($"anchor '{HeaderAnchor}' missing");     return false; }
++                if (!root.Find(ToggleTemplate)) { WarnDegradedOnce($"template '{ToggleTemplate}' missing; root children: {RootChildNames(root)}"); return false; }
++                if (!root.Find(HeaderAnchor))   { WarnDegradedOnce($"anchor '{HeaderAnchor}' missing; root children: {RootChildNames(root)}");     return false; }
+                 return true;
+             }
+             catch (Exception ex)
+--- docs/build-2026-09-11/baseline/README.md.baseline	2026-09-11 02:25:43.827421900 -0700
++++ README.md	2026-09-11 02:28:41.396502600 -0700
+@@ -19,11 +19,14 @@
+ 
+ No overlay panel, no keybinds, no dropdown: open the game's **Settings** and find the **Terrible fog_OF_war** section — a colour-coded legend where **clicking a level row selects it**, radio-style. The active level stays checked, so the menu always answers "what am I running?"
+ 
++<!-- council 2026-09-11 #14 — document the current 1.4.7 settings limitation. -->
++On Last Epoch 1.4.7 the game renamed the settings row the mod clones from, so the Terrible fog_OF_war section currently does not appear (the log says `settings hierarchy changed`). Set `VisionLevel` in `UserData/medick_The_fogOFwar.cfg` (BLIND, HARD, LIMITED, NORMAL, SCOUT, ORACLE); it applies at the next zone. A fix is queued once the new row name is known.
++
+ **Everything applies instantly.** Switching into or out of BLIND hides/restores the minimap live — the v1 "full game restart required, both ways" days are over. One engine note: lowering the radius doesn't re-fog what you've already explored; the next zone starts clean.
+ 
+ ## Installation
+ 
+-1. Install [MelonLoader 0.6.x](https://melonwiki.xyz) into Last Epoch
++1. Install MelonLoader 0.7.x (tested on 0.7.2 Open-Beta, game 1.4.7)
+ 2. Drop `medick_The_fogOFwar.dll` into `Last Epoch/Mods/`
+ 3. Open Settings → Terrible fog_OF_war → pick your poison
+ 
+@@ -48,7 +51,7 @@
+   medick_FogOfWar.csproj
+   src/
+     FogOfWarMod.cs          MelonMod lifecycle (manual per-patch application)
+-    FogOfWarMod.Patches.cs  Harmony patches (Minimap.Awake, settings panel)
++    FogOfWarMod.Patches.cs  Harmony patches (Minimap.Awake, Minimap.Update BLIND re-assert, settings panel)
+     FogController.cs        Capture / apply / live BLIND hide+restore
+     FogLevels.cs            Level → radius contract (see SPEC.md)
+     SettingsUi.cs           The Terrible fog_OF_war settings category
+--- docs/build-2026-09-11/baseline/SPEC.md.baseline	2026-09-11 02:25:43.855531700 -0700
++++ SPEC.md	2026-09-11 02:28:42.625731900 -0700
+@@ -1,4 +1,4 @@
+-# SPEC — MedicK's Terrible fog_OF_war v1.0.0 (the Terrible debut)
++# SPEC — MedicK's Terrible fog_OF_war v1.0.1 (the Terrible debut)
+ 
+ *a fog control mod* — "fog_OF_war" for short. Internal name `medick_The_fogOFwar` (frozen: DLL, prefs category, cfg path, Nexus upgrade path).
+ 
+@@ -32,14 +32,17 @@
+ 3. On level change (dropdown or legend click): persist the pref, apply to the
+    live minimap instance. Dead/absent instance → safe no-op; next zone
+    applies. Selecting a level from the login screen is valid.
+-4. BLIND hide scope: the **outermost ancestor whose name contains "minimap"**
+-   (case-insensitive); fallback = the Minimap's own GameObject. Never match
+-   "hud"/"corner" (v1 did — one rename away from hiding the entire HUD).
+-   Remember **every** GameObject BLIND hid (overlapping minimap lifetimes
+-   across a BLIND→BLIND zone change are tracked individually); leaving BLIND
+-   restores them all and clears the memory. **The restore is never gated on
+-   a live Minimap instance** — leaving BLIND from a loading screen must
+-   still un-hide.
++4. BLIND hides **only `minimap.gameObject`**, never an ancestor: the ground-label
++   canvas can share an ancestor and labels spawn at runtime (2026-09-10
++   incident). The hide uses a `CanvasGroup` (alpha 0, no raycasts, not
++   interactable) when the object accepts one, and `SetActive(false)` otherwise.
++   If the leaf itself contains a `GroundItemLabel` or `UITooltipItem`, the hide
++   is refused and BLIND degrades to HARD behaviour with a warning. Remember
++   **every** GameObject BLIND hid (overlapping minimap lifetimes across a
++   BLIND→BLIND zone change are tracked individually); leaving BLIND restores
++   them all and clears the memory. **The restore is never gated on a live
++   Minimap instance** — leaving BLIND from a loading screen must still un-hide.
++   <!-- council 2026-09-11 #13 — replace the obsolete ancestor-scope contract. -->
+ 5. Engine reality, documented in UI copy: lowering the radius does not
+    re-fog already-explored area; the next zone starts clean.
+ 
+--- docs/build-2026-09-11/baseline/CHANGELOG.md.baseline	2026-09-11 02:25:43.885754900 -0700
++++ CHANGELOG.md	2026-09-11 02:28:43.835792400 -0700
+@@ -4,6 +4,17 @@
+ 
+ BLIND now hides only the minimap object itself, never a parent container, because ground item labels live under the same parent and are spawned after zone-in. It uses a reversible `CanvasGroup` when possible, retaining `SetActive` only as a fallback.
+ 
++### Council pass (2026-09-11)
++
++- A1 — Made the CanvasGroup hide transactional so partial interop writes roll back or remain tracked for a later restore. <!-- council 2026-09-11 #1 -->
++- A2 — Latched protected-item-UI and apply-failure warnings once per session to prevent log spam. <!-- council 2026-09-11 #5 -->
++- A3 — Pruned destroyed minimap entries before tracking each new BLIND target. <!-- council 2026-09-11 #3 -->
++- A4 — Added a once-per-session warning when the zone-default radius cannot be read and the 150 fallback is used. <!-- council 2026-09-11 #6 -->
++- A5 — Added a once-per-session warning when a settings save fails. <!-- council 2026-09-11 #7 -->
++- A6 — Added direct settings-root child names to missing-template diagnostics, capped at 60 names. <!-- council 2026-09-11 #8 -->
++- A7 — Corrected the BLIND Update-cost comments, leaf-only spec, MelonLoader requirement, patch map, and 1.4.7 cfg-only guidance. <!-- council 2026-09-11 #4, #13, #14 -->
++- On Last Epoch 1.4.7 the in-game settings rows do not build; `UserData/medick_The_fogOFwar.cfg` is the control until the adapter is repaired.
++
+ ## v1.0.0 — 2026-07-01
+ 
+ Ground-up engineering pass and rebrand: **The fog OF war** is now

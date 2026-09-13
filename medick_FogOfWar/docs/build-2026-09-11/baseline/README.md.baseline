@@ -19,14 +19,11 @@
 
 No overlay panel, no keybinds, no dropdown: open the game's **Settings** and find the **Terrible fog_OF_war** section — a colour-coded legend where **clicking a level row selects it**, radio-style. The active level stays checked, so the menu always answers "what am I running?"
 
-<!-- council 2026-09-11 #14 — document the current 1.4.7 settings limitation. -->
-On Last Epoch 1.4.7 the game renamed the settings row the mod clones from, so the Terrible fog_OF_war section currently does not appear (the log says `settings hierarchy changed`). Set `VisionLevel` in `UserData/medick_The_fogOFwar.cfg` (BLIND, HARD, LIMITED, NORMAL, SCOUT, ORACLE); it applies at the next zone. A fix is queued once the new row name is known.
-
 **Everything applies instantly.** Switching into or out of BLIND hides/restores the minimap live — the v1 "full game restart required, both ways" days are over. One engine note: lowering the radius doesn't re-fog what you've already explored; the next zone starts clean.
 
 ## Installation
 
-1. Install MelonLoader 0.7.x (tested on 0.7.2 Open-Beta, game 1.4.7)
+1. Install [MelonLoader 0.6.x](https://melonwiki.xyz) into Last Epoch
 2. Drop `medick_The_fogOFwar.dll` into `Last Epoch/Mods/`
 3. Open Settings → Terrible fog_OF_war → pick your poison
 
@@ -51,7 +48,7 @@ medick_FogOfWar/
   medick_FogOfWar.csproj
   src/
     FogOfWarMod.cs          MelonMod lifecycle (manual per-patch application)
-    FogOfWarMod.Patches.cs  Harmony patches (Minimap.Awake, Minimap.Update BLIND re-assert, settings panel)
+    FogOfWarMod.Patches.cs  Harmony patches (Minimap.Awake, settings panel)
     FogController.cs        Capture / apply / live BLIND hide+restore
     FogLevels.cs            Level → radius contract (see SPEC.md)
     SettingsUi.cs           The Terrible fog_OF_war settings category

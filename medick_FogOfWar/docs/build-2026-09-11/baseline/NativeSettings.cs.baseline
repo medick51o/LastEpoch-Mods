@@ -46,25 +46,6 @@ namespace medick_FogOfWar
         static Transform Root(SettingsPanelTabNavigable settings) =>
             settings.transform.GetChild(0).GetChild(0);
 
-        // council 2026-09-11 #8 — expose renamed 1.4.7 rows without risking injection.
-        static string RootChildNames(Transform root)
-        {
-            try
-            {
-                int childCount = root.childCount;
-                int shown = Math.Min(childCount, 60);
-                var names = new string[shown];
-                for (int i = 0; i < shown; i++) names[i] = root.GetChild(i).name;
-                string result = string.Join(" | ", names);
-                if (childCount > shown) result += " | …";
-                return result;
-            }
-            catch
-            {
-                return "root children unreadable";
-            }
-        }
-
         // Probe everything the fog UI depends on, before building anything.
         // One missing piece → one latched warning → caller skips injection.
         // (The dropdown template is NOT probed — fog's UI is legend-rows-only
@@ -74,8 +55,8 @@ namespace medick_FogOfWar
             try
             {
                 Transform root = Root(settings);
-                if (!root.Find(ToggleTemplate)) { WarnDegradedOnce($"template '{ToggleTemplate}' missing; root children: {RootChildNames(root)}"); return false; }
-                if (!root.Find(HeaderAnchor))   { WarnDegradedOnce($"anchor '{HeaderAnchor}' missing; root children: {RootChildNames(root)}");     return false; }
+                if (!root.Find(ToggleTemplate)) { WarnDegradedOnce($"template '{ToggleTemplate}' missing"); return false; }
+                if (!root.Find(HeaderAnchor))   { WarnDegradedOnce($"anchor '{HeaderAnchor}' missing");     return false; }
                 return true;
             }
             catch (Exception ex)

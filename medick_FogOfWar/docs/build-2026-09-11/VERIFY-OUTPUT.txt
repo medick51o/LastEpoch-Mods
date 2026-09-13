@@ -1,0 +1,16 @@
+# conductor verify 2026-09-11 02:30:50 — cwd /c/Users/andre/Downloads/LastEpoch-Mods/medick_FogOfWar/medick_FogOfWar
+$ dotnet build -c Release --nologo -v q -p:DeployToMods=false
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.61
+
+built DLL:
+-rwxr-xr-x 1 andre 197609 26112 2026-09-11 02:29 bin/Release/net6.0/medick_The_fogOFwar.dll
+c09af22a31b806c316fc4dbf5b608309 *bin/Release/net6.0/medick_The_fogOFwar.dll
+
+game Mods DLL (must be 24064 B, 2026-09-10 21:35, md5 9f168102…):
+-rwxr-xr-x 1 andre 197609 24064 2026-09-10 21:35 /c/Program Files (x86)/Steam/steamapps/common/Last Epoch/Mods/medick_The_fogOFwar.dll
+9f1681027eb49f74006400015551de9e */c/Program Files (x86)/Steam/steamapps/common/Last Epoch/Mods/medick_The_fogOFwar.dll

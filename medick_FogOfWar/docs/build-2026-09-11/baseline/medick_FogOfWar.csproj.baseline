@@ -68,11 +68,6 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- council 2026-09-11 #16 — inert here because docs\ is a sibling; kept for parity with sibling mods. -->
-    <Compile Remove="docs\**\*.cs" />
-  </ItemGroup>
-
   <!-- Auto-copy built DLL to Last Epoch Mods folder after each build -->
   <Target Name="CopyToMods" AfterTargets="Build" Condition="'$(DeployToMods)' != 'false'">
     <Copy SourceFiles="$(TargetPath)"
