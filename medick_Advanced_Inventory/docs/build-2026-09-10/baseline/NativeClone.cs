@@ -15,15 +15,7 @@ namespace medick_Terrible_Inventory
     {
         // Il2Cpp delegates passed to AddListener must stay referenced from
         // managed code or the GC collects them and clicks go dead.
-        static readonly Dictionary<UnityEngine.UI.Button, Delegate> _keepAlive = new();
-
-        static void Retain(UnityEngine.UI.Button control, Delegate listener)
-        {
-            // Council A5: key delegates by live control; rebinds replace and destroyed controls are pruned.
-            foreach (var retained in new List<UnityEngine.UI.Button>(_keepAlive.Keys))
-                if (retained == null) _keepAlive.Remove(retained);
-            _keepAlive[control] = listener;
-        }
+        static readonly List<Delegate> _keepAlive = new();
 
         public static GameObject Button(GameObject template, Transform parent, string name, Action onClick)
         {
@@ -47,7 +39,7 @@ namespace medick_Terrible_Inventory
                     // persistent calls would survive onto our clones).
                     btn.onClick = new Button.ButtonClickedEvent();
                     var action = new Action(onClick);
-                    Retain(btn, action);
+                    _keepAlive.Add(action);
                     btn.onClick.AddListener(action);
                 }
 
@@ -85,23 +77,7 @@ namespace medick_Terrible_Inventory
         {
             try
             {
-                Transform icon = null;
-                Button button = btn.GetComponent<Button>();
-                for (int i = 0; i < btn.transform.childCount; i++)
-                {
-                    Transform child = btn.transform.GetChild(i);
-                    Image image = child.GetComponent<Image>();
-                    if (image == null) continue;
-                    string name = (child.name ?? "").ToLowerInvariant();
-                    bool namedIcon = name.Contains("icon") || name.Contains("dot") || name.Contains("sort");
-                    bool componentIcon = (button == null || image != button.targetGraphic) &&
-                                         child.GetComponentInChildren<TMP_Text>(true) == null;
-                    if (namedIcon || componentIcon) { icon = child; break; }
-                }
-
-                // Council A6: prefer icon component/name discovery, retaining the known donor index as fallback.
-                if (icon != null) icon.gameObject.SetActive(false);
-                else if (btn.transform.childCount > 1)
+                if (btn.transform.childCount > 1)
                     btn.transform.GetChild(1).gameObject.SetActive(false);
             }
             catch { }

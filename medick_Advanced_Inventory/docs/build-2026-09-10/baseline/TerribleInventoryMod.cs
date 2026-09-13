@@ -46,12 +46,9 @@ namespace medick_Terrible_Inventory
             catch { InventoryUi.ButtonBar = null; }   // collected reference — next panel re-injects
         }
 
-        // Arrival releases operation guards, including council A4's stuck Stash All finding.
-        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
-        {
-            InventoryUi.ResetStashAllGuard();
+        // The travel guard spans the scene transition; arrival releases it.
+        public override void OnSceneWasLoaded(int buildIndex, string sceneName) =>
             TravelService.NotifySceneLoaded();
-        }
 
         public override void OnApplicationQuit() => Prefs.Save();
     }

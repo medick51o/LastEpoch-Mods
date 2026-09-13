@@ -23,7 +23,6 @@ namespace medick_Terrible_Inventory
         static bool _travelInProgress;
         static bool _primed;
         static bool _primerRunning;
-        static bool _unlockUnreadableWarned;
         static readonly HashSet<string> _warnedScenes = new();
 
         public static void EnsurePrimed()
@@ -104,7 +103,17 @@ namespace medick_Terrible_Inventory
                 yield break;
             }
 
-            // Council A2: use the verified waypoint-click path without mutating WaypointManager state.
+            // Carried from v1, deliberately AFTER the gate and the lookup so a
+            // click that doesn't travel leaves no footprint: some zones set
+            // WaypointEnabled=false and this allows the jump the way v1 did.
+            // A successful travel loads a new scene, which resets the flag.
+            try
+            {
+                WaypointManager wm = WaypointManager.getInstance();
+                if (wm != null) { wm.WaypointEnabled = true; wm.EnableWaypoint(); }
+            }
+            catch { }
+
             bool fired = false;
             try
             {
@@ -141,36 +150,31 @@ namespace medick_Terrible_Inventory
         }
 
         // ── Unlock gate ───────────────────────────────────────────
-        // True only when an era controller positively lists the scene as unlocked.
+        // True when any era controller lists the scene as unlocked. If the
+        // unlock data cannot be read at all, default to allow — documented
+        // tradeoff; LoadWaypointScene is the game's own gated path anyway.
 
         static bool IsUnlocked(UIWaypointController[] all, string scene)
         {
+            if (all == null || all.Length == 0) return true;
             bool readAnything = false;
-            if (all != null)
+            foreach (UIWaypointController ctrl in all)
             {
-                foreach (UIWaypointController ctrl in all)
+                try
                 {
-                    try
-                    {
-                        var unlocked = ctrl.unlockedScenes;
-                        if (unlocked == null) continue;
-                        int n = unlocked.Count;
-                        readAnything = true;
-                        for (int i = 0; i < n; i++)
-                            if ((unlocked[i] ?? "") == scene) return true;
-                    }
-                    catch { }
+                    var unlocked = ctrl.unlockedScenes;
+                    if (unlocked == null) continue;
+                    int n = unlocked.Count;
+                    readAnything = true;
+                    for (int i = 0; i < n; i++)
+                        if ((unlocked[i] ?? "") == scene) return true;
                 }
+                catch { }
             }
             if (!readAnything)
             {
-                // Council A1: unreadable unlock data fails closed instead of authorizing travel.
-                if (!_unlockUnreadableWarned)
-                {
-                    _unlockUnreadableWarned = true;
-                    Dbg.Log("unlock data unreadable — travel refused");
-                }
-                return false;
+                Dbg.Log("unlock data unreadable — allowing travel attempt");
+                return true;
             }
             return false;
         }

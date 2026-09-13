@@ -20,7 +20,7 @@ Everything lives on the inventory panel. `QUICK TELEPORT` tab collapses/expands 
 
 ## Installation
 
-1. Install [MelonLoader 0.7.2+ (tested on 0.7.3, game 1.4.7)](https://melonwiki.xyz) into Last Epoch
+1. Install [MelonLoader 0.7.2+](https://melonwiki.xyz) into Last Epoch
 2. Drop `medick_Terrible_Inventory.dll` into `Last Epoch/Mods/`
 3. Open your inventory
 

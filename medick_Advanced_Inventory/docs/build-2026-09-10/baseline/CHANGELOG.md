@@ -1,14 +1,5 @@
 # Changelog — MedicK's Terrible Inventory
 
-## v2.0.1 — council pass (2026-09-10)
-
-- A1: Travel now fails closed, with a one-time debug message, when waypoint unlock data is unreadable.
-- A2: Removed the unproven `WaypointManager` force-enable so travel uses only the game's waypoint-click path.
-- A3: STASH ALL binds queued positions to item-object identity, skips changed slots, and reports move failures and totals.
-- A4: Scene loads now reset the STASH ALL re-entrancy guard.
-- A5: IL2CPP delegate retention is keyed by live controls, replacing rebinds and pruning destroyed controls.
-- A6: Added opt-out deployment, resilient Sort-icon lookup, current compatibility wording, and the 2.0.1 version bump.
-
 ## v2.0.0 — 2026-06-11
 
 Ground-up professional rebuild, built to a written spec (SPEC.md) on top of

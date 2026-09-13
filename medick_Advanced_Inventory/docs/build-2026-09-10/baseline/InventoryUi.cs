@@ -28,9 +28,6 @@ namespace medick_Terrible_Inventory
         static bool _pathWarned;
         static bool _stashAllRunning;
 
-        // Council A4: a scene transition cannot leave the Stash All re-entrancy guard latched.
-        public static void ResetStashAllGuard() => _stashAllRunning = false;
-
         public static void Inject(EnableWovenEchoesTabIfRelevant panel)
         {
             try
@@ -210,13 +207,11 @@ namespace medick_Terrible_Inventory
 
                 yield return null;                              // let the stash UI settle
 
-                (Vector2Int position, ItemDataUnpacked item)[] queued;
+                Vector2Int[] positions;
                 try
                 {
-                    // Council A3: bind every queued position to the unpacked item object occupying it.
-                    queued = inv.content.ToArray()
-                        .Select(e => (e._Position_k__BackingField,
-                            e.data?.TryCast<ItemDataUnpacked>()))
+                    positions = inv.content.ToArray()
+                        .Select(e => e._Position_k__BackingField)
                         .ToArray();
                 }
                 catch (Exception e)
@@ -225,55 +220,19 @@ namespace medick_Terrible_Inventory
                     yield break;
                 }
 
-                int moved = 0;
-                int failed = 0;
-                int skipped = 0;
-                foreach (var move in queued)
+                foreach (Vector2Int pos in positions)
                 {
-                    ItemDataUnpacked currentItem = null;
                     try
                     {
-                        currentItem = inv.GetEntryAt(move.position)?.data?.TryCast<ItemDataUnpacked>();
+                        mgr.TryQuickMove(ContainerID.INVENTORY, ContainerID.STASH, pos, false, false);
                     }
-                    catch (Exception e)
-                    {
-                        Dbg.Log($"Stash All skipped — slot changed at {move.position}: {e.Message}");
-                    }
-
-                    // Council A3 repair: compare native pointers because IL2CPP managed wrappers are not stable across reads.
-                    bool sameItem = move.item != null && currentItem != null && currentItem.Pointer == move.item.Pointer;
-                    if (!sameItem)
-                    {
-                        skipped++;
-                        if (currentItem != null)
-                            Dbg.Log($"Stash All skipped — slot changed at {move.position}");
-                    }
-                    else
-                    {
-                        try
-                        {
-                            bool didMove = mgr.TryQuickMove(
-                                ContainerID.INVENTORY, ContainerID.STASH, move.position, false, false);
-                            if (didMove) moved++;
-                            else
-                            {
-                                failed++;
-                                Dbg.Log($"Stash All move failed at {move.position}: TryQuickMove returned false");
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            failed++;
-                            Dbg.Log($"Stash All move failed at {move.position}: {e.Message}");
-                        }
-                    }
+                    catch { }
                     yield return null;                          // 3-frame cadence — do not speed up;
                     yield return null;                          // this is what keeps the server calm
                     yield return null;
                 }
 
-                Dbg.Log($"Stash All complete — moved {moved} of {queued.Length}, {failed} failed, " +
-                        $"{skipped} skipped — slot changed");
+                Dbg.Log($"Stash All complete — attempted {positions.Length} items");
             }
             finally
             {

@@ -32,15 +32,7 @@ namespace medick_Terrible_Inventory
         const string HeaderAnchor = "Header - Interface";
 
         static bool _degradedWarned;
-        static readonly Dictionary<Toggle, Delegate> _keepAlive = new();
-
-        static void Retain(Toggle control, Delegate listener)
-        {
-            // Council A5: key delegates by live control; rebinds replace and destroyed controls are pruned.
-            foreach (var retained in new List<Toggle>(_keepAlive.Keys))
-                if (retained == null) _keepAlive.Remove(retained);
-            _keepAlive[control] = listener;
-        }
+        static readonly List<Delegate> _keepAlive = new();
 
         static Transform FindToggleTemplate(Transform root)
         {
@@ -197,7 +189,7 @@ namespace medick_Terrible_Inventory
             try { toggle.SetIsOnWithoutNotify(initial); }
             catch { toggle.isOn = initial; }   // safe: no listeners attached yet
             var listener = new Action<bool>(_ => onChanged(toggle.isOn));
-            Retain(toggle, listener);
+            _keepAlive.Add(listener);
             toggle.onValueChanged.AddListener(listener);
             return toggle;
         }

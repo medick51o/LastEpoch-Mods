@@ -1,0 +1,334 @@
+--- docs/build-2026-09-10/baseline/TravelService.cs	2026-09-10 22:36:18.811615900 -0700
++++ src/TravelService.cs	2026-09-10 22:41:38.569846300 -0700
+@@ -23,6 +23,7 @@
+         static bool _travelInProgress;
+         static bool _primed;
+         static bool _primerRunning;
++        static bool _unlockUnreadableWarned;
+         static readonly HashSet<string> _warnedScenes = new();
+ 
+         public static void EnsurePrimed()
+@@ -103,17 +104,7 @@
+                 yield break;
+             }
+ 
+-            // Carried from v1, deliberately AFTER the gate and the lookup so a
+-            // click that doesn't travel leaves no footprint: some zones set
+-            // WaypointEnabled=false and this allows the jump the way v1 did.
+-            // A successful travel loads a new scene, which resets the flag.
+-            try
+-            {
+-                WaypointManager wm = WaypointManager.getInstance();
+-                if (wm != null) { wm.WaypointEnabled = true; wm.EnableWaypoint(); }
+-            }
+-            catch { }
+-
++            // Council A2: use the verified waypoint-click path without mutating WaypointManager state.
+             bool fired = false;
+             try
+             {
+@@ -150,31 +141,36 @@
+         }
+ 
+         // ── Unlock gate ───────────────────────────────────────────
+-        // True when any era controller lists the scene as unlocked. If the
+-        // unlock data cannot be read at all, default to allow — documented
+-        // tradeoff; LoadWaypointScene is the game's own gated path anyway.
++        // True only when an era controller positively lists the scene as unlocked.
+ 
+         static bool IsUnlocked(UIWaypointController[] all, string scene)
+         {
+-            if (all == null || all.Length == 0) return true;
+             bool readAnything = false;
+-            foreach (UIWaypointController ctrl in all)
++            if (all != null)
+             {
+-                try
++                foreach (UIWaypointController ctrl in all)
+                 {
+-                    var unlocked = ctrl.unlockedScenes;
+-                    if (unlocked == null) continue;
+-                    int n = unlocked.Count;
+-                    readAnything = true;
+-                    for (int i = 0; i < n; i++)
+-                        if ((unlocked[i] ?? "") == scene) return true;
++                    try
++                    {
++                        var unlocked = ctrl.unlockedScenes;
++                        if (unlocked == null) continue;
++                        int n = unlocked.Count;
++                        readAnything = true;
++                        for (int i = 0; i < n; i++)
++                            if ((unlocked[i] ?? "") == scene) return true;
++                    }
++                    catch { }
+                 }
+-                catch { }
+             }
+             if (!readAnything)
+             {
+-                Dbg.Log("unlock data unreadable — allowing travel attempt");
+-                return true;
++                // Council A1: unreadable unlock data fails closed instead of authorizing travel.
++                if (!_unlockUnreadableWarned)
++                {
++                    _unlockUnreadableWarned = true;
++                    Dbg.Log("unlock data unreadable — travel refused");
++                }
++                return false;
+             }
+             return false;
+         }
+--- docs/build-2026-09-10/baseline/InventoryUi.cs	2026-09-10 22:36:18.822840400 -0700
++++ src/InventoryUi.cs	2026-09-10 22:41:39.961958400 -0700
+@@ -28,6 +28,9 @@
+         static bool _pathWarned;
+         static bool _stashAllRunning;
+ 
++        // Council A4: a scene transition cannot leave the Stash All re-entrancy guard latched.
++        public static void ResetStashAllGuard() => _stashAllRunning = false;
++
+         public static void Inject(EnableWovenEchoesTabIfRelevant panel)
+         {
+             try
+@@ -207,11 +210,13 @@
+ 
+                 yield return null;                              // let the stash UI settle
+ 
+-                Vector2Int[] positions;
++                (Vector2Int position, ItemDataUnpacked item)[] queued;
+                 try
+                 {
+-                    positions = inv.content.ToArray()
+-                        .Select(e => e._Position_k__BackingField)
++                    // Council A3: bind every queued position to the unpacked item object occupying it.
++                    queued = inv.content.ToArray()
++                        .Select(e => (e._Position_k__BackingField,
++                            e.data?.TryCast<ItemDataUnpacked>()))
+                         .ToArray();
+                 }
+                 catch (Exception e)
+@@ -220,19 +225,53 @@
+                     yield break;
+                 }
+ 
+-                foreach (Vector2Int pos in positions)
++                int moved = 0;
++                int failed = 0;
++                int skipped = 0;
++                foreach (var move in queued)
+                 {
++                    ItemDataUnpacked currentItem = null;
+                     try
+                     {
+-                        mgr.TryQuickMove(ContainerID.INVENTORY, ContainerID.STASH, pos, false, false);
++                        currentItem = inv.GetEntryAt(move.position)?.data?.TryCast<ItemDataUnpacked>();
++                    }
++                    catch (Exception e)
++                    {
++                        Dbg.Log($"Stash All skipped — slot changed at {move.position}: {e.Message}");
++                    }
++
++                    if (move.item == null || !ReferenceEquals(currentItem, move.item))
++                    {
++                        skipped++;
++                        if (currentItem != null)
++                            Dbg.Log($"Stash All skipped — slot changed at {move.position}");
++                    }
++                    else
++                    {
++                        try
++                        {
++                            bool didMove = mgr.TryQuickMove(
++                                ContainerID.INVENTORY, ContainerID.STASH, move.position, false, false);
++                            if (didMove) moved++;
++                            else
++                            {
++                                failed++;
++                                Dbg.Log($"Stash All move failed at {move.position}: TryQuickMove returned false");
++                            }
++                        }
++                        catch (Exception e)
++                        {
++                            failed++;
++                            Dbg.Log($"Stash All move failed at {move.position}: {e.Message}");
++                        }
+                     }
+-                    catch { }
+                     yield return null;                          // 3-frame cadence — do not speed up;
+                     yield return null;                          // this is what keeps the server calm
+                     yield return null;
+                 }
+ 
+-                Dbg.Log($"Stash All complete — attempted {positions.Length} items");
++                Dbg.Log($"Stash All complete — moved {moved} of {queued.Length}, {failed} failed, " +
++                        $"{skipped} skipped — slot changed");
+             }
+             finally
+             {
+--- docs/build-2026-09-10/baseline/NativeClone.cs	2026-09-10 22:36:18.841888100 -0700
++++ src/NativeClone.cs	2026-09-10 22:41:42.785616300 -0700
+@@ -15,7 +15,15 @@
+     {
+         // Il2Cpp delegates passed to AddListener must stay referenced from
+         // managed code or the GC collects them and clicks go dead.
+-        static readonly List<Delegate> _keepAlive = new();
++        static readonly Dictionary<UnityEngine.UI.Button, Delegate> _keepAlive = new();
++
++        static void Retain(UnityEngine.UI.Button control, Delegate listener)
++        {
++            // Council A5: key delegates by live control; rebinds replace and destroyed controls are pruned.
++            foreach (var retained in new List<UnityEngine.UI.Button>(_keepAlive.Keys))
++                if (retained == null) _keepAlive.Remove(retained);
++            _keepAlive[control] = listener;
++        }
+ 
+         public static GameObject Button(GameObject template, Transform parent, string name, Action onClick)
+         {
+@@ -39,7 +47,7 @@
+                     // persistent calls would survive onto our clones).
+                     btn.onClick = new Button.ButtonClickedEvent();
+                     var action = new Action(onClick);
+-                    _keepAlive.Add(action);
++                    Retain(btn, action);
+                     btn.onClick.AddListener(action);
+                 }
+ 
+@@ -77,7 +85,23 @@
+         {
+             try
+             {
+-                if (btn.transform.childCount > 1)
++                Transform icon = null;
++                Button button = btn.GetComponent<Button>();
++                for (int i = 0; i < btn.transform.childCount; i++)
++                {
++                    Transform child = btn.transform.GetChild(i);
++                    Image image = child.GetComponent<Image>();
++                    if (image == null) continue;
++                    string name = (child.name ?? "").ToLowerInvariant();
++                    bool namedIcon = name.Contains("icon") || name.Contains("dot") || name.Contains("sort");
++                    bool componentIcon = (button == null || image != button.targetGraphic) &&
++                                         child.GetComponentInChildren<TMP_Text>(true) == null;
++                    if (namedIcon || componentIcon) { icon = child; break; }
++                }
++
++                // Council A6: prefer icon component/name discovery, retaining the known donor index as fallback.
++                if (icon != null) icon.gameObject.SetActive(false);
++                else if (btn.transform.childCount > 1)
+                     btn.transform.GetChild(1).gameObject.SetActive(false);
+             }
+             catch { }
+--- docs/build-2026-09-10/baseline/NativeSettings.cs	2026-09-10 22:36:18.843893300 -0700
++++ src/NativeSettings.cs	2026-09-10 22:41:44.178129100 -0700
+@@ -32,7 +32,15 @@
+         const string HeaderAnchor = "Header - Interface";
+ 
+         static bool _degradedWarned;
+-        static readonly List<Delegate> _keepAlive = new();
++        static readonly Dictionary<Toggle, Delegate> _keepAlive = new();
++
++        static void Retain(Toggle control, Delegate listener)
++        {
++            // Council A5: key delegates by live control; rebinds replace and destroyed controls are pruned.
++            foreach (var retained in new List<Toggle>(_keepAlive.Keys))
++                if (retained == null) _keepAlive.Remove(retained);
++            _keepAlive[control] = listener;
++        }
+ 
+         static Transform FindToggleTemplate(Transform root)
+         {
+@@ -189,7 +197,7 @@
+             try { toggle.SetIsOnWithoutNotify(initial); }
+             catch { toggle.isOn = initial; }   // safe: no listeners attached yet
+             var listener = new Action<bool>(_ => onChanged(toggle.isOn));
+-            _keepAlive.Add(listener);
++            Retain(toggle, listener);
+             toggle.onValueChanged.AddListener(listener);
+             return toggle;
+         }
+--- docs/build-2026-09-10/baseline/TerribleInventoryMod.cs	2026-09-10 22:36:18.860150900 -0700
++++ src/TerribleInventoryMod.cs	2026-09-10 22:41:41.427278600 -0700
+@@ -46,9 +46,12 @@
+             catch { InventoryUi.ButtonBar = null; }   // collected reference — next panel re-injects
+         }
+ 
+-        // The travel guard spans the scene transition; arrival releases it.
+-        public override void OnSceneWasLoaded(int buildIndex, string sceneName) =>
++        // Arrival releases operation guards, including council A4's stuck Stash All finding.
++        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
++        {
++            InventoryUi.ResetStashAllGuard();
+             TravelService.NotifySceneLoaded();
++        }
+ 
+         public override void OnApplicationQuit() => Prefs.Save();
+     }
+--- docs/build-2026-09-10/baseline/BuildInfo.cs	2026-09-10 22:36:18.862652900 -0700
++++ src/BuildInfo.cs	2026-09-10 22:41:45.584919400 -0700
+@@ -8,7 +8,7 @@
+         public const string Name         = "medick_Terrible_Inventory";
+         public const string DisplayName  = "Terrible Inventory";   // settings category title
+         public const string OfficialName = "MedicK's Terrible Inventory";
+-        public const string Version      = "2.0.0";   // bump in lockstep with <Version> in the csproj
++        public const string Version      = "2.0.1";   // Council A6: bump in lockstep with <Version> in the csproj
+         public const string Author       = "medick";
+     }
+ }
+--- docs/build-2026-09-10/baseline/medick_Advanced_Inventory.csproj	2026-09-10 22:36:18.864171500 -0700
++++ medick_Advanced_Inventory.csproj	2026-09-10 22:42:39.282406600 -0700
+@@ -6,7 +6,7 @@
+     <RootNamespace>medick_Terrible_Inventory</RootNamespace>
+     <Nullable>disable</Nullable>
+     <!-- Bump in lockstep with BuildInfo.Version (DLL file metadata) -->
+-    <Version>2.0.0</Version>
++    <Version>2.0.1</Version>
+   </PropertyGroup>
+ 
+   <PropertyGroup>
+@@ -15,6 +15,7 @@
+   </PropertyGroup>
+ 
+   <ItemGroup>
++    <Compile Remove="docs\**\*.cs" />
+     <Reference Include="MelonLoader">
+       <HintPath>$(ML)MelonLoader.dll</HintPath>
+       <Private>false</Private>
+@@ -58,7 +59,8 @@
+   </ItemGroup>
+ 
+   <!-- Auto-copy built DLL to Last Epoch Mods folder after each build -->
+-  <Target Name="CopyToMods" AfterTargets="Build">
++  <!-- Council A6: allow validation builds without touching the live Mods folder. -->
++  <Target Name="CopyToMods" AfterTargets="Build" Condition="'$(DeployToMods)' != 'false'">
+     <Copy SourceFiles="$(TargetPath)"
+           DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\Mods\" />
+   </Target>
+--- docs/build-2026-09-10/baseline/CHANGELOG.md	2026-09-10 22:36:18.873264100 -0700
++++ CHANGELOG.md	2026-09-10 22:41:49.664392800 -0700
+@@ -1,5 +1,14 @@
+ # Changelog — MedicK's Terrible Inventory
+ 
++## v2.0.1 — council pass (2026-09-10)
++
++- A1: Travel now fails closed, with a one-time debug message, when waypoint unlock data is unreadable.
++- A2: Removed the unproven `WaypointManager` force-enable so travel uses only the game's waypoint-click path.
++- A3: STASH ALL binds queued positions to item-object identity, skips changed slots, and reports move failures and totals.
++- A4: Scene loads now reset the STASH ALL re-entrancy guard.
++- A5: IL2CPP delegate retention is keyed by live controls, replacing rebinds and pruning destroyed controls.
++- A6: Added opt-out deployment, resilient Sort-icon lookup, current compatibility wording, and the 2.0.1 version bump.
++
+ ## v2.0.0 — 2026-06-11
+ 
+ Ground-up professional rebuild, built to a written spec (SPEC.md) on top of
+--- docs/build-2026-09-10/baseline/README.md	2026-09-10 22:36:18.883350000 -0700
++++ README.md	2026-09-10 22:41:48.284315300 -0700
+@@ -20,7 +20,7 @@
+ 
+ ## Installation
+ 
+-1. Install [MelonLoader 0.7.2+](https://melonwiki.xyz) into Last Epoch
++1. Install [MelonLoader 0.7.2+ (tested on 0.7.3, game 1.4.7)](https://melonwiki.xyz) into Last Epoch
+ 2. Drop `medick_Terrible_Inventory.dll` into `Last Epoch/Mods/`
+ 3. Open your inventory
+ 

@@ -6,7 +6,7 @@
     <RootNamespace>medick_Terrible_Inventory</RootNamespace>
     <Nullable>disable</Nullable>
     <!-- Bump in lockstep with BuildInfo.Version (DLL file metadata) -->
-    <Version>2.0.1</Version>
+    <Version>2.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -15,7 +15,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="docs\**\*.cs" />
     <Reference Include="MelonLoader">
       <HintPath>$(ML)MelonLoader.dll</HintPath>
       <Private>false</Private>
@@ -59,8 +58,7 @@
   </ItemGroup>
 
   <!-- Auto-copy built DLL to Last Epoch Mods folder after each build -->
-  <!-- Council A6: allow validation builds without touching the live Mods folder. -->
-  <Target Name="CopyToMods" AfterTargets="Build" Condition="'$(DeployToMods)' != 'false'">
+  <Target Name="CopyToMods" AfterTargets="Build">
     <Copy SourceFiles="$(TargetPath)"
           DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\Mods\" />
   </Target>
