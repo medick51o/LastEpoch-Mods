@@ -6,9 +6,8 @@ namespace medick_CooldownTracker
     // Draws the floating cooldown icons above the player.
     //
     // Anchor rule: if there is no living player to anchor to, draw NOTHING.
-    // A fallback screen position when the anchor is missing causes ghost icons
-    // on the login screen, so no fallback is used.
-    // council 2026-09-11 #5
+    // (v4.x guessed a fallback screen position when the anchor was missing,
+    // which is exactly why ghost icons appeared on the login screen.)
     //
     // Move mode: while the settings panel is open and Move is engaged, every
     // enabled slot renders as a draggable preview cluster — drag it where you
@@ -19,12 +18,10 @@ namespace medick_CooldownTracker
         static bool    _dragging;
         static Vector2 _dragStart;
         static float   _startOX, _startOY;
-        static int     _cameraFrame = -1;
-        static Camera  _camera;
 
         public static void Draw()
         {
-            var cam = CameraForCurrentFrame();
+            var cam = Camera.main;
             if (cam == null) return;
 
             bool moveMode = UiState.MoveIcons && UiState.ShowSettings;
@@ -58,23 +55,6 @@ namespace medick_CooldownTracker
                     "drag to reposition — press Lock when done",
                     Theme.Accent, hfs, FontStyle.Bold, TextAnchor.MiddleCenter);
             }
-        }
-
-        // council 2026-09-11 #4
-        static Camera CameraForCurrentFrame()
-        {
-            try
-            {
-                int frame = Time.frameCount;
-                if (_cameraFrame != frame)
-                {
-                    _cameraFrame = frame;
-                    _camera = null;
-                    _camera = Camera.main;
-                }
-            }
-            catch { _camera = null; }
-            return _camera;
         }
 
         static void HandleMoveDrag(Rect cluster)

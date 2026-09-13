@@ -5,13 +5,7 @@
     <AssemblyName>medick_CooldownTracker</AssemblyName>
     <RootNamespace>medick_CooldownTracker</RootNamespace>
     <Nullable>disable</Nullable>
-    <Version>1.0.1</Version>
   </PropertyGroup>
-
-  <!-- council 2026-09-11 #8 -->
-  <ItemGroup>
-    <Compile Remove="docs\**\*.cs" />
-  </ItemGroup>
 
   <!-- ── Reference paths ── adjust if your game is elsewhere ── -->
   <PropertyGroup>

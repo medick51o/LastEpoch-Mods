@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using MelonLoader;
 
 namespace medick_CooldownTracker
@@ -62,45 +60,6 @@ namespace medick_CooldownTracker
 
             for (int i = 0; i < SlotRegistry.SlotCount; i++)
                 SlotEnabled[i] = cat.CreateEntry($"SlotEnabled{i}", true, $"Track slot {i}");
-
-            Sanitize();
-        }
-
-        // council 2026-09-11 #3
-        static void Sanitize()
-        {
-            var repaired = new List<string>();
-            RepairFinite(Alpha, "Alpha", repaired);
-            RepairFinite(Size, "Size", repaired);
-            RepairFinite(OffsetX, "OffsetX", repaired);
-            RepairFinite(OffsetY, "OffsetY", repaired);
-            RepairFinite(MenuScale, "MenuScale", repaired);
-            RepairFinite(PanelX, "PanelX", repaired);
-            RepairFinite(PanelY, "PanelY", repaired);
-
-            int inputMode = Math.Clamp(InputMode.Value, 0, 3);
-            if (inputMode != InputMode.Value)
-            {
-                InputMode.Value = inputMode;
-                repaired.Add("InputMode");
-            }
-
-            int ctrlLayout = Math.Clamp(CtrlLayout.Value, 0, 2);
-            if (ctrlLayout != CtrlLayout.Value)
-            {
-                CtrlLayout.Value = ctrlLayout;
-                repaired.Add("CtrlLayout");
-            }
-
-            if (repaired.Count > 0)
-                MelonLogger.Warning("Repaired invalid preferences: " + string.Join(", ", repaired));
-        }
-
-        static void RepairFinite(MelonPreferences_Entry<float> entry, string key, List<string> repaired)
-        {
-            if (float.IsFinite(entry.Value)) return;
-            entry.Value = entry.DefaultValue;
-            repaired.Add(key);
         }
 
         public static string CustomLabel(int modeIdx, int slot)

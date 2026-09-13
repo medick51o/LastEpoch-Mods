@@ -1,0 +1,10 @@
+a1b3aa00b826116f7701e527d968a6c6 *medick_CooldownTracker.csproj
+63d22a095e2e81f85b89f9f461ee0481 *src/BuildInfo.cs
+0be152ac740d1a3202b6e77024d8b881 *src/InputBlocker.cs
+01df7052d7bff469691c06480e9fd071 *src/Prefs.cs
+047b4a5bba100bc7c14fd2d972d4a4a9 *src/SlotRegistry.cs
+c5b2f6492dd341375b63d32c36d76843 *src/InputDetection.cs
+ced8939c78c72e81b76995e5d10e1d48 *src/UI/OverheadRenderer.cs
+718ae28117513f8909674eb5a69d50fb *src/UI/Theme.cs
+54b600649e54f7338101ed7a8b8d180f *README.md
+d1444708a911c71164597934d8ee6f04 *CHANGELOG.md

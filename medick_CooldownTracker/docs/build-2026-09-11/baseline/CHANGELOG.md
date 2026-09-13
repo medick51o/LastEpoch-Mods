@@ -1,19 +1,5 @@
 # Changelog — MedicK's Terrible Cooldowns
 
-## v1.0.1 — council pass (2026-09-11)
-
-<!-- council 2026-09-11 #1-#8 -->
-- Movement lock now releases the shared input flag only when this mod set it.
-- Invalid non-finite geometry preferences reset to defaults, and input mode values are clamped to valid ranges.
-- The main camera lookup is cached once per frame and safely skipped when unavailable.
-- Live replacement of a slot by a different action-bar icon now emits a diagnostic and one warning per session.
-- Stale version-numbered implementation history was removed from source comments.
-- Installation now names MelonLoader 0.7.x and the tested game/loader versions.
-
-### Legacy config keys
-
-The 12 inert v4.x keys `ShowWindow`, `ShowOverhead`, `WindowScale`, `WindowX`, `WindowY`, `IconAlpha`, `IconSize`, `OverheadY`, `EnabledKeys`, `Controller`, and `SlotLabel0-5` are ignored and safe to delete by hand. No code deletes them.
-
 ## v1.0.0 — 2026-07-01
 
 Ground-up engineering pass and rebrand: **Cooldown Tracker** is now

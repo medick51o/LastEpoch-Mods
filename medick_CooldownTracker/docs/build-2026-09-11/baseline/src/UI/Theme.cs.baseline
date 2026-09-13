@@ -251,10 +251,8 @@ namespace medick_CooldownTracker
             // Atlas-packed sprites: rect is in ORIGINAL texture space, but the
             // pixels live in the packed atlas at textureRect. Sampling with
             // rect reads a random neighbouring region of the atlas — that is
-            // why earlier releases drew emblem/portrait art instead of the
-            // real skill icons. textureRect throws for tight-packed sprites;
-            // fall back.
-            // council 2026-09-11 #5
+            // why v4.x drew emblem/portrait art instead of the real skill
+            // icons. textureRect throws for tight-packed sprites; fall back.
             Rect sr;
             try { sr = s.packed ? s.textureRect : s.rect; }
             catch { sr = s.rect; }

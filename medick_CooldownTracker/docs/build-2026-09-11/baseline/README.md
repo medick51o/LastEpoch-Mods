@@ -39,8 +39,7 @@ In keyboard mode the mod reads your actual in-game keybinds off the action bar w
 
 ## Installation
 
-<!-- council 2026-09-11 #6 -->
-1. Install MelonLoader 0.7.x (tested on 0.7.2 Open-Beta, game 1.4.7) into Last Epoch
+1. Install [MelonLoader 0.6.x](https://melonwiki.xyz) into Last Epoch
 2. Drop `medick_CooldownTracker.dll` into `Last Epoch/Mods/`
 3. Launch the game and load into a zone
 4. Press `Home` to open the settings panel

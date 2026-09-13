@@ -1,0 +1,300 @@
+--- a/medick_CooldownTracker.csproj
++++ b/medick_CooldownTracker.csproj
+@@ -5,8 +5,14 @@
+     <AssemblyName>medick_CooldownTracker</AssemblyName>
+     <RootNamespace>medick_CooldownTracker</RootNamespace>
+     <Nullable>disable</Nullable>
++    <Version>1.0.1</Version>
+   </PropertyGroup>
+ 
++  <!-- council 2026-09-11 #8 -->
++  <ItemGroup>
++    <Compile Remove="docs\**\*.cs" />
++  </ItemGroup>
++
+   <!-- ── Reference paths ── adjust if your game is elsewhere ── -->
+   <PropertyGroup>
+     <ML>C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\net6\</ML>
+--- a/src/BuildInfo.cs
++++ b/src/BuildInfo.cs
+@@ -10,7 +10,7 @@
+         public const string DisplayName  = "Terrible Cooldowns";
+         public const string OfficialName = "MedicK's Terrible Cooldowns";
+         public const string Tagline      = "a cooldown tracker";
+-        public const string Version      = "1.0.0";
++        public const string Version      = "1.0.1"; // council 2026-09-11 #8
+         public const string Author       = "medick";
+     }
+ }
+--- a/src/InputBlocker.cs
++++ b/src/InputBlocker.cs
+@@ -2,14 +2,11 @@
+ 
+ namespace medick_CooldownTracker
+ {
+-    // The one correct way to block input in Last Epoch: the game's own
+-    // EpochInputManager.forceDisableInput flag. The game routes all input
+-    // through its own manager, so Harmony patches on UnityEngine.Input never
+-    // affect it — they only break other mods (v4.x shipped seven of those;
+-    // v5 ships none).
+-    //
+-    // The flag is only written when our desired state changes, so we never
+-    // stomp another mod that set it for its own reasons.
++    // Uses the game's EpochInputManager.forceDisableInput flag instead of
++    // patching UnityEngine.Input, which the game does not route through.
++    // While wanted, the lock is re-asserted every update; on close it is
++    // released once, and only when this mod was the one that set the flag.
++    // council 2026-09-11 #1
+     internal static class InputBlocker
+     {
+         static bool _applied;
+@@ -32,8 +29,11 @@
+                     // mod's guard (Terrible Zoom runs the same technique) can
+                     // flip the shared flag under us. Trusting our own last
+                     // write is how input locks silently die.
+-                    if (!mgr.forceDisableInput) mgr.forceDisableInput = true;
+-                    _applied = true;
++                    if (!mgr.forceDisableInput)
++                    {
++                        mgr.forceDisableInput = true;
++                        _applied = true;
++                    }
+                 }
+                 else if (_applied)
+                 {
+--- a/src/Prefs.cs
++++ b/src/Prefs.cs
+@@ -1,3 +1,5 @@
++using System;
++using System.Collections.Generic;
+ using MelonLoader;
+ 
+ namespace medick_CooldownTracker
+@@ -60,6 +62,45 @@
+ 
+             for (int i = 0; i < SlotRegistry.SlotCount; i++)
+                 SlotEnabled[i] = cat.CreateEntry($"SlotEnabled{i}", true, $"Track slot {i}");
++
++            Sanitize();
++        }
++
++        // council 2026-09-11 #3
++        static void Sanitize()
++        {
++            var repaired = new List<string>();
++            RepairFinite(Alpha, "Alpha", repaired);
++            RepairFinite(Size, "Size", repaired);
++            RepairFinite(OffsetX, "OffsetX", repaired);
++            RepairFinite(OffsetY, "OffsetY", repaired);
++            RepairFinite(MenuScale, "MenuScale", repaired);
++            RepairFinite(PanelX, "PanelX", repaired);
++            RepairFinite(PanelY, "PanelY", repaired);
++
++            int inputMode = Math.Clamp(InputMode.Value, 0, 3);
++            if (inputMode != InputMode.Value)
++            {
++                InputMode.Value = inputMode;
++                repaired.Add("InputMode");
++            }
++
++            int ctrlLayout = Math.Clamp(CtrlLayout.Value, 0, 2);
++            if (ctrlLayout != CtrlLayout.Value)
++            {
++                CtrlLayout.Value = ctrlLayout;
++                repaired.Add("CtrlLayout");
++            }
++
++            if (repaired.Count > 0)
++                MelonLogger.Warning("Repaired invalid preferences: " + string.Join(", ", repaired));
++        }
++
++        static void RepairFinite(MelonPreferences_Entry<float> entry, string key, List<string> repaired)
++        {
++            if (float.IsFinite(entry.Value)) return;
++            entry.Value = entry.DefaultValue;
++            repaired.Add(key);
+         }
+ 
+         public static string CustomLabel(int modeIdx, int slot)
+--- a/src/SlotRegistry.cs
++++ b/src/SlotRegistry.cs
+@@ -41,6 +41,7 @@
+ 
+         static readonly List<SlotData> _slots = new();
+         static readonly object _lock = new();
++        static bool _liveReplacementWarned;
+ 
+         public static int Count { get { lock (_lock) return _slots.Count; } }
+ 
+@@ -60,18 +61,43 @@
+                     Source       = icon,
+                 };
+                 RefreshLabel(s);
++                bool differentLiveSource = false;
++                bool firstLiveReplacement = false;
+                 lock (_lock)
+                 {
++                    var existing = _slots.Find(x => x.SlotIndex == idx);
++                    try
++                    {
++                        differentLiveSource = existing != null && existing.Source != null &&
++                            !SameNativeInstance(existing.Source, icon);
++                    }
++                    catch { }
++                    if (differentLiveSource && !_liveReplacementWarned)
++                    {
++                        _liveReplacementWarned = true;
++                        firstLiveReplacement = true;
++                    }
+                     _slots.RemoveAll(x => x.SlotIndex == idx);
+                     int at = _slots.FindIndex(x => x.SlotIndex > idx);
+                     if (at < 0) _slots.Add(s); else _slots.Insert(at, s);
+                 }
++                if (differentLiveSource)
++                {
++                    Dbg.Log($"slot #{idx} re-registered from a different live AbilityBarIcon");
++                    if (firstLiveReplacement)
++                        MelonLogger.Warning($"slot #{idx} re-registered from a different live AbilityBarIcon — a second action bar may exist; report this line");
++                }
+                 Dbg.Log($"slot #{idx} registered (key={s.GameBoundKey ?? "?"})");
+                 DumpIconHierarchy(icon, idx);
+             }
+             catch (Exception ex) { MelonLogger.Warning("RegisterSlot: " + ex.Message); }
+         }
+ 
++        // Managed wrappers can differ for one IL2CPP object, so compare native identity too.
++        // council 2026-09-11 #2
++        static bool SameNativeInstance(AbilityBarIcon a, AbilityBarIcon b) =>
++            ReferenceEquals(a, b) || a.Pointer == b.Pointer;
++
+         // The skill artwork, preferring an override sprite when the game set one.
+         static Sprite ReadSprite(AbilityBarIcon icon)
+         {
+--- a/src/InputDetection.cs
++++ b/src/InputDetection.cs
+@@ -10,7 +10,8 @@
+ 
+     // Watches raw device activity to decide whether the player is currently on
+     // keyboard/mouse or a controller, and which controller family it is.
+-    // Reads UnityEngine.Input directly — safe, because v5 ships no Input patches.
++    // Reads UnityEngine.Input directly; this mod installs no Input patches.
++    // council 2026-09-11 #5
+     internal static class InputTracker
+     {
+         static float    _lastCtrl  = -999f;
+@@ -142,10 +143,10 @@
+     }
+ 
+     // Best-effort read of the key the game itself shows on an action bar slot.
+-    // (v4 also carried a reflection sweep over generic Components here — it
+-    // could never match anything because Il2Cpp interop hands back base-type
+-    // wrappers, so the managed GetType() never exposes a `text` property.
+-    // The typed Text pass below is the only one that ever produced results.)
++    // An earlier reflection sweep over generic Components could never match
++    // because Il2Cpp interop hands back base-type wrappers, so the managed
++    // GetType() never exposes a `text` property. The typed Text pass below is
++    // the only one that produces results.
+     internal static class HotkeyReader
+     {
+         public static string TryRead(AbilityBarIcon icon)
+--- a/src/UI/OverheadRenderer.cs
++++ b/src/UI/OverheadRenderer.cs
+@@ -6,8 +6,9 @@
+     // Draws the floating cooldown icons above the player.
+     //
+     // Anchor rule: if there is no living player to anchor to, draw NOTHING.
+-    // (v4.x guessed a fallback screen position when the anchor was missing,
+-    // which is exactly why ghost icons appeared on the login screen.)
++    // A fallback screen position when the anchor is missing causes ghost icons
++    // on the login screen, so no fallback is used.
++    // council 2026-09-11 #5
+     //
+     // Move mode: while the settings panel is open and Move is engaged, every
+     // enabled slot renders as a draggable preview cluster — drag it where you
+@@ -18,10 +19,12 @@
+         static bool    _dragging;
+         static Vector2 _dragStart;
+         static float   _startOX, _startOY;
++        static int     _cameraFrame = -1;
++        static Camera  _camera;
+ 
+         public static void Draw()
+         {
+-            var cam = Camera.main;
++            var cam = CameraForCurrentFrame();
+             if (cam == null) return;
+ 
+             bool moveMode = UiState.MoveIcons && UiState.ShowSettings;
+@@ -57,6 +60,23 @@
+             }
+         }
+ 
++        // council 2026-09-11 #4
++        static Camera CameraForCurrentFrame()
++        {
++            try
++            {
++                int frame = Time.frameCount;
++                if (_cameraFrame != frame)
++                {
++                    _cameraFrame = frame;
++                    _camera = null;
++                    _camera = Camera.main;
++                }
++            }
++            catch { _camera = null; }
++            return _camera;
++        }
++
+         static void HandleMoveDrag(Rect cluster)
+         {
+             var ev = Event.current;
+--- a/src/UI/Theme.cs
++++ b/src/UI/Theme.cs
+@@ -251,8 +251,10 @@
+             // Atlas-packed sprites: rect is in ORIGINAL texture space, but the
+             // pixels live in the packed atlas at textureRect. Sampling with
+             // rect reads a random neighbouring region of the atlas — that is
+-            // why v4.x drew emblem/portrait art instead of the real skill
+-            // icons. textureRect throws for tight-packed sprites; fall back.
++            // why earlier releases drew emblem/portrait art instead of the
++            // real skill icons. textureRect throws for tight-packed sprites;
++            // fall back.
++            // council 2026-09-11 #5
+             Rect sr;
+             try { sr = s.packed ? s.textureRect : s.rect; }
+             catch { sr = s.rect; }
+--- a/README.md
++++ b/README.md
+@@ -39,7 +39,8 @@
+ 
+ ## Installation
+ 
+-1. Install [MelonLoader 0.6.x](https://melonwiki.xyz) into Last Epoch
++<!-- council 2026-09-11 #6 -->
++1. Install MelonLoader 0.7.x (tested on 0.7.2 Open-Beta, game 1.4.7) into Last Epoch
+ 2. Drop `medick_CooldownTracker.dll` into `Last Epoch/Mods/`
+ 3. Launch the game and load into a zone
+ 4. Press `Home` to open the settings panel
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,19 @@
+ # Changelog — MedicK's Terrible Cooldowns
+ 
++## v1.0.1 — council pass (2026-09-11)
++
++<!-- council 2026-09-11 #1-#8 -->
++- Movement lock now releases the shared input flag only when this mod set it.
++- Invalid non-finite geometry preferences reset to defaults, and input mode values are clamped to valid ranges.
++- The main camera lookup is cached once per frame and safely skipped when unavailable.
++- Live replacement of a slot by a different action-bar icon now emits a diagnostic and one warning per session.
++- Stale version-numbered implementation history was removed from source comments.
++- Installation now names MelonLoader 0.7.x and the tested game/loader versions.
++
++### Legacy config keys
++
++The 12 inert v4.x keys `ShowWindow`, `ShowOverhead`, `WindowScale`, `WindowX`, `WindowY`, `IconAlpha`, `IconSize`, `OverheadY`, `EnabledKeys`, `Controller`, and `SlotLabel0-5` are ignored and safe to delete by hand. No code deletes them.
++
+ ## v1.0.0 — 2026-07-01
+ 
+ Ground-up engineering pass and rebrand: **Cooldown Tracker** is now

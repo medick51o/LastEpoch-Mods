@@ -10,8 +10,7 @@ namespace medick_CooldownTracker
 
     // Watches raw device activity to decide whether the player is currently on
     // keyboard/mouse or a controller, and which controller family it is.
-    // Reads UnityEngine.Input directly; this mod installs no Input patches.
-    // council 2026-09-11 #5
+    // Reads UnityEngine.Input directly — safe, because v5 ships no Input patches.
     internal static class InputTracker
     {
         static float    _lastCtrl  = -999f;
@@ -143,10 +142,10 @@ namespace medick_CooldownTracker
     }
 
     // Best-effort read of the key the game itself shows on an action bar slot.
-    // An earlier reflection sweep over generic Components could never match
-    // because Il2Cpp interop hands back base-type wrappers, so the managed
-    // GetType() never exposes a `text` property. The typed Text pass below is
-    // the only one that produces results.
+    // (v4 also carried a reflection sweep over generic Components here — it
+    // could never match anything because Il2Cpp interop hands back base-type
+    // wrappers, so the managed GetType() never exposes a `text` property.
+    // The typed Text pass below is the only one that ever produced results.)
     internal static class HotkeyReader
     {
         public static string TryRead(AbilityBarIcon icon)

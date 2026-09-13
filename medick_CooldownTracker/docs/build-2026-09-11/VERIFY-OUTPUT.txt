@@ -1,0 +1,20 @@
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.67
+-rwxr-xr-x 1 andre 197609 41984 2026-09-11 01:28:46.510975000 -0700 bin/Release/net6.0/medick_CooldownTracker.dll
+7b18d822422d4c0ce9c0e1f3dd6eab10 *bin/Release/net6.0/medick_CooldownTracker.dll
+--- game Mods DLL ---
+-rwxr-xr-x 1 andre 197609 40448 2026-07-01 20:58:54.345627800 -0700 /c/Program Files (x86)/Steam/steamapps/common/Last Epoch/Mods/medick_CooldownTracker.dll
+c4210da03fef2976a49e0f7bad636b2a */c/Program Files (x86)/Steam/steamapps/common/Last Epoch/Mods/medick_CooldownTracker.dll
+--- post-build md5 of write set ---
+06e6473a79892e1cb20ac005268e5476 *medick_CooldownTracker.csproj
+bacd5d8310d2cfd92c64515bf8b215b4 *src/BuildInfo.cs
+9d5669116b9b8d08392287ff76a0b878 *src/InputBlocker.cs
+6a090ae42b04a733f8e4d9803a087a8e *src/Prefs.cs
+8ed6676c0653d5e320f86c822f6fb4a4 *src/SlotRegistry.cs
+aec47d475fda200be2d3516129fd33c1 *src/InputDetection.cs
+dec8da3b928720e221ba53a26aa57c59 *src/UI/OverheadRenderer.cs
+2105a584fb272fd43c3e7051ff33a624 *src/UI/Theme.cs
+4922ab76055663c06a56fb368d272150 *README.md
+f124cd0c3f99cc8a83e8c83be4953042 *CHANGELOG.md

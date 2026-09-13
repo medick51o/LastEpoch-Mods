@@ -41,7 +41,6 @@ namespace medick_CooldownTracker
 
         static readonly List<SlotData> _slots = new();
         static readonly object _lock = new();
-        static bool _liveReplacementWarned;
 
         public static int Count { get { lock (_lock) return _slots.Count; } }
 
@@ -61,42 +60,17 @@ namespace medick_CooldownTracker
                     Source       = icon,
                 };
                 RefreshLabel(s);
-                bool differentLiveSource = false;
-                bool firstLiveReplacement = false;
                 lock (_lock)
                 {
-                    var existing = _slots.Find(x => x.SlotIndex == idx);
-                    try
-                    {
-                        differentLiveSource = existing != null && existing.Source != null &&
-                            !SameNativeInstance(existing.Source, icon);
-                    }
-                    catch { }
-                    if (differentLiveSource && !_liveReplacementWarned)
-                    {
-                        _liveReplacementWarned = true;
-                        firstLiveReplacement = true;
-                    }
                     _slots.RemoveAll(x => x.SlotIndex == idx);
                     int at = _slots.FindIndex(x => x.SlotIndex > idx);
                     if (at < 0) _slots.Add(s); else _slots.Insert(at, s);
-                }
-                if (differentLiveSource)
-                {
-                    Dbg.Log($"slot #{idx} re-registered from a different live AbilityBarIcon");
-                    if (firstLiveReplacement)
-                        MelonLogger.Warning($"slot #{idx} re-registered from a different live AbilityBarIcon — a second action bar may exist; report this line");
                 }
                 Dbg.Log($"slot #{idx} registered (key={s.GameBoundKey ?? "?"})");
                 DumpIconHierarchy(icon, idx);
             }
             catch (Exception ex) { MelonLogger.Warning("RegisterSlot: " + ex.Message); }
         }
-
-        // Managed wrappers can differ for one IL2CPP object, so compare native identity too.
-        // council 2026-09-11 #2
-        static bool SameNativeInstance(AbilityBarIcon a, AbilityBarIcon b) =>
-            ReferenceEquals(a, b) || a.Pointer == b.Pointer;
 
         // The skill artwork, preferring an override sprite when the game set one.
         static Sprite ReadSprite(AbilityBarIcon icon)
