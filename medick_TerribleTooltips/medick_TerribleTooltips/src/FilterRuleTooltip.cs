@@ -43,7 +43,6 @@ public static class FilterRuleTooltip
     private static int s_displayNum;
     private static bool s_repairPending;
     private static bool s_hadDestination;
-    private const int SettleFrames = 12;
     private const float SettleSeconds = 0.5f;
 
     // The serialized ID, not the managed/native wrapper identity, distinguishes
@@ -151,9 +150,16 @@ public static class FilterRuleTooltip
         {
             // Ownership is checked even while the display/master preference is off.
             // A pooled tooltip must not inherit the previous item's pending rule.
-            if (s_owner == null || !s_owner.tooltipActive ||
-                s_owner != UITooltipItem.instance || s_owner.target != s_target ||
-                s_owner.targetType != s_targetType)
+            bool owned = false;
+            try
+            {
+                owned = s_owner != null && s_owner.tooltipActive &&
+                        s_owner == UITooltipItem.instance && s_owner.target == s_target &&
+                        s_owner.targetType == s_targetType;
+            }
+            catch { }
+
+            if (!owned)
             {
                 if (s_pendingItem != null && TooltipPerf.Enabled) TooltipPerf.RuleReuse();
                 ClearPending();
@@ -181,8 +187,7 @@ public static class FilterRuleTooltip
             if (s_pendingItem == null || s_injected) return;
             int frame = Time.frameCount;
             if (frame == s_lastAttemptFrame) return;
-            if (s_lastAttemptFrame >= 0 &&
-                (frame > s_startFrame + SettleFrames || Time.unscaledTime > s_deadline))
+            if (s_lastAttemptFrame >= 0 && Time.unscaledTime > s_deadline)
             {
                 GiveUp();
                 return;
@@ -216,13 +221,13 @@ public static class FilterRuleTooltip
                 return;
             }
             if (TooltipPerf.Enabled) TooltipPerf.RuleNoTarget();
-            if (frame >= s_startFrame + SettleFrames || Time.unscaledTime >= s_deadline)
+            if (Time.unscaledTime >= s_deadline)
                 GiveUp();
         }
         catch
         {
             // Discovery/native failures share the same deadline, never an endless retry.
-            if (Time.frameCount >= s_startFrame + SettleFrames || Time.unscaledTime >= s_deadline)
+            if (Time.unscaledTime >= s_deadline)
                 GiveUp();
         }
     }
