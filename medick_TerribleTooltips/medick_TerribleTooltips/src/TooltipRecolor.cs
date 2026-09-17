@@ -91,13 +91,15 @@ public static class TooltipRecolor
     internal static void ReRenderNow()
         => ReRenderFromOriginals();
 
-    private static bool ShouldScan()
+    internal enum ScanTrigger { None, Dirty, MarkerLoss, Fallback }
+
+    private static ScanTrigger ShouldScan()
     {
         int frame = Time.frameCount;
-        if (frame == s_lastScanFrame) return false;     // never scan twice in one frame
-        if (frame <= s_dirtyUntilFrame) return true;
+        if (frame == s_lastScanFrame) return ScanTrigger.None; // never twice in one frame
+        if (frame <= s_dirtyUntilFrame) return ScanTrigger.Dirty;
         float now = Time.unscaledTime;
-        if (s_lastScanTime < 0f || now - s_lastScanTime >= FallbackScanInterval) return true;
+        if (s_lastScanTime < 0f || now - s_lastScanTime >= FallbackScanInterval) return ScanTrigger.Fallback;
 
         // Cheap per-frame check: did the game overwrite something we composed?
         foreach (var kv in s_originals)
@@ -106,11 +108,11 @@ public static class TooltipRecolor
             try
             {
                 if (tmp == null || !tmp.gameObject.activeInHierarchy) continue;
-                if (!(tmp.text ?? "").Contains(Marker)) return true;
+                if (!(tmp.text ?? "").Contains(Marker)) return ScanTrigger.MarkerLoss;
             }
             catch { }
         }
-        return false;
+        return ScanTrigger.None;
     }
 
     private static bool DeepTier  => s_altHeld || Prefs.AlwaysShowTierDetails.Value;
@@ -164,6 +166,7 @@ public static class TooltipRecolor
     // ── Called from TerribleTooltipsMod.OnLateUpdate() ────────────────
     public static void OnLateUpdate()
     {
+        TooltipPerf.Tick();
         DriveNativeRangeSwitch();
 
         // GLM BLOCKER 2026-09-10: master-off must restore marked text and release caches.
@@ -199,8 +202,9 @@ public static class TooltipRecolor
             if (Prefs.EnableTooltips.Value &&
                 s_lastTooltip != null && s_lastTooltip.tooltipActive)
             {
-                if (ShouldScan())
-                    RunScan(s_lastTooltip, s_lastArgs);
+                ScanTrigger trigger = ShouldScan();
+                if (trigger != ScanTrigger.None)
+                    RunScan(s_lastTooltip, s_lastArgs, trigger);
             }
         }
         catch { }
@@ -376,19 +380,22 @@ public static class TooltipRecolor
             if (!Prefs.EnableTooltips.Value) return;
             s_lastTooltip = __instance;                 // for the Alt-path re-measure
             s_lastArgs    = __args;
-            if (!ShouldScan()) return;                  // positioning-only frame — free
-            RunScan(__instance, __args);
+            ScanTrigger trigger = ShouldScan();
+            if (trigger == ScanTrigger.None) return;
+            RunScan(__instance, __args, trigger);
         }
     }
 
     // The scan + compose pass. Runs from the UpdateLayout postfix (gated)
     // and from the LateUpdate dirty catch-up.
-    private static void RunScan(UITooltipItem __instance, object[] __args)
+    private static void RunScan(UITooltipItem __instance, object[] __args, ScanTrigger trigger)
     {
         s_lastScanFrame = Time.frameCount;
         s_lastScanTime = Time.unscaledTime;
+        if (TooltipPerf.Enabled) TooltipPerf.Scan(trigger);
         try
         {
+            if (TooltipPerf.Enabled) TooltipPerf.FullScene();
             TextMeshProUGUI[] allTMPs =
                 UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>();
             if (allTMPs == null) return;
@@ -541,6 +548,11 @@ public static class TooltipRecolor
                 catch { }
             }
 
+            // Only after a completed pass, BEFORE native relayout can rewrite
+            // successfully composed text. Marked text still needs its original
+            // for Alt/master-off; active markerless replacements no longer do.
+            RetireStaleOriginals();
+
             // ── Lean law: we shrank texts AFTER the game measured the
             //    essay — re-measure once so the blank rows collapse.
             if (composed > 0)
@@ -548,6 +560,7 @@ public static class TooltipRecolor
         }
         catch (Exception ex)
         {
+            if (TooltipPerf.Enabled) TooltipPerf.ScanError();
             // Latched: UpdateLayout fires on every tooltip layout — an
             // unlatched warning here would spam a whole farming session.
             if (!s_recolorWarned)
@@ -607,6 +620,31 @@ public static class TooltipRecolor
             if (kv.Value.tmp == null || !kv.Value.tmp.gameObject.activeInHierarchy)
                 dead.Add(kv.Key);
         foreach (int k in dead) s_originals.Remove(k);
+    }
+
+    private static void RetireStaleOriginals()
+    {
+        List<int> stale = null;
+        foreach (var kv in s_originals)
+        {
+            try
+            {
+                TextMeshProUGUI tmp = kv.Value.tmp;
+                if (tmp == null || !tmp.gameObject.activeInHierarchy ||
+                    (tmp.text ?? "").Contains(Marker)) continue;
+                (stale ??= new List<int>()).Add(kv.Key);
+            }
+            catch { } // Unknown ownership: keep restoration data, not a blind delete.
+        }
+        if (stale == null) return;
+        foreach (int id in stale)
+        {
+            s_originals.Remove(id);
+            // Do not let the enforcement pass re-hide a future Range rewrite
+            // after its restoration data was retired. The next scan recaptures it.
+            s_suppressedRanges.Remove(id);
+        }
+        if (TooltipPerf.Enabled) TooltipPerf.StaleRetired(stale.Count);
     }
 
     // ── The composer (bracketed affix TMPs) ───────────────────────────
@@ -964,5 +1002,72 @@ public static class TooltipRecolor
             result = result == null ? p : result + sep + p;
         }
         return result;
+    }
+}
+
+// Beta telemetry stays in this file to avoid widening the source write set.
+// Disabled: preference guards only; no clock reads, counters, formatting or I/O.
+// Callers guard before invoking event methods. The first event starts the window,
+// including events before the first LateUpdate; enabling never loses that sample.
+internal static class TooltipPerf
+{
+    internal static bool Enabled => Prefs.DebugLog != null && Prefs.DebugLog.Value;
+    private static bool s_running;
+    private static float s_started;
+    private static long s_scans, s_fullScene, s_dirty, s_markerLoss, s_fallback;
+    private static long s_ruleStart, s_ruleReplacement, s_ruleAttempts, s_ruleMatch, s_ruleNoTarget;
+    private static long s_ruleGiveUp, s_ruleInjected, s_ruleReuse, s_staleRetired, s_scanErrors;
+
+    private static void Begin()
+    {
+        if (s_running) return;
+        s_running = true;
+        s_started = Time.unscaledTime;
+    }
+
+    internal static void Scan(TooltipRecolor.ScanTrigger trigger)
+    {
+        Begin();
+        s_scans++;
+        if (trigger == TooltipRecolor.ScanTrigger.Dirty) s_dirty++;
+        else if (trigger == TooltipRecolor.ScanTrigger.MarkerLoss) s_markerLoss++;
+        else if (trigger == TooltipRecolor.ScanTrigger.Fallback) s_fallback++;
+    }
+    internal static void FullScene() { Begin(); s_fullScene++; }
+    internal static void ScanError() { Begin(); s_scanErrors++; }
+    internal static void RuleStart() { Begin(); s_ruleStart++; }
+    internal static void RuleReplacement() { Begin(); s_ruleReplacement++; }
+    internal static void RuleAttempt() { Begin(); s_ruleAttempts++; }
+    internal static void RuleMatch() { Begin(); s_ruleMatch++; }
+    internal static void RuleNoTarget() { Begin(); s_ruleNoTarget++; }
+    internal static void RuleGiveUp() { Begin(); s_ruleGiveUp++; }
+    internal static void RuleInjected() { Begin(); s_ruleInjected++; }
+    internal static void RuleReuse() { Begin(); s_ruleReuse++; }
+    internal static void StaleRetired(int count) { Begin(); s_staleRetired += count; }
+
+    internal static void Tick()
+    {
+        if (!Enabled)
+        {
+            if (s_running) { Reset(); s_running = false; }
+            return;
+        }
+        Begin();
+        float now = Time.unscaledTime;
+        float elapsed = now - s_started;
+        if (elapsed < 5f) return;
+        // Advance/reset before logging so a logger failure cannot cause a flood.
+        string summary = FormattableString.Invariant(
+            $"[perf] {elapsed:0.0}s: scans={s_scans} (fullScene={s_fullScene}, trigger: dirty={s_dirty}/markerLoss={s_markerLoss}/fallback={s_fallback}) ruleStart={s_ruleStart} ruleReplacement={s_ruleReplacement} ruleAttempts={s_ruleAttempts} ruleMatch={s_ruleMatch} ruleNoTarget={s_ruleNoTarget} ruleGiveUp={s_ruleGiveUp} ruleInjected={s_ruleInjected} ruleReuse={s_ruleReuse} staleRetired={s_staleRetired} scanErrors={s_scanErrors}");
+        Reset();
+        s_started = now;
+        try { MelonLogger.Msg(summary); } catch { }
+    }
+
+    private static void Reset()
+    {
+        s_scans = s_fullScene = s_dirty = s_markerLoss = s_fallback = 0;
+        s_ruleStart = s_ruleReplacement = s_ruleAttempts = s_ruleMatch = s_ruleNoTarget = 0;
+        s_ruleGiveUp = s_ruleInjected = s_ruleReuse = s_staleRetired = s_scanErrors = 0;
     }
 }

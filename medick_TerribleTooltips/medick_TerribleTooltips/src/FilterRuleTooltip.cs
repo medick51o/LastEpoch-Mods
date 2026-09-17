@@ -30,6 +30,96 @@ public static class FilterRuleTooltip
 
     private static ItemDataUnpacked s_pendingItem  = null;
     private static bool             s_injected     = false;
+    private static UITooltipItem s_owner;
+    private static GameObject s_target;
+    private static int s_targetType;
+    private static byte[] s_itemId;
+    private static (byte type, ushort subtype, byte rarity, ushort unique, ushort individual) s_fallbackId;
+    private static int s_startFrame;
+    private static float s_deadline;
+    private static int s_lastAttemptFrame = -1;
+    private static bool s_ruleResolved;
+    private static Rule s_rule;
+    private static int s_displayNum;
+    private static bool s_repairPending;
+    private static bool s_hadDestination;
+    private const int SettleFrames = 12;
+    private const float SettleSeconds = 0.5f;
+
+    // The serialized ID, not the managed/native wrapper identity, distinguishes
+    // content: callers may unpack the same item anew on every setter call.
+    private static void Capture(UITooltipItem tooltip, ItemDataUnpacked item)
+    {
+        try
+        {
+            if (tooltip == null || item == null) { ClearPending(); return; }
+            var id = item.id;
+            bool same = s_owner == tooltip && s_target == tooltip.target &&
+                        s_targetType == tooltip.targetType && s_pendingItem != null;
+            if (id != null && id.Length > 0)
+            {
+                same &= s_itemId != null && s_itemId.Length == id.Length;
+                if (same)
+                    for (int i = 0; i < id.Length; i++)
+                        if (s_itemId[i] != id[i]) { same = false; break; }
+            }
+            else
+            {
+                // Defensive fallback for ID-less data. Stable fields distinguish
+                // material types without a fresh wrapper restarting every frame.
+                same &= s_itemId == null && s_fallbackId ==
+                    (item.itemType, item.subType, item.rarity, item.uniqueID, item.individualID);
+            }
+
+            if (same)
+            {
+                s_pendingItem = item;
+                // Known destination repair is separate from discovery exhaustion.
+                // Keep it pending across master/display off, including a tag
+                // inherited from a prior hover whose rule was not resolved here.
+                if (s_hadDestination)
+                {
+                    if (!UsableDestination()) BeginReplacement();
+                    else if (!(s_destination.text ?? "").Contains(Marker))
+                        s_repairPending = true;
+                }
+                return;
+            }
+
+            ClearPending();
+            s_owner = tooltip;
+            s_target = tooltip.target;
+            s_targetType = tooltip.targetType;
+            s_pendingItem = item;
+            s_fallbackId = (item.itemType, item.subType, item.rarity, item.uniqueID, item.individualID);
+            if (id != null && id.Length > 0)
+            {
+                s_itemId = new byte[id.Length];
+                for (int i = 0; i < id.Length; i++) s_itemId[i] = id[i];
+            }
+            s_startFrame = Time.frameCount;
+            s_deadline = Time.unscaledTime + SettleSeconds;
+            if (TooltipPerf.Enabled) TooltipPerf.RuleStart();
+        }
+        catch { ClearPending(); }
+    }
+
+    private static TextMeshProUGUI s_destination;
+
+    private static void ClearPending()
+    {
+        s_owner = null;
+        s_target = null;
+        s_pendingItem = null;
+        s_itemId = null;
+        s_rule = null;
+        s_destination = null;
+        s_ruleResolved = false;
+        s_repairPending = false;
+        s_hadDestination = false;
+        s_injected = false;
+        s_lastAttemptFrame = -1;
+    }
 
     // ── Harmony: inventory / stash / equipment hover ──────────────────
     [HarmonyPatch(typeof(UITooltipItem), "SetAsItemTooltip")]
@@ -37,12 +127,8 @@ public static class FilterRuleTooltip
     {
         private static void Postfix(UITooltipItem __instance, ItemDataUnpacked item)
         {
-            if (item != null)
-            {
-                s_pendingItem = item;
-                TooltipRecolor.MarkDirty();   // new tooltip content — the composer must look
-                s_injected    = false;
-            }
+            if (item != null) TooltipRecolor.MarkDirty();
+            Capture(__instance, item);
         }
     }
 
@@ -53,90 +139,144 @@ public static class FilterRuleTooltip
     {
         private static void Postfix(UITooltipItem __instance, ItemDataUnpacked _item)
         {
-            if (_item != null)
-            {
-                s_pendingItem = _item;
-                TooltipRecolor.MarkDirty();
-                s_injected    = false;
-            }
+            if (_item != null) TooltipRecolor.MarkDirty();
+            Capture(__instance, _item);
         }
     }
 
     // ── Called from OnUpdate — injects after tooltip is rendered ──────
     public static void MonitorUpdate()
     {
-        // Master toggle promises "turn this off to restore default item
-        // tooltips" — that includes the gold Rule #, which defaults ON in v2.
-        if (!Prefs.EnableTooltips.Value) return;
-        var mode = Prefs.ShowFilterRuleNumber.Value;
-        if (mode == FilterRuleDisplay.Off) return;
-
         try
         {
-            var tooltipUI = UITooltipItem.instance;
-            if (tooltipUI == null) return;
-
-            bool active = false;
-            try { active = tooltipUI.tooltipActive; } catch { }
-
-            if (!active)
+            // Ownership is checked even while the display/master preference is off.
+            // A pooled tooltip must not inherit the previous item's pending rule.
+            if (s_owner == null || !s_owner.tooltipActive ||
+                s_owner != UITooltipItem.instance || s_owner.target != s_target ||
+                s_owner.targetType != s_targetType)
             {
-                s_pendingItem = null;
-                s_injected    = false;
+                if (s_pendingItem != null && TooltipPerf.Enabled) TooltipPerf.RuleReuse();
+                ClearPending();
                 return;
             }
-
-            if (s_pendingItem == null || s_injected) return;
-
-            // Marker already present → re-hover of same item, injection
-            // persisted. Scan ONLY the 'requires' TMP (the sole element we
-            // inject into) — a whole-tooltip scan could false-positive on
-            // another mod's zero-width characters and silently suppress us.
-            try
+            if (!Prefs.EnableTooltips.Value ||
+                Prefs.ShowFilterRuleNumber.Value == FilterRuleDisplay.Off) return;
+            if (s_repairPending)
             {
-                foreach (var tmp in tooltipUI.GetComponentsInChildren<TextMeshProUGUI>())
+                if (!UsableDestination())
                 {
-                    if (tmp == null || tmp.gameObject.name != "requires") continue;
-                    if ((tmp.text ?? "").Contains(Marker))
-                    {
-                        s_injected = true;
-                        Dbg.Log("marker already in 'requires' — injection persisted");
-                        return;
-                    }
+                    BeginReplacement();
                 }
-            }
-            catch { }
-
-            if (!TryGetMatchedRule(s_pendingItem, out int displayNum, out Rule rule) || rule == null)
-            {
-                s_injected = true;  // don't retry
-                return;
-            }
-
-            string ruleTag;
-            if (mode == FilterRuleDisplay.NumberOnly)
-                ruleTag = $"<size=120%><b><color={Gold}>Rule#{displayNum}</color></b></size>";
-            else
-                ruleTag = $"<color={Gold}>Rule #{displayNum}: {GetRuleName(rule)}</color>";
-
-            // Inject into the 'requires' element (the proven-visible target)
-            try
-            {
-                foreach (var tmp in tooltipUI.GetComponentsInChildren<TextMeshProUGUI>())
+                else
                 {
-                    if (tmp == null || tmp.gameObject.name != "requires") continue;
-                    if (!tmp.gameObject.activeInHierarchy) continue;
-
-                    string orig = tmp.text ?? "";
-                    tmp.text = ruleTag + Marker + "\n" + orig;
-                    s_injected = true;
-                    Dbg.Log($"rule #{displayNum} injected");
+                    if (!(s_destination.text ?? "").Contains(Marker))
+                    {
+                        ResolveRuleOnce();
+                        if (s_rule != null) WriteRule(s_destination);
+                    }
+                    s_repairPending = false;
                     return;
                 }
             }
-            catch { }
+            if (s_pendingItem == null || s_injected) return;
+            int frame = Time.frameCount;
+            if (frame == s_lastAttemptFrame) return;
+            if (s_lastAttemptFrame >= 0 &&
+                (frame > s_startFrame + SettleFrames || Time.unscaledTime > s_deadline))
+            {
+                GiveUp();
+                return;
+            }
+            s_lastAttemptFrame = frame;
+            if (TooltipPerf.Enabled) TooltipPerf.RuleAttempt();
+
+            // One descendant pass per attempt; only matching is cached, so a
+            // requirements row created/activated a few frames late is still found.
+            TextMeshProUGUI destination = null;
+            foreach (var tmp in s_owner.GetComponentsInChildren<TextMeshProUGUI>())
+            {
+                if (tmp == null || tmp.gameObject.name != "requires" ||
+                    !tmp.gameObject.activeInHierarchy) continue;
+                if ((tmp.text ?? "").Contains(Marker))
+                {
+                    s_destination = tmp;
+                    s_hadDestination = true;
+                    s_injected = true;
+                    Dbg.Log("marker already in 'requires' — injection persisted");
+                    return;
+                }
+                if (destination == null) destination = tmp;
+            }
+
+            ResolveRuleOnce();
+            if (s_rule == null) { s_injected = true; return; }
+            if (destination != null)
+            {
+                WriteRule(destination);
+                return;
+            }
+            if (TooltipPerf.Enabled) TooltipPerf.RuleNoTarget();
+            if (frame >= s_startFrame + SettleFrames || Time.unscaledTime >= s_deadline)
+                GiveUp();
         }
-        catch { }
+        catch
+        {
+            // Discovery/native failures share the same deadline, never an endless retry.
+            if (Time.frameCount >= s_startFrame + SettleFrames || Time.unscaledTime >= s_deadline)
+                GiveUp();
+        }
+    }
+
+    private static void GiveUp()
+    {
+        s_injected = true; // terminal for this content, even if SetAs repeats
+        s_repairPending = false;
+        s_hadDestination = false;
+        s_destination = null;
+        if (TooltipPerf.Enabled) TooltipPerf.RuleGiveUp();
+    }
+
+    private static bool UsableDestination()
+        => s_destination != null && s_destination.gameObject.name == "requires" &&
+           s_destination.gameObject.activeInHierarchy &&
+           s_destination.transform.IsChildOf(s_owner.transform);
+
+    private static void BeginReplacement()
+    {
+        // Consume a previously found destination once. Repeated setters with no
+        // replacement cannot reopen this budget; another success is required.
+        s_hadDestination = false;
+        s_destination = null;
+        s_repairPending = false;
+        s_injected = false;
+        s_startFrame = Time.frameCount;
+        s_deadline = Time.unscaledTime + SettleSeconds;
+        s_lastAttemptFrame = -1;
+        if (TooltipPerf.Enabled) TooltipPerf.RuleReplacement();
+    }
+
+    private static void ResolveRuleOnce()
+    {
+        if (s_ruleResolved) return;
+        // Set before native matching: even an exception cannot retry it forever.
+        s_ruleResolved = true;
+        if (TooltipPerf.Enabled) TooltipPerf.RuleMatch();
+        TryGetMatchedRule(s_pendingItem, out s_displayNum, out s_rule);
+    }
+
+    private static void WriteRule(TextMeshProUGUI destination)
+    {
+        if (!Prefs.EnableTooltips.Value || Prefs.ShowFilterRuleNumber.Value == FilterRuleDisplay.Off)
+            return;
+        string ruleTag = Prefs.ShowFilterRuleNumber.Value == FilterRuleDisplay.NumberOnly
+            ? $"<size=120%><b><color={Gold}>Rule#{s_displayNum}</color></b></size>"
+            : $"<color={Gold}>Rule #{s_displayNum}: {GetRuleName(s_rule)}</color>";
+        destination.text = ruleTag + Marker + "\n" + (destination.text ?? "");
+        s_destination = destination;
+        s_hadDestination = true;
+        s_injected = true;
+        if (TooltipPerf.Enabled) TooltipPerf.RuleInjected();
+        Dbg.Log($"rule #{s_displayNum} injected");
     }
 
     // ── Rule finder ───────────────────────────────────────────────────
