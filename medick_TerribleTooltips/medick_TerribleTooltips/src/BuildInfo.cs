@@ -10,6 +10,6 @@ internal static class BuildInfo
 {
     public const string Name         = "Terrible Tooltips";   // MelonInfo name — FROZEN (Fallen Star ABI)
     public const string OfficialName = "MedicK's Terrible Tooltips";
-    public const string Version      = "3.1.1-beta3";
+    public const string Version      = "3.1.1-beta4";
     public const string Author       = "medick";
 }

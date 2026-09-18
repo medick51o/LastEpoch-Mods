@@ -1,5 +1,12 @@
 # Changelog — MedicK's Terrible Tooltips
 
+## v3.1.1-beta4 - settings rows for the 3.1.0 look
+- Three new rows in the in-game settings panel: **Show Tier and Grade** (master switch for the whole Tier|Grade unit), **Compact Tier Word (T7)** (T7 instead of Tier 7; the setting existed since 3.1.0 but had no row), and **Tier and Grade Border** (the box on or off).
+- With the signal off there is no tier, no grade, no divider and no border box, just a clean vanilla affix line. There is deliberately no tier-only-off switch; `ShowGradeLetters` still gives tier without grades.
+- Defaults are unchanged, so an existing player sees no difference after upgrading. With the signal and grades both on, affix lines render byte-identically to beta3.
+- The Affix Name Color description now documents `GreaterAffix` (the current default) and says that `TierColor` restores the pre-3.1.0 coloured affix text.
+- Scan and compose behaviour is unchanged from beta3; the scan-scoping work is untouched.
+
 ## v3.1.1-beta3 — make the scans cheap
 - Scan active tooltip hierarchies and explicitly referenced item/blessing comparison panels, including detached panels. Retain other active instances observed by the existing UpdateLayout hook; overlapping roots are enumerated once. No new hooks.
 - An out-of-scope affix/range sibling or hierarchy exception permits an explicit whole-scene compatibility fallback at most once per 0.5 seconds, including failed attempts. Valid empty tooltips never trigger it. The five-frame dirty window and all MarkDirty call sites are unchanged; reducing repeated dirty signals remains a separate ticket.
