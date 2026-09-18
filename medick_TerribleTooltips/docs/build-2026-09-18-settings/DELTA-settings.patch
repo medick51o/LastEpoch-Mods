@@ -1,0 +1,80 @@
+diff --git a/medick_TerribleTooltips/medick_TerribleTooltips/src/Prefs.cs b/medick_TerribleTooltips/medick_TerribleTooltips/src/Prefs.cs
+index afb7cdb..7d612b4 100644
+--- a/medick_TerribleTooltips/medick_TerribleTooltips/src/Prefs.cs
++++ b/medick_TerribleTooltips/medick_TerribleTooltips/src/Prefs.cs
+@@ -83,6 +83,7 @@ internal static class Prefs
+     public static MelonPreferences_Entry<TooltipLayout>       Layout;
+     public static MelonPreferences_Entry<SignalStyle>         Style;
+     public static MelonPreferences_Entry<AffixNameColorMode>  NameColorMode;
++    public static MelonPreferences_Entry<bool>                ShowSignal;
+     public static MelonPreferences_Entry<bool>                ShowGradeLetters;
+     public static MelonPreferences_Entry<bool>                AlwaysShowRanges;
+     public static MelonPreferences_Entry<bool>                AlwaysShowTierDetails;
+@@ -127,6 +128,8 @@ internal static class Prefs
+             "Signal Style", "PlainText = colored text only (default); Badge = Tier/Grade as colored chips");
+         NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.GreaterAffix,
+             "Affix Name Color", "GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier color; GameDefault = game's own text color");
++        ShowSignal = Category.CreateEntry("ShowSignal", true,
++            "Show Tier and Grade", "Show the tier/grade signal and its border on each affix line");
+         ShowGradeLetters = Category.CreateEntry("ShowGradeLetters", true,
+             "Show Grade Letters", "The S/A/B/C/F roll grade on each affix line");
+         AlwaysShowRanges = Category.CreateEntry("AlwaysShowRanges", false,
+@@ -202,7 +205,7 @@ internal static class Prefs
+             var registered = new HashSet<string>(StringComparer.Ordinal)
+             {
+                 "EnableTooltips", "TooltipTierColors", "TooltipRankColors",
+-                "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowGradeLetters",
++                "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowSignal", "ShowGradeLetters",
+                 "AlwaysShowRanges", "AlwaysShowTierDetails", "GroundLabelStyle",
+                 "GroundLabelFilterOnly", "GroundLabelAltKey", "ShowFilterRuleNumber",
+                 "LabelRulePosition", "DebugLog",
+diff --git a/medick_TerribleTooltips/medick_TerribleTooltips/src/SettingsUi.cs b/medick_TerribleTooltips/medick_TerribleTooltips/src/SettingsUi.cs
+index 6a32cdd..98d5e2d 100644
+--- a/medick_TerribleTooltips/medick_TerribleTooltips/src/SettingsUi.cs
++++ b/medick_TerribleTooltips/medick_TerribleTooltips/src/SettingsUi.cs
+@@ -77,11 +77,29 @@ internal static class SettingsUi
+ 
+         NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Name Color",
+             "<color=#FF44FF>Affix Name Color</color>",
+-            "TierColor = the affix text itself wears its tier color, so you identify it instantly. " +
++            "GreaterAffix = only T6/T7 affix text is tinted (default). TierColor = restores the pre-3.1.0 coloured affix text, with each affix wearing its tier color. " +
+             "GameDefault = the game's own text color — only the Tier·Grade signal is colored.",
+             Prefs.NameColorMode,
+             i => { Prefs.NameColorMode.Value = (AffixNameColorMode)i; SaveAndRefresh(reRender: true); });
+ 
++        NativeSettings.CreateToggle(settings, Cat, "TT - Show Signal",
++            "<color=#FF44FF>Show Tier and Grade</color>",
++            "Show the tier and roll grade on each affix line. Turn this off to hide the entire signal, including its divider and border.",
++            Prefs.ShowSignal.Value,
++            v => { Prefs.ShowSignal.Value = v; SaveAndRefresh(reRender: true); });
++
++        NativeSettings.CreateToggle(settings, Cat, "TT - Compact Tier",
++            "<color=#FF44FF>Compact Tier Word (T7)</color>",
++            "ON = T7. OFF = Tier 7. Applies to the tooltip signal; ground labels are unchanged.",
++            Prefs.TierWord.Value == TierWordStyle.Compact,
++            v => { Prefs.TierWord.Value = v ? TierWordStyle.Compact : TierWordStyle.Spelled; SaveAndRefresh(reRender: true); });
++
++        NativeSettings.CreateToggle(settings, Cat, "TT - Unit Border",
++            "<color=#FF44FF>Tier and Grade Border</color>",
++            "Draw a box around the tier/grade signal in PlainText style. Turn this off to show the signal without a box.",
++            Prefs.UnitBorder.Value,
++            v => { Prefs.UnitBorder.Value = v; SaveAndRefresh(reRender: true); });
++
+         NativeSettings.CreateToggle(settings, Cat, "TT - Grade Letters",
+             "<color=#FF44FF>Show Grade Letters</color>",
+             "The S/A/B/C/F roll grade on each affix line (coloured by 'Tooltip: Rank Colors' above). Turn this off if you only want tiers — the letters are gone, no hard feelings.",
+diff --git a/medick_TerribleTooltips/medick_TerribleTooltips/src/TooltipRecolor.cs b/medick_TerribleTooltips/medick_TerribleTooltips/src/TooltipRecolor.cs
+index ae6eee9..285a749 100644
+--- a/medick_TerribleTooltips/medick_TerribleTooltips/src/TooltipRecolor.cs
++++ b/medick_TerribleTooltips/medick_TerribleTooltips/src/TooltipRecolor.cs
+@@ -1089,6 +1089,10 @@ public static class TooltipRecolor
+             name = $"<color={GreaterAffixHex()}>{cleanName}</color>";
+         }
+ 
++        // No signal means no unit links, divider, layout gap or sealed prefix.
++        // Keep the name colour and the caller's ownership marker unchanged.
++        if (!Prefs.ShowSignal.Value) return name;
++
+         // Chips separate themselves visually; plain text uses the configured divider.
+         string signal;
+         if (badges)

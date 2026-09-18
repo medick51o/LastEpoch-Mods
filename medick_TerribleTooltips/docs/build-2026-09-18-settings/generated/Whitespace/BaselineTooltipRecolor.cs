@@ -1,5 +1,5 @@
 // ================================================================
-//  TooltipRecolor.cs — v3: THE CLEAN LINE.
+//  BaselineTooltipRecolor.cs — v3: THE CLEAN LINE.
 //
 //  v1/v2 recolored EHG's tier-info essay. v3 kills the essay:
 //  one line per affix — affix text + "Tier N" (tier color) + grade
@@ -42,7 +42,7 @@
 
 namespace medick_Terrible_Tooltips;
 
-public static class TooltipRecolor
+public static class BaselineTooltipRecolor
 {
     private const string Dim = "#8a8478";   // separator/dim ink (family palette)
 
@@ -166,7 +166,7 @@ public static class TooltipRecolor
     // ── Called from TerribleTooltipsMod.OnLateUpdate() ────────────────
     public static void OnLateUpdate()
     {
-        TooltipPerf.Tick();
+        BaselineTooltipPerf.Tick();
         DriveNativeRangeSwitch();
 
         // GLM BLOCKER 2026-09-10: master-off must restore marked text and release caches.
@@ -364,7 +364,7 @@ public static class TooltipRecolor
         foreach (Transform root in roots)
         {
             var descendants = root.GetComponentsInChildren<TextMeshProUGUI>(true);
-            if (TooltipPerf.Enabled) TooltipPerf.TMPs(descendants.Length);
+            if (BaselineTooltipPerf.Enabled) BaselineTooltipPerf.TMPs(descendants.Length);
             foreach (TextMeshProUGUI tmp in descendants)
                 tmps.Add(tmp);
         }
@@ -498,7 +498,7 @@ public static class TooltipRecolor
     {
         s_lastScanFrame = Time.frameCount;
         s_lastScanTime = Time.unscaledTime;
-        if (TooltipPerf.Enabled) TooltipPerf.Scan(trigger);
+        if (BaselineTooltipPerf.Enabled) BaselineTooltipPerf.Scan(trigger);
         try
         {
             RememberTooltip(__instance, __args);
@@ -506,22 +506,22 @@ public static class TooltipRecolor
             try
             {
                 allTMPs = CollectTooltipTMPs();
-                if (TooltipPerf.Enabled) TooltipPerf.Scoped();
+                if (BaselineTooltipPerf.Enabled) BaselineTooltipPerf.Scoped();
             }
             catch (Exception ex)
             {
                 // A destroyed/reparenting native hierarchy must not silently
                 // drop comparison text. Compatibility fallback is bounded even
                 // during dirty bursts; an empty *valid* scope never triggers it.
-                if (TooltipPerf.Enabled) TooltipPerf.ScanError();
+                if (BaselineTooltipPerf.Enabled) BaselineTooltipPerf.ScanError();
                 float now = Time.unscaledTime;
                 if (s_lastFullSceneTime >= 0f && now - s_lastFullSceneTime < FallbackScanInterval) return;
                 s_lastFullSceneTime = now; // latch before enumeration, including throws
-                if (TooltipPerf.Enabled) TooltipPerf.FullScene();
-                if (TooltipPerf.Enabled)
+                if (BaselineTooltipPerf.Enabled) BaselineTooltipPerf.FullScene();
+                if (BaselineTooltipPerf.Enabled)
                     Dbg.Log("tooltip scope unavailable; bounded full-scene fallback: " + ex.Message);
                 allTMPs = UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>();
-                if (TooltipPerf.Enabled && allTMPs != null) TooltipPerf.TMPs(allTMPs.Length);
+                if (BaselineTooltipPerf.Enabled && allTMPs != null) BaselineTooltipPerf.TMPs(allTMPs.Length);
             }
             if (allTMPs == null) return;
 
@@ -689,7 +689,7 @@ public static class TooltipRecolor
         }
         catch (Exception ex)
         {
-            if (TooltipPerf.Enabled) TooltipPerf.ScanError();
+            if (BaselineTooltipPerf.Enabled) BaselineTooltipPerf.ScanError();
             // Latched: UpdateLayout fires on every tooltip layout — an
             // unlatched warning here would spam a whole farming session.
             if (!s_recolorWarned)
@@ -784,7 +784,7 @@ public static class TooltipRecolor
             // after its restoration data was retired. The next scan recaptures it.
             s_suppressedRanges.Remove(id);
         }
-        if (TooltipPerf.Enabled) TooltipPerf.StaleRetired(stale.Count);
+        if (BaselineTooltipPerf.Enabled) BaselineTooltipPerf.StaleRetired(stale.Count);
     }
 
     // ── The composer (bracketed affix TMPs) ───────────────────────────
@@ -1089,10 +1089,6 @@ public static class TooltipRecolor
             name = $"<color={GreaterAffixHex()}>{cleanName}</color>";
         }
 
-        // No signal means no unit links, divider, layout gap or sealed prefix.
-        // Keep the name colour and the caller's ownership marker unchanged.
-        if (!Prefs.ShowSignal.Value) return name;
-
         // Chips separate themselves visually; plain text uses the configured divider.
         string signal;
         if (badges)
@@ -1153,7 +1149,7 @@ public static class TooltipRecolor
 // Disabled: preference guards only; no clock reads, counters, formatting or I/O.
 // Callers guard before invoking event methods. The first event starts the window,
 // including events before the first LateUpdate; enabling never loses that sample.
-internal static class TooltipPerf
+internal static class BaselineTooltipPerf
 {
     internal static bool Enabled => Prefs.DebugLog != null && Prefs.DebugLog.Value;
     private static bool s_running;
@@ -1169,13 +1165,13 @@ internal static class TooltipPerf
         s_started = Time.unscaledTime;
     }
 
-    internal static void Scan(TooltipRecolor.ScanTrigger trigger)
+    internal static void Scan(BaselineTooltipRecolor.ScanTrigger trigger)
     {
         Begin();
         s_scans++;
-        if (trigger == TooltipRecolor.ScanTrigger.Dirty) s_dirty++;
-        else if (trigger == TooltipRecolor.ScanTrigger.MarkerLoss) s_markerLoss++;
-        else if (trigger == TooltipRecolor.ScanTrigger.Fallback) s_fallback++;
+        if (trigger == BaselineTooltipRecolor.ScanTrigger.Dirty) s_dirty++;
+        else if (trigger == BaselineTooltipRecolor.ScanTrigger.MarkerLoss) s_markerLoss++;
+        else if (trigger == BaselineTooltipRecolor.ScanTrigger.Fallback) s_fallback++;
     }
     internal static void FullScene() { Begin(); s_fullScene++; }
     internal static void Scoped() { Begin(); s_scoped++; }

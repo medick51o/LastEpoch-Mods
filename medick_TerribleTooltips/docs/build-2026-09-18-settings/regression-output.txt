@@ -1,0 +1,95 @@
+PASS missing target: 31 discovery attempts at 60 FPS within 0.5 seconds despite repeated equal-content setters
+PASS missing target: rule matching exactly once
+PASS telemetry proves one generation, missing destinations and terminal give-up
+PASS summary includes decisive retry counters
+PASS summary rate limited through next five-second boundary
+PASS idle heartbeat resets counters
+PASS target activated at frame 7 still receives Rule# and original requirements
+PASS late target does not repeat matching
+PASS successful same-content setter rewrite reapplies cached Rule#
+PASS same-content setter does not stack existing tag
+PASS master-off prevents cached Rule# reapplication
+PASS known destination repair survives master-off and resumes after original deadline
+PASS known destination repair survives rule-display off/on without another setter
+PASS persisted-marker reuse resolves rule once when rewritten after discovery deadline
+PASS known-target repairs neither rediscover descendants nor repeat matching
+PASS inactive previously successful row is replaced without rematching
+PASS inactive destination invalidation is visible as one bounded replacement window
+PASS inactive missing replacement remains bounded despite equal-content setters
+PASS detached previously successful row is replaced without rematching
+PASS detached destination invalidation is visible as one bounded replacement window
+PASS detached missing replacement remains bounded despite equal-content setters
+PASS renamed previously successful row is replaced without rematching
+PASS renamed destination invalidation is visible as one bounded replacement window
+PASS repurposed cached row never receives Rule#
+PASS renamed missing replacement remains bounded despite equal-content setters
+PASS ID-less equal-content wrappers retain retry bound
+PASS ID-less changed material subtype starts a fresh generation
+PASS target reuse clears stale pending ownership even with rule display off
+PASS closure releases pending ownership
+PASS low FPS uses wall-clock deadline
+PASS different item content opens a fresh budget
+PASS discovery exceptions are bounded too
+PASS completed scan retires active empty and ineligible originals
+PASS marked and successfully composed originals retain restoration data
+PASS retirement cannot leave range enforcement without restoration data
+PASS retirement counter measures actual retired entries
+PASS retirement ends marker-loss loop next frame
+PASS fallback survives for late text
+PASS five-frame dirty window remains inclusive
+PASS one scan per frame cap retained
+PASS master-off restores retained marked originals
+PASS two-stat clean text retains border links and marker
+PASS Alt restores range from valid original
+PASS master transition restores full original after Alt
+PASS retirement precedes relayout: freshly composed original survives native late rewrite
+PASS next completed pass retires uncomposable native replacement
+PASS failed scan does not retire unknown ownership
+PASS unbracketed sealed two-stat block still composes
+PASS existing ground marker exclusion remains unchanged
+PASS sealed original restores intact
+PASS actual LateUpdate gate counts scans once with exclusive dirty/marker-loss/fallback reasons
+PASS disabled event sites neither count nor start a telemetry window
+PASS disabled telemetry heartbeat: no clock reads, allocations or logging (preference guard only)
+PASS detached item and blessing comparison TMPs compose, including a second instance's panel
+PASS scoped scan composes main but never unrelated HUD or inactive pooled rows
+PASS scoped scan examines exactly four hierarchy TMPs, no whole-scene enumeration
+PASS new cost counters appear in five-second summary
+PASS new counters reset with window
+PASS nested/aliased panel roots are enumerated only once
+PASS fixture proves second instance was not accidentally in first scope
+PASS same-frame gated second instance is retained for LateUpdate composition and relayout
+PASS last observed comparison can close without disabling main catch-up
+PASS master-off restores and relayouts both observed instances
+PASS comparison range inherits grade through sibling parent
+PASS range rewrite inherits already composed sibling grade
+PASS comparison range inherits grade through grandparent
+PASS range rewrite inherits already composed sibling grade
+PASS broken hierarchy cannot trigger whole-scene search per dirty frame
+PASS explicit full-scene compatibility fallback allowed again after 0.5 seconds
+PASS recovered hierarchy immediately returns to scoped fast path
+PASS valid empty tooltip never justifies full-scene fallback
+PASS referenced comparison affix outside every panel triggers visible compatibility fallback
+PASS range grade outside scope triggers fallback and counts partial plus full-scene work honestly
+PASS shard-only scoped scans never false-warn
+PASS dead tiered formatter warns despite synthesized marker and brackets elsewhere in scene
+PASS real bracket evidence survives composition through saved originals
+PASS real preference defaults ShowSignal to true
+PASS ShowSignal is in real orphan-key allow-list
+PASS 192 combinations: default matches beta3; tier-only keeps box/no divider; OFF exact name/no box/no whitespace; existing border retirement hides stale images
+PASS signal ON + grades ON: Tier 2 | A
+PASS signal ON + grades OFF: tier without divider
+PASS compact enum produces T2
+PASS full bracket composer: exact name + existing four-ZWSP ownership suffix only (no trim)
+PASS unbracketed/sealed composer: no prefix, separator, box or extra whitespace
+PASS signal OFF preserves independently selected name colour
+PASS exactly three new toggles, no developer knobs
+PASS settings initial values reflect actual preferences
+PASS compact ON saves and re-renders the cached open tooltip immediately
+PASS compact OFF restores Spelled
+PASS signal row OFF immediately removes entire unit from cached tooltip
+PASS signal row ON restores unit from cached original
+PASS border row changes existing pref and immediately re-renders
+PASS all five toggle transitions persist preferences
+PASS name colour description exposes current default and old coloured text
+RESULT: 94 assertions passed; controlled stubs, no in-game proof.

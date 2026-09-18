@@ -1091,7 +1091,7 @@ public static class TooltipRecolor
 
         // No signal means no unit links, divider, layout gap or sealed prefix.
         // Keep the name colour and the caller's ownership marker unchanged.
-        if (!Prefs.ShowSignal.Value) return name;
+        if (!Prefs.ShowSignal.Value) return name + "\u200B";
 
         // Chips separate themselves visually; plain text uses the configured divider.
         string signal;
@@ -1217,3 +1217,4 @@ internal static class TooltipPerf
         s_ruleGiveUp = s_ruleInjected = s_ruleReuse = s_staleRetired = s_scanErrors = 0;
     }
 }
+
