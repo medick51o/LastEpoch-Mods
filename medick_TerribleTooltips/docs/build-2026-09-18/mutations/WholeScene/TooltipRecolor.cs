@@ -363,7 +363,7 @@ public static class TooltipRecolor
         var tmps = new List<TextMeshProUGUI>();
         foreach (Transform root in roots)
         {
-            var descendants = root.GetComponentsInChildren<TextMeshProUGUI>(true);
+            var descendants = UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>();
             if (TooltipPerf.Enabled) TooltipPerf.TMPs(descendants.Length);
             foreach (TextMeshProUGUI tmp in descendants)
                 tmps.Add(tmp);

@@ -1,12 +1,5 @@
 # Changelog — MedicK's Terrible Tooltips
 
-## v3.1.1-beta3 — make the scans cheap
-- Scan active tooltip hierarchies and explicitly referenced item/blessing comparison panels, including detached panels. Retain other active instances observed by the existing UpdateLayout hook; overlapping roots are enumerated once. No new hooks.
-- An out-of-scope affix/range sibling or hierarchy exception permits an explicit whole-scene compatibility fallback at most once per 0.5 seconds, including failed attempts. Valid empty tooltips never trigger it. The five-frame dirty window and all MarkDirty call sites are unchanged; reducing repeated dirty signals remains a separate ticket.
-- Existing five-second `[perf]` summaries add `scoped` (successful scoped collections) and `tmps` (TMPs returned across collections, including inactive descendants and partial work before fallback). `fullScene` now counts only fallback scene-search attempts. `scanErrors` also records failed scope attempts; a throttled failure can count as a scan without either collection counter. Debug-disabled telemetry retains preference guards only.
-- Formatter health checks actual brackets or saved bracketed originals; synthesized composer markers are not proof. Only tier-bearing tooltip scans without brackets count toward the warning, avoiding shard/lore false alarms. Untiered-only hook failures remain inconclusive. Range-only rows can inherit grade colour from an already composed sibling's saved original.
-- Remove FilterRuleTooltip's unused `s_startFrame`; version `3.1.1-beta3`, name still exactly `Terrible Tooltips`. Ground labels, markers, configuration and borders are unchanged. Stub regressions do not establish native prefab coverage or FPS improvement; comparison/range rendering and reporter timings still need in-game validation.
-
 ## v3.1.1-beta2 — shard-stutter diagnostic beta
 - Fixes two confirmed-by-code per-frame loops: active repurposed tooltip text could repeatedly trigger scene scans, and filter-rule injection could retry matching/discovery forever when no active `requires` row existed. The reporter's exact crafting-shard scenario has **not** been reproduced in-hand; this is a feedback beta.
 - Retires markerless originals only after a completed composition pass and before native relayout; marked originals remain available for Alt/master-off restoration. The five-frame dirty window and 0.5-second fallback remain.

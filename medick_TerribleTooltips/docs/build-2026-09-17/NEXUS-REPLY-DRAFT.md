@@ -1,12 +1,20 @@
 # Draft reply to Trunks1981 — ANDREW POSTS THIS. Claude never posts to Nexus.
 
 **Thread:** Nexus bug report "Stutter Over Affixed Shards" (filed 2026-09-12 vs v3.0.2)
-**Link to give him:** https://github.com/medick51o/LastEpoch-Mods/releases/tag/terrible-tooltips-v3.1.1-beta1
+**Link to give him:** https://github.com/medick51o/LastEpoch-Mods/releases/tag/terrible-tooltips-v3.1.1-beta2
 
 ---
 
 Thanks for the report, and for attaching a debug log — that is exactly how to file one, and it
-made this a lot faster.
+made this a lot faster. Your log actually has a smoking gun in it:
+
+    [19:26:41.447] [WARNING] no affix brackets seen in 20 tooltip scans
+
+That warning only counts scans while a tooltip is open, and it resets the moment it sees any
+text my mod has formatted. So those 20 scans happened back to back over a tooltip with nothing
+my mod could format — and going by the timestamp right before it, about 20 of them inside a
+single second. That is my mod re-scanning the entire UI every frame while you sat on that
+tooltip, which lines up with the framerate you reported.
 
 I found two separate every-frame loops in the tooltip code, either of which can do what you're
 describing:
@@ -19,7 +27,7 @@ describing:
    single frame, forever.
 
 Both are fixed in a beta build here:
-https://github.com/medick51o/LastEpoch-Mods/releases/tag/terrible-tooltips-v3.1.1-beta1
+https://github.com/medick51o/LastEpoch-Mods/releases/tag/terrible-tooltips-v3.1.1-beta2
 
 **I want to be straight with you: I have not been able to test this myself.** I couldn't get
 in front of the game to reproduce your exact setup, so what you're getting is a fix aimed at
@@ -31,8 +39,8 @@ myself, that's a completely fair call and no hard feelings.
 **If you are up for testing it:**
 1. Back up your current `medick_Terrible_Tooltips.dll` out of your Mods folder.
 2. Drop the beta DLL in its place.
-3. With the game CLOSED, open `UserData/MelonPreferences.cfg` and set `DebugLog = true` in the
-   Terrible Tooltips section. (The game rewrites that file when it quits, so editing it while
+3. With the game CLOSED, open `UserData/medick_Terrible_Tooltips.cfg` and set `DebugLog = true` (the
+   game rewrites that file when it quits, so editing it while
    the game is running won't stick.)
 4. Play normally, then hover Affix Shards the way you did when you filed this.
 5. Send the log back.
@@ -47,7 +55,7 @@ It's one line per 5 seconds, and it costs nothing at all when DebugLog is off.
 - The full `Last Epoch\MelonLoader\Latest.log` (the whole file, not a snippet) from a session
   where it happened, with `DebugLog = true`.
 - Roughly what time you hovered the shards, so I can find that part of the log.
-- Your `UserData/MelonPreferences.cfg` — I need to see which of my settings were switched on.
+- Your `UserData/medick_Terrible_Tooltips.cfg` — I need to see which of my settings were switched on.
 - Your full mod list with versions (the MelonLoader console prints it at startup) and a
   screenshot of your Mods folder.
 - Where exactly you were hovering: inventory, stash tab, or the crafting panel? A screenshot of

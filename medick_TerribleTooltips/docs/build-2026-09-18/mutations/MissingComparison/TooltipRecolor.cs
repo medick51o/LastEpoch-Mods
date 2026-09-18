@@ -332,7 +332,7 @@ public static class TooltipRecolor
             if (ui == null || !ui.tooltipActive) { dead.Add(pair.Key); continue; }
             AddRoot(ui.transform);
             AddRoot(ui.content?.transform);
-            AddRoot(ui.compareContent?.transform);
+            // MUTATION: comparison panel omitted
             AddRoot(ui.blessingContent?.transform);
             AddRoot(ui.blessingCompareContent?.transform);
             AddRoot(ui.resonanceContent?.transform);

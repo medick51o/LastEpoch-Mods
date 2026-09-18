@@ -1,0 +1,12 @@
+  Determining projects to restore...
+c:\program files\dotnet\sdk\10.0.401\NuGet.targets(782,5): error : Failed to read NuGet.Config due to unauthorized access. Path: 'C:\Users\andre\AppData\Roaming\NuGet\NuGet.Config'. [C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\medick_TerribleTooltips\medick_Terrible_Tooltips.csproj]
+c:\program files\dotnet\sdk\10.0.401\NuGet.targets(782,5): error :   Access to the path 'C:\Users\andre\AppData\Roaming\NuGet\NuGet.Config' is denied. [C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\medick_TerribleTooltips\medick_Terrible_Tooltips.csproj]
+
+Build FAILED.
+
+c:\program files\dotnet\sdk\10.0.401\NuGet.targets(782,5): error : Failed to read NuGet.Config due to unauthorized access. Path: 'C:\Users\andre\AppData\Roaming\NuGet\NuGet.Config'. [C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\medick_TerribleTooltips\medick_Terrible_Tooltips.csproj]
+c:\program files\dotnet\sdk\10.0.401\NuGet.targets(782,5): error :   Access to the path 'C:\Users\andre\AppData\Roaming\NuGet\NuGet.Config' is denied. [C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\medick_TerribleTooltips\medick_Terrible_Tooltips.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:00.46

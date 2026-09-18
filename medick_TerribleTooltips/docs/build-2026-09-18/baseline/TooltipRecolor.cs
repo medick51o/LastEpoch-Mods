@@ -17,8 +17,8 @@
 //  Laws (see ARCHAEOLOGY.md):
 //  • Hook is UITooltipItem.UpdateLayout — UpdatePrefixAndSuffixesText is
 //    intrinsically unpatchable (0xc0000005 even with an empty postfix).
-//  • Scan tooltip descendants plus explicitly referenced content panels
-//    (including detached comparison panels), not every TMP in the scene.
+//  • The full-scene TMP scan is the only reliable way to find tooltip
+//    TMPs; it runs per tooltip layout, not per frame.
 //  • Composed output is MARKED (four zero-width spaces) and skipped on
 //    re-entry — deep-view output re-emits "Tier:"/"Range:" text that
 //    would otherwise be misclassified on the next pass.
@@ -199,7 +199,8 @@ public static class TooltipRecolor
         // when a static inventory tooltip receives no more UpdateLayout calls.
         try
         {
-            if (Prefs.EnableTooltips.Value && HasActiveTooltip())
+            if (Prefs.EnableTooltips.Value &&
+                s_lastTooltip != null && s_lastTooltip.tooltipActive)
             {
                 ScanTrigger trigger = ShouldScan();
                 if (trigger != ScanTrigger.None)
@@ -263,7 +264,9 @@ public static class TooltipRecolor
         s_suppressedRanges.Clear();
         s_tierColorCache.Clear();
 
-        RelayoutTooltips();
+        bool active = false;
+        try { active = s_lastTooltip != null && s_lastTooltip.tooltipActive; } catch { }
+        if (active) RequestRelayout(s_lastTooltip, s_lastArgs);
         Dbg.Log($"master off — restored {restored} TMPs");
     }
 
@@ -293,7 +296,9 @@ public static class TooltipRecolor
         // Line counts changed → let the game re-measure (lean law)
         if (changed)
         {
-            RelayoutTooltips();
+            bool active = false;
+            try { active = s_lastTooltip != null && s_lastTooltip.tooltipActive; } catch { }
+            if (active) RequestRelayout(s_lastTooltip, s_lastArgs);
         }
     }
 
@@ -302,116 +307,6 @@ public static class TooltipRecolor
     // verbatim for the re-measure.
     private static UITooltipItem s_lastTooltip;
     private static object[]      s_lastArgs;
-    private static readonly Dictionary<int, (UITooltipItem ui, object[] args)> s_tooltips = new();
-    private static float s_lastFullSceneTime = -1f;
-
-    private static bool HasActiveTooltip()
-    {
-        if (s_lastTooltip != null && s_lastTooltip.tooltipActive) return true;
-        foreach (var entry in s_tooltips.Values)
-            if (entry.ui != null && entry.ui.tooltipActive) return true;
-        return false;
-    }
-
-    private static void RememberTooltip(UITooltipItem ui, object[] args)
-    {
-        if (ui != null) s_tooltips[ui.GetInstanceID()] = (ui, args);
-    }
-
-    // The installed UITooltipItem bindings own content/compareContent and
-    // blessing comparison panels. Serialized references do NOT prove ancestry:
-    // include detached panels explicitly, and retain other observed instances
-    // even when their UpdateLayout was rejected by the one-scan-per-frame gate.
-    private static TextMeshProUGUI[] CollectTooltipTMPs()
-    {
-        var roots = new List<Transform>();
-        var dead = new List<int>();
-        foreach (var pair in s_tooltips)
-        {
-            var ui = pair.Value.ui;
-            if (ui == null || !ui.tooltipActive) { dead.Add(pair.Key); continue; }
-            AddRoot(ui.transform);
-            AddRoot(ui.content?.transform);
-            AddRoot(ui.compareContent?.transform);
-            AddRoot(ui.blessingContent?.transform);
-            AddRoot(ui.blessingCompareContent?.transform);
-            AddRoot(ui.resonanceContent?.transform);
-        }
-        foreach (int id in dead) s_tooltips.Remove(id);
-
-        // Bindings expose references, not the serialized prefab hierarchy.
-        // Verify the actual affix anchors instead of assuming every panel is
-        // parented as expected. A foreign/reparented anchor uses the bounded
-        // compatibility path below; never silently omit a comparison affix.
-        foreach (var entry in s_tooltips.Values)
-        {
-            var ui = entry.ui;
-            RequireTMP(ui.implicitText);
-            RequireTMP(ui.compareImplicitText);
-            RequireTMP(ui.blessingImplicitTMP);
-            RequireTMP(ui.blessingCompareImplicitTMP);
-            foreach (var group in new[] { ui.uniqueAffixesText, ui.prefixesText, ui.suffixesText,
-                                         ui.compareUniqueAffixesText, ui.comparePrefixes, ui.compareSuffixes })
-                if (group != null)
-                    foreach (var affix in group)
-                        if (affix != null) RequireTMP(affix._text);
-            foreach (var affix in new[] { ui.sealedAffix, ui.sealedPrimordialAffix, ui.sealedCorruptedAffix,
-                                         ui.compareSealedAffix, ui.compareSealedPrimordialAffix, ui.compareSealedCorruptedAffix })
-                if (affix != null) RequireTMP(affix._text);
-        }
-
-        var tmps = new List<TextMeshProUGUI>();
-        foreach (Transform root in roots)
-        {
-            var descendants = root.GetComponentsInChildren<TextMeshProUGUI>(true);
-            if (TooltipPerf.Enabled) TooltipPerf.TMPs(descendants.Length);
-            foreach (TextMeshProUGUI tmp in descendants)
-                tmps.Add(tmp);
-        }
-        // Range colour looks up parent AND grandparent keys. Their entire
-        // descendant sets must be in scope, or an external sibling could carry
-        // the grade. Validate this at runtime rather than guessing prefab shape.
-        foreach (var tmp in tmps)
-        {
-            if (tmp == null || !tmp.gameObject.activeInHierarchy) continue;
-            string text = tmp.text ?? "";
-            if (text.Contains(Marker) && s_originals.TryGetValue(tmp.GetInstanceID(), out var saved))
-                text = saved.original;
-            if (!text.Contains("Range:") || text.Contains("Tier:") || HasBracket(text)) continue;
-            RequireRoot(tmp.transform.parent);
-            RequireRoot(tmp.transform.parent?.parent);
-        }
-        return tmps.ToArray();
-
-        void RequireTMP(TextMeshProUGUI tmp)
-        {
-            if (tmp != null && tmp.gameObject.activeInHierarchy) RequireRoot(tmp.transform);
-        }
-
-        void RequireRoot(Transform transform)
-        {
-            if (transform == null) return;
-            foreach (Transform root in roots)
-                if (transform == root || transform.IsChildOf(root)) return;
-            throw new InvalidOperationException("affix or range sibling lies outside tooltip panel roots");
-        }
-
-        void AddRoot(Transform root)
-        {
-            if (root == null) return;
-            foreach (Transform existing in roots)
-                if (root == existing || root.IsChildOf(existing)) return;
-            roots.RemoveAll(existing => existing.IsChildOf(root));
-            roots.Add(root);
-        }
-    }
-
-    private static void RelayoutTooltips()
-    {
-        foreach (var entry in s_tooltips.Values)
-            if (entry.ui != null && entry.ui.tooltipActive)
-                RequestRelayout(entry.ui, entry.args);
-    }
 
     private static void RequestRelayout(UITooltipItem ui, object[] args)
     {
@@ -485,7 +380,6 @@ public static class TooltipRecolor
             if (!Prefs.EnableTooltips.Value) return;
             s_lastTooltip = __instance;                 // for the Alt-path re-measure
             s_lastArgs    = __args;
-            RememberTooltip(__instance, __args);
             ScanTrigger trigger = ShouldScan();
             if (trigger == ScanTrigger.None) return;
             RunScan(__instance, __args, trigger);
@@ -501,28 +395,9 @@ public static class TooltipRecolor
         if (TooltipPerf.Enabled) TooltipPerf.Scan(trigger);
         try
         {
-            RememberTooltip(__instance, __args);
-            TextMeshProUGUI[] allTMPs;
-            try
-            {
-                allTMPs = CollectTooltipTMPs();
-                if (TooltipPerf.Enabled) TooltipPerf.Scoped();
-            }
-            catch (Exception ex)
-            {
-                // A destroyed/reparenting native hierarchy must not silently
-                // drop comparison text. Compatibility fallback is bounded even
-                // during dirty bursts; an empty *valid* scope never triggers it.
-                if (TooltipPerf.Enabled) TooltipPerf.ScanError();
-                float now = Time.unscaledTime;
-                if (s_lastFullSceneTime >= 0f && now - s_lastFullSceneTime < FallbackScanInterval) return;
-                s_lastFullSceneTime = now; // latch before enumeration, including throws
-                if (TooltipPerf.Enabled) TooltipPerf.FullScene();
-                if (TooltipPerf.Enabled)
-                    Dbg.Log("tooltip scope unavailable; bounded full-scene fallback: " + ex.Message);
-                allTMPs = UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>();
-                if (TooltipPerf.Enabled && allTMPs != null) TooltipPerf.TMPs(allTMPs.Length);
-            }
+            if (TooltipPerf.Enabled) TooltipPerf.FullScene();
+            TextMeshProUGUI[] allTMPs =
+                UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>();
             if (allTMPs == null) return;
 
             TrackFormatterHealth(allTMPs);
@@ -538,10 +413,7 @@ public static class TooltipRecolor
             var parentGradeColor = new Dictionary<int, string>();
             foreach (TextMeshProUGUI tmp in allTMPs)
             {
-                if (tmp == null || !tmp.gameObject.activeInHierarchy) continue;
                 string t = tmp?.text;
-                if (t != null && t.Contains(Marker) && s_originals.TryGetValue(tmp.GetInstanceID(), out var saved))
-                    t = saved.original; // later range rewrites still inherit a composed sibling's grade
                 if (string.IsNullOrEmpty(t)) continue;
                 Match gm = s_kgGradeRegex.Match(t);
                 bool  itg = gm.Success;
@@ -557,7 +429,6 @@ public static class TooltipRecolor
             {
                 try
                 {
-                    if (tmp == null || !tmp.gameObject.activeInHierarchy) continue;
                     string text = tmp?.text;
                     if (string.IsNullOrEmpty(text)) continue;
 
@@ -685,7 +556,7 @@ public static class TooltipRecolor
             // ── Lean law: we shrank texts AFTER the game measured the
             //    essay — re-measure once so the blank rows collapse.
             if (composed > 0)
-                RelayoutTooltips();
+                RequestRelayout(__instance, __args);
         }
         catch (Exception ex)
         {
@@ -709,35 +580,24 @@ public static class TooltipRecolor
     // GLM 2026-09-10: make a dead affix formatter hook visible instead of silently vanilla.
     private static void TrackFormatterHealth(TextMeshProUGUI[] allTMPs)
     {
-        if (!Prefs.EnableTooltips.Value) return;
+        bool active = false;
+        try { active = s_lastTooltip != null && s_lastTooltip.tooltipActive; } catch { }
+        if (!Prefs.EnableTooltips.Value || !active || allTMPs.Length == 0) return;
 
         bool found = false;
-        bool expected = false;
         foreach (TextMeshProUGUI tmp in allTMPs)
         {
-            if (tmp == null || !tmp.gameObject.activeInHierarchy) continue;
             string text = tmp?.text;
             if (string.IsNullOrEmpty(text)) continue;
-            // A synthesized Tier chip or suppressed Range is NOT evidence of
-            // an injected bracket. Inspect its saved source, not our marker.
-            if (text.Contains(Marker))
-            {
-                if (!s_originals.TryGetValue(tmp.GetInstanceID(), out var saved)) continue;
-                text = saved.original;
-            }
-            if (text.Contains(GroundLabels.Marker) || tmp.gameObject.name == "requires") continue;
-            if (HasBracket(text))
+            if (text.Contains(Marker) ||
+                (!text.Contains(GroundLabels.Marker) && HasBracket(text)))
             {
                 found = true;
                 break;
             }
-            // Shards/lore/range-only rows do not establish that an affix hook
-            // should have run. Only native tier-bearing affix text is a negative
-            // sample; unique-only failures without tiers remain inconclusive.
-            if (s_tierRegex.IsMatch(text)) expected = true;
         }
 
-        if (found || !expected)
+        if (found)
         {
             s_emptyBracketScans = 0;
             return;
@@ -748,7 +608,7 @@ public static class TooltipRecolor
         {
             s_affixHookWarned = true;
             MelonLogger.Warning(
-                "no affix brackets seen in 20 tier-bearing tooltip scans — the affix formatter hook may be dead after a game update; tier synthesis alone does not verify the hook");
+                "no affix brackets seen in 20 tooltip scans — the affix formatter hook may be dead after a game update; tooltips will look vanilla");
         }
     }
 
@@ -1154,7 +1014,7 @@ internal static class TooltipPerf
     internal static bool Enabled => Prefs.DebugLog != null && Prefs.DebugLog.Value;
     private static bool s_running;
     private static float s_started;
-    private static long s_scans, s_fullScene, s_scoped, s_tmps, s_dirty, s_markerLoss, s_fallback;
+    private static long s_scans, s_fullScene, s_dirty, s_markerLoss, s_fallback;
     private static long s_ruleStart, s_ruleReplacement, s_ruleAttempts, s_ruleMatch, s_ruleNoTarget;
     private static long s_ruleGiveUp, s_ruleInjected, s_ruleReuse, s_staleRetired, s_scanErrors;
 
@@ -1174,8 +1034,6 @@ internal static class TooltipPerf
         else if (trigger == TooltipRecolor.ScanTrigger.Fallback) s_fallback++;
     }
     internal static void FullScene() { Begin(); s_fullScene++; }
-    internal static void Scoped() { Begin(); s_scoped++; }
-    internal static void TMPs(int count) { Begin(); s_tmps += count; }
     internal static void ScanError() { Begin(); s_scanErrors++; }
     internal static void RuleStart() { Begin(); s_ruleStart++; }
     internal static void RuleReplacement() { Begin(); s_ruleReplacement++; }
@@ -1200,7 +1058,7 @@ internal static class TooltipPerf
         if (elapsed < 5f) return;
         // Advance/reset before logging so a logger failure cannot cause a flood.
         string summary = FormattableString.Invariant(
-            $"[perf] {elapsed:0.0}s: scans={s_scans} (scoped={s_scoped}, fullScene={s_fullScene}, tmps={s_tmps}, trigger: dirty={s_dirty}/markerLoss={s_markerLoss}/fallback={s_fallback}) ruleStart={s_ruleStart} ruleReplacement={s_ruleReplacement} ruleAttempts={s_ruleAttempts} ruleMatch={s_ruleMatch} ruleNoTarget={s_ruleNoTarget} ruleGiveUp={s_ruleGiveUp} ruleInjected={s_ruleInjected} ruleReuse={s_ruleReuse} staleRetired={s_staleRetired} scanErrors={s_scanErrors}");
+            $"[perf] {elapsed:0.0}s: scans={s_scans} (fullScene={s_fullScene}, trigger: dirty={s_dirty}/markerLoss={s_markerLoss}/fallback={s_fallback}) ruleStart={s_ruleStart} ruleReplacement={s_ruleReplacement} ruleAttempts={s_ruleAttempts} ruleMatch={s_ruleMatch} ruleNoTarget={s_ruleNoTarget} ruleGiveUp={s_ruleGiveUp} ruleInjected={s_ruleInjected} ruleReuse={s_ruleReuse} staleRetired={s_staleRetired} scanErrors={s_scanErrors}");
         Reset();
         s_started = now;
         try { MelonLogger.Msg(summary); } catch { }
@@ -1208,7 +1066,7 @@ internal static class TooltipPerf
 
     private static void Reset()
     {
-        s_scans = s_fullScene = s_scoped = s_tmps = s_dirty = s_markerLoss = s_fallback = 0;
+        s_scans = s_fullScene = s_dirty = s_markerLoss = s_fallback = 0;
         s_ruleStart = s_ruleReplacement = s_ruleAttempts = s_ruleMatch = s_ruleNoTarget = 0;
         s_ruleGiveUp = s_ruleInjected = s_ruleReuse = s_staleRetired = s_scanErrors = 0;
     }

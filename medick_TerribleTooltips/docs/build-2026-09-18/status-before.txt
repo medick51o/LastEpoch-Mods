@@ -1,0 +1,24 @@
+ M ../medick_RighteousFire/medick_RighteousFire/Localization_Patch.cs
+ M ../medick_RighteousFire/medick_RighteousFire/Main.cs
+ M ../medick_RighteousFire/medick_RighteousFire/Refs.cs
+ M ../medick_RighteousFire/medick_RighteousFire/Trigger.cs
+ M CURRENT-WORK.md
+ M docs/build-2026-09-17/NEXUS-REPLY-DRAFT.md
+?? ../.stfolder/
+?? ../.stignore
+?? ../Fallen_LE_Mods/
+?? ../LEBuildConverter/
+?? ../LEBuildConverter_WPF/
+?? ../RELEASE-REPORT-2026-09-12.md
+?? ../kg_LastEpoch_Improvements/
+?? ../lebc-beta/
+?? ../medick_4_skins/
+?? ../medick_LootFilterTooltip/
+?? ../medick_RighteousFire/release/
+?? docs/build-2026-09-17/REVIEW-beta2-repair-independent.md
+?? docs/build-2026-09-17/RegressionHarness.dll
+?? docs/build-2026-09-17/RegressionHarness.runtimeconfig.json
+?? docs/build-2026-09-18/
+?? docs/diag-2026-09-17/reporter-log-2026-09-12.log
+?? release/medick_Terrible_Tooltips_v3.1.1-beta1.zip
+?? release/medick_Terrible_Tooltips_v3.1.1-beta2.zip

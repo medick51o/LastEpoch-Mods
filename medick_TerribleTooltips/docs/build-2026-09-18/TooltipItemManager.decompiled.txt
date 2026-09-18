@@ -1,0 +1,2584 @@
+using System;
+using System.Runtime.CompilerServices;
+using Il2CppCysharp.Threading.Tasks;
+using Il2CppInterop.Common.Attributes;
+using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime.InteropTypes;
+using Il2CppInterop.Runtime.Runtime;
+using Il2CppLE.CustomUpdate;
+using Il2CppSystem;
+using Il2CppSystem.Collections.Generic;
+using Il2CppSystem.Diagnostics;
+using Il2CppSystem.Runtime.CompilerServices;
+using Unity.Profiling;
+using UnityEngine;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceLocations;
+
+namespace Il2Cpp;
+
+public class TooltipItemManager : ManagedLifecycleBehaviour
+{
+	[OriginalName("LE.dll", "", "SlotType")]
+	public enum SlotType
+	{
+		INVENTORY,
+		EQUIPPED,
+		GROUND,
+		CRAFTING,
+		STASH,
+		SHOP,
+		AFFIX,
+		MATERIAL,
+		GAMBLING,
+		BLESSING,
+		SOUL_GAMBLING,
+		UNDEFINED,
+		FACTION_GAMBLING,
+		LENS_SHOP,
+		LENS_OBSERVATORY,
+		ITEM_TO_BAZAAR_LIST,
+		ITEM_TO_GIFT,
+		NEMESIS_SWAP,
+		ITEM_TO_DUNGEON_ENTER,
+		ITEM_TO_ETERNITY,
+		BAZAAR,
+		ITEM_TO_TRADE_LEGACY_NOT_USED,
+		WEAVER_TREE_NODE,
+		WEAVER_VENDOR,
+		WOVEN_ECHO_REWARDS,
+		HUNTER_VENDOR,
+		BAZAAR_SEARCH,
+		BAZAAR_MY_STALL,
+		TIMEGLASS_VENDOR
+	}
+
+	[OriginalName("LE.dll", "", "TooltipInitializationStage")]
+	public enum TooltipInitializationStage
+	{
+		None,
+		SetTooltipConfiguration,
+		SetContent,
+		SetAffixContent,
+		SetPrompts,
+		OpenAbilityTooltip,
+		ShowComparison,
+		UpdateLayout,
+		Completed
+	}
+
+	public sealed class ItemTooltipParameters : Il2CppSystem.ValueType
+	{
+		private static readonly System.IntPtr NativeFieldInfoPtr__Item_k__BackingField;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr__SlotType_k__BackingField;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr__Offset_k__BackingField;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr__Position_k__BackingField;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr__Opener_k__BackingField;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr__TooltipMode_k__BackingField;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr__OpenerSize_k__BackingField;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_get_Item_Public_get_ItemDataUnpacked_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_get_SlotType_Public_get_SlotType_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_get_Offset_Public_get_Vector2_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_get_Position_Public_get_Vector3_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_get_Opener_Public_get_GameObject_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_get_TooltipMode_Public_get_TooltipMode_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_get_OpenerSize_Public_get_Vector2_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr__ctor_Public_Void_ItemDataUnpacked_SlotType_Vector2_Vector3_GameObject_TooltipMode_Vector2_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_WithTooltipMode_Public_ItemTooltipParameters_TooltipMode_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_Matches_Public_Boolean_ItemTooltipParameters_0;
+
+		public unsafe ItemDataUnpacked _Item_k__BackingField
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Item_k__BackingField);
+				System.IntPtr intPtr = *(System.IntPtr*)num;
+				return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<ItemDataUnpacked>(intPtr) : null;
+			}
+			set
+			{
+				System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Item_k__BackingField)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)itemDataUnpacked));
+			}
+		}
+
+		public unsafe SlotType _SlotType_k__BackingField
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__SlotType_k__BackingField);
+				return *(SlotType*)num;
+			}
+			set
+			{
+				*(SlotType*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__SlotType_k__BackingField)) = slotType;
+			}
+		}
+
+		public unsafe Vector2 _Offset_k__BackingField
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Offset_k__BackingField);
+				return *(Vector2*)num;
+			}
+			set
+			{
+				*(Vector2*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Offset_k__BackingField)) = vector;
+			}
+		}
+
+		public unsafe Vector3 _Position_k__BackingField
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Position_k__BackingField);
+				return *(Vector3*)num;
+			}
+			set
+			{
+				*(Vector3*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Position_k__BackingField)) = vector;
+			}
+		}
+
+		public unsafe GameObject _Opener_k__BackingField
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Opener_k__BackingField);
+				System.IntPtr intPtr = *(System.IntPtr*)num;
+				return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<GameObject>(intPtr) : null;
+			}
+			set
+			{
+				System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Opener_k__BackingField)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)gameObject));
+			}
+		}
+
+		public unsafe TooltipMode _TooltipMode_k__BackingField
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__TooltipMode_k__BackingField);
+				return *(TooltipMode*)num;
+			}
+			set
+			{
+				*(TooltipMode*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__TooltipMode_k__BackingField)) = tooltipMode;
+			}
+		}
+
+		public unsafe Vector2 _OpenerSize_k__BackingField
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__OpenerSize_k__BackingField);
+				return *(Vector2*)num;
+			}
+			set
+			{
+				*(Vector2*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__OpenerSize_k__BackingField)) = vector;
+			}
+		}
+
+		public unsafe ItemDataUnpacked Item
+		{
+			[CallerCount(105)]
+			[CachedScanResults(RefRangeStart = 47169, RefRangeEnd = 47274, XrefRangeStart = 47169, XrefRangeEnd = 47274, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+			get
+			{
+				IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				System.IntPtr* ptr = null;
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+				System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_Item_Public_get_ItemDataUnpacked_0, IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this)), (void**)ptr, ref intPtr2);
+				Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+				return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<ItemDataUnpacked>(intPtr) : null;
+			}
+		}
+
+		public unsafe SlotType SlotType
+		{
+			[CallerCount(0)]
+			get
+			{
+				IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				System.IntPtr* ptr = null;
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+				System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_SlotType_Public_get_SlotType_0, IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this)), (void**)ptr, ref intPtr2);
+				Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+				return *(SlotType*)IL2CPP.il2cpp_object_unbox(intPtr);
+			}
+		}
+
+		public unsafe Vector2 Offset
+		{
+			[CallerCount(1)]
+			[CachedScanResults(RefRangeStart = 50414, RefRangeEnd = 50415, XrefRangeStart = 50414, XrefRangeEnd = 50415, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+			get
+			{
+				IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				System.IntPtr* ptr = null;
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+				System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_Offset_Public_get_Vector2_0, IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this)), (void**)ptr, ref intPtr2);
+				Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+				return *(Vector2*)IL2CPP.il2cpp_object_unbox(intPtr);
+			}
+		}
+
+		public unsafe Vector3 Position
+		{
+			[CallerCount(0)]
+			get
+			{
+				IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				System.IntPtr* ptr = null;
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+				System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_Position_Public_get_Vector3_0, IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this)), (void**)ptr, ref intPtr2);
+				Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+				return *(Vector3*)IL2CPP.il2cpp_object_unbox(intPtr);
+			}
+		}
+
+		public unsafe GameObject Opener
+		{
+			[CallerCount(719)]
+			[CachedScanResults(RefRangeStart = 84257, RefRangeEnd = 84976, XrefRangeStart = 84257, XrefRangeEnd = 84976, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+			get
+			{
+				IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				System.IntPtr* ptr = null;
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+				System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_Opener_Public_get_GameObject_0, IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this)), (void**)ptr, ref intPtr2);
+				Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+				return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<GameObject>(intPtr) : null;
+			}
+		}
+
+		public unsafe TooltipMode TooltipMode
+		{
+			[CallerCount(0)]
+			get
+			{
+				IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				System.IntPtr* ptr = null;
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+				System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_TooltipMode_Public_get_TooltipMode_0, IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this)), (void**)ptr, ref intPtr2);
+				Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+				return *(TooltipMode*)IL2CPP.il2cpp_object_unbox(intPtr);
+			}
+		}
+
+		public unsafe Vector2 OpenerSize
+		{
+			[CallerCount(0)]
+			get
+			{
+				IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				System.IntPtr* ptr = null;
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+				System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_OpenerSize_Public_get_Vector2_0, IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this)), (void**)ptr, ref intPtr2);
+				Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+				return *(Vector2*)IL2CPP.il2cpp_object_unbox(intPtr);
+			}
+		}
+
+		static ItemTooltipParameters()
+		{
+			Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr = IL2CPP.GetIl2CppNestedType(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "ItemTooltipParameters");
+			IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr);
+			NativeFieldInfoPtr__Item_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, "<Item>k__BackingField");
+			NativeFieldInfoPtr__SlotType_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, "<SlotType>k__BackingField");
+			NativeFieldInfoPtr__Offset_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, "<Offset>k__BackingField");
+			NativeFieldInfoPtr__Position_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, "<Position>k__BackingField");
+			NativeFieldInfoPtr__Opener_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, "<Opener>k__BackingField");
+			NativeFieldInfoPtr__TooltipMode_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, "<TooltipMode>k__BackingField");
+			NativeFieldInfoPtr__OpenerSize_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, "<OpenerSize>k__BackingField");
+			NativeMethodInfoPtr_get_Item_Public_get_ItemDataUnpacked_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, 100697304);
+			NativeMethodInfoPtr_get_SlotType_Public_get_SlotType_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, 100697305);
+			NativeMethodInfoPtr_get_Offset_Public_get_Vector2_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, 100697306);
+			NativeMethodInfoPtr_get_Position_Public_get_Vector3_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, 100697307);
+			NativeMethodInfoPtr_get_Opener_Public_get_GameObject_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, 100697308);
+			NativeMethodInfoPtr_get_TooltipMode_Public_get_TooltipMode_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, 100697309);
+			NativeMethodInfoPtr_get_OpenerSize_Public_get_Vector2_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, 100697310);
+			NativeMethodInfoPtr__ctor_Public_Void_ItemDataUnpacked_SlotType_Vector2_Vector3_GameObject_TooltipMode_Vector2_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, 100697311);
+			NativeMethodInfoPtr_WithTooltipMode_Public_ItemTooltipParameters_TooltipMode_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, 100697312);
+			NativeMethodInfoPtr_Matches_Public_Boolean_ItemTooltipParameters_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, 100697313);
+		}
+
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866476, XrefRangeEnd = 866478, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe ItemTooltipParameters(ItemDataUnpacked item, SlotType slotType, Vector2 offset, Vector3 position, GameObject opener, TooltipMode tooltipMode, Vector2 openerSize = default(Vector2))
+			: this(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr))
+		{
+			System.IntPtr* ptr = stackalloc System.IntPtr[7];
+			*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+			*(SlotType**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+			*(Vector2**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &offset;
+			*(Vector3**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &position;
+			*(System.IntPtr*)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)opener);
+			*(TooltipMode**)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = &tooltipMode;
+			*(Vector2**)((byte*)ptr + checked((nuint)6u * unchecked((nuint)sizeof(System.IntPtr)))) = &openerSize;
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__ctor_Public_Void_ItemDataUnpacked_SlotType_Vector2_Vector3_GameObject_TooltipMode_Vector2_0, IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this)), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		}
+
+		[CallerCount(2)]
+		[CachedScanResults(RefRangeStart = 866480, RefRangeEnd = 866482, XrefRangeStart = 866478, XrefRangeEnd = 866480, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe ItemTooltipParameters WithTooltipMode(TooltipMode tooltipMode)
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = (nint)(&tooltipMode);
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr pointer = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_WithTooltipMode_Public_ItemTooltipParameters_TooltipMode_0, IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this)), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return new ItemTooltipParameters(pointer);
+		}
+
+		[CallerCount(0)]
+		public unsafe bool Matches(ItemTooltipParameters other)
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)other));
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Matches_Public_Boolean_ItemTooltipParameters_0, IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this)), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+			return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr);
+		}
+
+		public ItemTooltipParameters(System.IntPtr pointer)
+			: base(pointer)
+		{
+		}
+
+		public ItemTooltipParameters()
+			: base(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr))
+		{
+		}
+	}
+
+	[System.Serializable]
+	[ObfuscatedName("TooltipItemManager+<>c")]
+	public sealed class __c : Il2CppSystem.Object
+	{
+		private static readonly System.IntPtr NativeFieldInfoPtr___9;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr___9__84_0;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr___9__85_0;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr___9__85_1;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr___9__85_2;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr___9__91_0;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr___9__91_1;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr__ctor_Public_Void_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr__CreateTooltipContent_b__84_0_Internal_ValueTuple_2_String_Boolean_String_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr__CreateTooltipDefaultContent_b__85_0_Internal_ValueTuple_2_String_Boolean_String_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr__CreateTooltipDefaultContent_b__85_1_Internal_ValueTuple_2_String_Boolean_String_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr__CreateTooltipDefaultContent_b__85_2_Internal_ValueTuple_2_String_Boolean_String_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr__GetUniqueDescription_b__91_0_Internal_String_TimeBeastAdaptation_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr__GetUniqueDescription_b__91_1_Internal_String_TimeBeastAdaptation_0;
+
+		public unsafe static __c __9
+		{
+			get
+			{
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+				IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr___9, (void*)(&intPtr));
+				System.IntPtr intPtr2 = intPtr;
+				return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<__c>(intPtr2) : null;
+			}
+			set
+			{
+				IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr___9, (void*)IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)_c));
+			}
+		}
+
+		public unsafe static Il2CppSystem.Func<string, Il2CppSystem.ValueTuple<string, bool>> __9__84_0
+		{
+			get
+			{
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+				IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr___9__84_0, (void*)(&intPtr));
+				System.IntPtr intPtr2 = intPtr;
+				return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Il2CppSystem.Func<string, Il2CppSystem.ValueTuple<string, bool>>>(intPtr2) : null;
+			}
+			set
+			{
+				IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr___9__84_0, (void*)IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)func));
+			}
+		}
+
+		public unsafe static Il2CppSystem.Func<string, Il2CppSystem.ValueTuple<string, bool>> __9__85_0
+		{
+			get
+			{
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+				IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr___9__85_0, (void*)(&intPtr));
+				System.IntPtr intPtr2 = intPtr;
+				return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Il2CppSystem.Func<string, Il2CppSystem.ValueTuple<string, bool>>>(intPtr2) : null;
+			}
+			set
+			{
+				IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr___9__85_0, (void*)IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)func));
+			}
+		}
+
+		public unsafe static Il2CppSystem.Func<string, Il2CppSystem.ValueTuple<string, bool>> __9__85_1
+		{
+			get
+			{
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+				IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr___9__85_1, (void*)(&intPtr));
+				System.IntPtr intPtr2 = intPtr;
+				return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Il2CppSystem.Func<string, Il2CppSystem.ValueTuple<string, bool>>>(intPtr2) : null;
+			}
+			set
+			{
+				IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr___9__85_1, (void*)IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)func));
+			}
+		}
+
+		public unsafe static Il2CppSystem.Func<string, Il2CppSystem.ValueTuple<string, bool>> __9__85_2
+		{
+			get
+			{
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+				IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr___9__85_2, (void*)(&intPtr));
+				System.IntPtr intPtr2 = intPtr;
+				return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Il2CppSystem.Func<string, Il2CppSystem.ValueTuple<string, bool>>>(intPtr2) : null;
+			}
+			set
+			{
+				IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr___9__85_2, (void*)IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)func));
+			}
+		}
+
+		public unsafe static Il2CppSystem.Func<TimeBeastAdaptation, string> __9__91_0
+		{
+			get
+			{
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+				IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr___9__91_0, (void*)(&intPtr));
+				System.IntPtr intPtr2 = intPtr;
+				return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Il2CppSystem.Func<TimeBeastAdaptation, string>>(intPtr2) : null;
+			}
+			set
+			{
+				IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr___9__91_0, (void*)IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)func));
+			}
+		}
+
+		public unsafe static Il2CppSystem.Func<TimeBeastAdaptation, string> __9__91_1
+		{
+			get
+			{
+				System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+				IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr___9__91_1, (void*)(&intPtr));
+				System.IntPtr intPtr2 = intPtr;
+				return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Il2CppSystem.Func<TimeBeastAdaptation, string>>(intPtr2) : null;
+			}
+			set
+			{
+				IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr___9__91_1, (void*)IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)func));
+			}
+		}
+
+		static __c()
+		{
+			Il2CppClassPointerStore<__c>.NativeClassPtr = IL2CPP.GetIl2CppNestedType(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "<>c");
+			IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<__c>.NativeClassPtr);
+			NativeFieldInfoPtr___9 = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<__c>.NativeClassPtr, "<>9");
+			NativeFieldInfoPtr___9__84_0 = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<__c>.NativeClassPtr, "<>9__84_0");
+			NativeFieldInfoPtr___9__85_0 = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<__c>.NativeClassPtr, "<>9__85_0");
+			NativeFieldInfoPtr___9__85_1 = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<__c>.NativeClassPtr, "<>9__85_1");
+			NativeFieldInfoPtr___9__85_2 = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<__c>.NativeClassPtr, "<>9__85_2");
+			NativeFieldInfoPtr___9__91_0 = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<__c>.NativeClassPtr, "<>9__91_0");
+			NativeFieldInfoPtr___9__91_1 = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<__c>.NativeClassPtr, "<>9__91_1");
+			NativeMethodInfoPtr__ctor_Public_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<__c>.NativeClassPtr, 100697315);
+			NativeMethodInfoPtr__CreateTooltipContent_b__84_0_Internal_ValueTuple_2_String_Boolean_String_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<__c>.NativeClassPtr, 100697316);
+			NativeMethodInfoPtr__CreateTooltipDefaultContent_b__85_0_Internal_ValueTuple_2_String_Boolean_String_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<__c>.NativeClassPtr, 100697317);
+			NativeMethodInfoPtr__CreateTooltipDefaultContent_b__85_1_Internal_ValueTuple_2_String_Boolean_String_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<__c>.NativeClassPtr, 100697318);
+			NativeMethodInfoPtr__CreateTooltipDefaultContent_b__85_2_Internal_ValueTuple_2_String_Boolean_String_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<__c>.NativeClassPtr, 100697319);
+			NativeMethodInfoPtr__GetUniqueDescription_b__91_0_Internal_String_TimeBeastAdaptation_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<__c>.NativeClassPtr, 100697320);
+			NativeMethodInfoPtr__GetUniqueDescription_b__91_1_Internal_String_TimeBeastAdaptation_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<__c>.NativeClassPtr, 100697321);
+		}
+
+		[CallerCount(5252)]
+		[CachedScanResults(RefRangeStart = 24, RefRangeEnd = 5276, XrefRangeStart = 24, XrefRangeEnd = 5276, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe __c()
+			: this(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<__c>.NativeClassPtr))
+		{
+			System.IntPtr* ptr = null;
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__ctor_Public_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		}
+
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866482, XrefRangeEnd = 866485, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe Il2CppSystem.ValueTuple<string, bool> _CreateTooltipContent_b__84_0(string text)
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = IL2CPP.ManagedStringToIl2Cpp(text);
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr pointer = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__CreateTooltipContent_b__84_0_Internal_ValueTuple_2_String_Boolean_String_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return new Il2CppSystem.ValueTuple<string, bool>(pointer);
+		}
+
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866485, XrefRangeEnd = 866488, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe Il2CppSystem.ValueTuple<string, bool> _CreateTooltipDefaultContent_b__85_0(string text)
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = IL2CPP.ManagedStringToIl2Cpp(text);
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr pointer = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__CreateTooltipDefaultContent_b__85_0_Internal_ValueTuple_2_String_Boolean_String_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return new Il2CppSystem.ValueTuple<string, bool>(pointer);
+		}
+
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866488, XrefRangeEnd = 866491, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe Il2CppSystem.ValueTuple<string, bool> _CreateTooltipDefaultContent_b__85_1(string text)
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = IL2CPP.ManagedStringToIl2Cpp(text);
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr pointer = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__CreateTooltipDefaultContent_b__85_1_Internal_ValueTuple_2_String_Boolean_String_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return new Il2CppSystem.ValueTuple<string, bool>(pointer);
+		}
+
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866491, XrefRangeEnd = 866494, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe Il2CppSystem.ValueTuple<string, bool> _CreateTooltipDefaultContent_b__85_2(string text)
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = IL2CPP.ManagedStringToIl2Cpp(text);
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr pointer = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__CreateTooltipDefaultContent_b__85_2_Internal_ValueTuple_2_String_Boolean_String_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return new Il2CppSystem.ValueTuple<string, bool>(pointer);
+		}
+
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866494, XrefRangeEnd = 866501, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe string _GetUniqueDescription_b__91_0(TimeBeastAdaptation adaptation)
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = (nint)(&adaptation);
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__GetUniqueDescription_b__91_0_Internal_String_TimeBeastAdaptation_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+			return IL2CPP.Il2CppStringToManaged(intPtr);
+		}
+
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866501, XrefRangeEnd = 866502, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe string _GetUniqueDescription_b__91_1(TimeBeastAdaptation adaptation)
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = (nint)(&adaptation);
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__GetUniqueDescription_b__91_1_Internal_String_TimeBeastAdaptation_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+			return IL2CPP.Il2CppStringToManaged(intPtr);
+		}
+
+		public __c(System.IntPtr pointer)
+			: base(pointer)
+		{
+		}
+	}
+
+	[ObfuscatedName("TooltipItemManager+<>c__DisplayClass49_0")]
+	public sealed class __c__DisplayClass49_0 : Il2CppSystem.Object
+	{
+		private static readonly System.IntPtr NativeFieldInfoPtr_location;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr_handle;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr___4__this;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr__ctor_Public_Void_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_Method_Internal_Void_AsyncOperationHandle_1_Sprite_PDM_0;
+
+		public unsafe IResourceLocation location
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_location);
+				System.IntPtr intPtr = *(System.IntPtr*)num;
+				return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<IResourceLocation>(intPtr) : null;
+			}
+			set
+			{
+				System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_location)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)resourceLocation));
+			}
+		}
+
+		public unsafe AsyncOperationHandle<Sprite> handle
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_handle);
+				return new AsyncOperationHandle<Sprite>(IL2CPP.il2cpp_value_box(Il2CppClassPointerStore<AsyncOperationHandle<Sprite>>.NativeClassPtr, (System.IntPtr)num));
+			}
+			set
+			{
+				// IL cpblk instruction
+				System.Runtime.CompilerServices.Unsafe.CopyBlock((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_handle), IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)asyncOperationHandle)), IL2CPP.il2cpp_class_value_size(Il2CppClassPointerStore<AsyncOperationHandle<Sprite>>.NativeClassPtr, ref *(uint*)null));
+			}
+		}
+
+		public unsafe TooltipItemManager __4__this
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr___4__this);
+				System.IntPtr intPtr = *(System.IntPtr*)num;
+				return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<TooltipItemManager>(intPtr) : null;
+			}
+			set
+			{
+				System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr___4__this)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)tooltipItemManager));
+			}
+		}
+
+		static __c__DisplayClass49_0()
+		{
+			Il2CppClassPointerStore<__c__DisplayClass49_0>.NativeClassPtr = IL2CPP.GetIl2CppNestedType(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "<>c__DisplayClass49_0");
+			IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<__c__DisplayClass49_0>.NativeClassPtr);
+			NativeFieldInfoPtr_location = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<__c__DisplayClass49_0>.NativeClassPtr, "location");
+			NativeFieldInfoPtr_handle = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<__c__DisplayClass49_0>.NativeClassPtr, "handle");
+			NativeFieldInfoPtr___4__this = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<__c__DisplayClass49_0>.NativeClassPtr, "<>4__this");
+			NativeMethodInfoPtr__ctor_Public_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<__c__DisplayClass49_0>.NativeClassPtr, 100697322);
+			NativeMethodInfoPtr_Method_Internal_Void_AsyncOperationHandle_1_Sprite_PDM_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<__c__DisplayClass49_0>.NativeClassPtr, 100697323);
+		}
+
+		[CallerCount(5252)]
+		[CachedScanResults(RefRangeStart = 24, RefRangeEnd = 5276, XrefRangeStart = 24, XrefRangeEnd = 5276, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe __c__DisplayClass49_0()
+			: this(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<__c__DisplayClass49_0>.NativeClassPtr))
+		{
+			System.IntPtr* ptr = null;
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__ctor_Public_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		}
+
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866502, XrefRangeEnd = 866519, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe void Method_Internal_Void_AsyncOperationHandle_1_Sprite_PDM_0(AsyncOperationHandle<Sprite> sprite)
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)sprite));
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Method_Internal_Void_AsyncOperationHandle_1_Sprite_PDM_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		}
+
+		public __c__DisplayClass49_0(System.IntPtr pointer)
+			: base(pointer)
+		{
+		}
+	}
+
+	[ObfuscatedName("TooltipItemManager+<Start>d__49")]
+	public sealed class _Start_d__49 : Il2CppSystem.ValueType
+	{
+		private static readonly System.IntPtr NativeFieldInfoPtr___1__state;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr___t__builder;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr___4__this;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr__locationsOp_5__2;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr___u__1;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr___u__2;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_MoveNext_Private_Virtual_Final_New_Void_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_SetStateMachine_Private_Virtual_Final_New_Void_IAsyncStateMachine_0;
+
+		public unsafe int __1__state
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr___1__state);
+				return *(int*)num;
+			}
+			set
+			{
+				*(int*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr___1__state)) = num;
+			}
+		}
+
+		public unsafe Il2CppSystem.Runtime.CompilerServices.AsyncVoidMethodBuilder __t__builder
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr___t__builder);
+				return new Il2CppSystem.Runtime.CompilerServices.AsyncVoidMethodBuilder(IL2CPP.il2cpp_value_box(Il2CppClassPointerStore<Il2CppSystem.Runtime.CompilerServices.AsyncVoidMethodBuilder>.NativeClassPtr, (System.IntPtr)num));
+			}
+			set
+			{
+				// IL cpblk instruction
+				System.Runtime.CompilerServices.Unsafe.CopyBlock((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr___t__builder), IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)asyncVoidMethodBuilder)), IL2CPP.il2cpp_class_value_size(Il2CppClassPointerStore<Il2CppSystem.Runtime.CompilerServices.AsyncVoidMethodBuilder>.NativeClassPtr, ref *(uint*)null));
+			}
+		}
+
+		public unsafe TooltipItemManager __4__this
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr___4__this);
+				System.IntPtr intPtr = *(System.IntPtr*)num;
+				return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<TooltipItemManager>(intPtr) : null;
+			}
+			set
+			{
+				System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr___4__this)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)tooltipItemManager));
+			}
+		}
+
+		public unsafe AsyncOperationHandle<IList<IResourceLocation>> _locationsOp_5__2
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__locationsOp_5__2);
+				return new AsyncOperationHandle<IList<IResourceLocation>>(IL2CPP.il2cpp_value_box(Il2CppClassPointerStore<AsyncOperationHandle<IList<IResourceLocation>>>.NativeClassPtr, (System.IntPtr)num));
+			}
+			set
+			{
+				// IL cpblk instruction
+				System.Runtime.CompilerServices.Unsafe.CopyBlock((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__locationsOp_5__2), IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)asyncOperationHandle)), IL2CPP.il2cpp_class_value_size(Il2CppClassPointerStore<AsyncOperationHandle<IList<IResourceLocation>>>.NativeClassPtr, ref *(uint*)null));
+			}
+		}
+
+		public unsafe Il2CppSystem.Runtime.CompilerServices.TaskAwaiter<IList<IResourceLocation>> __u__1
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr___u__1);
+				return new Il2CppSystem.Runtime.CompilerServices.TaskAwaiter<IList<IResourceLocation>>(IL2CPP.il2cpp_value_box(Il2CppClassPointerStore<Il2CppSystem.Runtime.CompilerServices.TaskAwaiter<IList<IResourceLocation>>>.NativeClassPtr, (System.IntPtr)num));
+			}
+			set
+			{
+				// IL cpblk instruction
+				System.Runtime.CompilerServices.Unsafe.CopyBlock((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr___u__1), IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)taskAwaiter)), IL2CPP.il2cpp_class_value_size(Il2CppClassPointerStore<Il2CppSystem.Runtime.CompilerServices.TaskAwaiter<IList<IResourceLocation>>>.NativeClassPtr, ref *(uint*)null));
+			}
+		}
+
+		public unsafe UniTask<IList<AsyncOperationHandle>>.Awaiter __u__2
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr___u__2);
+				return new UniTask<IList<AsyncOperationHandle>>.Awaiter(IL2CPP.il2cpp_value_box(Il2CppClassPointerStore<UniTask<IList<AsyncOperationHandle>>.Awaiter>.NativeClassPtr, (System.IntPtr)num));
+			}
+			set
+			{
+				// IL cpblk instruction
+				System.Runtime.CompilerServices.Unsafe.CopyBlock((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr___u__2), IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)awaiter)), IL2CPP.il2cpp_class_value_size(Il2CppClassPointerStore<UniTask<IList<AsyncOperationHandle>>.Awaiter>.NativeClassPtr, ref *(uint*)null));
+			}
+		}
+
+		static _Start_d__49()
+		{
+			Il2CppClassPointerStore<_Start_d__49>.NativeClassPtr = IL2CPP.GetIl2CppNestedType(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "<Start>d__49");
+			IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<_Start_d__49>.NativeClassPtr);
+			NativeFieldInfoPtr___1__state = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<_Start_d__49>.NativeClassPtr, "<>1__state");
+			NativeFieldInfoPtr___t__builder = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<_Start_d__49>.NativeClassPtr, "<>t__builder");
+			NativeFieldInfoPtr___4__this = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<_Start_d__49>.NativeClassPtr, "<>4__this");
+			NativeFieldInfoPtr__locationsOp_5__2 = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<_Start_d__49>.NativeClassPtr, "<locationsOp>5__2");
+			NativeFieldInfoPtr___u__1 = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<_Start_d__49>.NativeClassPtr, "<>u__1");
+			NativeFieldInfoPtr___u__2 = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<_Start_d__49>.NativeClassPtr, "<>u__2");
+			NativeMethodInfoPtr_MoveNext_Private_Virtual_Final_New_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<_Start_d__49>.NativeClassPtr, 100697324);
+			NativeMethodInfoPtr_SetStateMachine_Private_Virtual_Final_New_Void_IAsyncStateMachine_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<_Start_d__49>.NativeClassPtr, 100697325);
+		}
+
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866519, XrefRangeEnd = 866653, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe virtual void MoveNext()
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_MoveNext_Private_Virtual_Final_New_Void_0, IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this)), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		}
+
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 0, XrefRangeEnd = 0, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe virtual void SetStateMachine(Il2CppSystem.Runtime.CompilerServices.IAsyncStateMachine stateMachine)
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)stateMachine);
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SetStateMachine_Private_Virtual_Final_New_Void_IAsyncStateMachine_0, IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this)), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		}
+
+		public _Start_d__49(System.IntPtr pointer)
+			: base(pointer)
+		{
+		}
+
+		public _Start_d__49()
+			: base(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<_Start_d__49>.NativeClassPtr))
+		{
+		}
+	}
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_scalingValueColourString;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_cannotEquipColourString;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_canEquipColourString;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_altColorHex;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_redColorHex;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_lightRedColorHex;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_altCSpace;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_veryFastAttackRateThreshold;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_fastAttackRateThreshold;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_averageAttackRateThreshold;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_slowAttackRateThreshold;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_decimalStringFormat;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_instance;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_showRangesInsteadOfDescriptionEnabled;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_tooltipItemPrefab;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_tooltipItemRoot;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_stopwatch;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_autoCompareEnabled;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_autoRollModsEnabled;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_activeContent;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_activeCompareContent;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_itemToolTipRectTransform;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_active;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_activeParameters;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_abilityTooltip;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_itemTooltip;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_activeInitializationStage;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_hasModsAction;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_modsActionsChangeEnabledFrame;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_hasCompareAction;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_compareActionChangeEnabledFrame;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__getItemSpriteProfileMarker;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__getBlessingSpriteProfilerMarker;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_spritesDictionary;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_gearSpritesLabel;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_MOD_DISPLAY_THRESHOLD;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_HasModsAction_Private_get_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_set_HasModsAction_Private_set_Void_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_HasCompareAction_Private_get_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_set_HasCompareAction_Private_set_Void_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_IsComparisonEnabled_Public_get_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_HasUpdateTick_Protected_Virtual_get_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Awake_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Start_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_OnDisable_Protected_Virtual_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_OnFirstTick_Protected_Virtual_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_SetAutoCompareSetting_Public_Void_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_SetShowRangesInsteadOfDescriptionSetting_Public_Void_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_SetAutoRollSetting_Public_Void_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_OnUpdateTick_Protected_Virtual_Void_Single_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ForceUpdateInstance_Public_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ShouldShowForgingPotentialForItem_Private_Boolean_ItemDataUnpacked_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ShouldShowLegendaryPotentialForItem_Private_Static_Boolean_ItemDataUnpacked_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ShouldShowWeaversWillForItem_Private_Static_Boolean_ItemDataUnpacked_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ShouldShowWeaversTouchForItem_Private_Static_Boolean_ItemDataUnpacked_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ShouldShowCorruptionForItem_Private_Static_Boolean_ItemDataUnpacked_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetDisplayMode_Public_TooltipMode_SlotType_ItemDataUnpacked_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_OpenItemTooltip_Public_Void_ItemDataUnpacked_SlotType_Vector2_Vector3_GameObject_Vector2_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetItemSprite_Public_Sprite_ItemData_ItemUIContext_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetItemSubTypeSprite_Public_Sprite_Byte_UInt16_ItemUIContext_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetUniqueItemSprite_Public_Sprite_UInt16_ItemUIContext_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetItemSprite_Public_Sprite_Byte_UInt16_String_ItemUIContext_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetBlessingSprite_Public_Sprite_Int32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ForceUpdateTooltip_Public_Static_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ForceClose_Public_Static_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CloseTooltip_Public_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetTooltipParameters_Public_ItemTooltipParameters_ItemDataUnpacked_SlotType_Vector2_Vector3_GameObject_Vector2_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_OpenTooltip_Private_Void_ItemDataUnpacked_SlotType_Vector2_Vector3_GameObject_Vector2_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_OpenTooltip_Private_Void_ItemTooltipParameters_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ProcessInitializationStage_Private_Void_ItemTooltipParameters_TooltipInitializationStage_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_SwitchContentBlocks_Private_Void_ItemTooltipParameters_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ShowModRanges_Private_Void_ItemTooltipInfo_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ShowExplanation_Private_Void_SlotType_ItemDataUnpacked_ItemTooltipInfo_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ShowDefaultInfo_Private_Void_SlotType_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ShowComparison_Private_Void_ItemTooltipParameters_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_HideComparison_Private_Void_SlotType_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_SetEquippedItemTextForComparison_Private_Boolean_ItemDataUnpacked_ItemTooltipParameters_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ClearTooltip_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateTooltipContent_Public_Static_ItemTooltipInfo_ItemTooltipParameters_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateTooltipDefaultContent_Private_Static_ItemTooltipInfo_ItemDataUnpacked_TooltipMode_SlotType_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateTooltipFullContent_Public_Static_ItemTooltipInfo_ItemDataUnpacked_TooltipMode_SlotType_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ImplicitFormatter_Public_Static_String_ItemDataUnpacked_SP_ModType_Single_AT_Byte_Int32_TooltipMode_SlotType_Int32_Boolean_ValueRangeFormat_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_IsModDisplayAModifierIndex_Public_Static_Boolean_Byte_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetTooltipDescriptionIndexFromModDisplay_Public_Static_Int32_Byte_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetUniqueDescription_Private_Static_List_1_String_ItemDataUnpacked_Int32_Int32_Int32_TooltipMode_SlotType_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetSetBonus_Private_Static_List_1_String_ItemDataUnpacked_Entry_TooltipMode_SlotType_Int32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_UniqueBasicModFormatter_Public_Static_String_ItemDataUnpacked_SP_ModType_Single_AT_Byte_Int32_TooltipMode_SlotType_Int32_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ReqClass_Private_Static_String_ItemDataUnpacked_SlotType_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ReqLevel_Private_Static_String_ItemDataUnpacked_SlotType_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ReqFaction_Private_Static_String_ItemDataUnpacked_SlotType_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_FormatAffix_Public_Static_String_ItemDataUnpacked_Affix_TooltipMode_SlotType_Boolean_Int32_Int32_Boolean_Boolean_ValueRangeFormat_Boolean_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_FormatAffix_Public_Static_String_ItemDataUnpacked_ItemAffix_TooltipMode_SlotType_Boolean_Int32_Int32_Boolean_Boolean_ValueRangeFormat_Boolean_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_AffixFormatter_Public_Static_String_ItemDataUnpacked_ItemAffix_String_SP_ModType_Single_AT_Byte_Int32_TooltipMode_SlotType_Boolean_Int32_Int32_Boolean_Boolean_ValueRangeFormat_Boolean_Boolean_Boolean_Single_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_AddAffixAltText_Private_Static_String_ItemDataUnpacked_ItemAffix_TooltipMode_Int32_Int32_BasePropertyInfo_String_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_MakeTypeString_Public_Static_String_ItemDataUnpacked_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_SetNameColor_Public_Static_String_ItemDataUnpacked_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_SetColorForAffix_Private_Static_String_ItemDataUnpacked_ItemAffix_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_FormatUniqueModAffixString_Public_Static_String_ItemData_String_TooltipMode_String_ValueRangeFormat_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_DisplayStringForValue_Public_Static_String_Single_BasePropertyInfo_ModType_Byte_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr__ctor_Public_Void_0;
+
+	public unsafe static string scalingValueColourString
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_scalingValueColourString, (void*)(&intPtr));
+			return IL2CPP.Il2CppStringToManaged(intPtr);
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_scalingValueColourString, (void*)IL2CPP.ManagedStringToIl2Cpp(text));
+		}
+	}
+
+	public unsafe static string cannotEquipColourString
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_cannotEquipColourString, (void*)(&intPtr));
+			return IL2CPP.Il2CppStringToManaged(intPtr);
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_cannotEquipColourString, (void*)IL2CPP.ManagedStringToIl2Cpp(text));
+		}
+	}
+
+	public unsafe static string canEquipColourString
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_canEquipColourString, (void*)(&intPtr));
+			return IL2CPP.Il2CppStringToManaged(intPtr);
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_canEquipColourString, (void*)IL2CPP.ManagedStringToIl2Cpp(text));
+		}
+	}
+
+	public unsafe static string altColorHex
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_altColorHex, (void*)(&intPtr));
+			return IL2CPP.Il2CppStringToManaged(intPtr);
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_altColorHex, (void*)IL2CPP.ManagedStringToIl2Cpp(text));
+		}
+	}
+
+	public unsafe static string redColorHex
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_redColorHex, (void*)(&intPtr));
+			return IL2CPP.Il2CppStringToManaged(intPtr);
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_redColorHex, (void*)IL2CPP.ManagedStringToIl2Cpp(text));
+		}
+	}
+
+	public unsafe static string lightRedColorHex
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_lightRedColorHex, (void*)(&intPtr));
+			return IL2CPP.Il2CppStringToManaged(intPtr);
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_lightRedColorHex, (void*)IL2CPP.ManagedStringToIl2Cpp(text));
+		}
+	}
+
+	public unsafe static string altCSpace
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_altCSpace, (void*)(&intPtr));
+			return IL2CPP.Il2CppStringToManaged(intPtr);
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_altCSpace, (void*)IL2CPP.ManagedStringToIl2Cpp(text));
+		}
+	}
+
+	public unsafe static float veryFastAttackRateThreshold
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out float result);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_veryFastAttackRateThreshold, (void*)(&result));
+			return result;
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_veryFastAttackRateThreshold, (void*)(&num));
+		}
+	}
+
+	public unsafe static float fastAttackRateThreshold
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out float result);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_fastAttackRateThreshold, (void*)(&result));
+			return result;
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_fastAttackRateThreshold, (void*)(&num));
+		}
+	}
+
+	public unsafe static float averageAttackRateThreshold
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out float result);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_averageAttackRateThreshold, (void*)(&result));
+			return result;
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_averageAttackRateThreshold, (void*)(&num));
+		}
+	}
+
+	public unsafe static float slowAttackRateThreshold
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out float result);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_slowAttackRateThreshold, (void*)(&result));
+			return result;
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_slowAttackRateThreshold, (void*)(&num));
+		}
+	}
+
+	public unsafe static string decimalStringFormat
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_decimalStringFormat, (void*)(&intPtr));
+			return IL2CPP.Il2CppStringToManaged(intPtr);
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_decimalStringFormat, (void*)IL2CPP.ManagedStringToIl2Cpp(text));
+		}
+	}
+
+	public unsafe static TooltipItemManager instance
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_instance, (void*)(&intPtr));
+			System.IntPtr intPtr2 = intPtr;
+			return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<TooltipItemManager>(intPtr2) : null;
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_instance, (void*)IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)tooltipItemManager));
+		}
+	}
+
+	public unsafe static bool showRangesInsteadOfDescriptionEnabled
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out bool result);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_showRangesInsteadOfDescriptionEnabled, (void*)(&result));
+			return result;
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_showRangesInsteadOfDescriptionEnabled, (void*)(&flag));
+		}
+	}
+
+	public unsafe UITooltipItem tooltipItemPrefab
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_tooltipItemPrefab);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<UITooltipItem>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_tooltipItemPrefab)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)uITooltipItem));
+		}
+	}
+
+	public unsafe Transform tooltipItemRoot
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_tooltipItemRoot);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Transform>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_tooltipItemRoot)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)transform));
+		}
+	}
+
+	public unsafe static Stopwatch stopwatch
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_stopwatch, (void*)(&intPtr));
+			System.IntPtr intPtr2 = intPtr;
+			return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Stopwatch>(intPtr2) : null;
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_stopwatch, (void*)IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)stopwatch));
+		}
+	}
+
+	public unsafe bool autoCompareEnabled
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_autoCompareEnabled);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_autoCompareEnabled)) = flag;
+		}
+	}
+
+	public unsafe bool autoRollModsEnabled
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_autoRollModsEnabled);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_autoRollModsEnabled)) = flag;
+		}
+	}
+
+	public unsafe UITooltipItem.ItemTooltipInfo activeContent
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_activeContent);
+			return new UITooltipItem.ItemTooltipInfo(IL2CPP.il2cpp_value_box(Il2CppClassPointerStore<UITooltipItem.ItemTooltipInfo>.NativeClassPtr, (System.IntPtr)num));
+		}
+		set
+		{
+			// IL cpblk instruction
+			System.Runtime.CompilerServices.Unsafe.CopyBlock((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_activeContent), IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)itemTooltipInfo)), IL2CPP.il2cpp_class_value_size(Il2CppClassPointerStore<UITooltipItem.ItemTooltipInfo>.NativeClassPtr, ref *(uint*)null));
+		}
+	}
+
+	public unsafe UITooltipItem.ItemTooltipInfo activeCompareContent
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_activeCompareContent);
+			return new UITooltipItem.ItemTooltipInfo(IL2CPP.il2cpp_value_box(Il2CppClassPointerStore<UITooltipItem.ItemTooltipInfo>.NativeClassPtr, (System.IntPtr)num));
+		}
+		set
+		{
+			// IL cpblk instruction
+			System.Runtime.CompilerServices.Unsafe.CopyBlock((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_activeCompareContent), IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)itemTooltipInfo)), IL2CPP.il2cpp_class_value_size(Il2CppClassPointerStore<UITooltipItem.ItemTooltipInfo>.NativeClassPtr, ref *(uint*)null));
+		}
+	}
+
+	public unsafe RectTransform itemToolTipRectTransform
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_itemToolTipRectTransform);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<RectTransform>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_itemToolTipRectTransform)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)rectTransform));
+		}
+	}
+
+	public unsafe bool active
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_active);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_active)) = flag;
+		}
+	}
+
+	public unsafe ItemTooltipParameters activeParameters
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_activeParameters);
+			return new ItemTooltipParameters(IL2CPP.il2cpp_value_box(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, (System.IntPtr)num));
+		}
+		set
+		{
+			// IL cpblk instruction
+			System.Runtime.CompilerServices.Unsafe.CopyBlock((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_activeParameters), IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)itemTooltipParameters)), IL2CPP.il2cpp_class_value_size(Il2CppClassPointerStore<ItemTooltipParameters>.NativeClassPtr, ref *(uint*)null));
+		}
+	}
+
+	public unsafe UITooltipAbility abilityTooltip
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_abilityTooltip);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<UITooltipAbility>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_abilityTooltip)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)uITooltipAbility));
+		}
+	}
+
+	public unsafe UITooltipItem itemTooltip
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_itemTooltip);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<UITooltipItem>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_itemTooltip)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)uITooltipItem));
+		}
+	}
+
+	public unsafe TooltipInitializationStage activeInitializationStage
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_activeInitializationStage);
+			return *(TooltipInitializationStage*)num;
+		}
+		set
+		{
+			*(TooltipInitializationStage*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_activeInitializationStage)) = tooltipInitializationStage;
+		}
+	}
+
+	public unsafe bool hasModsAction
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_hasModsAction);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_hasModsAction)) = flag;
+		}
+	}
+
+	public unsafe int modsActionsChangeEnabledFrame
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_modsActionsChangeEnabledFrame);
+			return *(int*)num;
+		}
+		set
+		{
+			*(int*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_modsActionsChangeEnabledFrame)) = num;
+		}
+	}
+
+	public unsafe bool hasCompareAction
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_hasCompareAction);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_hasCompareAction)) = flag;
+		}
+	}
+
+	public unsafe int compareActionChangeEnabledFrame
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_compareActionChangeEnabledFrame);
+			return *(int*)num;
+		}
+		set
+		{
+			*(int*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_compareActionChangeEnabledFrame)) = num;
+		}
+	}
+
+	public unsafe static ProfilerMarker _getItemSpriteProfileMarker
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out ProfilerMarker result);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr__getItemSpriteProfileMarker, (void*)(&result));
+			return result;
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr__getItemSpriteProfileMarker, (void*)(&profilerMarker));
+		}
+	}
+
+	public unsafe static ProfilerMarker _getBlessingSpriteProfilerMarker
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out ProfilerMarker result);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr__getBlessingSpriteProfilerMarker, (void*)(&result));
+			return result;
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr__getBlessingSpriteProfilerMarker, (void*)(&profilerMarker));
+		}
+	}
+
+	public unsafe Dictionary<string, AsyncOperationHandle<Sprite>> spritesDictionary
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_spritesDictionary);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Dictionary<string, AsyncOperationHandle<Sprite>>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_spritesDictionary)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)dictionary));
+		}
+	}
+
+	public unsafe static string gearSpritesLabel
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_gearSpritesLabel, (void*)(&intPtr));
+			return IL2CPP.Il2CppStringToManaged(intPtr);
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_gearSpritesLabel, (void*)IL2CPP.ManagedStringToIl2Cpp(text));
+		}
+	}
+
+	public unsafe static byte MOD_DISPLAY_THRESHOLD
+	{
+		get
+		{
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out byte result);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_MOD_DISPLAY_THRESHOLD, (void*)(&result));
+			return result;
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_MOD_DISPLAY_THRESHOLD, (void*)(&b));
+		}
+	}
+
+	public unsafe bool HasModsAction
+	{
+		[CallerCount(0)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_HasModsAction_Private_get_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+			return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr);
+		}
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866653, XrefRangeEnd = 866654, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		set
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = (nint)(&value);
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_set_HasModsAction_Private_set_Void_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		}
+	}
+
+	public unsafe bool HasCompareAction
+	{
+		[CallerCount(0)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_HasCompareAction_Private_get_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+			return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr);
+		}
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866654, XrefRangeEnd = 866655, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		set
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = (nint)(&value);
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_set_HasCompareAction_Private_set_Void_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		}
+	}
+
+	public unsafe bool IsComparisonEnabled
+	{
+		[CallerCount(1)]
+		[CachedScanResults(RefRangeStart = 866657, RefRangeEnd = 866658, XrefRangeStart = 866655, XrefRangeEnd = 866657, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_IsComparisonEnabled_Public_get_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+			return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr);
+		}
+	}
+
+	public unsafe override bool HasUpdateTick
+	{
+		[CallerCount(53)]
+		[CachedScanResults(RefRangeStart = 49007, RefRangeEnd = 49060, XrefRangeStart = 49007, XrefRangeEnd = 49060, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+			System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_get_HasUpdateTick_Protected_Virtual_get_Boolean_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+			return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr);
+		}
+	}
+
+	static TooltipItemManager()
+	{
+		Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr = IL2CPP.GetIl2CppClass("LE.dll", "", "TooltipItemManager");
+		IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr);
+		NativeFieldInfoPtr_scalingValueColourString = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "scalingValueColourString");
+		NativeFieldInfoPtr_cannotEquipColourString = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "cannotEquipColourString");
+		NativeFieldInfoPtr_canEquipColourString = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "canEquipColourString");
+		NativeFieldInfoPtr_altColorHex = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "altColorHex");
+		NativeFieldInfoPtr_redColorHex = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "redColorHex");
+		NativeFieldInfoPtr_lightRedColorHex = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "lightRedColorHex");
+		NativeFieldInfoPtr_altCSpace = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "altCSpace");
+		NativeFieldInfoPtr_veryFastAttackRateThreshold = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "veryFastAttackRateThreshold");
+		NativeFieldInfoPtr_fastAttackRateThreshold = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "fastAttackRateThreshold");
+		NativeFieldInfoPtr_averageAttackRateThreshold = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "averageAttackRateThreshold");
+		NativeFieldInfoPtr_slowAttackRateThreshold = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "slowAttackRateThreshold");
+		NativeFieldInfoPtr_decimalStringFormat = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "decimalStringFormat");
+		NativeFieldInfoPtr_instance = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "instance");
+		NativeFieldInfoPtr_showRangesInsteadOfDescriptionEnabled = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "showRangesInsteadOfDescriptionEnabled");
+		NativeFieldInfoPtr_tooltipItemPrefab = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "tooltipItemPrefab");
+		NativeFieldInfoPtr_tooltipItemRoot = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "tooltipItemRoot");
+		NativeFieldInfoPtr_stopwatch = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "stopwatch");
+		NativeFieldInfoPtr_autoCompareEnabled = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "autoCompareEnabled");
+		NativeFieldInfoPtr_autoRollModsEnabled = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "autoRollModsEnabled");
+		NativeFieldInfoPtr_activeContent = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "activeContent");
+		NativeFieldInfoPtr_activeCompareContent = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "activeCompareContent");
+		NativeFieldInfoPtr_itemToolTipRectTransform = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "itemToolTipRectTransform");
+		NativeFieldInfoPtr_active = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "active");
+		NativeFieldInfoPtr_activeParameters = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "activeParameters");
+		NativeFieldInfoPtr_abilityTooltip = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "abilityTooltip");
+		NativeFieldInfoPtr_itemTooltip = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "itemTooltip");
+		NativeFieldInfoPtr_activeInitializationStage = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "activeInitializationStage");
+		NativeFieldInfoPtr_hasModsAction = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "hasModsAction");
+		NativeFieldInfoPtr_modsActionsChangeEnabledFrame = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "modsActionsChangeEnabledFrame");
+		NativeFieldInfoPtr_hasCompareAction = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "hasCompareAction");
+		NativeFieldInfoPtr_compareActionChangeEnabledFrame = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "compareActionChangeEnabledFrame");
+		NativeFieldInfoPtr__getItemSpriteProfileMarker = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "_getItemSpriteProfileMarker");
+		NativeFieldInfoPtr__getBlessingSpriteProfilerMarker = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "_getBlessingSpriteProfilerMarker");
+		NativeFieldInfoPtr_spritesDictionary = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "spritesDictionary");
+		NativeFieldInfoPtr_gearSpritesLabel = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "gearSpritesLabel");
+		NativeFieldInfoPtr_MOD_DISPLAY_THRESHOLD = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, "MOD_DISPLAY_THRESHOLD");
+		NativeMethodInfoPtr_get_HasModsAction_Private_get_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697239);
+		NativeMethodInfoPtr_set_HasModsAction_Private_set_Void_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697240);
+		NativeMethodInfoPtr_get_HasCompareAction_Private_get_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697241);
+		NativeMethodInfoPtr_set_HasCompareAction_Private_set_Void_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697242);
+		NativeMethodInfoPtr_get_IsComparisonEnabled_Public_get_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697243);
+		NativeMethodInfoPtr_get_HasUpdateTick_Protected_Virtual_get_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697244);
+		NativeMethodInfoPtr_Awake_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697245);
+		NativeMethodInfoPtr_Start_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697246);
+		NativeMethodInfoPtr_OnDisable_Protected_Virtual_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697247);
+		NativeMethodInfoPtr_OnFirstTick_Protected_Virtual_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697248);
+		NativeMethodInfoPtr_SetAutoCompareSetting_Public_Void_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697249);
+		NativeMethodInfoPtr_SetShowRangesInsteadOfDescriptionSetting_Public_Void_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697250);
+		NativeMethodInfoPtr_SetAutoRollSetting_Public_Void_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697251);
+		NativeMethodInfoPtr_OnUpdateTick_Protected_Virtual_Void_Single_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697252);
+		NativeMethodInfoPtr_ForceUpdateInstance_Public_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697253);
+		NativeMethodInfoPtr_ShouldShowForgingPotentialForItem_Private_Boolean_ItemDataUnpacked_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697254);
+		NativeMethodInfoPtr_ShouldShowLegendaryPotentialForItem_Private_Static_Boolean_ItemDataUnpacked_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697255);
+		NativeMethodInfoPtr_ShouldShowWeaversWillForItem_Private_Static_Boolean_ItemDataUnpacked_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697256);
+		NativeMethodInfoPtr_ShouldShowWeaversTouchForItem_Private_Static_Boolean_ItemDataUnpacked_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697257);
+		NativeMethodInfoPtr_ShouldShowCorruptionForItem_Private_Static_Boolean_ItemDataUnpacked_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697258);
+		NativeMethodInfoPtr_GetDisplayMode_Public_TooltipMode_SlotType_ItemDataUnpacked_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697259);
+		NativeMethodInfoPtr_OpenItemTooltip_Public_Void_ItemDataUnpacked_SlotType_Vector2_Vector3_GameObject_Vector2_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697260);
+		NativeMethodInfoPtr_GetItemSprite_Public_Sprite_ItemData_ItemUIContext_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697261);
+		NativeMethodInfoPtr_GetItemSubTypeSprite_Public_Sprite_Byte_UInt16_ItemUIContext_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697262);
+		NativeMethodInfoPtr_GetUniqueItemSprite_Public_Sprite_UInt16_ItemUIContext_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697263);
+		NativeMethodInfoPtr_GetItemSprite_Public_Sprite_Byte_UInt16_String_ItemUIContext_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697264);
+		NativeMethodInfoPtr_GetBlessingSprite_Public_Sprite_Int32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697265);
+		NativeMethodInfoPtr_ForceUpdateTooltip_Public_Static_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697266);
+		NativeMethodInfoPtr_ForceClose_Public_Static_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697267);
+		NativeMethodInfoPtr_CloseTooltip_Public_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697268);
+		NativeMethodInfoPtr_GetTooltipParameters_Public_ItemTooltipParameters_ItemDataUnpacked_SlotType_Vector2_Vector3_GameObject_Vector2_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697269);
+		NativeMethodInfoPtr_OpenTooltip_Private_Void_ItemDataUnpacked_SlotType_Vector2_Vector3_GameObject_Vector2_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697270);
+		NativeMethodInfoPtr_OpenTooltip_Private_Void_ItemTooltipParameters_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697271);
+		NativeMethodInfoPtr_ProcessInitializationStage_Private_Void_ItemTooltipParameters_TooltipInitializationStage_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697272);
+		NativeMethodInfoPtr_SwitchContentBlocks_Private_Void_ItemTooltipParameters_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697273);
+		NativeMethodInfoPtr_ShowModRanges_Private_Void_ItemTooltipInfo_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697274);
+		NativeMethodInfoPtr_ShowExplanation_Private_Void_SlotType_ItemDataUnpacked_ItemTooltipInfo_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697275);
+		NativeMethodInfoPtr_ShowDefaultInfo_Private_Void_SlotType_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697276);
+		NativeMethodInfoPtr_ShowComparison_Private_Void_ItemTooltipParameters_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697277);
+		NativeMethodInfoPtr_HideComparison_Private_Void_SlotType_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697278);
+		NativeMethodInfoPtr_SetEquippedItemTextForComparison_Private_Boolean_ItemDataUnpacked_ItemTooltipParameters_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697279);
+		NativeMethodInfoPtr_ClearTooltip_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697280);
+		NativeMethodInfoPtr_CreateTooltipContent_Public_Static_ItemTooltipInfo_ItemTooltipParameters_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697281);
+		NativeMethodInfoPtr_CreateTooltipDefaultContent_Private_Static_ItemTooltipInfo_ItemDataUnpacked_TooltipMode_SlotType_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697282);
+		NativeMethodInfoPtr_CreateTooltipFullContent_Public_Static_ItemTooltipInfo_ItemDataUnpacked_TooltipMode_SlotType_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697283);
+		NativeMethodInfoPtr_ImplicitFormatter_Public_Static_String_ItemDataUnpacked_SP_ModType_Single_AT_Byte_Int32_TooltipMode_SlotType_Int32_Boolean_ValueRangeFormat_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697284);
+		NativeMethodInfoPtr_IsModDisplayAModifierIndex_Public_Static_Boolean_Byte_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697285);
+		NativeMethodInfoPtr_GetTooltipDescriptionIndexFromModDisplay_Public_Static_Int32_Byte_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697286);
+		NativeMethodInfoPtr_GetUniqueDescription_Private_Static_List_1_String_ItemDataUnpacked_Int32_Int32_Int32_TooltipMode_SlotType_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697287);
+		NativeMethodInfoPtr_GetSetBonus_Private_Static_List_1_String_ItemDataUnpacked_Entry_TooltipMode_SlotType_Int32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697288);
+		NativeMethodInfoPtr_UniqueBasicModFormatter_Public_Static_String_ItemDataUnpacked_SP_ModType_Single_AT_Byte_Int32_TooltipMode_SlotType_Int32_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697289);
+		NativeMethodInfoPtr_ReqClass_Private_Static_String_ItemDataUnpacked_SlotType_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697290);
+		NativeMethodInfoPtr_ReqLevel_Private_Static_String_ItemDataUnpacked_SlotType_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697291);
+		NativeMethodInfoPtr_ReqFaction_Private_Static_String_ItemDataUnpacked_SlotType_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697292);
+		NativeMethodInfoPtr_FormatAffix_Public_Static_String_ItemDataUnpacked_Affix_TooltipMode_SlotType_Boolean_Int32_Int32_Boolean_Boolean_ValueRangeFormat_Boolean_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697293);
+		NativeMethodInfoPtr_FormatAffix_Public_Static_String_ItemDataUnpacked_ItemAffix_TooltipMode_SlotType_Boolean_Int32_Int32_Boolean_Boolean_ValueRangeFormat_Boolean_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697294);
+		NativeMethodInfoPtr_AffixFormatter_Public_Static_String_ItemDataUnpacked_ItemAffix_String_SP_ModType_Single_AT_Byte_Int32_TooltipMode_SlotType_Boolean_Int32_Int32_Boolean_Boolean_ValueRangeFormat_Boolean_Boolean_Boolean_Single_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697295);
+		NativeMethodInfoPtr_AddAffixAltText_Private_Static_String_ItemDataUnpacked_ItemAffix_TooltipMode_Int32_Int32_BasePropertyInfo_String_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697296);
+		NativeMethodInfoPtr_MakeTypeString_Public_Static_String_ItemDataUnpacked_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697297);
+		NativeMethodInfoPtr_SetNameColor_Public_Static_String_ItemDataUnpacked_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697298);
+		NativeMethodInfoPtr_SetColorForAffix_Private_Static_String_ItemDataUnpacked_ItemAffix_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697299);
+		NativeMethodInfoPtr_FormatUniqueModAffixString_Public_Static_String_ItemData_String_TooltipMode_String_ValueRangeFormat_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697300);
+		NativeMethodInfoPtr_DisplayStringForValue_Public_Static_String_Single_BasePropertyInfo_ModType_Byte_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697301);
+		NativeMethodInfoPtr__ctor_Public_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr, 100697302);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866658, XrefRangeEnd = 866734, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Awake()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Awake_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866734, XrefRangeEnd = 866740, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Start()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Start_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866740, XrefRangeEnd = 866794, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe override void OnDisable()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_OnDisable_Protected_Virtual_Void_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866794, XrefRangeEnd = 866808, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe override void OnFirstTick()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_OnFirstTick_Protected_Virtual_Void_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	public unsafe void SetAutoCompareSetting(bool enable)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&enable);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SetAutoCompareSetting_Public_Void_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866808, XrefRangeEnd = 866812, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void SetShowRangesInsteadOfDescriptionSetting(bool enable)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&enable);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SetShowRangesInsteadOfDescriptionSetting_Public_Void_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	public unsafe void SetAutoRollSetting(bool enable)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&enable);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SetAutoRollSetting_Public_Void_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866812, XrefRangeEnd = 866816, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe override void OnUpdateTick(float deltaTime)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&deltaTime);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_OnUpdateTick_Protected_Virtual_Void_Single_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866816, XrefRangeEnd = 866817, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void ForceUpdateInstance()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ForceUpdateInstance_Public_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 866829, RefRangeEnd = 866831, XrefRangeStart = 866817, XrefRangeEnd = 866829, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe bool ShouldShowForgingPotentialForItem(ItemDataUnpacked item)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ShouldShowForgingPotentialForItem_Private_Boolean_ItemDataUnpacked_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr);
+	}
+
+	[CallerCount(0)]
+	public unsafe static bool ShouldShowLegendaryPotentialForItem(ItemDataUnpacked item)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ShouldShowLegendaryPotentialForItem_Private_Static_Boolean_ItemDataUnpacked_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866831, XrefRangeEnd = 866832, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static bool ShouldShowWeaversWillForItem(ItemDataUnpacked item)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ShouldShowWeaversWillForItem_Private_Static_Boolean_ItemDataUnpacked_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866832, XrefRangeEnd = 866833, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static bool ShouldShowWeaversTouchForItem(ItemDataUnpacked item)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ShouldShowWeaversTouchForItem_Private_Static_Boolean_ItemDataUnpacked_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr);
+	}
+
+	[CallerCount(0)]
+	public unsafe static bool ShouldShowCorruptionForItem(ItemDataUnpacked item)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ShouldShowCorruptionForItem_Private_Static_Boolean_ItemDataUnpacked_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr);
+	}
+
+	[CallerCount(5)]
+	[CachedScanResults(RefRangeStart = 866868, RefRangeEnd = 866873, XrefRangeStart = 866833, XrefRangeEnd = 866868, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe TooltipMode GetDisplayMode(SlotType slotType, ItemDataUnpacked item)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = (nint)(&slotType);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetDisplayMode_Public_TooltipMode_SlotType_ItemDataUnpacked_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return *(TooltipMode*)IL2CPP.il2cpp_object_unbox(intPtr);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 866877, RefRangeEnd = 866878, XrefRangeStart = 866873, XrefRangeEnd = 866877, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void OpenItemTooltip(ItemDataUnpacked data, SlotType type, Vector2 _offset, Vector3 position, GameObject opener, Vector2 openerSize = default(Vector2))
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[6];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)data);
+		*(SlotType**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &type;
+		*(Vector2**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &_offset;
+		*(Vector3**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &position;
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)opener);
+		*(Vector2**)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = &openerSize;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_OpenItemTooltip_Public_Void_ItemDataUnpacked_SlotType_Vector2_Vector3_GameObject_Vector2_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(9)]
+	[CachedScanResults(RefRangeStart = 866882, RefRangeEnd = 866891, XrefRangeStart = 866878, XrefRangeEnd = 866882, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe Sprite GetItemSprite(ItemData item, ItemUIContext uiContext)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(ItemUIContext**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &uiContext;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetItemSprite_Public_Sprite_ItemData_ItemUIContext_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Sprite>(intPtr) : null;
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 866891, XrefRangeEnd = 866896, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe Sprite GetItemSubTypeSprite(byte itemType, ushort subType, ItemUIContext uiContext)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[3];
+		*ptr = (nint)(&itemType);
+		*(ushort**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &subType;
+		*(ItemUIContext**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &uiContext;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetItemSubTypeSprite_Public_Sprite_Byte_UInt16_ItemUIContext_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Sprite>(intPtr) : null;
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 866901, RefRangeEnd = 866903, XrefRangeStart = 866896, XrefRangeEnd = 866901, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe Sprite GetUniqueItemSprite(ushort uniqueId, ItemUIContext uiContext)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = (nint)(&uniqueId);
+		*(ItemUIContext**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &uiContext;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetUniqueItemSprite_Public_Sprite_UInt16_ItemUIContext_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Sprite>(intPtr) : null;
+	}
+
+	[CallerCount(3)]
+	[CachedScanResults(RefRangeStart = 867004, RefRangeEnd = 867007, XrefRangeStart = 866903, XrefRangeEnd = 867004, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe Sprite GetItemSprite(byte itemType, ushort subType, string spritePath, ItemUIContext uIContext)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[4];
+		*ptr = (nint)(&itemType);
+		*(ushort**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &subType;
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(spritePath);
+		*(ItemUIContext**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &uIContext;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetItemSprite_Public_Sprite_Byte_UInt16_String_ItemUIContext_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Sprite>(intPtr) : null;
+	}
+
+	[CallerCount(3)]
+	[CachedScanResults(RefRangeStart = 867044, RefRangeEnd = 867047, XrefRangeStart = 867007, XrefRangeEnd = 867044, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe Sprite GetBlessingSprite(int subID)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&subID);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetBlessingSprite_Public_Sprite_Int32_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Sprite>(intPtr) : null;
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 867052, RefRangeEnd = 867053, XrefRangeStart = 867047, XrefRangeEnd = 867052, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static void ForceUpdateTooltip()
+	{
+		System.IntPtr* ptr = null;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ForceUpdateTooltip_Public_Static_Void_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 867057, RefRangeEnd = 867058, XrefRangeStart = 867053, XrefRangeEnd = 867057, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static void ForceClose()
+	{
+		System.IntPtr* ptr = null;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ForceClose_Public_Static_Void_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 867072, RefRangeEnd = 867074, XrefRangeStart = 867058, XrefRangeEnd = 867072, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void CloseTooltip()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CloseTooltip_Public_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 867074, XrefRangeEnd = 867077, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe ItemTooltipParameters GetTooltipParameters(ItemDataUnpacked data, SlotType type, Vector2 tooltipOffset, Vector3 position, GameObject opener, Vector2 openerSize = default(Vector2))
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[6];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)data);
+		*(SlotType**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &type;
+		*(Vector2**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &tooltipOffset;
+		*(Vector3**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &position;
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)opener);
+		*(Vector2**)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = &openerSize;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr pointer = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetTooltipParameters_Public_ItemTooltipParameters_ItemDataUnpacked_SlotType_Vector2_Vector3_GameObject_Vector2_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return new ItemTooltipParameters(pointer);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 866877, RefRangeEnd = 866878, XrefRangeStart = 866877, XrefRangeEnd = 866878, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void OpenTooltip(ItemDataUnpacked data, SlotType type, Vector2 tooltipOffset, Vector3 position, GameObject opener, Vector2 openerSize = default(Vector2))
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[6];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)data);
+		*(SlotType**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &type;
+		*(Vector2**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &tooltipOffset;
+		*(Vector3**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &position;
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)opener);
+		*(Vector2**)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = &openerSize;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_OpenTooltip_Private_Void_ItemDataUnpacked_SlotType_Vector2_Vector3_GameObject_Vector2_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(5)]
+	[CachedScanResults(RefRangeStart = 867089, RefRangeEnd = 867094, XrefRangeStart = 867077, XrefRangeEnd = 867089, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void OpenTooltip(ItemTooltipParameters parameters, bool forceUpdate = false)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)parameters));
+		*(bool**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &forceUpdate;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_OpenTooltip_Private_Void_ItemTooltipParameters_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 867104, RefRangeEnd = 867106, XrefRangeStart = 867094, XrefRangeEnd = 867104, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void ProcessInitializationStage(ItemTooltipParameters parameters, TooltipInitializationStage stage)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)parameters));
+		*(TooltipInitializationStage**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &stage;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ProcessInitializationStage_Private_Void_ItemTooltipParameters_TooltipInitializationStage_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 867106, XrefRangeEnd = 867159, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void SwitchContentBlocks(ItemTooltipParameters parameters)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)parameters));
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SwitchContentBlocks_Private_Void_ItemTooltipParameters_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 867159, XrefRangeEnd = 867165, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void ShowModRanges(UITooltipItem.ItemTooltipInfo ttInfo)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)ttInfo));
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ShowModRanges_Private_Void_ItemTooltipInfo_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 867165, XrefRangeEnd = 867187, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void ShowExplanation(SlotType slotType, ItemDataUnpacked item, UITooltipItem.ItemTooltipInfo content)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[3];
+		*ptr = (nint)(&slotType);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)content));
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ShowExplanation_Private_Void_SlotType_ItemDataUnpacked_ItemTooltipInfo_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 867187, XrefRangeEnd = 867193, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void ShowDefaultInfo(SlotType slotType)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&slotType);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ShowDefaultInfo_Private_Void_SlotType_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 867193, XrefRangeEnd = 867210, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void ShowComparison(ItemTooltipParameters parameters)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)parameters));
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ShowComparison_Private_Void_ItemTooltipParameters_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 867210, XrefRangeEnd = 867213, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void HideComparison(SlotType slotType)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&slotType);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_HideComparison_Private_Void_SlotType_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 867220, RefRangeEnd = 867221, XrefRangeStart = 867213, XrefRangeEnd = 867220, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe bool SetEquippedItemTextForComparison(ItemDataUnpacked equipedItem, ItemTooltipParameters parameters)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)equipedItem);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)parameters));
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SetEquippedItemTextForComparison_Private_Boolean_ItemDataUnpacked_ItemTooltipParameters_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 867221, XrefRangeEnd = 867222, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void ClearTooltip()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ClearTooltip_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 867598, RefRangeEnd = 867599, XrefRangeStart = 867222, XrefRangeEnd = 867598, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static UITooltipItem.ItemTooltipInfo CreateTooltipContent(ItemTooltipParameters parameters)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)parameters));
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr pointer = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateTooltipContent_Public_Static_ItemTooltipInfo_ItemTooltipParameters_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return new UITooltipItem.ItemTooltipInfo(pointer);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 868584, RefRangeEnd = 868586, XrefRangeStart = 867599, XrefRangeEnd = 868584, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static UITooltipItem.ItemTooltipInfo CreateTooltipDefaultContent(ItemDataUnpacked item, TooltipMode tooltipMode, SlotType slotType)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[3];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(TooltipMode**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &tooltipMode;
+		*(SlotType**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr pointer = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateTooltipDefaultContent_Private_Static_ItemTooltipInfo_ItemDataUnpacked_TooltipMode_SlotType_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return new UITooltipItem.ItemTooltipInfo(pointer);
+	}
+
+	[CallerCount(3)]
+	[CachedScanResults(RefRangeStart = 868828, RefRangeEnd = 868831, XrefRangeStart = 868586, XrefRangeEnd = 868828, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static UITooltipItem.ItemTooltipInfo CreateTooltipFullContent(ItemDataUnpacked item, TooltipMode tooltipMode, SlotType slotType)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[3];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(TooltipMode**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &tooltipMode;
+		*(SlotType**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr pointer = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateTooltipFullContent_Public_Static_ItemTooltipInfo_ItemDataUnpacked_TooltipMode_SlotType_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return new UITooltipItem.ItemTooltipInfo(pointer);
+	}
+
+	[CallerCount(5)]
+	[CachedScanResults(RefRangeStart = 868835, RefRangeEnd = 868840, XrefRangeStart = 868831, XrefRangeEnd = 868835, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string ImplicitFormatter(ItemDataUnpacked item, SP modProperty, BaseStats.ModType modType, float modifierValue, AT tags, byte specialTag, int extraTag, TooltipMode mode, SlotType slotType, int implicitNumber, bool isComparsionItem = false, ValueRangeFormat valueRangeFormat = ValueRangeFormat.None)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[12];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(SP**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &modProperty;
+		*(BaseStats.ModType**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &modType;
+		*(float**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &modifierValue;
+		*(AT**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &tags;
+		*(byte**)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = &specialTag;
+		*(int**)((byte*)ptr + checked((nuint)6u * unchecked((nuint)sizeof(System.IntPtr)))) = &extraTag;
+		*(TooltipMode**)((byte*)ptr + checked((nuint)7u * unchecked((nuint)sizeof(System.IntPtr)))) = &mode;
+		*(SlotType**)((byte*)ptr + checked((nuint)8u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+		*(int**)((byte*)ptr + checked((nuint)9u * unchecked((nuint)sizeof(System.IntPtr)))) = &implicitNumber;
+		*(bool**)((byte*)ptr + checked((nuint)10u * unchecked((nuint)sizeof(System.IntPtr)))) = &isComparsionItem;
+		*(ValueRangeFormat**)((byte*)ptr + checked((nuint)11u * unchecked((nuint)sizeof(System.IntPtr)))) = &valueRangeFormat;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ImplicitFormatter_Public_Static_String_ItemDataUnpacked_SP_ModType_Single_AT_Byte_Int32_TooltipMode_SlotType_Int32_Boolean_ValueRangeFormat_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(4)]
+	[CachedScanResults(RefRangeStart = 868840, RefRangeEnd = 868844, XrefRangeStart = 868840, XrefRangeEnd = 868840, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static bool IsModDisplayAModifierIndex(byte modDisplay)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&modDisplay);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_IsModDisplayAModifierIndex_Public_Static_Boolean_Byte_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr);
+	}
+
+	[CallerCount(4)]
+	[CachedScanResults(RefRangeStart = 868844, RefRangeEnd = 868848, XrefRangeStart = 868844, XrefRangeEnd = 868844, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static int GetTooltipDescriptionIndexFromModDisplay(byte modDisplay)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&modDisplay);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetTooltipDescriptionIndexFromModDisplay_Public_Static_Int32_Byte_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return *(int*)IL2CPP.il2cpp_object_unbox(intPtr);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 868888, RefRangeEnd = 868889, XrefRangeStart = 868848, XrefRangeEnd = 868888, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static List<string> GetUniqueDescription(ItemDataUnpacked item, int baseType, int subType, int uniqueId, TooltipMode mode, SlotType slotType)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[6];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(int**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &baseType;
+		*(int**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &subType;
+		*(int**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &uniqueId;
+		*(TooltipMode**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &mode;
+		*(SlotType**)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetUniqueDescription_Private_Static_List_1_String_ItemDataUnpacked_Int32_Int32_Int32_TooltipMode_SlotType_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<List<string>>(intPtr) : null;
+	}
+
+	[CallerCount(3)]
+	[CachedScanResults(RefRangeStart = 869001, RefRangeEnd = 869004, XrefRangeStart = 868889, XrefRangeEnd = 869001, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static List<string> GetSetBonus(ItemDataUnpacked item, UniqueList.Entry unique, TooltipMode mode, SlotType slotType, int setIdCount = 0)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[5];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)unique);
+		*(TooltipMode**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &mode;
+		*(SlotType**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+		*(int**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &setIdCount;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetSetBonus_Private_Static_List_1_String_ItemDataUnpacked_Entry_TooltipMode_SlotType_Int32_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<List<string>>(intPtr) : null;
+	}
+
+	[CallerCount(3)]
+	[CachedScanResults(RefRangeStart = 869020, RefRangeEnd = 869023, XrefRangeStart = 869004, XrefRangeEnd = 869020, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string UniqueBasicModFormatter(ItemDataUnpacked item, SP modProperty, BaseStats.ModType modType, float modifierValue, AT tags, byte specialTag, int extraTag, TooltipMode mode, SlotType slotType, int uniqueModIndex, bool differentNumberColor = false)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[11];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(SP**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &modProperty;
+		*(BaseStats.ModType**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &modType;
+		*(float**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &modifierValue;
+		*(AT**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &tags;
+		*(byte**)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = &specialTag;
+		*(int**)((byte*)ptr + checked((nuint)6u * unchecked((nuint)sizeof(System.IntPtr)))) = &extraTag;
+		*(TooltipMode**)((byte*)ptr + checked((nuint)7u * unchecked((nuint)sizeof(System.IntPtr)))) = &mode;
+		*(SlotType**)((byte*)ptr + checked((nuint)8u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+		*(int**)((byte*)ptr + checked((nuint)9u * unchecked((nuint)sizeof(System.IntPtr)))) = &uniqueModIndex;
+		*(bool**)((byte*)ptr + checked((nuint)10u * unchecked((nuint)sizeof(System.IntPtr)))) = &differentNumberColor;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_UniqueBasicModFormatter_Public_Static_String_ItemDataUnpacked_SP_ModType_Single_AT_Byte_Int32_TooltipMode_SlotType_Int32_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 869023, XrefRangeEnd = 869042, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string ReqClass(ItemDataUnpacked item, SlotType slotType)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(SlotType**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ReqClass_Private_Static_String_ItemDataUnpacked_SlotType_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 869117, RefRangeEnd = 869118, XrefRangeStart = 869042, XrefRangeEnd = 869117, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string ReqLevel(ItemDataUnpacked item, SlotType slotType)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(SlotType**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ReqLevel_Private_Static_String_ItemDataUnpacked_SlotType_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 869118, XrefRangeEnd = 869123, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string ReqFaction(ItemDataUnpacked item, SlotType slotType)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(SlotType**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ReqFaction_Private_Static_String_ItemDataUnpacked_SlotType_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 869132, RefRangeEnd = 869133, XrefRangeStart = 869123, XrefRangeEnd = 869132, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string FormatAffix(ItemDataUnpacked item, AffixList.Affix affix, TooltipMode tooltipMode = TooltipMode.None, SlotType slotType = SlotType.CRAFTING, bool differentNumberColour = false, int implicitIndex = -1, int uniqueModIndex = -1, bool replaceModifierValueWithX = false, bool isComparsionItem = false, ValueRangeFormat valueRangeFormat = ValueRangeFormat.None, bool newLine = true, bool noDescription = false)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[12];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)affix);
+		*(TooltipMode**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &tooltipMode;
+		*(SlotType**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+		*(bool**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &differentNumberColour;
+		*(int**)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = &implicitIndex;
+		*(int**)((byte*)ptr + checked((nuint)6u * unchecked((nuint)sizeof(System.IntPtr)))) = &uniqueModIndex;
+		*(bool**)((byte*)ptr + checked((nuint)7u * unchecked((nuint)sizeof(System.IntPtr)))) = &replaceModifierValueWithX;
+		*(bool**)((byte*)ptr + checked((nuint)8u * unchecked((nuint)sizeof(System.IntPtr)))) = &isComparsionItem;
+		*(ValueRangeFormat**)((byte*)ptr + checked((nuint)9u * unchecked((nuint)sizeof(System.IntPtr)))) = &valueRangeFormat;
+		*(bool**)((byte*)ptr + checked((nuint)10u * unchecked((nuint)sizeof(System.IntPtr)))) = &newLine;
+		*(bool**)((byte*)ptr + checked((nuint)11u * unchecked((nuint)sizeof(System.IntPtr)))) = &noDescription;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_FormatAffix_Public_Static_String_ItemDataUnpacked_Affix_TooltipMode_SlotType_Boolean_Int32_Int32_Boolean_Boolean_ValueRangeFormat_Boolean_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 869164, RefRangeEnd = 869166, XrefRangeStart = 869133, XrefRangeEnd = 869164, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string FormatAffix(ItemDataUnpacked item, ItemAffix itemAffix, TooltipMode tooltipMode = TooltipMode.None, SlotType slotType = SlotType.CRAFTING, bool differentNumberColour = false, int implicitIndex = -1, int uniqueModIndex = -1, bool replaceModifierValueWithX = false, bool isComparsionItem = false, ValueRangeFormat valueRangeFormat = ValueRangeFormat.None, bool newLine = true, bool noDescription = false)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[12];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)itemAffix);
+		*(TooltipMode**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &tooltipMode;
+		*(SlotType**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+		*(bool**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &differentNumberColour;
+		*(int**)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = &implicitIndex;
+		*(int**)((byte*)ptr + checked((nuint)6u * unchecked((nuint)sizeof(System.IntPtr)))) = &uniqueModIndex;
+		*(bool**)((byte*)ptr + checked((nuint)7u * unchecked((nuint)sizeof(System.IntPtr)))) = &replaceModifierValueWithX;
+		*(bool**)((byte*)ptr + checked((nuint)8u * unchecked((nuint)sizeof(System.IntPtr)))) = &isComparsionItem;
+		*(ValueRangeFormat**)((byte*)ptr + checked((nuint)9u * unchecked((nuint)sizeof(System.IntPtr)))) = &valueRangeFormat;
+		*(bool**)((byte*)ptr + checked((nuint)10u * unchecked((nuint)sizeof(System.IntPtr)))) = &newLine;
+		*(bool**)((byte*)ptr + checked((nuint)11u * unchecked((nuint)sizeof(System.IntPtr)))) = &noDescription;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_FormatAffix_Public_Static_String_ItemDataUnpacked_ItemAffix_TooltipMode_SlotType_Boolean_Int32_Int32_Boolean_Boolean_ValueRangeFormat_Boolean_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(9)]
+	[CachedScanResults(RefRangeStart = 869191, RefRangeEnd = 869200, XrefRangeStart = 869166, XrefRangeEnd = 869191, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string AffixFormatter(ItemDataUnpacked item, ItemAffix affix, string modName, SP modProperty, BaseStats.ModType modType, float modifierValue, AT tags, byte specialTag, int extraTag, TooltipMode mode, SlotType slotType, bool differentNumberColor = false, int implicitIndex = -1, int uniqueModIndex = -1, bool replaceModifierValueWithX = false, bool isComparsionItem = false, ValueRangeFormat valueRangeFormat = ValueRangeFormat.None, bool newLine = true, bool noDescription = false, bool enableAltText = true, float rangeMaxValue = 0f)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[21];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)affix);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(modName);
+		*(SP**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &modProperty;
+		*(BaseStats.ModType**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &modType;
+		*(float**)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = &modifierValue;
+		*(AT**)((byte*)ptr + checked((nuint)6u * unchecked((nuint)sizeof(System.IntPtr)))) = &tags;
+		*(byte**)((byte*)ptr + checked((nuint)7u * unchecked((nuint)sizeof(System.IntPtr)))) = &specialTag;
+		*(int**)((byte*)ptr + checked((nuint)8u * unchecked((nuint)sizeof(System.IntPtr)))) = &extraTag;
+		*(TooltipMode**)((byte*)ptr + checked((nuint)9u * unchecked((nuint)sizeof(System.IntPtr)))) = &mode;
+		*(SlotType**)((byte*)ptr + checked((nuint)10u * unchecked((nuint)sizeof(System.IntPtr)))) = &slotType;
+		*(bool**)((byte*)ptr + checked((nuint)11u * unchecked((nuint)sizeof(System.IntPtr)))) = &differentNumberColor;
+		*(int**)((byte*)ptr + checked((nuint)12u * unchecked((nuint)sizeof(System.IntPtr)))) = &implicitIndex;
+		*(int**)((byte*)ptr + checked((nuint)13u * unchecked((nuint)sizeof(System.IntPtr)))) = &uniqueModIndex;
+		*(bool**)((byte*)ptr + checked((nuint)14u * unchecked((nuint)sizeof(System.IntPtr)))) = &replaceModifierValueWithX;
+		*(bool**)((byte*)ptr + checked((nuint)15u * unchecked((nuint)sizeof(System.IntPtr)))) = &isComparsionItem;
+		*(ValueRangeFormat**)((byte*)ptr + checked((nuint)16u * unchecked((nuint)sizeof(System.IntPtr)))) = &valueRangeFormat;
+		*(bool**)((byte*)ptr + checked((nuint)17u * unchecked((nuint)sizeof(System.IntPtr)))) = &newLine;
+		*(bool**)((byte*)ptr + checked((nuint)18u * unchecked((nuint)sizeof(System.IntPtr)))) = &noDescription;
+		*(bool**)((byte*)ptr + checked((nuint)19u * unchecked((nuint)sizeof(System.IntPtr)))) = &enableAltText;
+		*(float**)((byte*)ptr + checked((nuint)20u * unchecked((nuint)sizeof(System.IntPtr)))) = &rangeMaxValue;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_AffixFormatter_Public_Static_String_ItemDataUnpacked_ItemAffix_String_SP_ModType_Single_AT_Byte_Int32_TooltipMode_SlotType_Boolean_Int32_Int32_Boolean_Boolean_ValueRangeFormat_Boolean_Boolean_Boolean_Single_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 869491, RefRangeEnd = 869493, XrefRangeStart = 869200, XrefRangeEnd = 869491, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string AddAffixAltText(ItemDataUnpacked item, ItemAffix affix, TooltipMode mode, int implicitIndex, int uniqueModIndex, BasePropertyInfo propertyInfo, string returnString)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[7];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)affix);
+		*(TooltipMode**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &mode;
+		*(int**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &implicitIndex;
+		*(int**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &uniqueModIndex;
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)propertyInfo);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)6u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(returnString);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_AddAffixAltText_Private_Static_String_ItemDataUnpacked_ItemAffix_TooltipMode_Int32_Int32_BasePropertyInfo_String_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(4)]
+	[CachedScanResults(RefRangeStart = 869633, RefRangeEnd = 869637, XrefRangeStart = 869493, XrefRangeEnd = 869633, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string MakeTypeString(ItemDataUnpacked passedItem)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)passedItem);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_MakeTypeString_Public_Static_String_ItemDataUnpacked_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 869637, XrefRangeEnd = 869640, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string SetNameColor(ItemDataUnpacked passedItem)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)passedItem);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SetNameColor_Public_Static_String_ItemDataUnpacked_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 869640, XrefRangeEnd = 869641, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string SetColorForAffix(ItemDataUnpacked passedItem, ItemAffix affix)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)passedItem);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)affix);
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SetColorForAffix_Private_Static_String_ItemDataUnpacked_ItemAffix_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(4)]
+	[CachedScanResults(RefRangeStart = 869908, RefRangeEnd = 869912, XrefRangeStart = 869641, XrefRangeEnd = 869908, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string FormatUniqueModAffixString(ItemData item, string tempString, TooltipMode mode, string altTextString, ValueRangeFormat valueRangeFormat = ValueRangeFormat.None)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[5];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)item);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(tempString);
+		*(TooltipMode**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &mode;
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(altTextString);
+		*(ValueRangeFormat**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &valueRangeFormat;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_FormatUniqueModAffixString_Public_Static_String_ItemData_String_TooltipMode_String_ValueRangeFormat_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(12)]
+	[CachedScanResults(RefRangeStart = 869938, RefRangeEnd = 869950, XrefRangeStart = 869912, XrefRangeEnd = 869938, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static string DisplayStringForValue(float rawValue, BasePropertyInfo propertyInfo, BaseStats.ModType modType, byte specialTag, bool addPercentSuffixIfRelevant = true)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[5];
+		*ptr = (nint)(&rawValue);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)propertyInfo);
+		*(BaseStats.ModType**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &modType;
+		*(byte**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &specialTag;
+		*(bool**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &addPercentSuffixIfRelevant;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_DisplayStringForValue_Public_Static_String_Single_BasePropertyInfo_ModType_Byte_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+		return IL2CPP.Il2CppStringToManaged(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 869950, XrefRangeEnd = 869958, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe TooltipItemManager()
+		: this(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<TooltipItemManager>.NativeClassPtr))
+	{
+		System.IntPtr* ptr = null;
+		System.Runtime.CompilerServices.Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__ctor_Public_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	public TooltipItemManager(System.IntPtr pointer)
+		: base(pointer)
+	{
+	}
+}

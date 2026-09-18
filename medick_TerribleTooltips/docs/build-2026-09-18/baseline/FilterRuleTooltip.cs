@@ -35,6 +35,7 @@ public static class FilterRuleTooltip
     private static int s_targetType;
     private static byte[] s_itemId;
     private static (byte type, ushort subtype, byte rarity, ushort unique, ushort individual) s_fallbackId;
+    private static int s_startFrame;
     private static float s_deadline;
     private static int s_lastAttemptFrame = -1;
     private static bool s_ruleResolved;
@@ -95,6 +96,7 @@ public static class FilterRuleTooltip
                 s_itemId = new byte[id.Length];
                 for (int i = 0; i < id.Length; i++) s_itemId[i] = id[i];
             }
+            s_startFrame = Time.frameCount;
             s_deadline = Time.unscaledTime + SettleSeconds;
             if (TooltipPerf.Enabled) TooltipPerf.RuleStart();
         }
@@ -252,6 +254,7 @@ public static class FilterRuleTooltip
         s_destination = null;
         s_repairPending = false;
         s_injected = false;
+        s_startFrame = Time.frameCount;
         s_deadline = Time.unscaledTime + SettleSeconds;
         s_lastAttemptFrame = -1;
         if (TooltipPerf.Enabled) TooltipPerf.RuleReplacement();
