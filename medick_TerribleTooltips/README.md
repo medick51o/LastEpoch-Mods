@@ -1,5 +1,5 @@
 # MedicK's Terrible Tooltips
-**by medick** — v3.1.0
+**by medick** — v3.1.1
 
 WoW / Diablo 4 style tier and grade colouring on item tooltips and ground labels. If your eyes were trained by twenty years of loot games, they already know how to read this mod — zero deciphering required.
 
@@ -27,9 +27,12 @@ Hover any item and the tooltip shows **which loot filter rule matched it** — i
 
 ## Settings (cfg)
 
-**On Last Epoch 1.4.7 the in-game settings rows for this mod do not build.** Edit the
-cfg keys below directly in `UserData/medick_Terrible_Tooltips.cfg` with the game
-closed, then relaunch.
+**Most settings have an in-game row** in the Terrible Tooltips section of the game's
+settings panel, and changes redraw an open tooltip immediately. The fine-detail keys
+(border thickness and padding, the tint hex, separator and divider style, debug
+logging) are cfg-only by design - edit
+`UserData/medick_Terrible_Tooltips.cfg` with the game **closed**, then relaunch.
+The game rewrites that file when it quits, so edits made while it is running are lost.
 
 | Cfg key | Default | What it does |
 |---|---|---|
@@ -39,6 +42,7 @@ closed, then relaunch.
 | TooltipLayout | BadgeLeft | Where the Tier·Grade signal sits: BadgeLeft / SignalRight / Trailing |
 | SignalStyle | PlainText | PlainText = coloured text only (default); Badge = Tier/Grade as coloured chips |
 | AffixNameColor | GreaterAffix | GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier colour; GameDefault = the game's own text colour |
+| ShowSignal | true | Master switch for the whole Tier·Grade unit — false gives a clean affix line with no tier, no grade, no divider and no box |
 | ShowGradeLetters | true | The S/A/B/C/F grades — set false if you only want tiers |
 | AlwaysShowRanges | false | Pin EHG's "Range: X to Y" lines permanently (default hidden, hold Alt to peek) |
 | AlwaysShowTierDetails | false | Pin EHG's full "Tier: N (max craftable)" line (default folded in, hold Alt to peek) |
