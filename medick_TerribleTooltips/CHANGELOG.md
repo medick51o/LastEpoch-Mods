@@ -1,25 +1,49 @@
 # Changelog — MedicK's Terrible Tooltips
 
-## v3.1.1-beta4 - settings rows for the 3.1.0 look
-- Three new rows in the in-game settings panel: **Show Tier and Grade** (master switch for the whole Tier|Grade unit), **Compact Tier Word (T7)** (T7 instead of Tier 7; the setting existed since 3.1.0 but had no row), and **Tier and Grade Border** (the box on or off).
-- With the signal off there is no tier, no grade, no divider and no border box, just a clean vanilla affix line. There is deliberately no tier-only-off switch; `ShowGradeLetters` still gives tier without grades.
-- Defaults are unchanged, so an existing player sees no difference after upgrading. With the signal and grades both on, affix lines render byte-identically to beta3.
-- The Affix Name Color description now documents `GreaterAffix` (the current default) and says that `TierColor` restores the pre-3.1.0 coloured affix text.
-- Scan and compose behaviour is unchanged from beta3; the scan-scoping work is untouched.
+## v3.1.1 - the performance release
 
-## v3.1.1-beta3 — make the scans cheap
-- Scan active tooltip hierarchies and explicitly referenced item/blessing comparison panels, including detached panels. Retain other active instances observed by the existing UpdateLayout hook; overlapping roots are enumerated once. No new hooks.
-- An out-of-scope affix/range sibling or hierarchy exception permits an explicit whole-scene compatibility fallback at most once per 0.5 seconds, including failed attempts. Valid empty tooltips never trigger it. The five-frame dirty window and all MarkDirty call sites are unchanged; reducing repeated dirty signals remains a separate ticket.
-- Existing five-second `[perf]` summaries add `scoped` (successful scoped collections) and `tmps` (TMPs returned across collections, including inactive descendants and partial work before fallback). `fullScene` now counts only fallback scene-search attempts. `scanErrors` also records failed scope attempts; a throttled failure can count as a scan without either collection counter. Debug-disabled telemetry retains preference guards only.
-- Formatter health checks actual brackets or saved bracketed originals; synthesized composer markers are not proof. Only tier-bearing tooltip scans without brackets count toward the warning, avoiding shard/lore false alarms. Untiered-only hook failures remain inconclusive. Range-only rows can inherit grade colour from an already composed sibling's saved original.
-- Remove FilterRuleTooltip's unused `s_startFrame`; version `3.1.1-beta3`, name still exactly `Terrible Tooltips`. Ground labels, markers, configuration and borders are unchanged. Stub regressions do not establish native prefab coverage or FPS improvement; comparison/range rendering and reporter timings still need in-game validation.
+Bug report from Trunks1981: hovering Affix Shards dropped his framerate to 17 FPS. His debug log
+found three separate problems, all the same shape - work that should have happened once was
+happening every frame.
 
-## v3.1.1-beta2 — shard-stutter diagnostic beta
-- Fixes two confirmed-by-code per-frame loops: active repurposed tooltip text could repeatedly trigger scene scans, and filter-rule injection could retry matching/discovery forever when no active `requires` row existed. The reporter's exact crafting-shard scenario has **not** been reproduced in-hand; this is a feedback beta.
-- Retires markerless originals only after a completed composition pass and before native relayout; marked originals remain available for Alt/master-off restoration. The five-frame dirty window and 0.5-second fallback remain.
-- Caches rule matching and allows target discovery through a 0.5-second wall-clock bound, then stops for that content. Repeated same-content setters do not restart the budget; late equipment rows within the window still receive Rule#. Invalidation of a previously found requirements row permits one bounded replacement-search window, without repeating matching; repeated setters with no replacement cannot restart it.
-- Existing `DebugLog=true` now emits at most one `[perf]` summary per five seconds (actual elapsed time shown). `scans`/`fullScene` count scan/enumeration attempts; exclusive `dirty`/`markerLoss`/`fallback` triggers retain that gate's priority (dirty, then fallback, then marker loss). `staleRetired` counts active markerless originals released. `ruleStart` counts content generations, `ruleReplacement` invalidated destinations opening a bounded replacement window, `ruleAttempts` discovery attempts, `ruleMatch` resolver calls (each may include native/manual fallback matching), `ruleNoTarget` matched attempts without a destination, `ruleGiveUp` exhausted windows (including discovery failures), `ruleInjected` successful writes, `ruleReuse` ownership clears, and `scanErrors` outer scan failures. Counters reset each summary; zero summaries also print while debug is on. A settled stationary hover should stop rule attempts and settle to fallback scanning unless fresh dirty signals/text rewrites continue.
-- No new config keys. Scene-scan scoping and zero-width marker separation remain queued; this beta retains the existing markers and border/ground-label code. No in-game or FPS improvement claim yet.
+### Fixed
+- **Stale tooltip text kept demanding full scans.** When the game recycles a tooltip text field for
+  plain crafting text, the mod lost track of it and re-requested a scan every frame, indefinitely.
+  Gear text recovered on its own; shard text never did. Those entries are now retired after a
+  completed pass, with marked originals kept so Alt ranges and master-off restore still work.
+- **The loot filter rule number searched forever.** A matched rule needs somewhere to write itself,
+  which on gear is the requirements line. Crafting shards have none, so the search re-ran filter
+  matching plus two descendant passes every frame. Discovery is now bounded by a 0.5 second
+  wall clock and completes as not-applicable; a requirements row that activates late still gets
+  its Rule#.
+- **Every scan searched the entire UI.** Scans now collect from the tooltip's own panels, including
+  comparison, blessing and resonance content and the implicit/unique/prefix/suffix/sealed families,
+  verified field by field against the game's own tooltip types. A whole-scene fallback remains for
+  out-of-scope siblings, throttled to once per 0.5 seconds and counted separately so it cannot hide.
+- **The "affix formatter hook may be dead" warning no longer false-fires** on tooltips that simply
+  have nothing to format.
+
+Measured on the reporter's machine between versions: from roughly 20 whole-scene scans inside a
+single second, never settling while hovering, down to a handful per five seconds with long
+stretches at zero.
+
+### Added
+- Three settings rows for the 3.1.0 look, which shipped with no way to adjust it in game:
+  **Show Tier and Grade** (master switch for the whole signal), **Compact Tier Word (T7)**
+  (T7 instead of Tier 7), and **Tier and Grade Border** (the box on or off). All three redraw an
+  open tooltip immediately.
+- With the signal off, affix lines render clean: no tier, no grade, no divider, no box. There is no
+  tier-only-off switch; Show Grade Letters still gives tier without grades.
+- `DebugLog = true` now prints one `[perf]` summary every five seconds counting scans, what
+  triggered them, how many text objects were examined, and rule-lookup activity. It costs nothing
+  when the setting is off, and it turns a vague "it feels slow" report into an answerable one.
+
+### Changed
+- The Affix Name Color description now documents `GreaterAffix`, the current default, and notes
+  that `TierColor` restores the pre-3.1.0 coloured affix text. Nothing was removed in 3.1.0; the
+  old look is one setting away.
+
+Thanks to Trunks1981 for the report, the log, and for testing three betas.
 
 ## v3.1.0 — the clean-signal release
 - Greater-affix tint: Tier 6/7 affix sentences now render in a light purple; Tier 1–5 stay plain white.
