@@ -83,6 +83,7 @@ internal static class Prefs
     public static MelonPreferences_Entry<TooltipLayout>       Layout;
     public static MelonPreferences_Entry<SignalStyle>         Style;
     public static MelonPreferences_Entry<AffixNameColorMode>  NameColorMode;
+    public static MelonPreferences_Entry<bool>                ShowSignal;
     public static MelonPreferences_Entry<bool>                ShowGradeLetters;
     public static MelonPreferences_Entry<bool>                AlwaysShowRanges;
     public static MelonPreferences_Entry<bool>                AlwaysShowTierDetails;
@@ -127,6 +128,8 @@ internal static class Prefs
             "Signal Style", "PlainText = colored text only (default); Badge = Tier/Grade as colored chips");
         NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.GreaterAffix,
             "Affix Name Color", "GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier color; GameDefault = game's own text color");
+        ShowSignal = Category.CreateEntry("ShowSignal", true,
+            "Show Tier and Grade", "Show the tier/grade signal and its border on each affix line");
         ShowGradeLetters = Category.CreateEntry("ShowGradeLetters", true,
             "Show Grade Letters", "The S/A/B/C/F roll grade on each affix line");
         AlwaysShowRanges = Category.CreateEntry("AlwaysShowRanges", false,
@@ -202,7 +205,7 @@ internal static class Prefs
             var registered = new HashSet<string>(StringComparer.Ordinal)
             {
                 "EnableTooltips", "TooltipTierColors", "TooltipRankColors",
-                "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowGradeLetters",
+                "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowSignal", "ShowGradeLetters",
                 "AlwaysShowRanges", "AlwaysShowTierDetails", "GroundLabelStyle",
                 "GroundLabelFilterOnly", "GroundLabelAltKey", "ShowFilterRuleNumber",
                 "LabelRulePosition", "DebugLog",

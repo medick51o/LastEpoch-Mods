@@ -1217,3 +1217,4 @@ internal static class TooltipPerf
         s_ruleGiveUp = s_ruleInjected = s_ruleReuse = s_staleRetired = s_scanErrors = 0;
     }
 }
+

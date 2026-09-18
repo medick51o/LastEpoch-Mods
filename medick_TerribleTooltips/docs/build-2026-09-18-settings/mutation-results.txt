@@ -1,0 +1,6 @@
+Divider : rejected : Unhandled exception. System.Exception: Signal OFF left divider, whitespace, marker or other signal content
+Box : rejected : Unhandled exception. System.Exception: Signal OFF left a box
+Whitespace : rejected : Unhandled exception. System.Exception: Signal OFF left divider, whitespace, marker or other signal content
+Marker : rejected : Unhandled exception. System.Exception: Signal OFF left divider, whitespace, marker or other signal content
+IgnoreOff : rejected : Unhandled exception. System.Exception: Signal OFF left divider, whitespace, marker or other signal content
+StaleBox : rejected : Unhandled exception. System.Exception: Signal OFF left stale box/divider active

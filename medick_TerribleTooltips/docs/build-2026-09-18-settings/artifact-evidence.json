@@ -1,0 +1,17 @@
+{
+  "Branch": "settings/tier-signal-rows",
+  "Head": "d9caa943c71842c7e1233d1d67cef1699de42e74",
+  "BuiltDll": "C:\\Users\\andre\\Downloads\\LastEpoch-Mods\\medick_TerribleTooltips\\medick_TerribleTooltips\\bin\\Release\\net6.0\\medick_Terrible_Tooltips.dll",
+  "Size": 101376,
+  "MD5": "3c8585996a58b600c32c580a04b95d15",
+  "ModsDll": "C:/Program Files (x86)/Steam/steamapps/common/Last Epoch/Mods/medick_Terrible_Tooltips.dll",
+  "ModsMD5": "776a3036ed7a45b0f025c451eec34d06",
+  "ProtectedFiles": [
+    "medick_TerribleTooltips/src/BuildInfo.cs",
+    "medick_TerribleTooltips/src/UnitBorder.cs",
+    "medick_TerribleTooltips/src/FilterRuleTooltip.cs",
+    "medick_TerribleTooltips/src/GroundLabels.cs",
+    "medick_TerribleTooltips/medick_Terrible_Tooltips.csproj",
+    "CHANGELOG.md"
+  ]
+}
