@@ -31,6 +31,10 @@ Extended zoom-out, live camera tuning, tilt lock, and a Rescue button that resto
 A six-level vision dial living inside the game's own settings screen: BLIND, HARD, LIMITED (69%), NORMAL, SCOUT, ORACLE. Slide left to go in blind. Slide right because we all know why you're really here.
 `medick_The_fogOFwar.dll`
 
+### [Terrible Deaths](./medick_DeathCounter) · v0.1.0 · IN DEVELOPMENT
+An always-on death counter, a permanent log of every death, and a Last Death panel: who killed you, with what, which ailment, and what resistances or armor to build so it does not happen again. Not yet tested in game.
+`medick_DeathCounter.dll` · Key: `Insert`
+
 ---
 
 ## Building from source

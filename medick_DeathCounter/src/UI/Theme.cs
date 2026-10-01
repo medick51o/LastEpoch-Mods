@@ -1,0 +1,139 @@
+using System.Collections.Generic;
+using medick_DeathCounter.Core;
+using UnityEngine;
+
+namespace medick_DeathCounter.UI
+{
+    // The Terrible family palette (shared with Terrible Cooldowns): dark
+    // Last-Epoch-native surfaces, one gold accent, plus a blood red for the
+    // counter and one colour per damage type. Must be initialised from inside
+    // OnGUI: GUI.skin is invalid elsewhere.
+    internal static class Theme
+    {
+        public static readonly Color Bg        = Hex(0x0C0E13, 0.96f);
+        public static readonly Color Surface   = Hex(0x161A24);
+        public static readonly Color SurfaceHi = Hex(0x202637);
+        public static readonly Color Inset     = Hex(0x10131B);
+        public static readonly Color Border    = Hex(0x2A3040);
+        public static readonly Color BorderHi  = Hex(0x3C4456);
+        public static readonly Color Accent    = Hex(0xC9A653);   // LE gold
+        public static readonly Color AccentDim = Hex(0x8A7339);
+        public static readonly Color TextHi    = Hex(0xEDE6D4);
+        public static readonly Color Text      = Hex(0xC6C2B6);
+        public static readonly Color TextMut   = Hex(0x807D8C);
+        public static readonly Color Blood     = Hex(0xC23B3B);
+        public static readonly Color BloodDim  = Hex(0x6E2226);
+
+        static readonly Color[] ElementColors =
+        {
+            Hex(0xC8B9A6),   // Physical
+            Hex(0xE2683C),   // Fire
+            Hex(0x6FB7E8),   // Cold
+            Hex(0xE8D04A),   // Lightning
+            Hex(0x4FB0A0),   // Necrotic
+            Hex(0x9B6BD6),   // Void
+            Hex(0x7BC043),   // Poison
+        };
+        public static Color ElementColor(Element e) => ElementColors[(int)e];
+
+        static Color Hex(int rgb, float a = 1f) => new(
+            ((rgb >> 16) & 0xFF) / 255f, ((rgb >> 8) & 0xFF) / 255f, (rgb & 0xFF) / 255f, a);
+
+        static bool _ready;
+        public static GUIStyle Panel, Card, Chip;
+        static GUIStyle _btn, _label;
+        static Font _serif;
+        static readonly Dictionary<(int, FontStyle, TextAnchor, bool, bool), GUIStyle> _labels = new();
+        static readonly Dictionary<int, GUIStyle> _buttons = new();
+
+        public static void Ensure()
+        {
+            if (_ready) return;
+            _ready = true;
+            try { _serif = Font.CreateDynamicFontFromOSFont("Georgia", 14); } catch { _serif = null; }
+
+            Panel = BoxStyle(Bg, Border);
+            Card  = BoxStyle(Surface, Border);
+            Chip  = BoxStyle(Inset, BorderHi);
+
+            _btn = BoxStyle(Surface, Border);
+            _btn.alignment = TextAnchor.MiddleCenter;
+            _btn.normal.textColor  = Text;
+            _btn.hover.background  = Bordered(SurfaceHi, BorderHi);
+            _btn.hover.textColor   = TextHi;
+            _btn.active.background = Bordered(Inset, AccentDim);
+            _btn.active.textColor  = TextHi;
+
+            _label = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleLeft, padding = new RectOffset(0, 0, 0, 0) };
+            _label.normal.textColor = Color.white;   // tinted with GUI.color at draw time
+        }
+
+        static Texture2D Bordered(Color fill, Color border)
+        {
+            var t = new Texture2D(3, 3, TextureFormat.RGBA32, false)
+            { hideFlags = HideFlags.HideAndDontSave, filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            for (int x = 0; x < 3; x++)
+                for (int y = 0; y < 3; y++)
+                    t.SetPixel(x, y, x == 1 && y == 1 ? fill : border);
+            t.Apply();
+            return t;
+        }
+
+        static GUIStyle BoxStyle(Color fill, Color border)
+        {
+            var st = new GUIStyle { border = new RectOffset(1, 1, 1, 1) };
+            st.normal.background = Bordered(fill, border);
+            return st;
+        }
+
+        public static GUIStyle Label(int size, FontStyle fs = FontStyle.Normal, TextAnchor anchor = TextAnchor.MiddleLeft,
+            bool serif = false, bool wrap = false)
+        {
+            var key = (size, fs, anchor, serif && _serif != null, wrap);
+            if (_labels.TryGetValue(key, out var st)) return st;
+            st = new GUIStyle(_label) { fontSize = size, fontStyle = fs, alignment = anchor, wordWrap = wrap };
+            if (serif && _serif != null) st.font = _serif;
+            _labels[key] = st;
+            return st;
+        }
+
+        public static GUIStyle Button(int size)
+        {
+            if (_buttons.TryGetValue(size, out var st)) return st;
+            st = new GUIStyle(_btn) { fontSize = size };
+            _buttons[size] = st;
+            return st;
+        }
+
+        public static void Box(Rect r, GUIStyle style) => GUI.Label(r, GUIContent.none, style);
+
+        public static void Fill(Rect r, Color c)
+        {
+            GUI.color = c;
+            GUI.DrawTexture(r, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+        }
+
+        public static void Write(Rect r, string text, Color c, GUIStyle st)
+        {
+            GUI.color = c;
+            GUI.Label(r, text, st);
+            GUI.color = Color.white;
+        }
+
+        public static float Width(string text, GUIStyle st) => st.CalcSize(new GUIContent(text)).x;
+        public static float Height(string text, GUIStyle st, float w) => st.CalcHeight(new GUIContent(text), w);
+
+        public static void DrawBorder(Rect r, Color c, float bw)
+        {
+            GUI.color = c;
+            GUI.DrawTexture(new Rect(r.x, r.y, r.width, bw), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(r.x, r.yMax - bw, r.width, bw), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(r.x, r.y, bw, r.height), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(r.xMax - bw, r.y, bw, r.height), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+        }
+
+        public static Color WithAlpha(Color c, float a) => new(c.r, c.g, c.b, a);
+    }
+}

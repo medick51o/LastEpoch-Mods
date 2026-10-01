@@ -1,0 +1,11 @@
+# Changelog: MedicK's Terrible Deaths
+
+## v0.1.0: first build (not yet run in game)
+
+Written on a machine without Last Epoch or MelonLoader. Core logic is unit-tested and the whole mod compiles against NuGet MelonLoader 0.7.2 / HarmonyX / Il2CppInterop / Unity 2021.3 with stubbed game types; the game hooks are educated guesses until the first in-hand launch (CURRENT-WORK.md).
+
+- Always-on per-character death counter with a red flash and "killed by" toast; Shift + Insert hides it, shift-drag moves it.
+- Last Death panel (Insert): killer, ability, killing blow and damage type, crit, death kind, ailments on you, last-5-seconds damage mix, top threats, up to five survival suggestions, and history navigation.
+- Permanent log in `UserData/medick_DeathCounter/` (`deaths.txt` readable, `deaths.jsonl` full detail).
+- Two independent death signals (hook + health watch) with a once-per-death latch; a hooked death never counts while health is above 0.
+- Hooks resolved by name with per-hook degradation, `ProbeApi` dump and `HookOverrides` for fixing names without a rebuild.
