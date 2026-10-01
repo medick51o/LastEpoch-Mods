@@ -58,11 +58,7 @@ namespace medick_DeathCounter.Core
                                 $"{Pct(hitShare)} of the damage that killed you was physical hits. Armor is the main defence against those; physical resistance on gear helps too.");
                     }
                     else
-                    {
-                        string n = Elements.Name(el);
-                        Add("res_" + n, w, $"Cap {n.ToLowerInvariant()} resistance (75%)",
-                            $"{Pct(share)} of the damage that killed you was {n.ToLowerInvariant()}. Check your character sheet: every point below 75% is damage you are taking for free.");
-                    }
+                        ResTip(Elements.Name(el), w, $"{Pct(share)} of the damage that killed you was {Elements.Name(el).ToLowerInvariant()}.");
                 }
             }
             else if (Elements.TryParse(d.KillingElement, out var ke))
@@ -70,8 +66,23 @@ namespace medick_DeathCounter.Core
                 if (ke == Element.Physical)
                     Add("armor", 60f, "Stack armor", "The killing blow was physical. Armor is the main defence against physical hits.");
                 else
-                    Add("res_" + Elements.Name(ke), 60f, $"Cap {Elements.Name(ke).ToLowerInvariant()} resistance (75%)",
-                        $"The killing blow was {Elements.Name(ke).ToLowerInvariant()} damage.");
+                    ResTip(Elements.Name(ke), 60f, $"The killing blow was {Elements.Name(ke).ToLowerInvariant()} damage.");
+            }
+
+            // With a snapshot of your defences the tip names your number; a
+            // resistance already at cap stops being the top fix.
+            void ResTip(string n, float w, string why)
+            {
+                string el = n.ToLowerInvariant();
+                if (!d.TryDefense("Res." + n, out float have))
+                    Add("res_" + n, w, $"Cap {el} resistance (75%)",
+                        $"{why} Check your character sheet: every point below 75% is damage you are taking for free.");
+                else if (have >= 75f - 0.5f)
+                    Add("res_" + n, 30f, $"{Cap(el)} resistance was already capped",
+                        $"{why} You were at {have:0}%, so it got through a capped resistance: more health, ward and endurance are the next layer.");
+                else
+                    Add("res_" + n, w + 5f, $"Cap {el} resistance: you had {have:0}%",
+                        $"{why} You were {75f - have:0} points short of the 75% cap; every one of them is damage you took for free.");
             }
 
             // 2. How you died → the right kind of defence.
@@ -84,7 +95,9 @@ namespace medick_DeathCounter.Core
                         "Endurance cuts the part of any hit that lands below your endurance threshold, which turns lethal hits into survivable ones. The threshold affix rolls on belts.");
                     if (d.KillingCrit == true)
                         Add("crit", 95f, "Get critical strike avoidance to 100%",
-                            "The killing blow was a critical strike, which hits for double. At 100% critical strike avoidance enemies cannot crit you at all.");
+                            "The killing blow was a critical strike, which hits for double. "
+                            + (d.TryDefense("CritAvoidance", out float ca) ? $"You had {ca:0}% critical strike avoidance; at 100% " : "At 100% critical strike avoidance ")
+                            + "enemies cannot crit you at all.");
                     break;
 
                 case DeathKind.Burst:

@@ -271,6 +271,54 @@ static class Program
         True(tips.Any(t => t.Key == "dot_Damned" && t.Body.Contains("cuts your health regen")), "damned regen rider");
     }
 
+    // ── Defences snapshot (your stats at death) ─────────────
+    static DeathRecord FireOneShot(Dictionary<string, float> def)
+    {
+        var r = DeathAnalyzer.Analyze(new List<HitEvent> { Hit(10, 900, "Lagon", Element.Fire, crit: true) }, 10, Ctx());
+        r.Defenses = def;
+        return r;
+    }
+
+    static void Test_Advice_UsesYourResistance()
+    {
+        var tip = Advisor.Suggest(FireOneShot(new() { ["Res.Fire"] = 41f })).Single(t => t.Key == "res_Fire");
+        True(tip.Title.Contains("41%"), "title shows your value: " + tip.Title);
+        True(tip.Body.Contains("34"), "body shows the gap to 75: " + tip.Body);
+    }
+
+    static void Test_Advice_CappedResistanceSaysSo()
+    {
+        var tips = Advisor.Suggest(FireOneShot(new() { ["Res.Fire"] = 75f }));
+        var tip = tips.Single(t => t.Key == "res_Fire");
+        True(tip.Title.Contains("capped"), "capped: " + tip.Title);
+        True(tips.IndexOf(tip) > 0, "a capped resistance is not the top fix");
+    }
+
+    static void Test_Advice_UsesYourCritAvoidance()
+    {
+        var tip = Advisor.Suggest(FireOneShot(new() { ["CritAvoidance"] = 60f })).Single(t => t.Key == "crit");
+        True(tip.Body.Contains("60%"), "crit body shows your value: " + tip.Body);
+    }
+
+    static void Test_Advice_NoSnapshotKeepsGenericText()
+    {
+        var tip = Advisor.Suggest(FireOneShot(null)).Single(t => t.Key == "res_Fire");
+        Eq("Cap fire resistance (75%)", tip.Title);
+    }
+
+    static void Test_Log_DefensesRoundTrip()
+    {
+        string dir = Path.Combine(Path.GetTempPath(), "dc_def_" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var log = new DeathLog(dir); log.Load();
+            log.Append(FireOneShot(new() { ["Res.Fire"] = 41f, ["Armor"] = 1200f }));
+            var again = new DeathLog(dir); again.Load();
+            Eq(41f, again.All[0].Defenses["Res.Fire"], "survives json");
+        }
+        finally { try { Directory.Delete(dir, true); } catch { } }
+    }
+
     // ── Patterns (history across deaths) ─────────────────────
     static DeathRecord Died(string killer, Element el, float amt = 900, string ailment = null)
     {

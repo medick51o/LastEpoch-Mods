@@ -49,6 +49,18 @@ namespace medick_DeathCounter.Core
         public List<string> AilmentsOnYou { get; set; } = new();
         public int      Hits           { get; set; }
 
+        // Your defences at the moment of death, when the game could be read:
+        // "Res.Fire" (effective %, after the cap), "Armor", "CritAvoidance",
+        // "Dodge", "Block", "Endurance", "EnduranceThreshold", "Ward",
+        // "MaxHealth", "StunAvoidance". Null or missing keys = unknown.
+        public Dictionary<string, float> Defenses { get; set; }
+
+        public bool TryDefense(string key, out float v)
+        {
+            v = 0f;
+            return Defenses != null && Defenses.TryGetValue(key, out v) && float.IsFinite(v);
+        }
+
         public string   GameDeathInfo  { get; set; }   // the game's own death text (ProtectionClass.deathInformation), when readable
         public string   Detection      { get; set; }   // "hook" | "health" | "game", for bug reports
         public string   ModVersion     { get; set; }
