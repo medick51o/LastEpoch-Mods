@@ -114,16 +114,19 @@ namespace medick_DeathCounter.UI
             var bodySt = Theme.Label(Mathf.RoundToInt(11 * sc));
             if (how.Count > 0)
                 y += Theme.Para(cx, y, cw, string.Join("  ·  ", how), Theme.Text, bodySt) + 2f * sc;
+            if (!string.IsNullOrWhiteSpace(d.GameDeathInfo))
+                y += Theme.Para(cx, y, cw, "Game says: " + d.GameDeathInfo.Trim(), Theme.TextMut, bodySt) + 2f * sc;
 
             // Meta line + kind chip
             var metaSt = Theme.Label(Mathf.RoundToInt(10 * sc));
             var meta = new List<string> { Ago(d.UtcTime) };
             if (!string.IsNullOrEmpty(d.Zone)) meta.Add(d.Zone);
-            if (d.Level > 0) meta.Add($"lvl {d.Level}");
+            if (d.Level > 0) meta.Add(string.IsNullOrEmpty(d.CharacterClass) ? $"lvl {d.Level}" : $"lvl {d.Level} {d.CharacterClass}");
             string metaText = string.Join("  ·  ", meta);
             float mw = Theme.Width(metaText, metaSt);
             Theme.Write(new Rect(cx, y, mw + 2, 18f * sc), metaText, Theme.TextMut, metaSt);
-            Chip(cx + mw + 10f * sc, y, d.KindLabel(), d.Kind == DeathKind.Unknown ? Theme.TextMut : Theme.Blood, sc);
+            float kw = Chip(cx + mw + 10f * sc, y, d.KindLabel(), d.Kind == DeathKind.Unknown ? Theme.TextMut : Theme.Blood, sc);
+            if (d.Hardcore) Chip(cx + mw + 16f * sc + kw, y, "HARDCORE", Theme.Blood, sc);
             y += 26f * sc;
 
             // ── Ailments ─────────────────────────────────────

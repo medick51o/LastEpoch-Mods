@@ -11,10 +11,13 @@ namespace medick_DeathCounter.Game
     // so it cannot fail to load over which Il2CppLE*.dll a type lives in.
     internal static class PlayerProbe
     {
-        // Candidate health component types, most specific first.
-        public static readonly string[] HealthTypes = { "Il2Cpp.PlayerHealth", "Il2Cpp.BaseHealth", "Il2Cpp.Health" };
-        static readonly string[] CurrentHealthNames = { "currentHealth", "CurrentHealth", "health", "Health", "currentHP" };
-        static readonly string[] MaxHealthNames     = { "maxHealth", "MaxHealth", "maximumHealth", "healthMax", "maxHP" };
+        // docs/RESEARCH-game-api.md: PlayerHealth : BaseHealth (UnitHealth for
+        // monsters), fields currentHealth / maxHealth (maxHealth was an int in
+        // 2023; Refl.TryFloat takes either). PlayerFinder.getLocalPlayerHealth()
+        // returns it directly.
+        public static readonly string[] HealthTypes = { "Il2Cpp.PlayerHealth", "Il2Cpp.BaseHealth", "Il2Cpp.UnitHealth" };
+        static readonly string[] CurrentHealthNames = { "currentHealth", "CurrentHealth" };
+        static readonly string[] MaxHealthNames     = { "maxHealth", "MaxHealth" };
 
         public static Component  Actor   { get; private set; }   // Il2Cpp.Actor
         public static Type       ActorType => Refl.FindType("Il2Cpp.Actor");
@@ -52,7 +55,9 @@ namespace medick_DeathCounter.Game
             Health = null; HealthPtr = IntPtr.Zero;
             if (go != null)
             {
-                foreach (var name in HealthTypes)
+                if (Refl.Static("Il2Cpp.PlayerFinder", "getLocalPlayerHealth") is Component lph && IsPlayerObject(SafeGo(lph)))
+                    AdoptHealth(lph);
+                else foreach (var name in HealthTypes)
                 {
                     var c = Refl.GetComponent(go, Refl.FindType(name));
                     if (c == null) continue;
@@ -90,31 +95,51 @@ namespace medick_DeathCounter.Game
 
         public static bool IsPlayerObject(GameObject go) => go != null && Refl.Ptr(go) == ObjectPtr && ObjectPtr != IntPtr.Zero;
 
-        // ── Who and where ────────────────────────────────────────
-        public static string CharacterName()
+        static GameObject SafeGo(Component c)
         {
-            var data = CharacterData();
-            return Refl.GetString(data, "CharacterName", "characterName", "charName", "Name", "name")
-                ?? Refl.GetString(Actor, "characterName", "CharacterName")
-                ?? "Unknown Hero";
+            try { return c != null ? c.gameObject : null; } catch { return null; }
         }
+
+        // ── Who and where ────────────────────────────────────────
+        // Il2CppLE.Data.CharacterData via PlayerFinder.getPlayerData():
+        // CharacterName, Level, CharacterClass (int index), Deaths, Hardcore.
+        public static string CharacterName() =>
+            Refl.GetString(CharacterData(), "CharacterName", "characterName") ?? "Unknown Hero";
 
         public static string CharacterClass()
         {
-            var data = CharacterData();
-            var v = Refl.Get(data, "CharacterClass", "characterClass", "classID", "CharacterClassID", "chosenClass");
+            var v = Refl.Get(CharacterData(), "CharacterClass", "characterClass");
             if (v == null) return "";
-            return Refl.GetString(v, "className", "ClassName", "name") ?? v.ToString();
+            if (Refl.TryFloat(v, out var idx))
+            {
+                // CharacterClassList.instance.classes[i].className
+                var list = Refl.Get(Refl.Static("Il2Cpp.CharacterClassList", "instance"), "classes");
+                return Refl.GetString(Refl.Index(list, (int)idx), "className") ?? "";
+            }
+            return Refl.GetString(v, "className") ?? v.ToString();
         }
 
         public static int Level()
         {
-            var data = CharacterData();
-            if (Refl.TryFloat(Refl.Get(data, "Level", "level", "CharacterLevel", "characterLevel"), out var f)) return (int)f;
-            var exp = Refl.GetComponent(Object, Refl.FindType("Il2Cpp.ExperienceTracker"));
-            if (Refl.TryFloat(Refl.Get(exp, "CurrentLevel", "currentLevel", "Level", "level"), out f)) return (int)f;
-            if (Refl.TryFloat(Refl.Get(Actor, "level", "Level"), out f)) return (int)f;
+            if (Refl.TryFloat(Refl.Get(CharacterData(), "Level", "level"), out var f)) return (int)f;
+            var exp = Refl.Static("Il2Cpp.PlayerFinder", "getExperienceTracker")
+                      ?? Refl.GetComponent(Object, Refl.FindType("Il2Cpp.ExperienceTracker"));
+            if (Refl.TryFloat(Refl.Get(exp, "CurrentLevel", "currentLevel"), out f)) return (int)f;
             return 0;
+        }
+
+        public static bool Hardcore() => Refl.Get(CharacterData(), "Hardcore", "hardcore") is bool b && b;
+
+        // The game's own lifetime death count for this character, or -1.
+        public static int GameDeathCount() =>
+            Refl.TryFloat(Refl.Get(CharacterData(), "Deaths", "deaths"), out var f) ? (int)f : -1;
+
+        // ProtectionClass.deathInformation.deathInfo: the game's own death text,
+        // when it has one. Probed, not trusted: shown beside our analysis.
+        public static string GameDeathInfo()
+        {
+            var prot = Refl.Get(Actor, "protection") ?? Refl.GetComponent(Object, Refl.FindType("Il2Cpp.ProtectionClass"));
+            return Refl.GetString(Refl.Get(prot, "deathInformation"), "deathInfo") ?? "";
         }
 
         public static string Zone()
@@ -123,22 +148,6 @@ namespace medick_DeathCounter.Game
             catch { return ""; }
         }
 
-        // The character's saved data, through whichever PlayerFinder static
-        // returns something "CharacterData"-shaped. The candidate list is
-        // built once; the call itself happens every few seconds at most.
-        static System.Reflection.MethodInfo[] _dataGetters;
-
-        static object CharacterData()
-        {
-            _dataGetters ??= Refl.FindType("Il2Cpp.PlayerFinder")?
-                .GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-                .Where(m => m.GetParameters().Length == 0 && m.ReturnType.Name.Contains("CharacterData"))
-                .ToArray() ?? Array.Empty<System.Reflection.MethodInfo>();
-            foreach (var m in _dataGetters)
-            {
-                try { var v = m.Invoke(null, null); if (v != null) return v; } catch { }
-            }
-            return null;
-        }
+        static object CharacterData() => Refl.Static("Il2Cpp.PlayerFinder", "getPlayerData");
     }
 }

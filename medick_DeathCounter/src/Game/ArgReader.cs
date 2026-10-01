@@ -11,11 +11,12 @@ namespace medick_DeathCounter.Game
     // copes. Runs for PLAYER hits only (GameHooks filters first).
     internal static class ArgReader
     {
-        static readonly string[] Nested = { "source", "Source", "attacker", "owner", "dealer", "sourceActor", "damageSource", "hitBy",
-                                            "ability", "Ability", "ailment", "Ailment", "damageStats", "stats", "dmg" };
+        // ActiveAilment (a DoT's DamageSource) carries ailment / creator / ability.
+        static readonly string[] Nested = { "creator", "source", "Source", "attacker", "owner", "sourceActor", "damageSource",
+                                            "ability", "Ability", "ailment", "Ailment", "damageStats", "stats" };
         static readonly string[] DamageArrays = { "damage", "Damage", "damageValues", "damages" };
         static readonly string[] CritNames    = { "isCrit", "crit", "critical", "isCritical", "wasCrit" };
-        static readonly string[] NameNames    = { "displayName", "DisplayName", "actorName", "ActorName", "localizedName", "abilityName", "playerAbilityName", "ailmentName", "name" };
+        static readonly string[] NameNames    = { "displayName", "DisplayName", "baseDisplayName", "actorName", "localizedName", "abilityName", "playerAbilityName", "ailmentName", "name" };
 
         public static void Read(object[] args, MethodBase method, HitEvent h)
         {
@@ -27,6 +28,13 @@ namespace medick_DeathCounter.Game
             string hintElement = null;
             ParameterInfo[] ps = null;
             try { ps = method?.GetParameters(); } catch { }
+
+            // An explicit Actor argument (ApplyDamage's `Actor attacker`) is the
+            // killer; it beats any name dug out of the damage source below.
+            var actorType = PlayerProbe.ActorType;
+            if (actorType != null)
+                foreach (var a in args)
+                    if (a is Component ac && actorType.IsInstanceOfType(a)) { h.Source = ActorName(ac); break; }
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -73,7 +81,7 @@ namespace medick_DeathCounter.Game
             string tn = o.GetType().Name;
 
             var actorType = PlayerProbe.ActorType;
-            if (o is Component comp && h.Source == null)
+            if (o is Component comp && h.Source == null && !tn.Contains("DamageStatsHolder"))
             {
                 if (actorType != null && actorType.IsInstanceOfType(o))
                     h.Source = ActorName(comp);
@@ -94,7 +102,15 @@ namespace medick_DeathCounter.Game
                 if (arr != null && arr.Length >= Elements.Count && h.ByElement == null)
                     h.ByElement = ElementMap.ToOurOrder(arr);
                 if (h.Crit == null && Refl.Get(o, CritNames) is bool c) h.Crit = c;
+                if (Refl.Get(o, "isHit") is bool isHit && !isHit) h.IsDot = true;   // DamageStats: DoT ticks are not hits
             }
+            if (tn.Contains("DamageStatsHolder"))
+            {
+                // An ability's damage object: ask it who made it and what it is.
+                if (h.Source == null && Refl.Call(o, "getCreator") is Component creator) h.Source = ActorName(creator);
+                if (h.Ability == null) h.Ability = Pretty(Refl.Call(o, "getAbilityName") as string);
+            }
+            if (tn.Contains("ActiveAilment")) h.IsDot = true;
             if (tn.Contains("Ability") && h.Ability == null)
                 h.Ability = Pretty(Refl.GetString(o, NameNames) ?? Refl.UnityName(o));
             if (tn.Contains("Ailment") && h.Ailment == null)
@@ -114,10 +130,10 @@ namespace medick_DeathCounter.Game
             try
             {
                 if (PlayerProbe.IsPlayerObject(a.gameObject)) return "Yourself";
-                var n = Refl.GetString(a, NameNames[..5]);
-                if (n != null) return Pretty(n);
-                var info = Refl.GetComponent(a.gameObject, Refl.FindType("Il2Cpp.ActorDisplayInformation"));
-                n = Refl.GetString(info, "displayName", "DisplayName", "actorName");
+                // ActorDisplayInformation can sit on a child (the visuals object).
+                var infoType = Refl.FindType("Il2Cpp.ActorDisplayInformation");
+                var info = Refl.GetComponent(a.gameObject, infoType) ?? Refl.GetComponentInChildren(a.gameObject, infoType);
+                var n = Refl.GetString(info, "displayName", "baseDisplayName", "DisplayName");
                 if (n != null) return Pretty(n);
                 return Refl.UnityName(a.gameObject);
             }
@@ -131,11 +147,16 @@ namespace medick_DeathCounter.Game
             foreach (var a in args)
             {
                 if (a == null) continue;
+                // Only arguments that ARE ailments: an Actor named "Shock Wraith"
+                // must not read as Shock.
                 string text = a switch
                 {
                     string s => s,
                     Enum e   => e.ToString(),
-                    _        => Refl.GetString(a, NameNames) ?? Refl.UnityName(a) ?? a.GetType().Name,
+                    _ when a.GetType().Name.Contains("Ailment") =>
+                        Refl.GetString(a, "displayName", "instanceName", "name") ?? Refl.UnityName(a)
+                        ?? Refl.GetString(Refl.Get(a, "ailment"), "displayName", "instanceName", "name"),
+                    _ => null,
                 };
                 var hit = Ailments.Find(text);
                 if (hit != null) return hit.Name;

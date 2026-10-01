@@ -6,7 +6,8 @@ Read this first. Update after every step. Last update: 2026-10-01 (first build, 
 - The mod references **no game assembly**: PlayerFinder, Actor, EpochInputManager and every health/damage/ailment member are reached by name (`Refl`). So the DLL can be built without the game: `-p:NoGame=true` (NuGet MelonLoader 0.7.2, HarmonyX 2.10.2, Il2CppInterop 1.5.1 = the versions ML 0.7.2 ships, UnityEngine.Modules 2021.3.33).
 - Gates (cloud, 2026-10-01): CoreTests 19/19; NoGame build 0 warnings / 0 errors; InteropGuard: 71 of 72 interop calls proven by shipped Terrible DLLs, the 72nd (`Application.OpenURL`) is fenced in its own try.
 - InteropGuard already caught one real crash: `GUIContent.none` compiled as a FIELD against plain Unity; in game it is a property (`get_none`). Also replaced unproven `CalcHeight`/word wrap, `GUI.enabled`, `Event.shift`, `Color.Lerp`, `Rect.center`.
-- NOT proven: every name in `GameHooks.Candidates` and `PlayerProbe` (health types, member names, damage/death/ailment methods, CharacterData). Research notes in `docs/` feed these.
+- Hook names now come from public Last Epoch mods (RCInet LastEpoch_Mods for LE 1.4, le-pandora, Fallen_LE_Mods) and a 2023 dump, see `docs/RESEARCH-game-api.md`. None of the first-draft guesses existed. Still NOT run in game: exact signatures may have drifted since the 2023 dump.
+- Three death signals: hooks, health watch, and the game's own `CharacterData.Deaths` counter (the safety net if every hook is wrong).
 
 ## First in-hand launch (Andrew)
 1. Either take the prebuilt `release/medick_DeathCounter.dll` (or the CI artifact), or `dotnet build medick_DeathCounter -c Release -p:DeployToMods=false`.
@@ -20,12 +21,12 @@ Read this first. Update after every step. Last update: 2026-10-01 (first build, 
 5. Then fix `GameHooks.Candidates`, `PlayerProbe` member names and `ArgReader` from the probe output (or try `HookOverrides` in the cfg first: no rebuild needed).
 
 ## Open questions for the probe
-- Health component type and the current/max health member names.
-- Which method every player hit flows through, and whether DoT ticks use the same one.
-- Is there a player death method, or only health reaching 0?
-- How ailments are applied to the player (method + type), for Freeze/Shock/Shred.
-- Where the character name/class/level live (`PlayerFinder` getter returning CharacterData?).
-- Does the player object get recreated on respawn (the latch re-arms either way).
+- Does `ProtectionClass.ApplyDamage` still have the 2023 signature, and does Harmony accept the boxed `HitEvents` `__result` (log: `HitEvents postfix refused` in DebugLog means crit flags are lost, nothing else)?
+- Is `ActorDisplayInformation` on the actor or a child (attacker names)?
+- What does `ProtectionClass.deathInformation.deathInfo` actually say ("Game says" line)?
+- Does `CharacterData.Deaths` increase at the moment of death or at respawn (the 60 s grace covers both)?
+- Online play: server-side hooks may not fire on the client; the Deaths counter and death screen should still.
+- `ActorVisuals.Die` may live on a child object and never match the player (harmless).
 
 ## Laws for this mod
 - Reference no game assembly. Every Last Epoch type is reached by name through `Refl`.

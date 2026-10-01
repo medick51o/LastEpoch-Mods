@@ -53,10 +53,17 @@ The panel has an **OPEN LOG FOLDER** button.
 
 ## How it works
 
-- **Death detection** has two independent signals: a hooked death method on the player, and a health watch that sees health cross from above 0 to 0. Either one records the death; a latch makes sure it counts once. A hooked "death" is ignored if the player's health is still above 0, so a wrong hook cannot invent deaths.
-- **Hits** come from a hook on the player's health component. Damage is measured as health before minus health after, so it is what you actually lost after armor, resistances, block and ward. Nested hooked calls merge into one hit.
-- **Game API by name.** The mod only hard-references game types earlier Terrible mods proved (`PlayerFinder`, `Actor`, `EpochInputManager`). Health, damage and ailment members are found by name at runtime, so a game patch that renames something costs one feature and a log warning, not a crash, and `HookOverrides` can fix it without a rebuild.
-- **Suggestions** are computed when you view a death, from raw facts in the log, so improving the advice improves old deaths too.
+- **Death detection** uses three independent signals, and a latch makes sure each death counts once:
+  1. **Hooks** on the player's `Dying.die`, `ActorSync.receiveDeath` and `ActorVisuals.Die`, plus a hit that takes health to 0. The death screen opening (`DeathScreen.toggle`) and `AnalyticsManager.PlayerDeath` also count, but only while the player's health reads 0 or below.
+  2. **A health watch:** health crossing from above 0 to 0.
+  3. **The game's own death counter** (`CharacterData.Deaths`) going up. This works even if every hook name is wrong, and in online play.
+
+  A hooked death is ignored while the player's health is still above 0, so a wrong hook cannot invent deaths.
+- **Hits** come from `ProtectionClass.ApplyDamage(DamageStats, DamageSource, float, Actor attacker, bool)`, the call every hit and every damage-over-time tick goes through on the player. It gives the attacker, the damage per type (`DamageStats.damage`), whether it was a DoT tick (`isHit`, or an `ActiveAilment` as the source), and the crit, freeze and stun flags (`HitEvents`). The damage recorded is health before minus health after, which is what you actually lost after armor, resistances, block and ward. `BaseHealth.HealthDamage` catches anything that bypasses it, and nested calls merge into one hit.
+- **Ailments** come from `AilmentReceiver.ApplyAilment` and its variants (`AilmentID` names), plus the freeze and stun flags on hits.
+- **Who you are** comes from `PlayerFinder.getPlayerData()`: name, level, class, hardcore. The game's own death text (`ProtectionClass.deathInformation`) is shown as "Game says" when it has one.
+- **Game API by name.** The mod references no game assembly. Every name above is looked up at runtime, so a game patch that renames something costs one feature and a log warning, not a crash, and `HookOverrides` can add hooks without a rebuild. Sources for every name are in `docs/RESEARCH-game-api.md`.
+- **Suggestions** are computed when you view a death, from raw facts in the log, so improving the advice improves old deaths too. The mechanics behind them are in `docs/RESEARCH-damage-and-defenses.md`.
 
 ## Installation
 

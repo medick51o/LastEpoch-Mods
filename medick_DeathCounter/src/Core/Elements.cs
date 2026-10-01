@@ -40,22 +40,25 @@ namespace medick_DeathCounter.Core
 
     public static class Ailments
     {
-        // Order matters for Find(): more specific keywords first, so
-        // "ArmourShred" is not read as a generic "Shred" and "Frostbite" is
-        // not read as "Frost"-anything else.
+        // Order matters for Find(): first match wins, so the specific
+        // entries come before the general ones.
         public static readonly AilmentInfo[] All =
         {
+            // Shreds first: the game's AilmentID names them PoisonResShred,
+            // FireResShred, ArmourShred ... which must not read as Poison/Ignite.
+            Setup("Armor Shred",      null,             "Lowers your armor so hits land harder.", "armourshred", "armorshred", "armour shred", "armor shred"),
+            Setup("Resistance Shred", null,             "Lowers one of your resistances below its cap.", "resshred", "resistanceshred", "resistance shred", "shred"),
+
             Dot("Bleed",     Element.Physical,  "Physical damage over time. Armor does not reduce it.", "bleed"),
             Dot("Ignite",    Element.Fire,      "Fire damage over time.", "ignite", "burning"),
             Dot("Poison",    Element.Poison,    "Poison damage over time; each stack also lowers your poison resistance a little.", "poison"),
             Dot("Frostbite", Element.Cold,      "Cold damage over time that also makes you easier to freeze.", "frostbite"),
             Dot("Electrify", Element.Lightning, "Lightning damage over time.", "electrify"),
             Dot("Time Rot",  Element.Void,      "Void damage over time that also makes stuns on you last longer.", "timerot", "time rot", "time_rot"),
+            Dot("Abyssal Decay", Element.Void,  "Void damage over time.", "abyssaldecay", "abyssal decay"),
             Dot("Doom",      Element.Void,      "Void damage over time that also makes you take more melee damage.", "doom"),
             Dot("Damned",    Element.Necrotic,  "Necrotic damage over time that also cuts your health regen.", "damned"),
 
-            Setup("Armor Shred",     null,              "Lowers your armor so hits land harder.", "armourshred", "armorshred", "armour shred", "armor shred"),
-            Setup("Resistance Shred", null,             "Lowers one of your resistances below its cap.", "resistanceshred", "resshred", "resistance shred", "shred"),
             Setup("Freeze",          Element.Cold,      "You cannot act while frozen. More max health and ward make you harder to freeze.", "freeze", "frozen"),
             Setup("Chill",           Element.Cold,      "Slows your attacks, casts and movement.", "chill"),
             Setup("Shock",           Element.Lightning, "Lowers your lightning resistance and makes you easier to stun.", "shock"),

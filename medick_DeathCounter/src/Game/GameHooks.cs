@@ -9,35 +9,49 @@ using UnityEngine;
 
 namespace medick_DeathCounter.Game
 {
-    // Three taps into the game, all resolved by NAME at startup and applied
-    // one by one (per-patch degradation, same law as fog_OF_war):
-    //   hit      the player's health component taking damage → HitEvent
-    //   death    the player dying → DeathTracker.OnDeath (the health watch
-    //            in DeathTracker is the fallback when no death hook resolves)
-    //   ailment  an ailment landing on the player → DeathTracker.OnAilment
+    // Taps into the game, all resolved by NAME at startup and applied one
+    // by one (per-patch degradation, same law as fog_OF_war):
+    //   hit       damage landing on the player → HitEvent
+    //   death     a player-owned component dying → DeathTracker.OnDeath
+    //   anydeath  a death signal with no owner to check (the death screen,
+    //             analytics) → only counts when the player's health reads <= 0
+    //   ailment   an ailment landing on the player → DeathTracker.OnAilment
+    // Plus two hook-free signals in DeathTracker: the health watch, and the
+    // game's own CharacterData.Deaths counter.
     //
-    // The candidate names below are educated guesses, NOT verified against
-    // this game build (no game install on the machine that wrote them). The
-    // first in-hand launch with ProbeApi=true prints the real API; fix the
-    // lists or add HookOverrides in the cfg. See CURRENT-WORK.md.
+    // Names from docs/RESEARCH-game-api.md: public Last Epoch mods (RCInet
+    // LastEpoch_Mods for LE 1.4, le-pandora, Fallen_LE_Mods) plus a 2023
+    // Il2CppInspector dump. The damage chain is
+    //   DamageStatsHolder.applyDamage(Actor)            attacker's side
+    //   → ProtectionClass.ApplyDamage(DamageStats, DamageSource, float,
+    //         Actor attacker, bool) : HitEvents        the player's side
+    //   → BaseHealth.HealthDamage(float)
+    // and DoT ticks take the same path with the ActiveAilment as the
+    // DamageSource and DamageStats.isHit == false. Not yet run in game: the
+    // first launch with ProbeApi=true confirms them; HookOverrides in the
+    // cfg adds more without a rebuild. See CURRENT-WORK.md.
     internal static class GameHooks
     {
-        enum Role { Hit, Death, Ailment }
+        enum Role { Hit, Death, AnyDeath, Ailment }
+
+        static readonly string[] HealthHitMethods = { "HealthDamage", "HealthDamageCull", "HealthDamagePercent", "CurrentHealthPercentDamage" };
 
         static readonly (Role role, string type, string[] methods)[] Candidates =
         {
-            (Role.Hit,     "Il2Cpp.PlayerHealth", new[] { "ReceiveDamage", "TakeDamage", "Damage", "ApplyDamage", "DamageHealth", "HealthDamage" }),
-            (Role.Hit,     "Il2Cpp.BaseHealth",   new[] { "ReceiveDamage", "TakeDamage", "Damage", "ApplyDamage", "DamageHealth", "HealthDamage" }),
-            (Role.Hit,     "Il2Cpp.Health",       new[] { "ReceiveDamage", "TakeDamage", "Damage", "ApplyDamage" }),
-            (Role.Death,   "Il2Cpp.PlayerHealth", new[] { "Die", "OnDeath", "Death", "PlayerDied", "HandleDeath" }),
-            (Role.Death,   "Il2Cpp.BaseHealth",   new[] { "Die", "OnDeath", "Death", "HandleDeath" }),
-            (Role.Death,   "Il2Cpp.Actor",        new[] { "Die", "OnDeath", "Death" }),
-            (Role.Ailment, "Il2Cpp.Actor",        new[] { "ApplyAilment", "applyAilment", "AddAilment", "addAilment", "ReceiveAilment" }),
-            (Role.Ailment, "Il2Cpp.StatBuffs",    new[] { "ApplyAilment", "applyAilment", "AddAilment", "addAilment" }),
-            (Role.Ailment, "Il2Cpp.AilmentData",  new[] { "ApplyAilment", "applyAilment", "AddAilment", "addAilment", "OnApply" }),
+            (Role.Hit,      "Il2Cpp.ProtectionClass",  new[] { "ApplyDamage" }),
+            (Role.Hit,      "Il2Cpp.BaseHealth",       HealthHitMethods),
+            (Role.Hit,      "Il2Cpp.PlayerHealth",     HealthHitMethods),
+            (Role.Hit,      "Il2Cpp.UnitHealth",       HealthHitMethods),
+            (Role.Death,    "Il2Cpp.Dying",            new[] { "die" }),
+            (Role.Death,    "Il2Cpp.ActorSync",        new[] { "receiveDeath" }),
+            (Role.Death,    "Il2Cpp.ActorVisuals",     new[] { "Die" }),
+            (Role.AnyDeath, "Il2Cpp.DeathScreen",      new[] { "toggle" }),
+            (Role.AnyDeath, "Il2Cpp.AnalyticsManager", new[] { "PlayerDeath" }),
+            (Role.Ailment,  "Il2Cpp.AilmentReceiver",  new[] { "ApplyAilment", "ApplyAilmentWithDamageStats", "ApplyStackOfAilment",
+                                                               "ApplyStacksOfAilment", "ApplyStackOfAilmentForDuration" }),
         };
 
-        public static int HitHooks, DeathHooks, AilmentHooks;
+        public static int HitHooks, DeathHooks, AilmentHooks;   // AnyDeath counts as a death hook
         static readonly HashSet<IntPtr> _notPlayer = new();
 
         // ── Install ──────────────────────────────────────────────
@@ -64,10 +78,13 @@ namespace medick_DeathCounter.Game
                     switch (role)
                     {
                         case Role.Hit:
-                            harmony.Patch(m, prefix: Hm(nameof(HitPrefix)), postfix: Hm(nameof(HitPostfix)));
+                            PatchHit(harmony, m);
                             HitHooks++; break;
                         case Role.Death:
                             harmony.Patch(m, prefix: Hm(nameof(DeathPrefix)));
+                            DeathHooks++; break;
+                        case Role.AnyDeath:
+                            harmony.Patch(m, postfix: Hm(nameof(AnyDeathPostfix)));
                             DeathHooks++; break;
                         case Role.Ailment:
                             harmony.Patch(m, prefix: Hm(nameof(AilmentPrefix)));
@@ -84,6 +101,24 @@ namespace medick_DeathCounter.Game
 
             if (HitHooks == 0)
                 MelonLogger.Warning("no damage hook found: deaths still count (health watch), but the killer will show as unknown. Set ProbeApi=true in UserData/medick_DeathCounter.cfg and send the log.");
+        }
+
+        // ApplyDamage returns HitEvents flags (crit, freeze, stun, kill): read
+        // them through __result when the method returns HitEvents. If Harmony
+        // refuses the boxed result for this signature, fall back to the plain
+        // postfix and lose only the flags.
+        static void PatchHit(HarmonyLib.Harmony harmony, MethodInfo m)
+        {
+            if (m.ReturnType.Name == "HitEvents")
+            {
+                try
+                {
+                    harmony.Patch(m, prefix: Hm(nameof(HitPrefix)), postfix: Hm(nameof(HitPostfixWithFlags)));
+                    return;
+                }
+                catch (Exception ex) { Dbg.Log($"HitEvents postfix refused on {m.Name} ({ex.Message}); plain postfix"); }
+            }
+            harmony.Patch(m, prefix: Hm(nameof(HitPrefix)), postfix: Hm(nameof(HitPostfix)));
         }
 
         static HarmonyMethod Hm(string name) =>
@@ -150,7 +185,7 @@ namespace medick_DeathCounter.Game
         // postfix turns "health before - health after" into the real damage
         // taken. Nested hooked calls (ReceiveDamage → Damage) merge into one
         // HitEvent instead of counting twice.
-        internal sealed class HitScratch { public float Before; }
+        internal sealed class HitScratch { public float Before; public bool Kill; }
 
         static int      _depth;
         static int      _depthFrame;
@@ -182,6 +217,27 @@ namespace medick_DeathCounter.Game
             catch (Exception ex) { __state = null; Dbg.Log("hit prefix: " + ex.Message); }
         }
 
+        // HitEvents [Flags]: None 0, Hit 1, Crit 2, Kill 4, Freeze 8, Stun 16, Block 32, MeleeHit 64
+        const int FlagHit = 1, FlagCrit = 2, FlagKill = 4, FlagFreeze = 8, FlagStun = 16;
+
+        static void HitPostfixWithFlags(HitScratch __state, object __result)
+        {
+            if (__state != null && _pending != null && __result != null)
+            {
+                try
+                {
+                    int f = Convert.ToInt32(__result);
+                    if ((f & FlagCrit) != 0) _pending.Crit = true;
+                    else if ((f & FlagHit) != 0 && _pending.Crit == null) _pending.Crit = false;
+                    if ((f & FlagFreeze) != 0) DeathTracker.OnAilment("Freeze");
+                    if ((f & FlagStun) != 0) DeathTracker.OnAilment("Stun");
+                    __state.Kill = (f & FlagKill) != 0;
+                }
+                catch { }
+            }
+            HitPostfix(__state);
+        }
+
         static void HitPostfix(HitScratch __state)
         {
             if (__state == null) return;
@@ -210,8 +266,8 @@ namespace medick_DeathCounter.Game
                     h.IsDot = true;
                 DeathTracker.OnHit(h);
 
-                if (known && before > 0f && after <= 0f)
-                    DeathTracker.OnDeath("hook");
+                if ((known && before > 0f && after <= 0f) || __state.Kill)
+                    DeathTracker.OnDeath("hook");   // OnDeath re-checks health, so a stray Kill flag cannot invent a death
             }
             catch (Exception ex) { _depth = 0; _pending = null; Dbg.Log("hit postfix: " + ex.Message); }
         }
@@ -221,6 +277,14 @@ namespace medick_DeathCounter.Game
         {
             try { if (DeathTracker.Recording && IsPlayer(__instance)) DeathTracker.OnDeath("hook"); }
             catch (Exception ex) { Dbg.Log("death prefix: " + ex.Message); }
+        }
+
+        // The death screen opening, analytics' PlayerDeath: no owner to check,
+        // so they only count when the player's health agrees.
+        static void AnyDeathPostfix()
+        {
+            try { if (DeathTracker.Recording) DeathTracker.OnUnownedDeathSignal(); }
+            catch (Exception ex) { Dbg.Log("any-death postfix: " + ex.Message); }
         }
 
         // ── Ailment ──────────────────────────────────────────────

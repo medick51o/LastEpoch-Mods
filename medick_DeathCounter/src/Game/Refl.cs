@@ -140,6 +140,60 @@ namespace medick_DeathCounter.Game
         }
         static MethodInfo _getComponentGeneric;
 
+        // gameObject.GetComponentInChildren<T>() for a T we only know by name.
+        public static Component GetComponentInChildren(GameObject go, Type t)
+        {
+            if (go == null || t == null) return null;
+            try
+            {
+                var gm = _getInChildrenGeneric ??= typeof(GameObject).GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                    .First(m => m.Name == "GetComponentInChildren" && m.IsGenericMethodDefinition && m.GetParameters().Length == 0);
+                return gm.MakeGenericMethod(t).Invoke(go, null) as Component;
+            }
+            catch { return null; }
+        }
+        static MethodInfo _getInChildrenGeneric;
+
+        // o.name() for a zero-argument instance method; null if missing or throwing.
+        public static object Call(object o, string method)
+        {
+            if (o == null) return null;
+            try { return o.GetType().GetMethod(method, BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null)?.Invoke(o, null); }
+            catch { return null; }
+        }
+
+        // Static zero-argument method or property on a type known by name.
+        public static object Static(string typeName, string member)
+        {
+            var key = (typeName, member);
+            if (!_statics.TryGetValue(key, out var mi))
+            {
+                var t = FindType(typeName);
+                mi = (MemberInfo)t?.GetMethod(member, BindingFlags.Public | BindingFlags.Static, null, Type.EmptyTypes, null)
+                     ?? t?.GetProperty(member, BindingFlags.Public | BindingFlags.Static);
+                _statics[key] = mi;
+            }
+            try
+            {
+                return mi switch
+                {
+                    MethodInfo m   => m.Invoke(null, null),
+                    PropertyInfo p => p.GetValue(null),
+                    _              => null,
+                };
+            }
+            catch { return null; }
+        }
+        static readonly Dictionary<(string, string), MemberInfo> _statics = new();
+
+        // list[i] for an interop array or List (anything with an int indexer).
+        public static object Index(object list, int i)
+        {
+            if (list == null || i < 0) return null;
+            try { return list.GetType().GetMethod("get_Item", new[] { typeof(int) })?.Invoke(list, new object[] { i }); }
+            catch { return null; }
+        }
+
         // For the ProbeApi dump: declared methods and data members of a type.
         public static IEnumerable<string> Describe(Type t)
         {

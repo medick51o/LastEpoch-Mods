@@ -59,6 +59,18 @@ static class Program
         Eq("Resistance Shred", Ailments.Find("FireResistanceShred")?.Name);
     }
 
+    // The game's AilmentID enum (docs/RESEARCH-game-api.md) names shreds like
+    // PoisonResShred / ArmourShred: they must not read as the DoT of that element.
+    static void Test_AilmentFind_GameAilmentIdNames()
+    {
+        Eq("Resistance Shred", Ailments.Find("PoisonResShred")?.Name);
+        Eq("Resistance Shred", Ailments.Find("FireResShred")?.Name);
+        Eq("Armor Shred", Ailments.Find("ArmourShred")?.Name);
+        Eq("Abyssal Decay", Ailments.Find("StackingAbyssalDecay")?.Name);
+        Eq("Shock", Ailments.Find("Shock")?.Name);
+        Eq("Time Rot", Ailments.Find("TimeRot")?.Name);
+    }
+
     // ── Analyzer ─────────────────────────────────────────────
     static void Test_OneShot_BigFireHit()
     {

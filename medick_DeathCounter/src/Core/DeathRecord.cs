@@ -29,6 +29,7 @@ namespace medick_DeathCounter.Core
         public string   CharacterClass { get; set; }
         public int      Level          { get; set; }
         public string   Zone           { get; set; }
+        public bool     Hardcore       { get; set; }
 
         public string   Killer         { get; set; }
         public string   KillerAbility  { get; set; }
@@ -48,7 +49,8 @@ namespace medick_DeathCounter.Core
         public List<string> AilmentsOnYou { get; set; } = new();
         public int      Hits           { get; set; }
 
-        public string   Detection      { get; set; }   // "hook" | "health", for bug reports
+        public string   GameDeathInfo  { get; set; }   // the game's own death text (ProtectionClass.deathInformation), when readable
+        public string   Detection      { get; set; }   // "hook" | "health" | "game", for bug reports
         public string   ModVersion     { get; set; }
 
         public string KillerLine()
@@ -77,7 +79,7 @@ namespace medick_DeathCounter.Core
             string elem  = string.IsNullOrEmpty(KillingElement) ? "" : $" {KillingElement.ToLowerInvariant()}";
             string abil  = string.IsNullOrEmpty(KillerAbility) ? "" : $" ({KillerAbility})";
             string ail   = AilmentsOnYou.Count > 0 ? $" | ailments: {string.Join(", ", AilmentsOnYou)}" : "";
-            string lvl   = Level > 0 ? $" lvl {Level}" : "";
+            string lvl   = (Level > 0 ? $" lvl {Level}" : "") + (Hardcore ? " HC" : "");
             return $"{when} | {Character}{lvl} death #{Number} | {Zone} | killed by {KillerLine()}{abil}{blow}{elem} | {KindLabel()}{ail}";
         }
     }

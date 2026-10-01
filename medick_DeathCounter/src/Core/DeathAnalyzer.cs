@@ -11,6 +11,8 @@ namespace medick_DeathCounter.Core
         public string CharacterClass = "";
         public int    Level;
         public string Zone           = "";
+        public bool   Hardcore;
+        public string GameDeathInfo  = "";
         public float  MaxHealth      = -1f;
         public string Detection      = "health";
         public string ModVersion     = "";
@@ -40,6 +42,8 @@ namespace medick_DeathCounter.Core
                 CharacterClass = ctx.CharacterClass ?? "",
                 Level          = ctx.Level,
                 Zone           = ctx.Zone ?? "",
+                Hardcore       = ctx.Hardcore,
+                GameDeathInfo  = ctx.GameDeathInfo ?? "",
                 Detection      = ctx.Detection,
                 ModVersion     = ctx.ModVersion,
                 WindowSeconds  = WindowSeconds,
