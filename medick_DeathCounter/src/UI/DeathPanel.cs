@@ -141,6 +141,13 @@ namespace medick_DeathCounter.UI
             if (d.Hardcore) Chip(cx + mw + 16f * sc + kw, y, "HARDCORE", Theme.Blood, sc);
             y += 26f * sc;
 
+            // ── Your defences at death ───────────────────────
+            if (d.Defenses != null && d.Defenses.Count > 0)
+            {
+                y = Section(cx, cw, y, sc, "YOUR DEFENCES AT DEATH");
+                y += Theme.Para(cx, y, cw, DefenseLine(d), Theme.Text, Theme.Label(Mathf.RoundToInt(10 * sc))) + 8f * sc;
+            }
+
             // ── Ailments ─────────────────────────────────────
             if (d.AilmentsOnYou != null && d.AilmentsOnYou.Count > 0)
             {
@@ -342,6 +349,28 @@ namespace medick_DeathCounter.UI
                 catch { }
             }
             return y + 24f * sc;
+        }
+
+        // "Fire 41% · Cold 75% (cap) · ... · Armor 1,200 · Crit avoid 60%", cached per record.
+        static DeathRecord _defFor;
+        static string _defLine = "";
+
+        static string DefenseLine(DeathRecord d)
+        {
+            if (ReferenceEquals(d, _defFor)) return _defLine;
+            var parts = new List<string>();
+            foreach (var n in Elements.Names)
+                if (d.TryDefense("Res." + n, out float r))
+                    parts.Add($"{n} {r:0}%{(r >= 74.5f ? " (cap)" : "")}");
+            if (d.TryDefense("Armor", out float a))          parts.Add($"Armor {a:N0}");
+            if (d.TryDefense("Dodge", out float dg))         parts.Add($"Dodge {dg:N0}");
+            if (d.TryDefense("Block", out float b))          parts.Add($"Block {b:0}%");
+            if (d.TryDefense("Endurance", out float e))      parts.Add($"Endurance {e:0}%");
+            if (d.TryDefense("CritAvoidance", out float c))  parts.Add($"Crit avoid {c:0}%");
+            if (d.TryDefense("Ward", out float w))           parts.Add($"Ward {w:N0}");
+            _defFor = d;
+            _defLine = string.Join("  ·  ", parts);
+            return _defLine;
         }
 
         static void OpenFolder(string dir)

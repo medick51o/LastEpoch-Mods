@@ -122,6 +122,8 @@ namespace medick_DeathCounter.Game
             _lastHp = float.NaN;
             _hits.Clear();
             _ailments.Clear();
+            _defenses = null;
+            _defensesAt = -999f;
             GameHooks.OnPlayerChanged();
             _nextNameCheck = now;   // re-read the name this frame
             Dbg.Log(PlayerProbe.HasPlayer ? "player found" : "player gone");
@@ -138,9 +140,20 @@ namespace medick_DeathCounter.Game
             SessionDeaths = SessionCount(name);
         }
 
+        // Defences are snapshotted while you are being hit (at most once a
+        // second), not at death: dying may clear buffs and ward first.
+        static Dictionary<string, float> _defenses;
+        static float _defensesAt = -999f;
+
         public static void OnHit(HitEvent h)
         {
             _hits.Add(h);
+            float now = Time.time;
+            if (now - _defensesAt >= 1f)
+            {
+                _defensesAt = now;
+                try { _defenses = PlayerProbe.Defenses() ?? _defenses; } catch { }
+            }
             Dbg.Log($"hit {h.Amount:0} from {h.Source ?? "?"} {(h.Ability != null ? "(" + h.Ability + ")" : "")} {h.Ailment ?? ""} hp {h.HealthBefore:0}/{h.MaxHealth:0}");
         }
 
@@ -186,6 +199,8 @@ namespace medick_DeathCounter.Game
                 };
                 var ailments = _ailments.Where(kv => now - kv.Value <= AilmentMemory).Select(kv => kv.Key).ToList();
                 var rec = DeathAnalyzer.Analyze(_hits.Since(now - 12.0), now, ctx, ailments);
+                if (now - _defensesAt > 15f) { try { _defenses = PlayerProbe.Defenses(); } catch { } }   // no recent hit: read now
+                rec.Defenses = _defenses;
 
                 Log.Append(rec);
                 SetCharacter(rec.Character);

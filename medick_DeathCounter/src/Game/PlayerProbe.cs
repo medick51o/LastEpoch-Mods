@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -140,6 +141,66 @@ namespace medick_DeathCounter.Game
         {
             var prot = Refl.Get(Actor, "protection") ?? Refl.GetComponent(Object, Refl.FindType("Il2Cpp.ProtectionClass"));
             return Refl.GetString(Refl.Get(prot, "deathInformation"), "deathInfo") ?? "";
+        }
+
+        // ── Your defences (docs/RESEARCH-player-stats.md) ────────
+        // Final values are plain fields on the player's ProtectionClass
+        // (2023 dump names; actor + component lookup confirmed for LE 1.4).
+        // Resistances are "uncapped"; the cap is a hard 75%. Whether percent
+        // stats are stored as 75 or 0.75 is unknown, so the resistances decide
+        // the scale and the raw values are logged once for the first launch.
+        static readonly (string key, string[] names)[] ResFields =
+        {
+            ("Res.Physical",  new[] { "uncappedPhysicalResistance" }),
+            ("Res.Fire",      new[] { "uncappedFireResistance" }),
+            ("Res.Cold",      new[] { "uncappedColdResistance" }),
+            ("Res.Lightning", new[] { "uncappedLightningResistance" }),
+            ("Res.Necrotic",  new[] { "uncappedNecroticResistance" }),
+            ("Res.Void",      new[] { "uncappedVoidResistance" }),
+            ("Res.Poison",    new[] { "uncappedPoisonResistance" }),
+        };
+        static readonly (string key, string[] names)[] PercentFields =
+        {
+            ("Block",         new[] { "blockChance" }),
+            ("Endurance",     new[] { "endurance" }),
+            ("CritAvoidance", new[] { "critAvoidance" }),
+            ("StunAvoidance", new[] { "stunAvoidance" }),
+        };
+        static bool _defensesLogged;
+
+        public static Dictionary<string, float> Defenses()
+        {
+            var prot = Refl.Get(Actor, "protection") ?? Refl.GetComponent(Object, Refl.FindType("Il2Cpp.ProtectionClass"));
+            if (prot == null) return null;
+
+            var raw = new Dictionary<string, float>();
+            foreach (var (key, names) in ResFields.Concat(PercentFields))
+                if (Refl.TryFloat(Refl.Get(prot, names), out var v)) raw[key] = v;
+
+            // Scale from the resistances: any |res| > 1.5 means percent units,
+            // all small and some nonzero means fractions; no signal = unknown,
+            // and then percent stats are left out rather than guessed.
+            var res = raw.Where(kv => kv.Key.StartsWith("Res.")).Select(kv => kv.Value).ToList();
+            float scale = res.Any(v => Math.Abs(v) > 1.5f) ? 1f : res.Any(v => v != 0f) ? 100f : float.NaN;
+
+            var def = new Dictionary<string, float>();
+            if (!float.IsNaN(scale))
+                foreach (var kv in raw)
+                    def[kv.Key] = kv.Key.StartsWith("Res.") ? Math.Min(kv.Value * scale, 75f) : kv.Value * scale;
+
+            if (Refl.TryFloat(Refl.Get(prot, "armour", "armor") ?? Refl.Call(prot, "armourForCharacterSheet"), out var armor)) def["Armor"] = armor;
+            if (Refl.TryFloat(Refl.Get(prot, "dodgeRating"), out var dodge)) def["Dodge"] = dodge;
+            if (Refl.TryFloat(Refl.Get(prot, "enduranceThreshold"), out var et)) def["EnduranceThreshold"] = et;
+            if (Refl.TryFloat(Refl.Get(prot, "CurrentWard", "currentWard"), out var ward)) def["Ward"] = ward;
+            float max = MaxHealth;
+            if (!float.IsNaN(max)) def["MaxHealth"] = max;
+
+            if (!_defensesLogged && (Prefs.ProbeApi.Value || Prefs.DebugLog.Value))
+            {
+                _defensesLogged = true;
+                MelonLoader.MelonLogger.Msg($"[probe] defences raw: {string.Join(", ", raw.Select(kv => $"{kv.Key}={kv.Value}"))}; scale {scale}; stored: {string.Join(", ", def.Select(kv => $"{kv.Key}={kv.Value:0.##}"))}");
+            }
+            return def.Count > 0 ? def : null;
         }
 
         public static string Zone()
