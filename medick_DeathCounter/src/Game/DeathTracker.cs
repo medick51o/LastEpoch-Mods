@@ -111,8 +111,14 @@ namespace medick_DeathCounter.Game
             // Re-arm only for a living player (review #5): an actor flicker or
             // swap while dead must not let the closing death screen count again.
             // Unreadable health cannot prove anything either way, so it re-arms.
-            float hp = PlayerProbe.CurrentHealth;
-            if (float.IsNaN(hp) || hp > 0f) _dead = false;
+            // A "player gone" blip (loading, respawn) never re-arms (re-review #1);
+            // unreadable health re-arms only well after the death.
+            _deferred = null;   // a deferred death belongs to the old player (re-review #5)
+            if (PlayerProbe.HasPlayer)
+            {
+                float hp = PlayerProbe.CurrentHealth;
+                if (hp > 0f || (float.IsNaN(hp) && now - _deadAt > 10f)) _dead = false;
+            }
             _lastHp = float.NaN;
             _hits.Clear();
             _ailments.Clear();
@@ -123,7 +129,9 @@ namespace medick_DeathCounter.Game
 
         static void SetCharacter(string name)
         {
-            if (name == Character) return;
+            // The fallback name means CharacterData was momentarily unreadable,
+            // not that the character changed: keep the ledger (re-review #4).
+            if (name == Character || name == "Unknown Hero" && !string.IsNullOrEmpty(Character)) return;
             Character = name;
             _ledger.Reset();    // re-baseline the game's counter for this character
             CharacterDeaths = Log?.CountFor(name) ?? 0;

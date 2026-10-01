@@ -2,7 +2,8 @@
 Read this first. Update after every step. Last update: 2026-10-01 (first build, cloud session, no game on the machine).
 
 ## State right now
-- v0.1.0 source complete. **Never run in game. Unreviewed** (no cross-vendor seat reachable from the cloud session; SPINE status REVIEW UNAVAILABLE).
+- v0.1.0 source complete. **Never run in game. No cross-vendor review** (Codex/Grok/Gemini hosts blocked by the cloud environment's network policy; SPINE status REVIEW UNAVAILABLE). Two same-vendor (Claude) bug hunts ran: 12 findings, then 5 more on the repair, all fixed. Same-vendor reads are not independent review.
+- **Prebuilt for Saturday:** `release/medick_DeathCounter.dll` (90,112 B, sha256 5eff9902…6736) and `release/medick_DeathCounter_v0.1.0.zip`. Built with `-p:NoGame=true`; the exact shipped file passes InteropGuard. Every CI run also uploads the DLL as an artifact.
 - The mod references **no game assembly**: PlayerFinder, Actor, EpochInputManager and every health/damage/ailment member are reached by name (`Refl`). So the DLL can be built without the game: `-p:NoGame=true` (NuGet MelonLoader 0.7.2, HarmonyX 2.10.2, Il2CppInterop 1.5.1 = the versions ML 0.7.2 ships, UnityEngine.Modules 2021.3.33).
 - Gates (cloud, 2026-10-01): CoreTests 19/19; NoGame build 0 warnings / 0 errors; InteropGuard: 71 of 72 interop calls proven by shipped Terrible DLLs, the 72nd (`Application.OpenURL`) is fenced in its own try.
 - InteropGuard already caught one real crash: `GUIContent.none` compiled as a FIELD against plain Unity; in game it is a property (`get_none`). Also replaced unproven `CalcHeight`/word wrap, `GUI.enabled`, `Event.shift`, `Color.Lerp`, `Rect.center`.

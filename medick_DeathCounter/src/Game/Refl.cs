@@ -188,12 +188,33 @@ namespace medick_DeathCounter.Game
                 if (!_classTypes.TryGetValue(klass, out var t))
                 {
                     t = ManagedTypeFor(klass);
+                    // Open generics cannot be constructed (re-review #3), and a
+                    // same-named class from another assembly would read the wrong
+                    // field offsets (re-review #2): accept only the wrapper whose
+                    // native class IS this object's class.
+                    if (t != null && (t.ContainsGenericParameters || !SameNativeClass(t, klass))) t = null;
                     _classTypes[klass] = t;
                 }
                 if (t == null || t == o.GetType() || !typeof(Il2CppObjectBase).IsAssignableFrom(t)) return o;
                 return Activator.CreateInstance(t, ptr);
             }
             catch { return o; }
+        }
+
+        static MethodInfo _nativeClassPtr;
+        static bool _nativeClassResolved;
+
+        static bool SameNativeClass(Type t, IntPtr klass)
+        {
+            if (!_nativeClassResolved)
+            {
+                _nativeClassResolved = true;
+                _nativeClassPtr = typeof(Il2CppObjectBase).Assembly.GetType("Il2CppInterop.Runtime.Il2CppClassPointerStore")
+                    ?.GetMethod("GetNativeClassPointer", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(Type) }, null);
+            }
+            if (_nativeClassPtr == null) return false;   // cannot prove it: keep the declared wrapper
+            try { return (IntPtr)_nativeClassPtr.Invoke(null, new object[] { t }) == klass; }
+            catch { return false; }
         }
 
         // Il2CppInterop naming: global types → "Il2Cpp.Name", namespaced →
