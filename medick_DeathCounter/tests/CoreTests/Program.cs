@@ -196,6 +196,26 @@ static class Program
         True(tips.Any(t => t.Key == "unknown"), "unknown tip");
     }
 
+    // Research 2026-10-01: Shock lowers lightning res + raises stun chance;
+    // it is not a general "take more damage" debuff. Catches a revert to the old text.
+    static void Test_Advice_ShockIsLightningResShred()
+    {
+        var d = new DeathRecord { Kind = DeathKind.Burst, MaxHealth = 1000, WindowDamage = 900, WindowSeconds = 5, AilmentsOnYou = { "Shock" } };
+        var tip = Advisor.Suggest(d).Single(t => t.Key == "cc_shock");
+        True(tip.Body.Contains("lightning resistance"), "names lightning res");
+        True(!tip.Body.Contains("take more damage"), "no general damage-taken claim");
+        True(!Ailments.ByName("Shock").Effect.Contains("more damage"), "ailment effect text");
+    }
+
+    // Damned cuts health regen, so its tip must steer to leech, not regen alone.
+    static void Test_Advice_DamnedMentionsRegenCut()
+    {
+        var hits = new List<HitEvent>();
+        for (int i = 0; i < 20; i++) hits.Add(Hit(6 + i * 0.2, 60, "Lich", null, "Damned", dot: true));
+        var tips = Advisor.Suggest(DeathAnalyzer.Analyze(hits, 10, Ctx()));
+        True(tips.Any(t => t.Key == "dot_Damned" && t.Body.Contains("cuts your health regen")), "damned regen rider");
+    }
+
     // ── Log ──────────────────────────────────────────────────
     static void Test_Log_RoundTripAndNumbering()
     {

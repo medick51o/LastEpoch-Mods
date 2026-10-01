@@ -14,10 +14,13 @@ namespace medick_DeathCounter.Core
     // "How do I not die to that again?" Rules read the raw DeathRecord, so
     // tuning advice here improves every death already in the log.
     //
-    // Keep the advice true to Last Epoch: resistances cap at 75%, armor
-    // reduces hit damage (best vs physical) but not damage over time,
-    // endurance cuts damage taken below the endurance threshold, 100%
-    // critical strike avoidance makes you immune to enemy crits.
+    // Keep the advice true to Last Epoch (docs/RESEARCH-damage-and-defenses.md):
+    // resistances cap at 75%; armor reduces all hits but is only 70% as
+    // effective against non-physical, and does not normally reduce damage
+    // over time; endurance cuts the part of damage that lands below the
+    // endurance threshold; 100% critical strike avoidance means no enemy
+    // crits; Shock lowers lightning resistance and raises stun chance (it
+    // is NOT a general damage-taken debuff).
     public static class Advisor
     {
         public const int MaxTips = 5;
@@ -78,10 +81,10 @@ namespace medick_DeathCounter.Core
                     Add("ehp", 85f, "Raise your effective health pool",
                         $"One hit took {(d.MaxHealth > 0 ? Pct(d.KillingBlow / d.MaxHealth) + " of your life" : "you out")}. More health, ward, and a higher endurance threshold are what let you survive the next one.");
                     Add("endurance", 55f, "Get endurance and endurance threshold",
-                        "Endurance cuts the damage you take while your health is below the endurance threshold, which turns lethal hits into survivable ones.");
+                        "Endurance cuts the part of any hit that lands below your endurance threshold, which turns lethal hits into survivable ones. The threshold affix rolls on belts.");
                     if (d.KillingCrit == true)
                         Add("crit", 95f, "Get critical strike avoidance to 100%",
-                            "The killing blow was a critical strike. At 100% critical strike avoidance enemies cannot crit you at all.");
+                            "The killing blow was a critical strike, which hits for double. At 100% critical strike avoidance enemies cannot crit you at all.");
                     break;
 
                 case DeathKind.Burst:
@@ -123,13 +126,13 @@ namespace medick_DeathCounter.Core
                     case "Freeze":
                     case "Chill":
                         Add("cc_freeze", killing ? 80f : 65f, $"You were {(a.Name == "Freeze" ? "frozen" : "chilled")}",
-                            "Keep cold resistance capped and look for freeze immunity or chill avoidance on gear. Save a movement skill to break away.");
+                            "More max health and ward lower your chance to be frozen, and Frostbite stacks raise it. Keep cold resistance capped and save a movement skill to break away.");
                         break;
                     case "Stun":
                         Add("cc_stun", 65f, "Get stun avoidance", "You were stunned in the fight that killed you. Stun avoidance and a bigger health pool keep you acting.");
                         break;
                     case "Shock":
-                        Add("cc_shock", 60f, "Shock made you fragile", "Shocked targets take more damage and are stunned more easily. Keep lightning resistance capped.");
+                        Add("cc_shock", 60f, "Shock lowered your lightning resistance", "Each Shock stack lowers your lightning resistance and makes you easier to stun. Overcap lightning resistance and get stun avoidance.");
                         break;
                     case "Slow":
                         Add("cc_slow", 45f, "You were slowed", "Slows stop you walking out of danger. Movement speed and a movement skill on a short cooldown help.");
@@ -144,8 +147,16 @@ namespace medick_DeathCounter.Core
                         if (a.IsDot && a.Element.HasValue)
                         {
                             string el = Elements.Name(a.Element.Value).ToLowerInvariant();
-                            string extra = a.Name == "Bleed" ? " Armor does not reduce bleed." :
-                                           a.Name == "Poison" ? " Each poison stack also lowers your poison resistance." : "";
+                            string extra = a.Name switch
+                            {
+                                "Bleed"     => " Armor does not reduce bleed.",
+                                "Poison"    => " Each poison stack also lowers your poison resistance.",
+                                "Damned"    => " It also cuts your health regen, so lean on leech.",
+                                "Doom"      => " It also makes you take more melee damage.",
+                                "Time Rot"  => " It also makes stuns on you last longer.",
+                                "Frostbite" => " It also makes you easier to freeze.",
+                                _           => "",
+                            };
                             Add("dot_" + a.Name, killing ? 88f : 58f, $"{a.Name}: {el} resistance",
                                 $"{a.Name} deals {el} damage over time.{extra} Cap {el} resistance and keep health regen or leech up.");
                         }
