@@ -169,7 +169,9 @@ namespace medick_DeathCounter.Game
 
             GameObject go = null;
             try { go = inst is Component c ? c.gameObject : inst as GameObject; } catch { }
-            bool mine = PlayerProbe.IsPlayerObject(go);
+            bool mine = PlayerProbe.IsPlayerObject(go)
+                // A component on a child object (visuals) still names its owner.
+                || (PlayerProbe.Actor != null && Refl.Ptr(Refl.Get(inst, "actor", "Actor", "owner")) == Refl.Ptr(PlayerProbe.Actor));
             if (!mine)
             {
                 if (_notPlayer.Count > 4096) _notPlayer.Clear();
@@ -187,11 +189,19 @@ namespace medick_DeathCounter.Game
         // HitEvent instead of counting twice.
         internal sealed class HitScratch { public float Before; public bool Kill; }
 
+        // True while a player hit is being processed (between the outermost
+        // prefix and postfix). A death that fires inside it waits for the
+        // killing blow to be recorded first (review 2026-10-01 #2).
+        public static bool InPlayerHit => _depth > 0 && _depthFrame == Time.frameCount;
+
         static int      _depth;
         static int      _depthFrame;
         static HitEvent _pending;
         static int      _probeHitsLogged;
 
+        // Note (review #9): asking for __args makes Harmony box an argument
+        // array on every hooked call, monsters included. Accepted: hits are
+        // tens to hundreds per second and the arrays are small and short-lived.
         static void HitPrefix(object __instance, object[] __args, MethodBase __originalMethod, out HitScratch __state)
         {
             __state = null;
@@ -214,7 +224,12 @@ namespace medick_DeathCounter.Game
                         string.Join(", ", (__args ?? Array.Empty<object>()).Select(a => a == null ? "null" : $"{a.GetType().Name}={Short(a)}")));
                 }
             }
-            catch (Exception ex) { __state = null; Dbg.Log("hit prefix: " + ex.Message); }
+            catch (Exception ex)
+            {
+                if (__state != null && _depth > 0 && --_depth == 0) _pending = null;   // roll back our own ++ (review #6)
+                __state = null;
+                Dbg.Log("hit prefix: " + ex.Message);
+            }
         }
 
         // HitEvents [Flags]: None 0, Hit 1, Crit 2, Kill 4, Freeze 8, Stun 16, Block 32, MeleeHit 64
@@ -268,8 +283,10 @@ namespace medick_DeathCounter.Game
 
                 if ((known && before > 0f && after <= 0f) || __state.Kill)
                     DeathTracker.OnDeath("hook");   // OnDeath re-checks health, so a stray Kill flag cannot invent a death
+                DeathTracker.FlushDeferredDeath();
             }
             catch (Exception ex) { _depth = 0; _pending = null; Dbg.Log("hit postfix: " + ex.Message); }
+            finally { if (_depth == 0) DeathTracker.FlushDeferredDeath(); }
         }
 
         // ── Death ────────────────────────────────────────────────
@@ -293,9 +310,10 @@ namespace medick_DeathCounter.Game
             try
             {
                 if (!DeathTracker.Recording) return;
-                bool onPlayer = IsPlayer(__instance)
-                    || (__args != null && __args.Any(a => a is Component c && IsPlayer(c)));
-                if (!onPlayer) return;
+                // The receiver decides who it is on. Never scan the args: the
+                // player is the CREATOR of every ailment it puts on monsters
+                // (review 2026-10-01 #3).
+                if (!IsPlayer(__instance)) return;
 
                 string name = ArgReader.AilmentName(__args) ?? Ailments.Find(__originalMethod.Name)?.Name;
                 if (name != null) DeathTracker.OnAilment(name);

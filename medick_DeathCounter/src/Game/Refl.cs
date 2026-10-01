@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Il2CppInterop.Runtime.InteropTypes;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
@@ -153,6 +154,68 @@ namespace medick_DeathCounter.Game
             catch { return null; }
         }
         static MethodInfo _getInChildrenGeneric;
+
+        // Il2CppInterop hands Harmony every argument wrapped as its DECLARED
+        // type: ApplyDamage's DamageSource arrives as a DamageSource wrapper
+        // even when the object is a DamageStatsHolder or an ActiveAilment, so
+        // its real members are invisible (review 2026-10-01 #1). Re-wrap to
+        // the object's runtime class. The IL2CPP natives are called by
+        // reflection: nothing new for InteropGuard to prove, and a missing
+        // export just leaves the declared wrapper.
+        static MethodInfo _objGetClass, _classGetName, _classGetNs, _classGetDecl;
+        static bool _rewrapResolved;
+        static readonly Dictionary<IntPtr, Type> _classTypes = new();
+
+        public static object Rewrap(object o)
+        {
+            if (o is not Il2CppObjectBase b) return o;
+            try
+            {
+                IntPtr ptr = b.Pointer;
+                if (ptr == IntPtr.Zero) return o;
+                if (!_rewrapResolved)
+                {
+                    _rewrapResolved = true;
+                    var il2cpp = typeof(Il2CppObjectBase).Assembly.GetType("Il2CppInterop.Runtime.IL2CPP");
+                    _objGetClass  = il2cpp?.GetMethod("il2cpp_object_get_class", new[] { typeof(IntPtr) });
+                    _classGetName = il2cpp?.GetMethod("il2cpp_class_get_name", new[] { typeof(IntPtr) });
+                    _classGetNs   = il2cpp?.GetMethod("il2cpp_class_get_namespace", new[] { typeof(IntPtr) });
+                    _classGetDecl = il2cpp?.GetMethod("il2cpp_class_get_declaring_type", new[] { typeof(IntPtr) });
+                }
+                if (_objGetClass == null || _classGetName == null) return o;
+
+                var klass = (IntPtr)_objGetClass.Invoke(null, new object[] { ptr });
+                if (!_classTypes.TryGetValue(klass, out var t))
+                {
+                    t = ManagedTypeFor(klass);
+                    _classTypes[klass] = t;
+                }
+                if (t == null || t == o.GetType() || !typeof(Il2CppObjectBase).IsAssignableFrom(t)) return o;
+                return Activator.CreateInstance(t, ptr);
+            }
+            catch { return o; }
+        }
+
+        // Il2CppInterop naming: global types → "Il2Cpp.Name", namespaced →
+        // "Il2Cpp<Ns>.Name", nested → "Outer+Inner".
+        static Type ManagedTypeFor(IntPtr klass)
+        {
+            string name = ClassName(klass);
+            if (name == null) return null;
+            IntPtr decl = _classGetDecl != null ? (IntPtr)_classGetDecl.Invoke(null, new object[] { klass }) : IntPtr.Zero;
+            if (decl != IntPtr.Zero)
+            {
+                var outer = ManagedTypeFor(decl);
+                return outer?.GetNestedType(name, BindingFlags.Public | BindingFlags.NonPublic);
+            }
+            string ns = _classGetNs != null ? Marshal.PtrToStringAnsi((IntPtr)_classGetNs.Invoke(null, new object[] { klass })) : null;
+            return string.IsNullOrEmpty(ns)
+                ? FindType("Il2Cpp." + name)
+                : FindType("Il2Cpp" + ns + "." + name) ?? FindType(ns + "." + name);
+        }
+
+        static string ClassName(IntPtr klass) =>
+            klass == IntPtr.Zero ? null : Marshal.PtrToStringAnsi((IntPtr)_classGetName.Invoke(null, new object[] { klass }));
 
         // o.name() for a zero-argument instance method; null if missing or throwing.
         public static object Call(object o, string method)

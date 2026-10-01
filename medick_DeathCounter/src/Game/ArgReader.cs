@@ -29,6 +29,10 @@ namespace medick_DeathCounter.Game
             ParameterInfo[] ps = null;
             try { ps = method?.GetParameters(); } catch { }
 
+            var real = new object[args.Length];
+            for (int i = 0; i < args.Length; i++) real[i] = Refl.Rewrap(args[i]);
+            args = real;
+
             // An explicit Actor argument (ApplyDamage's `Actor attacker`) is the
             // killer; it beats any name dug out of the damage source below.
             var actorType = PlayerProbe.ActorType;
@@ -59,7 +63,11 @@ namespace medick_DeathCounter.Game
                     default:
                         if (Refl.TryFloat(a, out float f))
                         {
-                            if (h.Amount <= 0f && f > 0f && !pname.Contains("mult") && !pname.Contains("chance") && !pname.Contains("ratio") && !pname.Contains("percent"))
+                            // HealthDamage(float) is the amount that reaches health: it beats
+                            // whatever an outer call guessed (ApplyDamage's damageModifier is ~1).
+                            if (mname == "HealthDamage" && f > 0f) h.Amount = f;
+                            else if (h.Amount <= 0f && f > 0f && !pname.Contains("mult") && !pname.Contains("modifier")
+                                     && !pname.Contains("chance") && !pname.Contains("ratio") && !pname.Contains("percent"))
                                 h.Amount = f;
                         }
                         else Inspect(a, h, 0);
@@ -78,6 +86,7 @@ namespace medick_DeathCounter.Game
         static void Inspect(object o, HitEvent h, int depth)
         {
             if (o == null || depth > 1) return;
+            o = Refl.Rewrap(o);
             string tn = o.GetType().Name;
 
             var actorType = PlayerProbe.ActorType;
@@ -144,9 +153,10 @@ namespace medick_DeathCounter.Game
         public static string AilmentName(object[] args)
         {
             if (args == null) return null;
-            foreach (var a in args)
+            foreach (var raw in args)
             {
-                if (a == null) continue;
+                if (raw == null) continue;
+                var a = Refl.Rewrap(raw);
                 // Only arguments that ARE ailments: an Actor named "Shock Wraith"
                 // must not read as Shock.
                 string text = a switch

@@ -59,11 +59,24 @@ namespace medick_DeathCounter
             InputBlocker.Apply((DeathPanel.Open && DeathPanel.MouseOver) || CounterHud.MouseOver);
         }
 
+        bool _guiFailWarned;
+
         public override void OnGUI()
         {
-            Theme.Ensure();
-            DeathPanel.Draw();   // drawn first so the counter's click lands even with the panel open
-            CounterHud.Draw();
+            // OnGUI runs several times a frame: one bad record or style must not
+            // throw on every event (review #10). Warn once, keep drawing.
+            try
+            {
+                Theme.Ensure();
+                DeathPanel.Draw();   // drawn first so the counter's click lands even with the panel open
+                CounterHud.Draw();
+            }
+            catch (Exception ex)
+            {
+                if (_guiFailWarned) return;
+                _guiFailWarned = true;
+                MelonLogger.Warning("death counter UI error (shown once): " + ex);
+            }
         }
 
         public override void OnApplicationQuit()

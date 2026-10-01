@@ -80,9 +80,15 @@ namespace medick_DeathCounter.Core
         {
             if (string.IsNullOrWhiteSpace(text)) return null;
             string t = text.ToLowerInvariant();
-            // "PoisonResistance" / "IgniteChance" style stat names are not ailments.
+            string bare = t.Replace(" ", "").Replace("_", "");
+            // An exact AilmentID name (Stun, Chill, ArmourShred ...) wins outright.
+            foreach (var a in All)
+                foreach (var k in a.Keywords)
+                    if (bare == k.Replace(" ", "").Replace("_", "")) return a;
+            // Not ailments on you: stat names ("PoisonResistance", "IgniteChance")
+            // and shrine buffs ("ShrineStun").
             if (t.Contains("resistance") && !t.Contains("shred")) return null;
-            if (t.Contains("chance")) return null;
+            if (t.Contains("chance") || t.Contains("shrine")) return null;
             foreach (var a in All)
                 foreach (var k in a.Keywords)
                     if (t.Contains(k)) return a;

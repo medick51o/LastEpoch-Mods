@@ -146,10 +146,12 @@ namespace medick_DeathCounter.UI
             }
 
             // ── Damage mix ───────────────────────────────────
+            // The split is the attacker's damage types before your own
+            // "taken as" conversions (review #12), hence "incoming".
             float total = d.DamageByElement?.Sum() ?? 0f;
             if (total > 0f)
             {
-                y = Section(cx, cw, y, sc, $"DAMAGE TAKEN, LAST {d.WindowSeconds:0}s  ·  {d.WindowDamage:N0} in {d.Hits} hit{(d.Hits == 1 ? "" : "s")}");
+                y = Section(cx, cw, y, sc, $"INCOMING DAMAGE, LAST {d.WindowSeconds:0}s  ·  {d.WindowDamage:N0} in {d.Hits} hit{(d.Hits == 1 ? "" : "s")}");
                 var barSt = Theme.Label(Mathf.RoundToInt(10 * sc));
                 float labelW = 78f * sc, barH = 10f * sc;
                 foreach (var (el, v) in Enumerable.Range(0, Elements.Count)

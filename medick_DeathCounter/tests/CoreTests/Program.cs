@@ -71,6 +71,49 @@ static class Program
         Eq("Time Rot", Ailments.Find("TimeRot")?.Name);
     }
 
+    // Review 2026-10-01 #11: AilmentID names that only CONTAIN a keyword.
+    static void Test_AilmentFind_ExactIdBeforeSubstring()
+    {
+        Eq(null, Ailments.Find("ShrineStun")?.Name);        // a shrine buff, not a stun on you
+        Eq("Stun", Ailments.Find("Stun")?.Name);
+        Eq("Chill", Ailments.Find("Chill")?.Name);
+    }
+
+    // Review 2026-10-01 #4: the game's own Deaths counter must not double count
+    // a death a hook already recorded, however late the counter moves.
+    static void Test_Ledger_CounterLagsLongAfterHook()
+    {
+        var l = new DeathCountLedger();
+        l.Observe(5, 0);                 // baseline
+        l.Recorded(10);                  // hook recorded a death at t=10
+        Eq(0, l.Observe(6, 200), "counter moved 190 s later: same death, nothing new");
+    }
+
+    static void Test_Ledger_UnexplainedIncreaseRecords()
+    {
+        var l = new DeathCountLedger();
+        l.Observe(5, 0);
+        Eq(1, l.Observe(6, 30), "no hook saw it: one new death");
+        Eq(0, l.Observe(6, 31), "no change");
+    }
+
+    static void Test_Ledger_FirstReadIsBaseline_AndCreditsExpire()
+    {
+        var l = new DeathCountLedger();
+        l.Recorded(0);                   // hook fired but the counter never moved
+        Eq(0, l.Observe(9, 1), "first read is only a baseline");
+        Eq(1, l.Observe(10, DeathCountLedger.CreditSeconds + 5), "stale credit does not swallow a later real death");
+    }
+
+    static void Test_Ledger_ResetOnCharacterChange()
+    {
+        var l = new DeathCountLedger();
+        l.Observe(5, 0); l.Recorded(1);
+        l.Reset();
+        Eq(0, l.Observe(40, 2), "new character baseline");
+        Eq(1, l.Observe(41, 3), "credit from the old character is gone");
+    }
+
     // ── Analyzer ─────────────────────────────────────────────
     static void Test_OneShot_BigFireHit()
     {

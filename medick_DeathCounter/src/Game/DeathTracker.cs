@@ -18,12 +18,12 @@ namespace medick_DeathCounter.Game
     //   game    the game's own CharacterData.Deaths going up (works even if
     //           every hook name is wrong; also the online-play fallback)
     // The latch re-arms when health is back above 0 or the player object
-    // changes (respawn, zone load, character switch). A Deaths increase
-    // within GameCountGrace of a recorded death is that same death.
+    // changes to one whose health reads > 0 (respawn, zone load, character
+    // switch). Each recorded death credits the game counter (DeathCountLedger),
+    // so the counter catching up later is never a second death.
     internal static class DeathTracker
     {
         const double AilmentMemory  = 6.0;   // ailments seen this recently count as "on you"
-        const float  GameCountGrace = 60f;   // seconds a Deaths++ may lag the death we already recorded
 
         public static DeathLog Log { get; private set; }
         public static string   Character { get; private set; } = "";
@@ -40,8 +40,8 @@ namespace medick_DeathCounter.Game
         static float _lastHp = float.NaN;
         static float _nextNameCheck;
         static float _nextCountCheck;
-        static int   _gameDeaths = -1;       // last CharacterData.Deaths seen for Character
-        static float _recordedAt = -999f;
+        static readonly DeathCountLedger _ledger = new();   // reconciles CharacterData.Deaths with our records
+        static string _deferred;                            // a death signal that fired mid-hit, see FlushDeferredDeath
 
         public static bool Recording => Prefs.Tracking.Value && PlayerProbe.HasPlayer && !_dead;
 
@@ -64,6 +64,7 @@ namespace medick_DeathCounter.Game
                 SetCharacter(PlayerProbe.CharacterName());
             }
 
+            FlushDeferredDeath();
             if (now >= _nextCountCheck)
             {
                 _nextCountCheck = now + 0.5f;
@@ -79,14 +80,22 @@ namespace medick_DeathCounter.Game
 
         static void PollGameDeathCount(float now)
         {
-            int n = PlayerProbe.GameDeathCount();
-            if (n < 0) return;
-            int before = _gameDeaths;
-            _gameDeaths = n;
-            if (before < 0 || n <= before) return;               // first read, or no change
-            if (_dead || now - _recordedAt < GameCountGrace) return;   // the death already recorded
-            Dbg.Log($"game death count {before} -> {n} with no hook or health signal");
+            int unseen = _ledger.Observe(PlayerProbe.GameDeathCount(), now);
+            if (unseen <= 0 || _dead) return;
+            Dbg.Log($"game death counter shows {unseen} death(s) no hook or health signal saw");
             OnDeath("game");
+        }
+
+        // A death signal that fired INSIDE the killing hit (die() runs within
+        // ApplyDamage → HealthDamage) waits until the hit is in the buffer;
+        // otherwise a one-shot is recorded with no killer (review #2). The
+        // outermost hit postfix flushes it; Update flushes a stray one.
+        public static void FlushDeferredDeath()
+        {
+            if (_deferred == null || GameHooks.InPlayerHit) return;
+            var d = _deferred;
+            _deferred = null;
+            OnDeath(d);
         }
 
         // Death screen / analytics: no owner, so only when health agrees.
@@ -99,7 +108,11 @@ namespace medick_DeathCounter.Game
 
         static void OnPlayerChanged(float now)
         {
-            _dead = false;
+            // Re-arm only for a living player (review #5): an actor flicker or
+            // swap while dead must not let the closing death screen count again.
+            // Unreadable health cannot prove anything either way, so it re-arms.
+            float hp = PlayerProbe.CurrentHealth;
+            if (float.IsNaN(hp) || hp > 0f) _dead = false;
             _lastHp = float.NaN;
             _hits.Clear();
             _ailments.Clear();
@@ -112,7 +125,7 @@ namespace medick_DeathCounter.Game
         {
             if (name == Character) return;
             Character = name;
-            _gameDeaths = -1;   // re-baseline the game's counter for this character
+            _ledger.Reset();    // re-baseline the game's counter for this character
             CharacterDeaths = Log?.CountFor(name) ?? 0;
             SessionDeaths = SessionCount(name);
         }
@@ -132,6 +145,7 @@ namespace medick_DeathCounter.Game
         public static void OnDeath(string detection)
         {
             if (_dead || !Prefs.Tracking.Value || !PlayerProbe.HasPlayer) return;
+            if (GameHooks.InPlayerHit) { _deferred ??= detection; return; }
 
             // A hooked "Die" must agree with health when we can read it, so a
             // mis-guessed hook can never invent deaths.
@@ -171,9 +185,7 @@ namespace medick_DeathCounter.Game
                 _session[rec.Character] = SessionCount(rec.Character) + 1;
                 SessionDeaths = SessionCount(rec.Character);
                 JustDied   = rec;
-                _recordedAt = now;
-                int gd = PlayerProbe.GameDeathCount();
-                if (gd >= 0) _gameDeaths = gd;
+                if (detection != "game") _ledger.Recorded(now);
                 JustDiedAt = Time.unscaledTime;
 
                 MelonLogger.Msg("death: " + rec.ToLogLine());
