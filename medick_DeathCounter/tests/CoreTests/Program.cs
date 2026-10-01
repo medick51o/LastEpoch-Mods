@@ -271,6 +271,53 @@ static class Program
         True(tips.Any(t => t.Key == "dot_Damned" && t.Body.Contains("cuts your health regen")), "damned regen rider");
     }
 
+    // ── Patterns (history across deaths) ─────────────────────
+    static DeathRecord Died(string killer, Element el, float amt = 900, string ailment = null)
+    {
+        var hits = new List<HitEvent> { Hit(10, amt, killer, el, ailment) };
+        return DeathAnalyzer.Analyze(hits, 10, Ctx());
+    }
+
+    static void Test_Patterns_TopKillersAndDamageShare()
+    {
+        var log = new List<DeathRecord> { Died("Lagon", Element.Fire), Died("Lagon", Element.Fire), Died("Rat", Element.Physical), Died("", Element.Cold) };
+        var p = DeathPatterns.Build(log);
+        Eq(4, p.Deaths, "deaths");
+        Eq("Lagon", p.TopKillers[0].Name, "top killer");
+        Eq(2, p.TopKillers[0].Count, "count");
+        True(p.TopKillers.All(k => !string.IsNullOrEmpty(k.Name)), "unnamed killers skipped");
+        Eq(Element.Fire, p.ElementShares[0].Element, "fire dominates");
+        True(Math.Abs(p.ElementShares.Sum(e => e.Share) - 1f) < 0.001f, "shares sum to 1");
+    }
+
+    // The point of the view: "what should I invest in", counted across deaths.
+    static void Test_Patterns_PrioritiesCountDeathsTheyWouldHaveHelped()
+    {
+        var log = new List<DeathRecord> { Died("Lagon", Element.Fire), Died("Imp", Element.Fire), Died("Fire Wraith", Element.Fire), Died("Brute", Element.Physical) };
+        var p = DeathPatterns.Build(log);
+        Eq("res_Fire", p.Priorities[0].Advice.Key, "fire res first");
+        Eq(3, p.Priorities[0].Deaths, "helps 3 of 4");
+        True(p.Priorities.Count <= DeathPatterns.MaxPriorities, "capped");
+        True(p.Priorities.Any(x => x.Advice.Key == "ehp" && x.Deaths == 4), "generic tip still listed, with its true count");
+        True(p.Priorities.All(x => x.Advice.Key != "nemesis" && x.Advice.Key != "unknown"), "no per-death-only tips");
+    }
+
+    static void Test_Patterns_WindowIsMostRecent()
+    {
+        var log = new List<DeathRecord>();
+        for (int i = 0; i < 30; i++) log.Add(Died("Old Boss", Element.Cold));
+        for (int i = 0; i < 20; i++) log.Add(Died("New Boss", Element.Void));
+        var p = DeathPatterns.Build(log, window: 20);
+        Eq(20, p.Deaths, "window");
+        Eq("New Boss", p.TopKillers.Single().Name, "only recent deaths");
+    }
+
+    static void Test_Patterns_Empty()
+    {
+        var p = DeathPatterns.Build(new List<DeathRecord>());
+        Eq(0, p.Deaths); Eq(0, p.Priorities.Count); Eq(0, p.TopKillers.Count);
+    }
+
     // ── Log ──────────────────────────────────────────────────
     static void Test_Log_RoundTripAndNumbering()
     {

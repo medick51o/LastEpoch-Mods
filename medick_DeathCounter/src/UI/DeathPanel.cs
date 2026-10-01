@@ -31,6 +31,8 @@ namespace medick_DeathCounter.UI
         static List<DeathRecord> _list = new();
         static int _listCount = -1;
         static string _listChar;
+        static bool _patterns;            // false = LAST DEATH tab, true = PATTERNS tab
+        static PatternReport _report;     // rebuilt when the list changes
 
         public static void Toggle()
         {
@@ -70,7 +72,7 @@ namespace medick_DeathCounter.UI
             if (GUI.Button(new Rect(cx + cw - bs, y - 3f * sc, bs, bs), "✕", btn)) { Close(); return; }
 
             int n = _list.Count;
-            if (n > 0)
+            if (n > 0 && !_patterns)
             {
                 int idx = n - 1 - Mathf.Clamp(_back, 0, n - 1);
                 var navSt = Theme.Label(Mathf.RoundToInt(10 * sc), FontStyle.Normal, TextAnchor.MiddleCenter);
@@ -83,12 +85,22 @@ namespace medick_DeathCounter.UI
             }
             y += 24f * sc;
 
+            if (n > 0) y = Tabs(cx, cw, y, sc);
+
             if (n == 0)
             {
                 var st = Theme.Label(Mathf.RoundToInt(15 * sc), FontStyle.Bold, TextAnchor.MiddleLeft, serif: true);
                 string msg = Prefs.Tracking.Value ? "No deaths yet. Keep it that way." : "Death tracking is paused (Tracking = false in the cfg).";
                 y += Theme.Para(cx, y, cw, msg, Theme.TextHi, st) + 8f * sc;
                 y = Footer(cx, cw, y, sc);
+                _lastH = y - top + pad;
+                return;
+            }
+
+            if (_patterns)
+            {
+                y = DrawPatterns(cx, cw, y, sc);
+                y = Footer(cx, cw, y + 2f * sc, sc);
                 _lastH = y - top + pad;
                 return;
             }
@@ -214,7 +226,90 @@ namespace medick_DeathCounter.UI
             _listCount = count;
             _listChar = who;
             _list = log.For(who).ToList();
+            _report = null;
             _back = 0;   // a new death (or another character) jumps back to the newest
+        }
+
+        // LAST DEATH | PATTERNS. The active tab is gold-underlined.
+        static float Tabs(float x, float w, float y, float sc)
+        {
+            float h = 20f * sc, gap = 4f * sc, tw = (w - gap) * 0.5f;
+            var st = Theme.Button(Mathf.RoundToInt(9 * sc));
+            if (GUI.Button(new Rect(x, y, tw, h), "LAST DEATH", st)) _patterns = false;
+            if (GUI.Button(new Rect(x + tw + gap, y, tw, h), "PATTERNS", st)) _patterns = true;
+            Theme.Fill(new Rect(_patterns ? x + tw + gap : x, y + h - 2f * sc, tw, 2f * sc), Theme.Accent);
+            return y + h + 10f * sc;
+        }
+
+        // Across this character's recent deaths: build priorities first (the
+        // "what do I invest in" answer), then who, what and which ailments.
+        static float DrawPatterns(float cx, float cw, float y, float sc)
+        {
+            _report ??= DeathPatterns.Build(_list);
+            var r = _report;
+            var body  = Theme.Label(Mathf.RoundToInt(11 * sc));
+            var small = Theme.Label(Mathf.RoundToInt(10 * sc));
+
+            if (r.Priorities.Count > 0)
+            {
+                y = Section(cx, cw, y, sc, $"BUILD PRIORITIES  ·  LAST {r.Deaths} DEATH{(r.Deaths == 1 ? "" : "S")}");
+                var tTitle = Theme.Label(Mathf.RoundToInt(12 * sc), FontStyle.Bold);
+                var tBody  = Theme.Label(Mathf.RoundToInt(10 * sc));
+                float numW = 18f * sc;
+                for (int i = 0; i < r.Priorities.Count; i++)
+                {
+                    var p = r.Priorities[i];
+                    Theme.Write(new Rect(cx, y, numW, Theme.LineHeight(tTitle)), $"{i + 1}.", Theme.Accent, tTitle);
+                    y += Theme.Para(cx + numW, y, cw - numW, $"{p.Advice.Title}  ({p.Deaths} of {r.Deaths} deaths)", Theme.TextHi, tTitle);
+                    y += Theme.Para(cx + numW, y, cw - numW, p.Advice.Body, Theme.TextMut, tBody) + 7f * sc;
+                }
+            }
+
+            if (r.TopKillers.Count > 0)
+            {
+                y = Section(cx, cw, y, sc, "WHO KEEPS KILLING YOU");
+                foreach (var (name, count) in r.TopKillers)
+                {
+                    Theme.Write(new Rect(cx, y, cw, 17f * sc), $"{name}   {count} death{(count == 1 ? "" : "s")}", Theme.Text, body);
+                    y += 17f * sc;
+                }
+                y += 6f * sc;
+            }
+
+            if (r.ElementShares.Count > 0)
+            {
+                y = Section(cx, cw, y, sc, "WHAT KILLS YOU  ·  INCOMING DAMAGE BY TYPE");
+                float labelW = 78f * sc, barH = 10f * sc;
+                foreach (var (el, share) in r.ElementShares.Where(e => e.Share >= 0.01f))
+                {
+                    Theme.Write(new Rect(cx, y, labelW, 16f * sc), Elements.Name(el), Theme.Text, small);
+                    var track = new Rect(cx + labelW, y + (16f * sc - barH) * 0.5f, cw - labelW - 44f * sc, barH);
+                    Theme.Fill(track, Theme.Inset);
+                    Theme.Fill(new Rect(track.x, track.y, track.width * share, barH), Theme.ElementColor(el));
+                    Theme.Write(new Rect(track.xMax + 6f * sc, y, 40f * sc, 16f * sc), $"{share * 100f:0}%", Theme.TextMut, small);
+                    y += 18f * sc;
+                }
+                y += 6f * sc;
+            }
+
+            if (r.TopAilments.Count > 0)
+            {
+                y = Section(cx, cw, y, sc, "AILMENTS ON YOU MOST");
+                float ax = cx;
+                foreach (var (name, count) in r.TopAilments)
+                {
+                    var info = Ailments.ByName(name);
+                    Color c = info?.Element is Element el ? Theme.ElementColor(el) : Theme.Text;
+                    ax += Chip(ax, y, $"{name} ×{count}", c, sc) + 6f * sc;
+                    if (ax > cx + cw - 80f * sc) { ax = cx; y += 22f * sc; }
+                }
+                y += 26f * sc;
+            }
+
+            var kinds = string.Join("  ·  ", r.Kinds.OrderByDescending(k => k.Value)
+                .Select(k => $"{k.Value} {new DeathRecord { Kind = k.Key }.KindLabel().ToLowerInvariant()}"));
+            if (kinds.Length > 0) y += Theme.Para(cx, y, cw, kinds, Theme.TextMut, small) + 4f * sc;
+            return y;
         }
 
         static float Section(float x, float w, float y, float sc, string title)
