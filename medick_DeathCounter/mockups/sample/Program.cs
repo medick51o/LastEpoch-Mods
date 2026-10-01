@@ -17,6 +17,8 @@ Fight(Enumerable.Range(0, 20).Select(i => H(5 + i * 0.25, 130, "Plague Spider", 
 // the last death: a frozen one-shot crit
 var last = Fight(new() { H(8.8, 300, "Frost Wraith", Element.Cold), H(9.4, 250, "Frost Wraith", Element.Cold, "Frost Claw"), H(10, 1900, "Rahyeh", Element.Void, "Void Rift Slam", crit: true) }, 10, new[] { "Freeze", "Shock" });
 last.GameDeathInfo = "";
+last.Defenses = new() { ["Res.Physical"] = 12, ["Res.Fire"] = 75, ["Res.Cold"] = 75, ["Res.Lightning"] = 52, ["Res.Necrotic"] = 60,
+                        ["Res.Void"] = 38, ["Res.Poison"] = 45, ["Armor"] = 1180, ["Dodge"] = 420, ["CritAvoidance"] = 60, ["Ward"] = 0 };
 var tips = Advisor.Suggest(last, history);
 var pat = DeathPatterns.Build(history);
 var opts = new JsonSerializerOptions { IncludeFields = true, Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() } };

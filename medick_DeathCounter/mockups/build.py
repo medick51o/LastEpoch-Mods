@@ -23,6 +23,17 @@ AILEL = {'Ignite': 'Fire', 'Bleed': 'Physical', 'Poison': 'Poison', 'Frostbite':
 NAMES = ['Physical', 'Fire', 'Cold', 'Lightning', 'Necrotic', 'Void', 'Poison']
 L, P = d['last'], d['pat']
 
+def defense_line(rec):
+    """Mirror of DeathPanel.DefenseLine."""
+    df, parts = rec['Defenses'], []
+    for n in NAMES:
+        if 'Res.' + n in df:
+            v = df['Res.' + n]; parts.append(f"{n} {v:.0f}%" + (" (cap)" if v >= 74.5 else ""))
+    for key, fmt in (('Armor', 'Armor {:,.0f}'), ('Dodge', 'Dodge {:,.0f}'), ('Block', 'Block {:.0f}%'), ('Endurance', 'Endurance {:.0f}%'),
+                     ('CritAvoidance', 'Crit avoid {:.0f}%'), ('Ward', 'Ward {:,.0f}')):
+        if key in df: parts.append(fmt.format(df[key]))
+    return "  ·  ".join(parts)
+
 def chip(t, c): return f'<span class="chip" style="--c:{c}">{E(t)}</span>'
 def acol(a): return COL.get(AILEL.get(a, ''), '#C6C2B6')
 def bars(items):
@@ -46,7 +57,8 @@ def panel(tab, body, nav=True):
 last_body = (
     f'<div class="title">Killed by {E(d["killerLine"])}</div><div class="how">{E("  ·  ".join(how))}</div>'
     f'<div class="meta"><span>3 min ago&nbsp; ·&nbsp; {E(L["Zone"])}&nbsp; ·&nbsp; lvl {L["Level"]} {E(L["CharacterClass"])}</span>{chip(d["kind"], "#C23B3B")}</div>'
-    f'<div class="sec">AILMENTS ON YOU</div><div class="chips">{"".join(chip(a, acol(a)) for a in L["AilmentsOnYou"])}</div>'
+    + (f'<div class="sec">YOUR DEFENCES AT DEATH</div><div class="how">{E(defense_line(L))}</div>' if L.get('Defenses') else '')
+    + f'<div class="sec">AILMENTS ON YOU</div><div class="chips">{"".join(chip(a, acol(a)) for a in L["AilmentsOnYou"])}</div>'
     f'<div class="sec">INCOMING DAMAGE, LAST 5s&nbsp; ·&nbsp; {L["WindowDamage"]:,.0f} in {L["Hits"]} hits</div>{bars(mix)}'
     f'<div class="sec">TOP THREATS</div>'
     + ''.join(f'<div class="row">{E(s["Name"])}&nbsp;&nbsp; {s["Amount"]:,.0f} damage, {s["Hits"]} hit{"s" if s["Hits"] != 1 else ""}</div>' for s in L['TopSources'])
