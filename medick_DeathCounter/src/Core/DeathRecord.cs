@@ -61,6 +61,22 @@ namespace medick_DeathCounter.Core
             return Defenses != null && Defenses.TryGetValue(key, out v) && float.IsFinite(v);
         }
 
+        // "Fire 41%  ·  Cold 75% (cap)  ·  ...  ·  Armor 1,200  ·  Ward 120 (after hit)"
+        public string DefenseLine()
+        {
+            var parts = new List<string>();
+            foreach (var n in Elements.Names)
+                if (TryDefense("Res." + n, out float r))
+                    parts.Add($"{n} {r:0}%{(r >= DefenseSnapshot.ResCap - 0.5f ? " (cap)" : "")}");
+            if (TryDefense("Armor", out float a))          parts.Add($"Armor {a:N0}");
+            if (TryDefense("Dodge", out float dg))         parts.Add($"Dodge {dg:N0}");
+            if (TryDefense("Block", out float b))          parts.Add($"Block {b:0}%");
+            if (TryDefense("Endurance", out float e))      parts.Add($"Endurance {e:0}%");
+            if (TryDefense("CritAvoidance", out float c))  parts.Add($"Crit avoid {c:0}%");
+            if (TryDefense("Ward", out float w))           parts.Add($"Ward {w:N0} (after hit)");   // read after the hit's ward absorb
+            return string.Join("  ·  ", parts);
+        }
+
         public string   GameDeathInfo  { get; set; }   // the game's own death text (ProtectionClass.deathInformation), when readable
         public string   Detection      { get; set; }   // "hook" | "health" | "game", for bug reports
         public string   ModVersion     { get; set; }

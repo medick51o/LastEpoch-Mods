@@ -13,4 +13,5 @@ Written on a machine without Last Epoch or MelonLoader. Core logic is unit-teste
 - Character name, level, class and hardcore from `PlayerFinder.getPlayerData()`; the game's own death text shown as "Game says".
 - Ailment and defense advice corrected from docs/RESEARCH-damage-and-defenses.md (Shock is a lightning resistance shred, not a damage-taken debuff; Frostbite, Time Rot, Doom and Damned riders; endurance; freeze).
 - Patterns tab: build priorities across the last 20 deaths with "N of M deaths" counts and pattern-level wording, top killers, incoming damage by type (per death), ailments on you most, death kinds.
+- Defences snapshot: your resistances (and headroom above the 75% cap), armor, dodge, block, endurance, crit avoidance and ward, read from the player's ProtectionClass while you are being hit. The advice names your numbers ("Cap void resistance: you had 38%, 37 points short"); a percent unit that cannot be told (75 vs 0.75) is never guessed.
 - Built without the game (`-p:NoGame=true`) and checked by `tools/InteropGuard` against shipped Terrible DLLs; CI runs tests, build and guard on every push.

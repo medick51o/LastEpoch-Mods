@@ -30,7 +30,7 @@ def defense_line(rec):
         if 'Res.' + n in df:
             v = df['Res.' + n]; parts.append(f"{n} {v:.0f}%" + (" (cap)" if v >= 74.5 else ""))
     for key, fmt in (('Armor', 'Armor {:,.0f}'), ('Dodge', 'Dodge {:,.0f}'), ('Block', 'Block {:.0f}%'), ('Endurance', 'Endurance {:.0f}%'),
-                     ('CritAvoidance', 'Crit avoid {:.0f}%'), ('Ward', 'Ward {:,.0f}')):
+                     ('CritAvoidance', 'Crit avoid {:.0f}%'), ('Ward', 'Ward {:,.0f} (after hit)')):
         if key in df: parts.append(fmt.format(df[key]))
     return "  ·  ".join(parts)
 

@@ -2,8 +2,8 @@
 Read this first. Update after every step. Last update: 2026-10-01 (first build, cloud session, no game on the machine).
 
 ## State right now
-- v0.1.0 source complete. **Never run in game. No cross-vendor review** (Codex/Grok/Gemini hosts blocked by the cloud environment's network policy; SPINE status REVIEW UNAVAILABLE). Three same-vendor (Claude) reviews ran: 12 findings, 5 on the repair, 6 on the Patterns tab, all fixed or noted. Same-vendor reads are not independent review.
-- **Prebuilt for Saturday:** `release/medick_DeathCounter.dll` (103,424 B, sha256 88d7d43c…78e0, includes the Patterns tab) and `release/medick_DeathCounter_v0.1.0.zip`. Built with `-p:NoGame=true`; the exact shipped file passes InteropGuard. Every CI run also uploads the DLL as an artifact.
+- v0.1.0 source complete. **Never run in game. No cross-vendor review** (Codex/Grok/Gemini hosts blocked by the cloud environment's network policy; SPINE status REVIEW UNAVAILABLE). Four same-vendor (Claude) reviews ran: 12 findings, 5 on the repair, 6 on the Patterns tab, 8 on the defences snapshot; all fixed or noted. Same-vendor reads are not independent review.
+- **Prebuilt for Saturday:** `release/medick_DeathCounter.dll` (110,592 B, sha256 bade7ead…3372; Patterns tab and defences snapshot included) and `release/medick_DeathCounter_v0.1.0.zip`. Built with `-p:NoGame=true`; the exact shipped file passes InteropGuard. Every CI run also uploads the DLL as an artifact.
 - The mod references **no game assembly**: PlayerFinder, Actor, EpochInputManager and every health/damage/ailment member are reached by name (`Refl`). So the DLL can be built without the game: `-p:NoGame=true` (NuGet MelonLoader 0.7.2, HarmonyX 2.10.2, Il2CppInterop 1.5.1 = the versions ML 0.7.2 ships, UnityEngine.Modules 2021.3.33).
 - Gates (cloud, 2026-10-01): CoreTests 36/36 (was 19/19 at first build); NoGame build 0 warnings / 0 errors; InteropGuard: 71 of 72 interop calls proven by shipped Terrible DLLs, the 72nd (`Application.OpenURL`) is fenced in its own try.
 - `mockups/build.py` renders the panel from real Core output; see `mockups/death-panel.png`.
@@ -23,6 +23,8 @@ Read this first. Update after every step. Last update: 2026-10-01 (first build, 
 5. Then fix `GameHooks.Candidates`, `PlayerProbe` member names and `ArgReader` from the probe output (or try `HookOverrides` in the cfg first: no rebuild needed).
 
 ## Open questions for the probe
+- **Defences scale:** are percent stats stored as 75 or 0.75? The `[probe] defences raw:` line answers it. Until then `DefenseSnapshot` only reports percents when the evidence is unambiguous; once known, hardcode the scale.
+- Are `ProtectionClass.uncapped<Element>Resistance`, `armour`, `dodgeRating`, `blockChance`, `endurance`, `critAvoidance` still the field names (2023 dump)? Missing ones are simply left out of the snapshot.
 - Does `ProtectionClass.ApplyDamage` still have the 2023 signature, and does Harmony accept the boxed `HitEvents` `__result` (log: `HitEvents postfix refused` in DebugLog means crit flags are lost, nothing else)?
 - Is `ActorDisplayInformation` on the actor or a child (attacker names)?
 - What does `ProtectionClass.deathInformation.deathInfo` actually say ("Game says" line)?

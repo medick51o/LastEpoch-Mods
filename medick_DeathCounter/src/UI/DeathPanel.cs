@@ -351,25 +351,13 @@ namespace medick_DeathCounter.UI
             return y + 24f * sc;
         }
 
-        // "Fire 41% · Cold 75% (cap) · ... · Armor 1,200 · Crit avoid 60%", cached per record.
+        // Built once per record (DeathRecord.DefenseLine, unit-tested in Core).
         static DeathRecord _defFor;
         static string _defLine = "";
 
         static string DefenseLine(DeathRecord d)
         {
-            if (ReferenceEquals(d, _defFor)) return _defLine;
-            var parts = new List<string>();
-            foreach (var n in Elements.Names)
-                if (d.TryDefense("Res." + n, out float r))
-                    parts.Add($"{n} {r:0}%{(r >= 74.5f ? " (cap)" : "")}");
-            if (d.TryDefense("Armor", out float a))          parts.Add($"Armor {a:N0}");
-            if (d.TryDefense("Dodge", out float dg))         parts.Add($"Dodge {dg:N0}");
-            if (d.TryDefense("Block", out float b))          parts.Add($"Block {b:0}%");
-            if (d.TryDefense("Endurance", out float e))      parts.Add($"Endurance {e:0}%");
-            if (d.TryDefense("CritAvoidance", out float c))  parts.Add($"Crit avoid {c:0}%");
-            if (d.TryDefense("Ward", out float w))           parts.Add($"Ward {w:N0}");
-            _defFor = d;
-            _defLine = string.Join("  ·  ", parts);
+            if (!ReferenceEquals(d, _defFor)) { _defFor = d; _defLine = d.DefenseLine(); }
             return _defLine;
         }
 

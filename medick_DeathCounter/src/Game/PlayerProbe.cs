@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using medick_DeathCounter.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -147,8 +148,9 @@ namespace medick_DeathCounter.Game
         // Final values are plain fields on the player's ProtectionClass
         // (2023 dump names; actor + component lookup confirmed for LE 1.4).
         // Resistances are "uncapped"; the cap is a hard 75%. Whether percent
-        // stats are stored as 75 or 0.75 is unknown, so the resistances decide
-        // the scale and the raw values are logged once for the first launch.
+        // stats are stored as 75 or 0.75 is unknown: DefenseSnapshot decides
+        // from evidence or reports nothing, and the raw values are logged once
+        // for the first launch.
         static readonly (string key, string[] names)[] ResFields =
         {
             ("Res.Physical",  new[] { "uncappedPhysicalResistance" }),
@@ -177,28 +179,20 @@ namespace medick_DeathCounter.Game
             foreach (var (key, names) in ResFields.Concat(PercentFields))
                 if (Refl.TryFloat(Refl.Get(prot, names), out var v)) raw[key] = v;
 
-            // Scale from the resistances: any |res| > 1.5 means percent units,
-            // all small and some nonzero means fractions; no signal = unknown,
-            // and then percent stats are left out rather than guessed.
-            var res = raw.Where(kv => kv.Key.StartsWith("Res.")).Select(kv => kv.Value).ToList();
-            float scale = res.Any(v => Math.Abs(v) > 1.5f) ? 1f : res.Any(v => v != 0f) ? 100f : float.NaN;
-
-            var def = new Dictionary<string, float>();
-            if (!float.IsNaN(scale))
-                foreach (var kv in raw)
-                    def[kv.Key] = kv.Key.StartsWith("Res.") ? Math.Min(kv.Value * scale, 75f) : kv.Value * scale;
-
-            if (Refl.TryFloat(Refl.Get(prot, "armour", "armor") ?? Refl.Call(prot, "armourForCharacterSheet"), out var armor)) def["Armor"] = armor;
-            if (Refl.TryFloat(Refl.Get(prot, "dodgeRating"), out var dodge)) def["Dodge"] = dodge;
-            if (Refl.TryFloat(Refl.Get(prot, "enduranceThreshold"), out var et)) def["EnduranceThreshold"] = et;
-            if (Refl.TryFloat(Refl.Get(prot, "CurrentWard", "currentWard"), out var ward)) def["Ward"] = ward;
+            // Scale (75 vs 0.75) and the cap live in Core/DefenseSnapshot,
+            // where they are unit-tested; unknown scale = no percent stats.
+            if (Refl.TryFloat(Refl.Get(prot, "armour", "armor") ?? Refl.Call(prot, "armourForCharacterSheet"), out var armor)) raw["Armor"] = armor;
+            if (Refl.TryFloat(Refl.Get(prot, "dodgeRating"), out var dodge)) raw["Dodge"] = dodge;
+            if (Refl.TryFloat(Refl.Get(prot, "enduranceThreshold"), out var et)) raw["EnduranceThreshold"] = et;
+            if (Refl.TryFloat(Refl.Get(prot, "CurrentWard", "currentWard"), out var ward)) raw["Ward"] = ward;
             float max = MaxHealth;
-            if (!float.IsNaN(max)) def["MaxHealth"] = max;
+            if (!float.IsNaN(max)) raw["MaxHealth"] = max;
+            var def = DefenseSnapshot.Normalize(raw);
 
             if (!_defensesLogged && (Prefs.ProbeApi.Value || Prefs.DebugLog.Value))
             {
                 _defensesLogged = true;
-                MelonLoader.MelonLogger.Msg($"[probe] defences raw: {string.Join(", ", raw.Select(kv => $"{kv.Key}={kv.Value}"))}; scale {scale}; stored: {string.Join(", ", def.Select(kv => $"{kv.Key}={kv.Value:0.##}"))}");
+                MelonLoader.MelonLogger.Msg($"[probe] defences raw: {string.Join(", ", raw.Select(kv => $"{kv.Key}={kv.Value}"))}; scale {DefenseSnapshot.Scale(raw)?.ToString() ?? "unknown"}; stored: {string.Join(", ", def.Select(kv => $"{kv.Key}={kv.Value:0.##}"))}");
             }
             return def.Count > 0 ? def : null;
         }

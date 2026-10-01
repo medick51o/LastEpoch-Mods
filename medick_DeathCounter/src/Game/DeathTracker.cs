@@ -152,7 +152,7 @@ namespace medick_DeathCounter.Game
             if (now - _defensesAt >= 1f)
             {
                 _defensesAt = now;
-                try { _defenses = PlayerProbe.Defenses() ?? _defenses; } catch { }
+                try { _defenses = PlayerProbe.Defenses(); } catch { _defenses = null; }   // never carry an old life's snapshot (review #5)
             }
             Dbg.Log($"hit {h.Amount:0} from {h.Source ?? "?"} {(h.Ability != null ? "(" + h.Ability + ")" : "")} {h.Ailment ?? ""} hp {h.HealthBefore:0}/{h.MaxHealth:0}");
         }
@@ -201,6 +201,8 @@ namespace medick_DeathCounter.Game
                 var rec = DeathAnalyzer.Analyze(_hits.Since(now - 12.0), now, ctx, ailments);
                 if (now - _defensesAt > 15f) { try { _defenses = PlayerProbe.Defenses(); } catch { } }   // no recent hit: read now
                 rec.Defenses = _defenses;
+                _defenses = null;
+                _defensesAt = -999f;
 
                 Log.Append(rec);
                 SetCharacter(rec.Character);

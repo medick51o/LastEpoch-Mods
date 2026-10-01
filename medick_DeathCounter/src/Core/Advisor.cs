@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -77,12 +78,20 @@ namespace medick_DeathCounter.Core
                 if (!d.TryDefense("Res." + n, out float have))
                     Add("res_" + n, w, $"Cap {el} resistance (75%)",
                         $"{why} Check your character sheet: every point below 75% is damage you are taking for free.");
-                else if (have >= 75f - 0.5f)
+                else if (have >= DefenseSnapshot.ResCap - 0.5f)
+                {
+                    string over = d.TryDefense("ResUncapped." + n, out float un) && un > DefenseSnapshot.ResCap + 0.5f
+                        ? $" ({un:0}% before the cap, which is headroom against shred)" : "";
                     Add("res_" + n, 30f, $"{Cap(el)} resistance was already capped",
-                        $"{why} You were at {have:0}%, so it got through a capped resistance: more health, ward and endurance are the next layer.");
+                        $"{why} You were at {have:0}%{over}, so it got through a capped resistance: more health, ward and endurance are the next layer.");
+                }
                 else
+                {
+                    // Weighted a little above the generic tip: a known gap is the most concrete fix there is.
+                    int gap = (int)MathF.Round(DefenseSnapshot.ResCap - have);
                     Add("res_" + n, w + 5f, $"Cap {el} resistance: you had {have:0}%",
-                        $"{why} You were {75f - have:0} points short of the 75% cap; every one of them is damage you took for free.");
+                        $"{why} You were {gap} point{(gap == 1 ? "" : "s")} short of the 75% cap; every one of them is damage you took for free.");
+                }
             }
 
             // 2. How you died → the right kind of defence.
@@ -96,7 +105,7 @@ namespace medick_DeathCounter.Core
                     if (d.KillingCrit == true)
                         Add("crit", 95f, "Get critical strike avoidance to 100%",
                             "The killing blow was a critical strike, which hits for double. "
-                            + (d.TryDefense("CritAvoidance", out float ca) ? $"You had {ca:0}% critical strike avoidance; at 100% " : "At 100% critical strike avoidance ")
+                            + (d.TryDefense("CritAvoidance", out float ca) && ca < 99.5f ? $"You had {ca:0}% critical strike avoidance; at 100% " : "At 100% critical strike avoidance ")
                             + "enemies cannot crit you at all.");
                     break;
 
@@ -139,7 +148,9 @@ namespace medick_DeathCounter.Core
                     case "Freeze":
                     case "Chill":
                         Add("cc_freeze", killing ? 80f : 65f, $"You were {(a.Name == "Freeze" ? "frozen" : "chilled")}",
-                            "More max health and ward lower your chance to be frozen, and Frostbite stacks raise it. Keep cold resistance capped and save a movement skill to break away.");
+                            "More max health and ward lower your chance to be frozen, and Frostbite stacks raise it."
+                            + (d.TryDefense("Res.Cold", out float cr) && cr >= DefenseSnapshot.ResCap - 0.5f ? "" : " Keep cold resistance capped.")
+                            + " Save a movement skill to break away.");
                         break;
                     case "Stun":
                         Add("cc_stun", 65f, "Get stun avoidance", "You were stunned in the fight that killed you. Stun avoidance and a bigger health pool keep you acting.");

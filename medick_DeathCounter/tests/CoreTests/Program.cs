@@ -319,6 +319,80 @@ static class Program
         finally { try { Directory.Delete(dir, true); } catch { } }
     }
 
+    // Review 2026-10-01 (defences): the 75 vs 0.75 scale must never invent a number.
+    static Dictionary<string, float> Raw(params (string k, float v)[] kv) => kv.ToDictionary(x => x.k, x => x.v);
+
+    static void Test_Defenses_PercentUnits()
+    {
+        var d = DefenseSnapshot.Normalize(Raw(("Res.Fire", 41f), ("Res.Cold", 88f), ("CritAvoidance", 60f), ("Armor", 1200f)));
+        Eq(41f, d["Res.Fire"]); Eq(75f, d["Res.Cold"], "capped"); Eq(88f, d["ResUncapped.Cold"], "headroom kept");
+        Eq(60f, d["CritAvoidance"]); Eq(1200f, d["Armor"]);
+    }
+
+    static void Test_Defenses_FractionUnits()
+    {
+        var d = DefenseSnapshot.Normalize(Raw(("Res.Fire", 0.41f), ("Res.Cold", 1.6f), ("CritAvoidance", 0.6f)));
+        True(Math.Abs(d["Res.Fire"] - 41f) < 0.01f, "fraction scaled");
+        Eq(75f, d["Res.Cold"], "160% overcap read as fraction, capped");
+        True(Math.Abs(d["CritAvoidance"] - 60f) < 0.01f, "percent stat scaled too");
+    }
+
+    // Case A: percent units, a young character with Fire 1 and the rest 0.
+    static void Test_Defenses_WholeSmallValuesAreNoSignal()
+    {
+        var d = DefenseSnapshot.Normalize(Raw(("Res.Fire", 1f), ("Res.Cold", 0f), ("Res.Void", -1f), ("Block", 1f), ("Armor", 50f)));
+        True(!d.ContainsKey("Res.Fire") && !d.ContainsKey("Block"), "unknown scale: no percents reported");
+        Eq(50f, d["Armor"], "flat stats still reported");
+    }
+
+    static void Test_Defenses_ConflictingEvidenceReportsNothing()
+    {
+        var d = DefenseSnapshot.Normalize(Raw(("Res.Fire", 0.5f), ("Res.Cold", 40f)));
+        True(!d.ContainsKey("Res.Fire") && !d.ContainsKey("Res.Cold"), "conflict: no percents");
+    }
+
+    static void Test_Defenses_ImplausiblePercentDropped()
+    {
+        var d = DefenseSnapshot.Normalize(Raw(("Res.Fire", 40f), ("CritAvoidance", 250f)));
+        True(!d.ContainsKey("CritAvoidance"), "over 100% crit avoidance is a misread");
+        Eq(40f, d["Res.Fire"]);
+    }
+
+    static void Test_Defenses_NegativeResistanceKept()
+    {
+        var d = DefenseSnapshot.Normalize(Raw(("Res.Fire", -50f), ("Res.Cold", 30f)));
+        Eq(-50f, d["Res.Fire"]);
+    }
+
+    static void Test_Advice_CapThresholdEdges()
+    {
+        True(!Advisor.Suggest(FireOneShot(new() { ["Res.Fire"] = 74.4f })).Single(t => t.Key == "res_Fire").Title.Contains("capped"), "74.4 not capped");
+        True(Advisor.Suggest(FireOneShot(new() { ["Res.Fire"] = 74.6f })).Single(t => t.Key == "res_Fire").Title.Contains("capped"), "74.6 capped");
+        True(Advisor.Suggest(FireOneShot(new() { ["Res.Fire"] = 74f })).Single(t => t.Key == "res_Fire").Body.Contains("1 point short"), "singular");
+    }
+
+    static void Test_Advice_CrittedDespiteFullAvoidanceDoesNotClaimImmunity()
+    {
+        var body = Advisor.Suggest(FireOneShot(new() { ["CritAvoidance"] = 100f })).Single(t => t.Key == "crit").Body;
+        True(!body.Contains("You had 100%"), body);
+    }
+
+    static void Test_Advice_FreezeTipKnowsColdIsCapped()
+    {
+        var r = DeathAnalyzer.Analyze(new List<HitEvent> { Hit(10, 900, "Wraith", Element.Cold) }, 10, Ctx(), new[] { "Freeze" });
+        r.Defenses = new() { ["Res.Cold"] = 75f };
+        var body = Advisor.Suggest(r).Single(t => t.Key == "cc_freeze").Body;
+        True(!body.Contains("Keep cold resistance capped"), body);
+    }
+
+    static void Test_DefenseLine_MarksCapAndWardTiming()
+    {
+        var r = new DeathRecord { Defenses = new() { ["Res.Fire"] = 75f, ["Res.Cold"] = 41f, ["Ward"] = 120f } };
+        var line = r.DefenseLine();
+        True(line.Contains("Fire 75% (cap)") && line.Contains("Cold 41%") && !line.Contains("Cold 41% (cap)"), line);
+        True(line.Contains("Ward 120 (after hit)"), line);
+    }
+
     // ── Patterns (history across deaths) ─────────────────────
     static DeathRecord Died(string killer, Element el, float amt = 900, string ailment = null)
     {
