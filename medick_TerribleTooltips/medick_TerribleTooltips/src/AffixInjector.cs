@@ -104,7 +104,7 @@ public static class AffixInjector
             foreach (ItemAffix ia in item.affixes)
             {
                 if (ia == null) continue;
-                AffixList.Affix def = AffixList.instance.GetAffix(ia.affixId);
+                AffixList.Affix def = AffixList.get().GetAffix(ia.affixId);
                 if (def != null && def.HasProperty(modProperty))
                 {
                     match = ia;
