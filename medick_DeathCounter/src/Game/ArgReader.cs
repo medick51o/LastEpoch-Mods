@@ -1,6 +1,5 @@
 using System;
 using System.Reflection;
-using Il2Cpp;
 using medick_DeathCounter.Core;
 using UnityEngine;
 
@@ -73,19 +72,19 @@ namespace medick_DeathCounter.Game
             if (o == null || depth > 1) return;
             string tn = o.GetType().Name;
 
-            if (o is Actor actor)
+            var actorType = PlayerProbe.ActorType;
+            if (o is Component comp && h.Source == null)
             {
-                if (h.Source == null) h.Source = ActorName(actor);
-            }
-            else if (o is Component comp)
-            {
-                // Some other component on an attacker (a projectile, a minion's
-                // AI): name it after its owning actor when it has one.
-                if (h.Source == null)
+                if (actorType != null && actorType.IsInstanceOfType(o))
+                    h.Source = ActorName(comp);
+                else
                 {
-                    Actor owner = null;
-                    try { owner = comp.GetComponent<Actor>(); } catch { }
-                    h.Source = owner != null ? ActorName(owner) : Refl.UnityName(comp.gameObject);
+                    // Some other component on an attacker (a projectile, a minion's
+                    // AI): name it after its owning actor when it has one.
+                    GameObject go = null;
+                    try { go = comp.gameObject; } catch { }
+                    var owner = Refl.GetComponent(go, actorType);
+                    h.Source = owner != null ? ActorName(owner) : Refl.UnityName(go);
                 }
             }
 
@@ -109,7 +108,7 @@ namespace medick_DeathCounter.Game
                 }
         }
 
-        public static string ActorName(Actor a)
+        public static string ActorName(Component a)
         {
             if (a == null) return null;
             try

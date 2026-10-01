@@ -65,27 +65,31 @@ The panel has an **OPEN LOG FOLDER** button.
 
 ## Building from source
 
-```bash
-dotnet build medick_DeathCounter -c Release -p:DeployToMods=false
-```
-
-Without the game installed (cloud box, CI):
+On a PC with the game (auto-copies the DLL into `Mods/`):
 
 ```bash
-dotnet run --project medick_DeathCounter/tests/CoreTests      # unit tests for the death analysis, advice and log
-dotnet build medick_DeathCounter/tests/CompileCheck           # compiles the whole mod against NuGet MelonLoader/Unity + stubs
+dotnet build medick_DeathCounter -c Release
 ```
+
+Without the game (cloud box, CI). The mod references no game assembly, so this is the same DLL:
+
+```bash
+dotnet run --project medick_DeathCounter/tests/CoreTests                 # unit tests: analysis, advice, log
+dotnet build medick_DeathCounter -c Release -p:NoGame=true                # MelonLoader/Unity from NuGet
+dotnet run --project tools/InteropGuard -- medick_DeathCounter/bin/Release/net6.0/medick_DeathCounter.dll .
+```
+
+`InteropGuard` checks that every Unity call the DLL makes also appears in a Terrible mod DLL that already shipped and ran in game. A plain-Unity build can otherwise call members the game's IL2CPP build stripped, or read a field the game exposes as a property, and fail at runtime. GitHub Actions (`.github/workflows/death-counter.yml`) runs all three on every push and uploads the DLL.
 
 ```
 medick_DeathCounter/
-  medick_DeathCounter.csproj
+  medick_DeathCounter.csproj     default = game refs, -p:NoGame=true = NuGet refs
   src/
     DeathCounterMod.cs     MelonMod lifecycle, keys
     BuildInfo.cs / Prefs.cs
     Core/                  game-free: Elements + Ailments, HitEvent/HitBuffer, DeathAnalyzer, Advisor, DeathLog
     Game/                  PlayerProbe, GameHooks (Harmony taps by name), ArgReader, DeathTracker, Refl
     UI/                    Theme, CounterHud, DeathPanel, InputBlocker
-  tests/
-    CoreTests/             no-dependency test runner over src/Core
-    CompileCheck/          builds src/ with NuGet references and GameStubs.cs
+  tests/CoreTests/         no-dependency test runner over src/Core
+  docs/                    research notes (damage mechanics, game API)
 ```

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
-using Il2Cpp;
 using medick_DeathCounter.Core;
 using MelonLoader;
 using UnityEngine;

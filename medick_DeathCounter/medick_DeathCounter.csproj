@@ -8,21 +8,32 @@
     <Nullable>disable</Nullable>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
 
-  <!-- tests/ builds on its own (CoreTests: game-free unit tests; CompileCheck: no-game compile) -->
+  <!-- tests/ builds on its own (CoreTests: game-free unit tests) -->
   <ItemGroup>
     <Compile Remove="tests\**\*.cs" />
     <Compile Remove="docs\**\*.cs" />
   </ItemGroup>
 
-  <!-- Reference paths: adjust if your game is elsewhere -->
+  <!--
+    The mod references NO game assembly (every Last Epoch type is reached by
+    name, see src/Game/Refl.cs), so it can be built two ways:
+
+    Default:  against the MelonLoader + Unity DLLs inside your game install.
+    NoGame:   dotnet build -c Release -p:NoGame=true
+              against the same libraries from NuGet, at the versions
+              MelonLoader 0.7.2 ships (Il2CppInterop 1.5.1, HarmonyX 2.10.2).
+              Used by CI and by machines without the game.
+  -->
+
   <PropertyGroup>
     <ML>C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\net6\</ML>
     <GM>C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\Il2CppAssemblies\</GM>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(NoGame)' != 'true'">
     <Reference Include="MelonLoader">
       <HintPath>$(ML)MelonLoader.dll</HintPath>
       <Private>false</Private>
@@ -33,14 +44,6 @@
     </Reference>
     <Reference Include="Il2CppInterop.Runtime">
       <HintPath>$(ML)Il2CppInterop.Runtime.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Il2CppLE">
-      <HintPath>$(GM)Il2CppLE.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Il2Cppmscorlib">
-      <HintPath>$(GM)Il2Cppmscorlib.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
@@ -59,6 +62,18 @@
       <HintPath>$(GM)UnityEngine.TextRenderingModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(NoGame)' == 'true'">
+    <DeployToMods>false</DeployToMods>
+    <NoWarn>$(NoWarn);NU1701;NU1603</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(NoGame)' == 'true'">
+    <PackageReference Include="LavaGang.MelonLoader" Version="0.7.2" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="HarmonyX" Version="2.10.2" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="Il2CppInterop.Runtime" Version="1.5.1" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- Auto-copy built DLL to Last Epoch Mods folder after each build (-p:DeployToMods=false to skip) -->

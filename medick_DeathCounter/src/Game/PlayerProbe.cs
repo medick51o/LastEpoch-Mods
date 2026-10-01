@@ -1,14 +1,14 @@
 using System;
 using System.Linq;
-using Il2Cpp;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace medick_DeathCounter.Game
 {
     // The local player: actor, health component, and "who am I" details.
-    // PlayerFinder.getPlayerActor() is proven (Righteous Fire); everything
-    // past the Actor is looked up by name, see Refl.
+    // PlayerFinder.getPlayerActor() is proven (Righteous Fire) but called by
+    // name, like everything else here: the mod references no game assembly,
+    // so it cannot fail to load over which Il2CppLE*.dll a type lives in.
     internal static class PlayerProbe
     {
         // Candidate health component types, most specific first.
@@ -16,12 +16,14 @@ namespace medick_DeathCounter.Game
         static readonly string[] CurrentHealthNames = { "currentHealth", "CurrentHealth", "health", "Health", "currentHP" };
         static readonly string[] MaxHealthNames     = { "maxHealth", "MaxHealth", "maximumHealth", "healthMax", "maxHP" };
 
-        public static Actor      Actor   { get; private set; }
+        public static Component  Actor   { get; private set; }   // Il2Cpp.Actor
+        public static Type       ActorType => Refl.FindType("Il2Cpp.Actor");
         public static GameObject Object  { get; private set; }
         public static IntPtr     ObjectPtr { get; private set; }
         public static Component  Health  { get; private set; }
         public static IntPtr     HealthPtr { get; private set; }
 
+        static System.Reflection.MethodInfo _getPlayerActor;
         static float _nextRefresh;
         static bool  _healthMissingWarned;
 
@@ -34,8 +36,13 @@ namespace medick_DeathCounter.Game
             if (now < _nextRefresh) return false;
             _nextRefresh = now + 0.5f;
 
-            Actor actor = null;
-            try { actor = PlayerFinder.getPlayerActor(); } catch { }
+            Component actor = null;
+            try
+            {
+                _getPlayerActor ??= Refl.FindType("Il2Cpp.PlayerFinder")?.GetMethod("getPlayerActor", Type.EmptyTypes);
+                actor = _getPlayerActor?.Invoke(null, null) as Component;
+            }
+            catch { }
             GameObject go = null;
             try { go = actor != null ? actor.gameObject : null; } catch { }
             IntPtr ptr = Refl.Ptr(go);

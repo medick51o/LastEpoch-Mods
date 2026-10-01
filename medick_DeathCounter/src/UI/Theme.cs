@@ -43,7 +43,7 @@ namespace medick_DeathCounter.UI
         public static GUIStyle Panel, Card, Chip;
         static GUIStyle _btn, _label;
         static Font _serif;
-        static readonly Dictionary<(int, FontStyle, TextAnchor, bool, bool), GUIStyle> _labels = new();
+        static readonly Dictionary<(int, FontStyle, TextAnchor, bool), GUIStyle> _labels = new();
         static readonly Dictionary<int, GUIStyle> _buttons = new();
 
         public static void Ensure()
@@ -87,11 +87,11 @@ namespace medick_DeathCounter.UI
         }
 
         public static GUIStyle Label(int size, FontStyle fs = FontStyle.Normal, TextAnchor anchor = TextAnchor.MiddleLeft,
-            bool serif = false, bool wrap = false)
+            bool serif = false)
         {
-            var key = (size, fs, anchor, serif && _serif != null, wrap);
+            var key = (size, fs, anchor, serif && _serif != null);
             if (_labels.TryGetValue(key, out var st)) return st;
-            st = new GUIStyle(_label) { fontSize = size, fontStyle = fs, alignment = anchor, wordWrap = wrap };
+            st = new GUIStyle(_label) { fontSize = size, fontStyle = fs, alignment = anchor };
             if (serif && _serif != null) st.font = _serif;
             _labels[key] = st;
             return st;
@@ -105,7 +105,56 @@ namespace medick_DeathCounter.UI
             return st;
         }
 
-        public static void Box(Rect r, GUIStyle style) => GUI.Label(r, GUIContent.none, style);
+        // Every Unity call in this mod also appears in a shipped Terrible mod's
+        // DLL (built against the game's own interop assemblies): IL2CPP strips
+        // members the game never uses, and interop turns fields into
+        // properties. So no GUIContent.none (a field in plain Unity), no
+        // GUIStyle.CalcHeight / word wrap (unproven), no Color.Lerp or
+        // Rect.center. See the no-game build notes in CURRENT-WORK.md.
+        static GUIContent _empty;
+
+        public static void Box(Rect r, GUIStyle style) => GUI.Label(r, _empty ??= new GUIContent(""), style);
+
+        public static Color Mix(Color a, Color b, float t)
+        {
+            t = Mathf.Clamp01(t);
+            return new Color(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, 1f);
+        }
+
+        // Greedy word wrap measured with CalcSize, cached per text/style/width.
+        // Keyed on the style object itself: styles come from the caches above,
+        // so the reference is stable (and GUIStyle getters are unproven).
+        static readonly Dictionary<(string, GUIStyle, float), List<string>> _wraps = new();
+
+        public static List<string> Wrap(string text, GUIStyle st, float width)
+        {
+            var key = (text ?? "", st, Mathf.Round(width));
+            if (_wraps.TryGetValue(key, out var lines)) return lines;
+            if (_wraps.Count > 512) _wraps.Clear();
+            lines = new List<string>();
+            string line = "";
+            foreach (var word in (text ?? "").Split(' '))
+            {
+                string attempt = line.Length == 0 ? word : line + " " + word;
+                if (line.Length > 0 && Width(attempt, st) > width) { lines.Add(line); line = word; }
+                else line = attempt;
+            }
+            if (line.Length > 0 || lines.Count == 0) lines.Add(line);
+            _wraps[key] = lines;
+            return lines;
+        }
+
+        public static float LineHeight(GUIStyle st) => Size("Ag", st).y;
+
+        // Draws text wrapped to width; returns the height used.
+        public static float Para(float x, float y, float width, string text, Color c, GUIStyle st)
+        {
+            float lh = LineHeight(st);
+            var lines = Wrap(text, st, width);
+            for (int i = 0; i < lines.Count; i++)
+                Write(new Rect(x, y + i * lh, width, lh), lines[i], c, st);
+            return lines.Count * lh;
+        }
 
         public static void Fill(Rect r, Color c)
         {
@@ -121,8 +170,8 @@ namespace medick_DeathCounter.UI
             GUI.color = Color.white;
         }
 
-        public static float Width(string text, GUIStyle st) => st.CalcSize(new GUIContent(text)).x;
-        public static float Height(string text, GUIStyle st, float w) => st.CalcHeight(new GUIContent(text), w);
+        static Vector2 Size(string text, GUIStyle st) => st.CalcSize(new GUIContent(text));
+        public static float Width(string text, GUIStyle st) => Size(text, st).x;
 
         public static void DrawBorder(Rect r, Color c, float bw)
         {

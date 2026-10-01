@@ -77,23 +77,17 @@ namespace medick_DeathCounter.UI
                 string pos = $"{idx + 1} / {n}";
                 float pw = Theme.Width(pos, navSt) + 10f * sc;
                 float nx = cx + cw - bs - 8f * sc - bs - pw - bs;
-                GUI.enabled = _back < n - 1;
-                if (GUI.Button(new Rect(nx, y - 3f * sc, bs, bs), "‹", btn)) _back++;
-                GUI.enabled = true;
+                NavButton(new Rect(nx, y - 3f * sc, bs, bs), "‹", _back < n - 1, btn, navSt, () => _back++);
                 Theme.Write(new Rect(nx + bs, y - 3f * sc, pw, bs), pos, Theme.TextMut, navSt);
-                GUI.enabled = _back > 0;
-                if (GUI.Button(new Rect(nx + bs + pw, y - 3f * sc, bs, bs), "›", btn)) _back--;
-                GUI.enabled = true;
+                NavButton(new Rect(nx + bs + pw, y - 3f * sc, bs, bs), "›", _back > 0, btn, navSt, () => _back--);
             }
             y += 24f * sc;
 
             if (n == 0)
             {
-                var st = Theme.Label(Mathf.RoundToInt(15 * sc), FontStyle.Bold, TextAnchor.MiddleLeft, serif: true, wrap: true);
+                var st = Theme.Label(Mathf.RoundToInt(15 * sc), FontStyle.Bold, TextAnchor.MiddleLeft, serif: true);
                 string msg = Prefs.Tracking.Value ? "No deaths yet. Keep it that way." : "Death tracking is paused (Tracking = false in the cfg).";
-                float hh = Theme.Height(msg, st, cw);
-                Theme.Write(new Rect(cx, y, cw, hh), msg, Theme.TextHi, st);
-                y += hh + 8f * sc;
+                y += Theme.Para(cx, y, cw, msg, Theme.TextHi, st) + 8f * sc;
                 y = Footer(cx, cw, y, sc);
                 _lastH = y - top + pad;
                 return;
@@ -107,11 +101,9 @@ namespace medick_DeathCounter.UI
             }
 
             // ── Who ──────────────────────────────────────────
-            var titleSt = Theme.Label(Mathf.RoundToInt(19 * sc), FontStyle.Bold, TextAnchor.MiddleLeft, serif: true, wrap: true);
+            var titleSt = Theme.Label(Mathf.RoundToInt(19 * sc), FontStyle.Bold, TextAnchor.MiddleLeft, serif: true);
             string title = d.Kind == DeathKind.Unknown && string.IsNullOrEmpty(d.Killer) ? "Killed by something unseen" : $"Killed by {d.KillerLine()}";
-            float th = Theme.Height(title, titleSt, cw);
-            Theme.Write(new Rect(cx, y, cw, th), title, Theme.TextHi, titleSt);
-            y += th + 2f * sc;
+            y += Theme.Para(cx, y, cw, title, Theme.TextHi, titleSt) + 2f * sc;
 
             var how = new List<string>();
             if (!string.IsNullOrEmpty(d.KillerAbility)) how.Add(d.KillerAbility);
@@ -119,14 +111,9 @@ namespace medick_DeathCounter.UI
                 how.Add($"{d.KillingBlow:N0}{(string.IsNullOrEmpty(d.KillingElement) ? "" : " " + d.KillingElement.ToLowerInvariant())} damage"
                         + (d.MaxHealth > 0f ? $" ({d.KillingBlow / d.MaxHealth * 100f:0}% of your life)" : ""));
             if (d.KillingCrit == true) how.Add("critical strike");
-            var bodySt = Theme.Label(Mathf.RoundToInt(11 * sc), FontStyle.Normal, TextAnchor.UpperLeft, wrap: true);
+            var bodySt = Theme.Label(Mathf.RoundToInt(11 * sc));
             if (how.Count > 0)
-            {
-                string line = string.Join("  ·  ", how);
-                float lh = Theme.Height(line, bodySt, cw);
-                Theme.Write(new Rect(cx, y, cw, lh), line, Theme.Text, bodySt);
-                y += lh + 2f * sc;
-            }
+                y += Theme.Para(cx, y, cw, string.Join("  ·  ", how), Theme.Text, bodySt) + 2f * sc;
 
             // Meta line + kind chip
             var metaSt = Theme.Label(Mathf.RoundToInt(10 * sc));
@@ -196,19 +183,15 @@ namespace medick_DeathCounter.UI
             if (_tips.Count > 0)
             {
                 y = Section(cx, cw, y, sc, "TO SURVIVE NEXT TIME");
-                var tipTitle = Theme.Label(Mathf.RoundToInt(12 * sc), FontStyle.Bold, TextAnchor.UpperLeft, wrap: true);
-                var tipBody  = Theme.Label(Mathf.RoundToInt(10 * sc), FontStyle.Normal, TextAnchor.UpperLeft, wrap: true);
+                var tipTitle = Theme.Label(Mathf.RoundToInt(12 * sc), FontStyle.Bold);
+                var tipBody  = Theme.Label(Mathf.RoundToInt(10 * sc));
                 float numW = 18f * sc;
                 for (int i = 0; i < _tips.Count; i++)
                 {
                     var t = _tips[i];
-                    Theme.Write(new Rect(cx, y, numW, 16f * sc), $"{i + 1}.", Theme.Accent, tipTitle);
-                    float h1 = Theme.Height(t.Title, tipTitle, cw - numW);
-                    Theme.Write(new Rect(cx + numW, y, cw - numW, h1), t.Title, Theme.TextHi, tipTitle);
-                    y += h1;
-                    float h2 = Theme.Height(t.Body, tipBody, cw - numW);
-                    Theme.Write(new Rect(cx + numW, y, cw - numW, h2), t.Body, Theme.TextMut, tipBody);
-                    y += h2 + 7f * sc;
+                    Theme.Write(new Rect(cx, y, numW, Theme.LineHeight(tipTitle)), $"{i + 1}.", Theme.Accent, tipTitle);
+                    y += Theme.Para(cx + numW, y, cw - numW, t.Title, Theme.TextHi, tipTitle);
+                    y += Theme.Para(cx + numW, y, cw - numW, t.Body, Theme.TextMut, tipBody) + 7f * sc;
                 }
             }
 
@@ -260,14 +243,26 @@ namespace medick_DeathCounter.UI
             if (DeathTracker.Log != null &&
                 GUI.Button(new Rect(x + w - 124f * sc, y, 124f * sc, 20f * sc), "OPEN LOG FOLDER", Theme.Button(Mathf.RoundToInt(9 * sc))))
             {
-                try
-                {
-                    System.IO.Directory.CreateDirectory(DeathTracker.Log.Directory);
-                    Application.OpenURL("file:///" + DeathTracker.Log.Directory.Replace('\\', '/'));
-                }
+                // Separate method: if Application.OpenURL was stripped from the
+                // game, the JIT failure lands inside this try, not in Draw.
+                try { OpenFolder(DeathTracker.Log.Directory); }
                 catch { }
             }
             return y + 24f * sc;
+        }
+
+        static void OpenFolder(string dir)
+        {
+            System.IO.Directory.CreateDirectory(dir);
+            Application.OpenURL("file:///" + dir.Replace('\\', '/'));
+        }
+
+        // A disabled nav arrow is plain dim text, not a greyed-out button
+        // (GUI.enabled is not in any shipped Terrible mod).
+        static void NavButton(Rect r, string glyph, bool active, GUIStyle btn, GUIStyle textSt, Action onClick)
+        {
+            if (!active) { Theme.Write(r, glyph, Theme.Border, textSt); return; }
+            if (GUI.Button(r, glyph, btn)) onClick();
         }
 
         static string Ago(DateTime utc)

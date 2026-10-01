@@ -1,3 +1,4 @@
+using System;
 using medick_DeathCounter.Game;
 using UnityEngine;
 
@@ -51,7 +52,7 @@ namespace medick_DeathCounter.UI
             {
                 // Fade from full blood to dim across the fresh window.
                 float k = 1f - since / FreshSeconds;
-                Theme.DrawBorder(r, Color.Lerp(Theme.Border, Theme.Blood, 0.35f + 0.65f * k * (0.6f + 0.4f * Mathf.Sin(since * 8f))), Mathf.Max(1f, 2f * sc));
+                Theme.DrawBorder(r, Theme.Mix(Theme.Border, Theme.Blood, 0.35f + 0.65f * k * (0.6f + 0.4f * MathF.Sin(since * 8f))), Mathf.Max(1f, 2f * sc));
             }
             else if (MouseOver)
                 Theme.DrawBorder(r, Theme.AccentDim, 1f);
@@ -71,7 +72,7 @@ namespace medick_DeathCounter.UI
                 string toast = $"Killed by {d.KillerLine()}  ·  {Prefs.PanelKeyCode} for details";
                 var tSt = Theme.Label(Mathf.RoundToInt(11 * sc), FontStyle.Bold, TextAnchor.MiddleCenter);
                 float tw = Theme.Width(toast, tSt) + 20f * sc;
-                var tr = new Rect(r.center.x - tw * 0.5f, r.yMax + 4f * sc, tw, 22f * sc);
+                var tr = new Rect(r.x + r.width * 0.5f - tw * 0.5f, r.yMax + 4f * sc, tw, 22f * sc);
                 Theme.Box(tr, Theme.Panel);
                 Theme.Write(tr, toast, Theme.TextHi, tSt);
             }
@@ -86,7 +87,8 @@ namespace medick_DeathCounter.UI
             switch (ev.type)
             {
                 case EventType.MouseDown when ev.button == 0 && r.Contains(ev.mousePosition):
-                    if (ev.shift) { _dragging = true; _grab = ev.mousePosition - r.center; }
+                    bool shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+                    if (shift) { _dragging = true; _grab = ev.mousePosition - new Vector2(r.x + r.width * 0.5f, r.y + r.height * 0.5f); }
                     else DeathPanel.Toggle();
                     ev.Use();
                     break;

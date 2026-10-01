@@ -1,0 +1,49 @@
+name: Terrible Deaths build
+
+# Builds medick_DeathCounter.dll with no game install (NoGame mode), runs the
+# core tests, and checks every Unity call against DLLs that already shipped
+# and ran in game (tools/InteropGuard). The DLL is uploaded as an artifact on
+# every run.
+
+on:
+  push:
+    paths:
+      - "medick_DeathCounter/**"
+      - "tools/InteropGuard/**"
+      - ".github/workflows/death-counter.yml"
+  pull_request:
+    paths:
+      - "medick_DeathCounter/**"
+      - "tools/InteropGuard/**"
+      - ".github/workflows/death-counter.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Core tests
+        run: dotnet run --project medick_DeathCounter/tests/CoreTests
+
+      - name: Build (NoGame)
+        run: dotnet build medick_DeathCounter -c Release -p:NoGame=true -warnaserror
+
+      # Application.OpenURL is not in any shipped mod; DeathPanel.OpenFolder
+      # isolates it in its own method inside a try, so a stripped member only
+      # disables the OPEN LOG FOLDER button.
+      - name: Interop guard
+        run: >
+          dotnet run --project tools/InteropGuard --
+          medick_DeathCounter/bin/Release/net6.0/medick_DeathCounter.dll .
+          "UnityEngine.CoreModule: UnityEngine.Application::OpenURL (Method)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: medick_DeathCounter
+          path: medick_DeathCounter/bin/Release/net6.0/medick_DeathCounter.dll
