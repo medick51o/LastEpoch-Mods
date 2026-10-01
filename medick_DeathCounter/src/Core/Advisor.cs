@@ -25,7 +25,7 @@ namespace medick_DeathCounter.Core
     {
         public const int MaxTips = 5;
 
-        public static List<Advice> Suggest(DeathRecord d, IEnumerable<DeathRecord> history = null)
+        public static List<Advice> Suggest(DeathRecord d, IEnumerable<DeathRecord> history = null, int max = MaxTips)
         {
             var tips = new Dictionary<string, Advice>();
             void Add(string key, float w, string title, string body)
@@ -173,8 +173,42 @@ namespace medick_DeathCounter.Core
                         "That is a pattern, not bad luck. Watch for its wind-up and keep your movement skill ready when it shows up.");
             }
 
-            return tips.Values.OrderByDescending(t => t.Weight).Take(MaxTips).ToList();
+            return tips.Values.OrderByDescending(t => t.Weight).Take(max).ToList();
         }
+
+        // The same tip, worded for a pattern across n of m deaths rather than
+        // for one death (the Patterns tab). Falls back to the tip's own body.
+        public static string PatternBody(Advice a, int n, int m)
+        {
+            string of = $"{n} of {m} deaths";
+            if (a.Key.StartsWith("res_"))
+            {
+                string el = a.Key.Substring(4).ToLowerInvariant();
+                return $"{Cap(el)} damage was a big part of {of}. Every point of {el} resistance below 75% is damage you take for free.";
+            }
+            if (a.Key.StartsWith("dot_") && a.Key != "dot_sustain")
+                return $"{a.Key.Substring(4)} was on you in {of}. {Ailments.ByName(a.Key.Substring(4))?.Effect} Cap the matching resistance and keep health regen or leech up.";
+            return a.Key switch
+            {
+                "armor"       => $"Physical hits were a big part of {of}. Armor is the main defence against them.",
+                "crit"        => $"The killing blow was a critical strike in {of}. At 100% critical strike avoidance enemies cannot crit you.",
+                "ehp"         => $"Big hits took most of your life in {of}. More health, ward and endurance threshold are what let you live through them.",
+                "endurance"   => $"Endurance cuts the part of a hit below your endurance threshold; it would have softened {of}.",
+                "avoid"       => $"You were taking many hits fast in {of}. Dodge rating and block chance stop hits before they land.",
+                "sustain"     => $"You were worn down over several seconds in {of}. Health regen, leech and potion upkeep matter most there.",
+                "dot_sustain" => $"Damage over time did most of the work in {of}. Health regen, leech and stepping out of the ground effect beat it.",
+                "bleed_armor" => $"Physical damage over time (bleed) hit you in {of}. Armor does not reduce it; physical resistance, regen and leech do.",
+                "cc_freeze"   => $"You were frozen or chilled in {of}. More max health and ward make you harder to freeze; keep cold resistance capped.",
+                "cc_stun"     => $"You were stunned in {of}. Stun avoidance keeps you acting.",
+                "cc_shock"    => $"Shock lowered your lightning resistance in {of}. Overcap lightning resistance and get stun avoidance.",
+                "cc_slow"     => $"You were slowed in {of}. Movement speed and a short-cooldown movement skill help you walk out.",
+                "shred_armor" => $"Your armor was being shredded in {of}. Kill shredders first, or carry more armor.",
+                "shred_res"   => $"Your resistances were being shredded in {of}. Overcap where you can and kill shredders first.",
+                _             => a.Body,
+            };
+        }
+
+        static string Cap(string s) => s.Length == 0 ? s : char.ToUpperInvariant(s[0]) + s.Substring(1);
 
         static string Pct(float f) => $"{System.Math.Clamp(f, 0f, 9.99f) * 100f:0}%";
     }

@@ -299,7 +299,67 @@ static class Program
         Eq(3, p.Priorities[0].Deaths, "helps 3 of 4");
         True(p.Priorities.Count <= DeathPatterns.MaxPriorities, "capped");
         True(p.Priorities.Any(x => x.Advice.Key == "ehp" && x.Deaths == 4), "generic tip still listed, with its true count");
-        True(p.Priorities.All(x => x.Advice.Key != "nemesis" && x.Advice.Key != "unknown"), "no per-death-only tips");
+        Eq("ehp", p.Priorities[1].Advice.Key, "ehp beats endurance on the weight tiebreak");
+    }
+
+    // Review: per-death-only tips must never become priorities. Needs an
+    // Unknown death in the window, or the check cannot fail.
+    static void Test_Patterns_UnknownDeathNeverAPriority()
+    {
+        var log = new List<DeathRecord> { DeathAnalyzer.Analyze(null, 10, Ctx()), DeathAnalyzer.Analyze(null, 11, Ctx()), Died("Rat", Element.Physical) };
+        var p = DeathPatterns.Build(log);
+        True(p.Priorities.All(x => x.Advice.Key != "unknown"), "unknown excluded");
+        Eq(3, p.Deaths, "unknown deaths still count toward M");
+    }
+
+    // Review: a tip outside a death's top 3 still helped that death. A one-shot
+    // 40% physical / 30% fire / 30% cold must credit cold resistance.
+    static DeathRecord Mixed()
+    {
+        var h = new HitEvent { Time = 10, Amount = 900, Source = "Golem", MaxHealth = 1000, ByElement = new float[Elements.Count] };
+        h.ByElement[(int)Element.Physical] = 360; h.ByElement[(int)Element.Fire] = 270; h.ByElement[(int)Element.Cold] = 270;
+        return DeathAnalyzer.Analyze(new List<HitEvent> { h }, 10, Ctx());
+    }
+
+    static void Test_Patterns_CountsEveryTipNotJustTopThree()
+    {
+        var p = DeathPatterns.Build(new List<DeathRecord> { Mixed(), Mixed(), Died("Imp", Element.Fire) }, maxPriorities: 10);
+        var cold = p.Priorities.FirstOrDefault(x => x.Advice.Key == "res_Cold");
+        True(cold != null && cold.Deaths == 2, "cold credited in both mixed deaths");
+        Eq(3, p.Priorities.First(x => x.Advice.Key == "res_Fire").Deaths, "fire in all three");
+    }
+
+    // Review: one huge one-shot must not drown ten ordinary deaths.
+    static void Test_Patterns_ElementSharesWeighEachDeathEqually()
+    {
+        var log = new List<DeathRecord> { Died("Boss", Element.Void, 50000) };
+        for (int i = 0; i < 3; i++) log.Add(Died("Imp", Element.Fire, 900));
+        var p = DeathPatterns.Build(log);
+        Eq(Element.Fire, p.ElementShares[0].Element, "fire is 3 of 4 deaths");
+        True(Math.Abs(p.ElementShares[0].Share - 0.75f) < 0.001f, "per-death normalised");
+    }
+
+    // Found in the mockup: a priority's "why" was copied from the latest
+    // death ("One hit took 79% of your life") while claiming N deaths.
+    static void Test_Patterns_PriorityBodyDescribesThePattern()
+    {
+        var log = new List<DeathRecord> { Died("Lagon", Element.Fire), Died("Imp", Element.Fire, 990), Died("Brute", Element.Physical) };
+        var p = DeathPatterns.Build(log);
+        foreach (var x in p.Priorities)
+            True(!x.Advice.Body.Contains("One hit took") && !x.Advice.Body.Contains("of the damage that killed you"),
+                 $"{x.Advice.Key}: body is about one death: {x.Advice.Body}");
+        True(p.Priorities.First(x => x.Advice.Key == "res_Fire").Advice.Body.Contains("2 of 3"), "fire body names the count");
+    }
+
+    // Found in the mockup: "Cap fire resistance" and "Ignite: fire resistance"
+    // both made the top three, saying the same thing twice.
+    static void Test_Patterns_AilmentTipFoldsIntoItsResistance()
+    {
+        var log = new List<DeathRecord>();
+        for (int i = 0; i < 4; i++) log.Add(DeathAnalyzer.Analyze(new List<HitEvent> { Hit(10, 900, "Lagon", Element.Fire) }, 10, Ctx(), new[] { "Ignite" }));
+        var p = DeathPatterns.Build(log, maxPriorities: 10);
+        True(p.Priorities.Any(x => x.Advice.Key == "res_Fire"), "fire res listed");
+        True(p.Priorities.All(x => x.Advice.Key != "dot_Ignite"), "ignite folded into fire res");
     }
 
     static void Test_Patterns_WindowIsMostRecent()

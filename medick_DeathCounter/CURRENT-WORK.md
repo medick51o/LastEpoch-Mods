@@ -2,10 +2,11 @@
 Read this first. Update after every step. Last update: 2026-10-01 (first build, cloud session, no game on the machine).
 
 ## State right now
-- v0.1.0 source complete. **Never run in game. No cross-vendor review** (Codex/Grok/Gemini hosts blocked by the cloud environment's network policy; SPINE status REVIEW UNAVAILABLE). Two same-vendor (Claude) bug hunts ran: 12 findings, then 5 more on the repair, all fixed. Same-vendor reads are not independent review.
-- **Prebuilt for Saturday:** `release/medick_DeathCounter.dll` (90,112 B, sha256 5eff9902…6736) and `release/medick_DeathCounter_v0.1.0.zip`. Built with `-p:NoGame=true`; the exact shipped file passes InteropGuard. Every CI run also uploads the DLL as an artifact.
+- v0.1.0 source complete. **Never run in game. No cross-vendor review** (Codex/Grok/Gemini hosts blocked by the cloud environment's network policy; SPINE status REVIEW UNAVAILABLE). Three same-vendor (Claude) reviews ran: 12 findings, 5 on the repair, 6 on the Patterns tab, all fixed or noted. Same-vendor reads are not independent review.
+- **Prebuilt for Saturday:** `release/medick_DeathCounter.dll` (103,424 B, sha256 88d7d43c…78e0, includes the Patterns tab) and `release/medick_DeathCounter_v0.1.0.zip`. Built with `-p:NoGame=true`; the exact shipped file passes InteropGuard. Every CI run also uploads the DLL as an artifact.
 - The mod references **no game assembly**: PlayerFinder, Actor, EpochInputManager and every health/damage/ailment member are reached by name (`Refl`). So the DLL can be built without the game: `-p:NoGame=true` (NuGet MelonLoader 0.7.2, HarmonyX 2.10.2, Il2CppInterop 1.5.1 = the versions ML 0.7.2 ships, UnityEngine.Modules 2021.3.33).
-- Gates (cloud, 2026-10-01): CoreTests 19/19; NoGame build 0 warnings / 0 errors; InteropGuard: 71 of 72 interop calls proven by shipped Terrible DLLs, the 72nd (`Application.OpenURL`) is fenced in its own try.
+- Gates (cloud, 2026-10-01): CoreTests 36/36 (was 19/19 at first build); NoGame build 0 warnings / 0 errors; InteropGuard: 71 of 72 interop calls proven by shipped Terrible DLLs, the 72nd (`Application.OpenURL`) is fenced in its own try.
+- `mockups/build.py` renders the panel from real Core output; see `mockups/death-panel.png`.
 - InteropGuard already caught one real crash: `GUIContent.none` compiled as a FIELD against plain Unity; in game it is a property (`get_none`). Also replaced unproven `CalcHeight`/word wrap, `GUI.enabled`, `Event.shift`, `Color.Lerp`, `Rect.center`.
 - Hook names now come from public Last Epoch mods (RCInet LastEpoch_Mods for LE 1.4, le-pandora, Fallen_LE_Mods) and a 2023 dump, see `docs/RESEARCH-game-api.md`. None of the first-draft guesses existed. Still NOT run in game: exact signatures may have drifted since the 2023 dump.
 - Three death signals: hooks, health watch, and the game's own `CharacterData.Deaths` counter (the safety net if every hook is wrong).

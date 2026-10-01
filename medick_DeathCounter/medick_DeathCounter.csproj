@@ -15,6 +15,7 @@
   <ItemGroup>
     <Compile Remove="tests\**\*.cs" />
     <Compile Remove="docs\**\*.cs" />
+    <Compile Remove="mockups\**\*.cs" />
   </ItemGroup>
 
   <!--

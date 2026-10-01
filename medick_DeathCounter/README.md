@@ -17,6 +17,15 @@
 - **To survive next time:** up to five suggestions picked from what actually killed you (cap fire resistance, stack armor, get critical strike avoidance to 100%, out-heal damage over time, stun avoidance ...)
 - **‹ ›** to walk back through every earlier death of this character
 
+**The Patterns tab.** Across this character's last 20 deaths:
+
+- **Build priorities:** the three defences that would have helped the most deaths, each with its count ("Cap fire resistance (75%): 4 of 8 deaths"). A specific defence (a resistance, armor, crit avoidance, an ailment counter) leads over generic advice unless the generic one is clearly more common.
+- Who keeps killing you, incoming damage by type (each death weighted equally), the ailments on you most, and the mix of death kinds.
+
+![mockup](mockups/death-panel.png)
+
+*Mockup from the mod's real Core output (`mockups/build.py`), not a game screenshot.*
+
 **The log.** Every death, forever, in `UserData/medick_DeathCounter/`:
 
 | File | What |
@@ -94,9 +103,11 @@ medick_DeathCounter/
   src/
     DeathCounterMod.cs     MelonMod lifecycle, keys
     BuildInfo.cs / Prefs.cs
-    Core/                  game-free: Elements + Ailments, HitEvent/HitBuffer, DeathAnalyzer, Advisor, DeathLog
+    Core/                  game-free: Elements + Ailments, HitEvent/HitBuffer, DeathAnalyzer, Advisor,
+                           DeathPatterns, DeathCountLedger, DeathLog
     Game/                  PlayerProbe, GameHooks (Harmony taps by name), ArgReader, DeathTracker, Refl
     UI/                    Theme, CounterHud, DeathPanel, InputBlocker
   tests/CoreTests/         no-dependency test runner over src/Core
+  mockups/                 build.py renders the panel from real Core output (sample/ = sample fights)
   docs/                    research notes (damage mechanics, game API)
 ```

@@ -145,16 +145,7 @@ namespace medick_DeathCounter.UI
             if (d.AilmentsOnYou != null && d.AilmentsOnYou.Count > 0)
             {
                 y = Section(cx, cw, y, sc, "AILMENTS ON YOU");
-                float ax = cx;
-                foreach (var a in d.AilmentsOnYou)
-                {
-                    var info = Ailments.ByName(a);
-                    Color c = info?.Element is Element el ? Theme.ElementColor(el) : Theme.Text;
-                    float cwid = Chip(ax, y, a, c, sc);
-                    ax += cwid + 6f * sc;
-                    if (ax > cx + cw - 60f * sc) { ax = cx; y += 22f * sc; }
-                }
-                y += 26f * sc;
+                y = ChipRow(cx, cw, y, sc, d.AilmentsOnYou.Select(a => (a, AilmentColor(a))));
             }
 
             // ── Damage mix ───────────────────────────────────
@@ -188,11 +179,7 @@ namespace medick_DeathCounter.UI
                 y = Section(cx, cw, y, sc, "TOP THREATS");
                 var tSt = Theme.Label(Mathf.RoundToInt(11 * sc));
                 foreach (var s in d.TopSources)
-                {
-                    string line = $"{s.Name}   {s.Amount:N0} damage, {s.Hits} hit{(s.Hits == 1 ? "" : "s")}";
-                    Theme.Write(new Rect(cx, y, cw, 17f * sc), line, Theme.Text, tSt);
-                    y += 17f * sc;
-                }
+                    y += Theme.Para(cx, y, cw, $"{s.Name}   {s.Amount:N0} damage, {s.Hits} hit{(s.Hits == 1 ? "" : "s")}", Theme.Text, tSt);
                 y += 6f * sc;
             }
 
@@ -269,10 +256,7 @@ namespace medick_DeathCounter.UI
             {
                 y = Section(cx, cw, y, sc, "WHO KEEPS KILLING YOU");
                 foreach (var (name, count) in r.TopKillers)
-                {
-                    Theme.Write(new Rect(cx, y, cw, 17f * sc), $"{name}   {count} death{(count == 1 ? "" : "s")}", Theme.Text, body);
-                    y += 17f * sc;
-                }
+                    y += Theme.Para(cx, y, cw, $"{name}   {count} death{(count == 1 ? "" : "s")}", Theme.Text, body);
                 y += 6f * sc;
             }
 
@@ -295,20 +279,10 @@ namespace medick_DeathCounter.UI
             if (r.TopAilments.Count > 0)
             {
                 y = Section(cx, cw, y, sc, "AILMENTS ON YOU MOST");
-                float ax = cx;
-                foreach (var (name, count) in r.TopAilments)
-                {
-                    var info = Ailments.ByName(name);
-                    Color c = info?.Element is Element el ? Theme.ElementColor(el) : Theme.Text;
-                    ax += Chip(ax, y, $"{name} ×{count}", c, sc) + 6f * sc;
-                    if (ax > cx + cw - 80f * sc) { ax = cx; y += 22f * sc; }
-                }
-                y += 26f * sc;
+                y = ChipRow(cx, cw, y, sc, r.TopAilments.Select(a => ($"{a.Name} ×{a.Count}", AilmentColor(a.Name))));
             }
 
-            var kinds = string.Join("  ·  ", r.Kinds.OrderByDescending(k => k.Value)
-                .Select(k => $"{k.Value} {new DeathRecord { Kind = k.Key }.KindLabel().ToLowerInvariant()}"));
-            if (kinds.Length > 0) y += Theme.Para(cx, y, cw, kinds, Theme.TextMut, small) + 4f * sc;
+            if (r.KindsLine.Length > 0) y += Theme.Para(cx, y, cw, r.KindsLine, Theme.TextMut, small) + 4f * sc;
             return y;
         }
 
@@ -321,6 +295,25 @@ namespace medick_DeathCounter.UI
                 Theme.Fill(new Rect(x + tw + 8f * sc, y + 7f * sc, w - tw - 8f * sc, 1f), Theme.Border);
             return y + 18f * sc;
         }
+
+        static float ChipWidth(string text, float sc) =>
+            Theme.Width(text, Theme.Label(Mathf.RoundToInt(9 * sc), FontStyle.Bold, TextAnchor.MiddleCenter)) + 14f * sc;
+
+        // A row of chips that wraps BEFORE a chip would cross the right edge.
+        static float ChipRow(float cx, float cw, float y, float sc, IEnumerable<(string text, Color color)> chips)
+        {
+            float ax = cx;
+            foreach (var (text, color) in chips)
+            {
+                float w = ChipWidth(text, sc);
+                if (ax > cx && ax + w > cx + cw) { ax = cx; y += 22f * sc; }
+                ax += Chip(ax, y, text, color, sc) + 6f * sc;
+            }
+            return y + 26f * sc;
+        }
+
+        static Color AilmentColor(string name) =>
+            Ailments.ByName(name)?.Element is Element el ? Theme.ElementColor(el) : Theme.Text;
 
         static float Chip(float x, float y, string text, Color c, float sc)
         {

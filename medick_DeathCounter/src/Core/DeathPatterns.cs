@@ -13,20 +13,20 @@ namespace medick_DeathCounter.Core
         public List<(Element Element, float Share)> ElementShares = new();   // of all damage in the death windows
         public List<(string Name, int Count)> TopAilments = new();
         public Dictionary<DeathKind, int> Kinds = new();
+        public string KindsLine = "";                                        // "6 burst · 1 one-shot", built once
         public List<Priority> Priorities = new();
     }
 
     public sealed class Priority
     {
-        public Advice Advice;   // the latest wording of this tip
-        public int    Deaths;   // how many deaths in the window it was a top tip for
+        public Advice Advice;   // Key/Title of the tip; Body reworded for the pattern
+        public int    Deaths;   // how many deaths in the window this tip applied to
     }
 
     public static class DeathPatterns
     {
         public const int DefaultWindow = 20;
         public const int MaxPriorities = 3;
-        const int TopTipsPerDeath = 3;     // only a death's strongest tips count toward a priority
 
         // Tips that only make sense for one death, never as a build priority.
         static readonly HashSet<string> PerDeathOnly = new() { "nemesis", "unknown" };
@@ -38,7 +38,7 @@ namespace medick_DeathCounter.Core
         static readonly HashSet<string> Generic = new() { "ehp", "endurance", "avoid", "sustain", "dot_sustain" };
         const float GenericDiscount = 0.6f;
 
-        public static PatternReport Build(IReadOnlyList<DeathRecord> deaths, int window = DefaultWindow)
+        public static PatternReport Build(IReadOnlyList<DeathRecord> deaths, int window = DefaultWindow, int maxPriorities = MaxPriorities)
         {
             var r = new PatternReport();
             var recent = (deaths ?? new List<DeathRecord>()).Where(d => d != null).TakeLast(window).ToList();
@@ -52,10 +52,16 @@ namespace medick_DeathCounter.Core
                 .OrderByDescending(x => x.Item2).ThenBy(x => x.Key)
                 .Take(3).ToList();
 
+            // Each death counts once: one 50k one-shot must not drown ten
+            // ordinary deaths (review). Shares are of deaths, by damage type.
             var totals = new float[Elements.Count];
             foreach (var d in recent)
-                if (d.DamageByElement?.Length == Elements.Count)
-                    for (int i = 0; i < Elements.Count; i++) totals[i] += d.DamageByElement[i];
+            {
+                if (d.DamageByElement?.Length != Elements.Count) continue;
+                float dsum = d.DamageByElement.Sum();
+                if (dsum <= 0f) continue;
+                for (int i = 0; i < Elements.Count; i++) totals[i] += d.DamageByElement[i] / dsum;
+            }
             float sum = totals.Sum();
             if (sum > 0f)
                 r.ElementShares = Enumerable.Range(0, Elements.Count)
@@ -72,22 +78,38 @@ namespace medick_DeathCounter.Core
 
             foreach (var d in recent)
                 r.Kinds[d.Kind] = r.Kinds.TryGetValue(d.Kind, out var n) ? n + 1 : 1;
+            r.KindsLine = string.Join("  ·  ", r.Kinds.OrderByDescending(k => k.Value)
+                .Select(k => $"{k.Value} {new DeathRecord { Kind = k.Key }.KindLabel().ToLowerInvariant()}"));
 
-            // Each death votes for its strongest tips; a priority's score is how
-            // many deaths it would have helped (generic tips discounted), then
-            // total weight as tiebreak. Deaths shown is the undiscounted count.
+            // A tip counts for every death it applied to, not only the deaths
+            // where it made the top three (review). Ranking: deaths applied to,
+            // generic tips discounted, total weight as tiebreak; the count
+            // shown is undiscounted.
             var votes = new Dictionary<string, (Advice latest, int deaths, float weight)>();
             foreach (var d in recent)
-                foreach (var t in Advisor.Suggest(d).Where(t => !PerDeathOnly.Contains(t.Key)).Take(TopTipsPerDeath))
+                foreach (var t in Advisor.Suggest(d, max: int.MaxValue).Where(t => !PerDeathOnly.Contains(t.Key)))
                 {
                     votes.TryGetValue(t.Key, out var v);
                     votes[t.Key] = (t, v.deaths + 1, v.weight + t.Weight);
                 }
+            // A DoT ailment's tip ("Ignite: fire resistance") says the same as its
+            // element's resistance tip; when both apply, keep the resistance.
+            foreach (var key in votes.Keys.Where(k => k.StartsWith("dot_") && k != "dot_sustain").ToList())
+            {
+                var el = Ailments.ByName(key.Substring(4))?.Element;
+                if (el.HasValue && votes.ContainsKey("res_" + Elements.Name(el.Value))) votes.Remove(key);
+            }
+
             r.Priorities = votes.Values
                 .OrderByDescending(v => v.deaths * (Generic.Contains(v.latest.Key) ? GenericDiscount : 1f))
                 .ThenByDescending(v => v.weight)
-                .Take(MaxPriorities)
-                .Select(v => new Priority { Advice = v.latest, Deaths = v.deaths })
+                .Take(maxPriorities)
+                .Select(v => new Priority
+                {
+                    Advice = new Advice { Key = v.latest.Key, Title = v.latest.Title, Weight = v.weight,
+                                          Body = Advisor.PatternBody(v.latest, v.deaths, r.Deaths) },
+                    Deaths = v.deaths,
+                })
                 .ToList();
             return r;
         }
