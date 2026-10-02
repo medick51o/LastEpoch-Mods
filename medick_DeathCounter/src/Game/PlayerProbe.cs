@@ -28,78 +28,157 @@ namespace medick_DeathCounter.Game
         public static Component  Health  { get; private set; }
         public static IntPtr     HealthPtr { get; private set; }
 
-        static System.Reflection.MethodInfo _getPlayerActor;
         static float _nextRefresh;
-        static bool  _healthMissingWarned;
+        static string _lastDiag;
 
-        public static bool HasPlayer => ObjectPtr != IntPtr.Zero;
+        // A resolved object with readable character data. Char-select previews
+        // have a model and no CharacterData, so the counter and the panel stay down.
+        public static bool HasPlayer { get; private set; }
 
-        // Re-resolve twice a second (menus included: no per-frame lookups).
-        // Returns true when the player object changed (zone load, respawn, new character).
+        // Re-resolve twice a second, including while health is still missing.
+        // Returns true when the player object (or whether we are tracking) changed.
         public static bool Refresh(float now)
         {
             if (now < _nextRefresh) return false;
             _nextRefresh = now + 0.5f;
 
-            Component actor = null;
-            try
-            {
-                _getPlayerActor ??= Refl.FindType("Il2Cpp.PlayerFinder")?.GetMethod("getPlayerActor", Type.EmptyTypes);
-                actor = _getPlayerActor?.Invoke(null, null) as Component;
-            }
-            catch { }
+            Component actor = null, lph = null;
             GameObject go = null;
-                        try { go = actor != null ? actor.gameObject : null; } catch { }
-            // PlayerFinder's Actor can be null in multiplayer even while the
-            // LocalPlayer component and its health are available.
-            Component localPlayer = null;
+            string path = null;
+            var actorRead = new Refl.StaticRead { Detail = "not asked" };
+            var healthRead = new Refl.StaticRead { Detail = "not asked" };
+            var multiRead = new Refl.StaticRead { Detail = "not asked" };
+            var playerRead = new Refl.StaticRead { Detail = "not asked" };
             try
             {
-                localPlayer = Refl.Static("Il2Cpp.PlayerFinder", "getLocalPlayerInMultiplayer") as Component;
-                go ??= Refl.Static("Il2Cpp.PlayerFinder", "getPlayer") as GameObject;
-                go ??= localPlayer != null ? localPlayer.gameObject : null;
-                if (actor == null && go != null) actor = Refl.GetComponent(go, ActorType);
+                // 1. Proven actor. 2. Proven health, its actor, that actor's object.
+                // Unproven names stay behind those two. Health is kept even when
+                // the object route fails, and a missing health is tried again
+                // next pass (this method is not skipped while Health is null).
+                actorRead = Refl.ReadStatic("Il2Cpp.PlayerFinder", "getPlayerActor");
+                healthRead = Refl.ReadStatic("Il2Cpp.PlayerFinder", "getLocalPlayerHealth");
+                actor = actorRead.Value as Component;
+                lph = healthRead.Value as Component;
+                if (actor != null) path = "getPlayerActor";
+                else if (lph != null)
+                {
+                    if (Refl.Get(lph, "actor", "Actor") is Component fromHealth) actor = fromHealth;
+                    path = "getLocalPlayerHealth";
+                }
+                if (actor != null)
+                {
+                    try { go = actor.gameObject; } catch { }
+                }
+                if (go == null)
+                {
+                    multiRead = Refl.ReadStatic("Il2Cpp.PlayerFinder", "getLocalPlayerInMultiplayer");
+                    if (multiRead.Value is Component local)
+                    {
+                        try { go = local.gameObject; path ??= "getLocalPlayerInMultiplayer"; } catch { }
+                    }
+                    if (go == null)
+                    {
+                        playerRead = Refl.ReadStatic("Il2Cpp.PlayerFinder", "getPlayer");
+                        if (playerRead.Value is GameObject g) { go = g; path ??= "getPlayer"; }
+                    }
+                }
+                if (actor == null && go != null)
+                    actor = Refl.GetComponent(go, ActorType) ?? Refl.GetComponentInChildren(go, ActorType);
+                if (lph == null && go != null)
+                {
+                    foreach (var name in HealthTypes)
+                    {
+                        var t = Refl.FindType(name);
+                        lph = Refl.GetComponent(go, t) ?? Refl.GetComponentInChildren(go, t);
+                        if (lph != null) { path ??= "children"; break; }
+                    }
+                }
+                if (actor != null)
+                {
+                    try { var anchored = actor.gameObject; if (anchored != null) go = anchored; } catch { }
+                }
+                else if (go == null && lph != null)
+                {
+                    try { go = lph.gameObject; path ??= "getLocalPlayerHealth"; } catch { }
+                }
             }
-            catch (Exception ex) { Dbg.Log("player fallback: " + ex.Message); }
-            IntPtr ptr = Refl.Ptr(go);
-            if (ptr == ObjectPtr) return false;
-
-            Actor = actor; Object = go; ObjectPtr = ptr;
-            Dbg.Log($"player resolved: object={go?.name ?? "none"}, actor={actor?.GetType().FullName ?? "none"}, multiplayer={localPlayer != null}");
-            Health = null; HealthPtr = IntPtr.Zero;
-            if (go != null)
+            catch (Exception ex)
             {
-                if ((Refl.Static("Il2Cpp.PlayerFinder", "getLocalPlayerHealth") ?? Refl.Get(localPlayer, "playerHealth")) is Component lph)
-                    AdoptHealth(lph);
-                else foreach (var name in HealthTypes)
-                {
-                    var c = Refl.GetComponent(go, Refl.FindType(name));
-                    if (c == null) continue;
-                    AdoptHealth(c);
-                    break;
-                }
-                if (Health == null && !_healthMissingWarned)
-                {
-                    _healthMissingWarned = true;
-                    Dbg.Log("no health component found by name yet; the hit hook will adopt it on the first hit");
-                }
+                Diag("player resolve failed: " + ex.Message, true);
+                return false;
             }
+
+            IntPtr ptr = Refl.Ptr(go);
+            bool data = GameDeathCount() >= 0;
+            // Character data is what separates a loaded character from a menu
+            // preview. Health alone is enough to track when that data is readable.
+            bool present = data && (ptr != IntPtr.Zero || lph != null);
+            // Health can show up a pass later. Adopting it must not look like a
+            // new player (that clears the hit buffer).
+            bool objectChanged = ptr != ObjectPtr || present != HasPlayer;
+            if (!objectChanged)
+            {
+                if (lph != null && (Health == null || Refl.Ptr(lph) != HealthPtr))
+                    AdoptHealth(lph);
+                if (!present) Diag(Failure(actorRead, healthRead, multiRead, playerRead, data), true);
+                return false;
+            }
+
+            if (ptr != ObjectPtr)
+            {
+                Health = null;
+                HealthPtr = IntPtr.Zero;
+            }
+            if (lph != null) AdoptHealth(lph);
+            Actor = actor;
+            Object = go;
+            ObjectPtr = ptr;
+            HasPlayer = present;
+            if (present)
+                Diag($"player resolved via {path ?? "none"}: object={go?.name ?? "none"}, actor={actor?.GetType().FullName ?? "none"}, health={Health?.GetType().FullName ?? "none"}, character=yes", false);
+            else
+                Diag(Failure(actorRead, healthRead, multiRead, playerRead, data), true);
             return true;
         }
 
         // The hit hook calls this with the component it saw take player damage.
         public static void AdoptHealth(Component c)
         {
+            if (c == null) return;
+            IntPtr p = Refl.Ptr(c);
+            bool changed = Health == null || p != HealthPtr;
             Health = c;
-            HealthPtr = Refl.Ptr(c);
-            Dbg.Log($"player health component: {c?.GetType().FullName}");
+            HealthPtr = p;
+            if (changed)
+                MelonLoader.MelonLogger.Msg($"player health adopted: {c.GetType().FullName}");
         }
 
         public static void Reset()
         {
             Actor = null; Object = null; ObjectPtr = IntPtr.Zero;
             Health = null; HealthPtr = IntPtr.Zero;
+            HasPlayer = false;
             _nextRefresh = 0f;
+        }
+
+        static string Failure(Refl.StaticRead actor, Refl.StaticRead health, Refl.StaticRead multi, Refl.StaticRead player, bool data)
+        {
+            string why = !data && (actor.Value != null || health.Value != null)
+                ? "player object seen without character data (menu or preview); not tracking. "
+                : "";
+            return why + "player not resolved:"
+                + $" getPlayerActor={actor.Detail}"
+                + $" getLocalPlayerHealth={health.Detail}"
+                + $" getLocalPlayerInMultiplayer={multi.Detail}"
+                + $" getPlayer={player.Detail}";
+        }
+
+        static void Diag(string line, bool warning)
+        {
+            if (string.IsNullOrEmpty(line) || line == _lastDiag) return;
+            _lastDiag = line;
+            if (warning) MelonLoader.MelonLogger.Warning(line);
+            else MelonLoader.MelonLogger.Msg(line);
         }
 
         // NaN = unknown (no health component, or the member names are wrong).
@@ -117,8 +196,10 @@ namespace medick_DeathCounter.Game
         // ── Who and where ────────────────────────────────────────
         // Il2CppLE.Data.CharacterData via PlayerFinder.getPlayerData():
         // CharacterName, Level, CharacterClass (int index), Deaths, Hardcore.
+        // Null when CharacterData has no name. Callers keep the last real name
+        // instead of stamping the shared "Unknown Hero" placeholder.
         public static string CharacterName() =>
-            Refl.GetString(CharacterData(), "CharacterName", "characterName") ?? "Unknown Hero";
+            Refl.GetString(CharacterData(), "CharacterName", "characterName");
 
         public static string CharacterClass()
         {

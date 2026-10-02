@@ -52,7 +52,7 @@ namespace medick_DeathCounter
                     Prefs.ShowCounter.Value = !Prefs.ShowCounter.Value;
                     Prefs.Save();
                 }
-                else DeathPanel.Toggle();
+                else if (PlayerProbe.HasPlayer) DeathPanel.Toggle();
             }
 
             // Clicks on our UI must not also walk the character there.
