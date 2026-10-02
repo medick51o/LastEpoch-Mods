@@ -1,0 +1,161 @@
+diff --git a/medick_DeathCounter/src/Core/BossCatalog.cs b/medick_DeathCounter/src/Core/BossCatalog.cs
+index 3b87793..5cf0d71 100644
+--- a/medick_DeathCounter/src/Core/BossCatalog.cs
++++ b/medick_DeathCounter/src/Core/BossCatalog.cs
+@@ -34,41 +34,32 @@ namespace medick_DeathCounter.Core
+         public static IReadOnlyList<BossProfile> All { get; } = Array.AsReadOnly(new[]
+         {
+             new BossProfile("lagon", "Lagon", new[] { "Lagon" },
+-                "EHG names Moon Blast, Tidal Wave, Lightning Blast and a melee attack. Campaign and Monolith variants may differ.",
+-                "Attack names are verified; their complete damage types are not verified in this catalog. Use the element captured for your death below.",
+-                Array.Empty<Element>(), new[] {
+-                    "Movement plan: keep a clear route away from the next Moon Blast or Lightning Blast telegraph. Stop attacking to move before it resolves; an attack name is not proof of its element.",
+-                    "Wave plan: reposition for each Tidal Wave rather than chasing damage while another hazard blocks your route. Reassess the recorded death's resistance gap before adding more health." },
++                "EHG's 0.9 performance notes name Moon Blast, Tidal Wave, Lightning Blast and a melee attack. Those names are not a current skill list.",
++                "Attack names are verified as historical labels; their complete damage types are not verified in this catalog. Use the element captured for your death below.",
++                Array.Empty<Element>(), Array.Empty<string>(),
+                 new BossSource("EHG 0.9 ability list (March 2023)", "https://forum.lastepoch.com/t/the-convergence-update-beta-0-9-patch-notes/51975")),
+             new BossProfile("emperor-corpses", "Emperor of Corpses", new[] { "Emperor of Corpses" },
+                 "EHG documents Soul Bomb: damage decreases with distance from its center. The arena needs enough room to avoid it.",
+                 "Soul Bomb's element is not verified in this catalog. Do not assume every attack shares the element of one recorded death.",
+-                Array.Empty<Element>(), new[] {
+-                    "Soul Bomb plan: move well away from the center before it detonates. Use the arena's open space; barely leaving the center still exposes you to the blast.",
+-                    "Positioning plan: reserve a clear escape route before committing to a long attack animation. More health does not replace avoiding the center of Soul Bomb." },
++                Array.Empty<Element>(), Array.Empty<string>(),
+                 new BossSource("EHG 0.9l distance scaling (May 2023)", "https://forum.lastepoch.com/t/beta-0-9l-patch-notes/58685"),
+                 new BossSource("EHG 0.9i arena context (April 2023)", "https://forum.lastepoch.com/t/beta-0-9i-patch-notes/57471")),
+             new BossProfile("heorot", "Heorot", new[] { "Heorot" },
+-                "EHG documents Ice Spike and freezing interactions in this encounter. Historical fixes are not evidence of a current bug or boss immunity.",
++                "EHG's 1.0.3 note fixes Ice Spike stopping projectiles, and being frozen not stopping actions in multiplayer. That historical fix is not evidence of a current bug or of boss immunity.",
+                 "The complete damage table is not verified here. An Ice Spike name alone does not establish damage typing.",
+-                Array.Empty<Element>(), new[] {
+-                    "Ice Spike plan: avoid its telegraph before resuming attacks. Keep a route clear rather than standing still to finish a cast.",
+-                    "Freeze plan: if your recorded death shows Freeze, review the ailment advice and recovery options in Last death. Do not assume freezing the boss will stop every hazard." },
++                Array.Empty<Element>(), Array.Empty<string>(),
+                 new BossSource("EHG 1.0.3 encounter notes (March 2024)", "https://forum.lastepoch.com/t/last-epoch-patch-1-0-3-patch-notes/68385")),
+             new BossProfile("julra", "Chronomancer Julra", new[] { "Chronomancer Julra", "Julra" },
+                 "Temporal Sanctum provides Temporal Shift between Divine and Ruined eras. Higher dungeon tiers and selected modifiers increase danger.",
+                 "Tunklab's published dungeon data lists Void, Cold and Lightning for Julra. This is encounter coverage, not an attack-by-attack breakdown.",
+-                new[] { Element.Void, Element.Cold, Element.Lightning }, new[] {
+-                    "Era plan: keep Temporal Shift available for hazards and learn the safe timing in your tier. Switching eras keeps your position, so do not assume it also moves you out of a ground hazard.",
+-                    "Preparation plan: check Void, Cold and Lightning coverage. Prioritize the element captured in your death; if capped, review critical protection and measured health loss in Last death before spending gear slots on a larger pool." },
++                new[] { Element.Void, Element.Cold, Element.Lightning }, Array.Empty<string>(),
+                 new BossSource("Tunklab dungeon damage and era data", "https://lastepoch.tunklab.com/dungeon/temporal_sanctum"),
+                 new BossSource("EHG 0.8.4 dungeon announcement (December 2021)", "https://www.lastepochtools.com/news/article/eternal-legends-beta-0-8-4-patch-notes-45588")),
+             new BossProfile("harbinger-hatred", "Harbinger of Hatred", new[] { "Harbinger of Hatred" },
+                 "EHG names this variant's Void Rahyeh Dive Bomb. This entry does not describe the ordinary Rahyeh timeline encounter.",
+                 "Damage typing is not verified here. The word Void in an ability name is not a measured damage report.",
+                 Array.Empty<Element>(), new[] {
+-                    "Dive Bomb plan: leave the landing telegraph early and leave room to reposition after it lands. Do not follow the landing point to keep attacking.",
+-                    "Variant plan: use the captured ability and element in Last death. A Harbinger imitation is not interchangeable with the original boss's full move set." },
++                    "A Harbinger imitation is not interchangeable with the original boss's full move set." },
+                 new BossSource("EHG 1.2.1 variant notes (April 2025)", "https://forum.lastepoch.com/t/last-epoch-patch-1-2-1-notes/76245"))
+         });
+         public static BossProfile Match(DeathRecord death)
+diff --git a/medick_DeathCounter/tests/CoreTests/BossCatalogSchemaTests.cs b/medick_DeathCounter/tests/CoreTests/BossCatalogSchemaTests.cs
+index 034a6e2..934324d 100644
+--- a/medick_DeathCounter/tests/CoreTests/BossCatalogSchemaTests.cs
++++ b/medick_DeathCounter/tests/CoreTests/BossCatalogSchemaTests.cs
+@@ -306,7 +306,7 @@ static partial class Program
+             var saved = SaveUpdate(updates, death, NewGear());
+             string frozen = JsonSerializer.Serialize(saved);
+             var doc = BossCatalogSchema.ProjectBaseline();
+-            doc.Encounters.Single(e => e.Id == "julra").Tips[0].Text = "Rewritten tip that must not land in the saved update.";
++            doc.Encounters.Single(e => e.Id == "julra").Claims.Single(c => c.Id == "julra.mechanics").Statement = "Rewritten claim that must not land in the saved update.";
+             doc.Encounters.Single(e => e.Id == "julra").DamageCoverage.Elements.Add("Fire");
+             True(BossCatalogSchema.TryBrowse("dungeon", "lagon", death, out _), "browse");
+             Eq(false, BossCatalogSchema.TryApplyCoverageToDeath(death, doc.Encounters.Single(e => e.Id == "julra")));
+diff --git a/medick_DeathCounter/tests/CoreTests/BossFactcheckRegressionTests.cs b/medick_DeathCounter/tests/CoreTests/BossFactcheckRegressionTests.cs
+new file mode 100644
+index 0000000..cb95f00
+--- /dev/null
++++ b/medick_DeathCounter/tests/CoreTests/BossFactcheckRegressionTests.cs
+@@ -0,0 +1,76 @@
++using System.Linq;
++using medick_DeathCounter.Core;
++
++// Pins from the boss fact-check that current Core types can already answer.
++// Encounter grades and new roster profiles stay in the research JSON.
++static partial class Program
++{
++    static void Test_Catalog_FactcheckRemovesUnsupportedStarterTips()
++    {
++        foreach (var profile in BossCatalog.All)
++        {
++            foreach (var tip in profile.Tips)
++            {
++                True(!tip.Contains("--"), profile.Id + " tip has a double dash");
++                True(!tip.Contains("before it detonates"), profile.Id);
++                True(!tip.Contains("safe timing"), profile.Id);
++                True(!tip.Contains("leave the landing telegraph"), profile.Id);
++                True(!tip.Contains("avoid its telegraph"), profile.Id);
++                True(!tip.Contains("keep a clear route"), profile.Id);
++                True(!tip.Contains("Campaign and Monolith variants may differ"), profile.Id);
++            }
++            True(!profile.Mechanics.Contains("Campaign and Monolith variants may differ"), profile.Id);
++        }
++
++        Eq(0, BossCatalog.All.Single(p => p.Id == "lagon").Tips.Count);
++        Eq(0, BossCatalog.All.Single(p => p.Id == "emperor-corpses").Tips.Count);
++        Eq(0, BossCatalog.All.Single(p => p.Id == "heorot").Tips.Count);
++        Eq(0, BossCatalog.All.Single(p => p.Id == "julra").Tips.Count);
++        var hatred = BossCatalog.All.Single(p => p.Id == "harbinger-hatred");
++        Eq(1, hatred.Tips.Count);
++        Eq("A Harbinger imitation is not interchangeable with the original boss's full move set.", hatred.Tips[0]);
++        True(hatred.Mechanics.Contains("Void Rahyeh Dive Bomb"), "the named attack stays a mechanics claim");
++        Eq(0, hatred.DamageTypes.Count);
++        Eq(0, BossCatalog.All.Single(p => p.Id == "lagon").DamageTypes.Count);
++        True(!BossCatalogSchema.AbilityNameEstablishesDamage("Void Rahyeh Dive Bomb", "Void"), "ability title");
++        Eq(null, BossCatalog.Match(new DeathRecord { IsBossFight = true, Killer = "Harbinger of Hatred's Void Rahyeh" }));
++        Eq("harbinger-hatred", BossCatalog.Match(new DeathRecord { IsBossFight = true, Killer = "Harbinger of Hatred" }).Id);
++    }
++
++    static void Test_Math_Lane5ResistanceAndPoolPins()
++    {
++        const float tol = 0.0001f;
++        float fireGap = MitigationMath.ResistanceRatio(41, 75, 0, 75);
++        Near(1f / 1.34f, fireGap, "L5-M1", tol);
++        float newDamage = 1700f * fireGap;
++        Near(1268.6567f, newDamage, "L5-M1 scaled hit", 0.05f);
++        True(newDamage > 1000f * 1.10f, "scaled hit stays above the 10 percent band around remaining health");
++
++        Near(1f, MitigationMath.ResistanceRatio(75, 95, 0, 75), "L5-M2 overcap without shred", tol);
++
++        var endurance = MitigationMath.PreviewEndurance(2200, 400, 400, 20, 60, DamageMeaning.PostMitigationWithWard);
++        Near(0.8181818182f, endurance.Ratio, "L5-M3", tol);
++        Near(1800f, endurance.NewDamage, "L5-M3 new damage", 0.1f);
++        Near(1800f, endurance.RemainingEffectiveHealth, "L5-M3 remaining", 0.1f);
++        True(endurance.Sentence().Contains("may or may not"), endurance.Sentence());
++
++        var absorbed = MitigationMath.PreviewPoolIncrease(2200, 400, 500, DamageMeaning.PostMitigationWithWard);
++        Eq(true, absorbed.Survived);
++        True(absorbed.Sentence().Contains("would have absorbed this exact hit"), absorbed.Sentence());
++        Eq(false, MitigationMath.PreviewPoolIncrease(2200, 400, 200, DamageMeaning.PostMitigationWithWard).Survived);
++
++        float voidGap = MitigationMath.ResistanceRatio(40, 75, 0, 75);
++        Near(1f / 1.35f, voidGap, "L5-M5", tol);
++        Eq(26, (int)System.Math.Round((1f - voidGap) * 100f));
++        var noAmount = MitigationMath.PreviewResistance(float.NaN, float.NaN, 40, 75, 0, 100, DamageMeaning.PostMitigationWithWard);
++        True(float.IsNaN(noAmount.NewDamage), "a Harbinger element with no recorded amount has no new damage");
++
++        Near(0f, MitigationMath.EffectiveResistance(95, 20, 75), "L5-M6 overcap", tol);
++        Near(-20f, MitigationMath.EffectiveResistance(75, 20, 75), "L5-M6 at cap", tol);
++        Eq(10, MitigationMath.PlayerResShredMaxStacks);
++
++        var dot = MitigationMath.PreviewArmor(300, 40, 2763, 2763, 100, false, true, DamageMeaning.PostMitigationWithWard);
++        True(float.IsNaN(dot.Ratio), "L5-M7");
++        True(dot.Note != null && dot.Note.Contains("damage over time"), dot.Note ?? "");
++    }
++}
+diff --git a/medick_DeathCounter/tests/CoreTests/CoreTests.csproj b/medick_DeathCounter/tests/CoreTests/CoreTests.csproj
+index 9cf156a..78bc8b6 100644
+--- a/medick_DeathCounter/tests/CoreTests/CoreTests.csproj
++++ b/medick_DeathCounter/tests/CoreTests/CoreTests.csproj
+@@ -19,6 +19,7 @@
+     <Compile Include="PendingDeathTests.cs" />
+     <Compile Include="BossContextTests.cs" />
+     <Compile Include="BossCatalogSchemaTests.cs" />
++    <Compile Include="BossFactcheckRegressionTests.cs" />
+     <Compile Include="..\..\src\Core\*.cs" Link="Core\%(Filename)%(Extension)" />
+   </ItemGroup>
+ 

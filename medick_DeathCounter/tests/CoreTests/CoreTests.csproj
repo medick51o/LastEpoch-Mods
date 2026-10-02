@@ -19,6 +19,7 @@
     <Compile Include="PendingDeathTests.cs" />
     <Compile Include="BossContextTests.cs" />
     <Compile Include="BossCatalogSchemaTests.cs" />
+    <Compile Include="BossFactcheckRegressionTests.cs" />
     <Compile Include="..\..\src\Core\*.cs" Link="Core\%(Filename)%(Extension)" />
   </ItemGroup>
 

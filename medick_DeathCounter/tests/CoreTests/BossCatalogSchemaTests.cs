@@ -306,7 +306,7 @@ static partial class Program
             var saved = SaveUpdate(updates, death, NewGear());
             string frozen = JsonSerializer.Serialize(saved);
             var doc = BossCatalogSchema.ProjectBaseline();
-            doc.Encounters.Single(e => e.Id == "julra").Tips[0].Text = "Rewritten tip that must not land in the saved update.";
+            doc.Encounters.Single(e => e.Id == "julra").Claims.Single(c => c.Id == "julra.mechanics").Statement = "Rewritten claim that must not land in the saved update.";
             doc.Encounters.Single(e => e.Id == "julra").DamageCoverage.Elements.Add("Fire");
             True(BossCatalogSchema.TryBrowse("dungeon", "lagon", death, out _), "browse");
             Eq(false, BossCatalogSchema.TryApplyCoverageToDeath(death, doc.Encounters.Single(e => e.Id == "julra")));

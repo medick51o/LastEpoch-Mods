@@ -34,41 +34,32 @@ namespace medick_DeathCounter.Core
         public static IReadOnlyList<BossProfile> All { get; } = Array.AsReadOnly(new[]
         {
             new BossProfile("lagon", "Lagon", new[] { "Lagon" },
-                "EHG names Moon Blast, Tidal Wave, Lightning Blast and a melee attack. Campaign and Monolith variants may differ.",
-                "Attack names are verified; their complete damage types are not verified in this catalog. Use the element captured for your death below.",
-                Array.Empty<Element>(), new[] {
-                    "Movement plan: keep a clear route away from the next Moon Blast or Lightning Blast telegraph. Stop attacking to move before it resolves; an attack name is not proof of its element.",
-                    "Wave plan: reposition for each Tidal Wave rather than chasing damage while another hazard blocks your route. Reassess the recorded death's resistance gap before adding more health." },
+                "EHG's 0.9 performance notes name Moon Blast, Tidal Wave, Lightning Blast and a melee attack. Those names are not a current skill list.",
+                "Attack names are verified as historical labels; their complete damage types are not verified in this catalog. Use the element captured for your death below.",
+                Array.Empty<Element>(), Array.Empty<string>(),
                 new BossSource("EHG 0.9 ability list (March 2023)", "https://forum.lastepoch.com/t/the-convergence-update-beta-0-9-patch-notes/51975")),
             new BossProfile("emperor-corpses", "Emperor of Corpses", new[] { "Emperor of Corpses" },
                 "EHG documents Soul Bomb: damage decreases with distance from its center. The arena needs enough room to avoid it.",
                 "Soul Bomb's element is not verified in this catalog. Do not assume every attack shares the element of one recorded death.",
-                Array.Empty<Element>(), new[] {
-                    "Soul Bomb plan: move well away from the center before it detonates. Use the arena's open space; barely leaving the center still exposes you to the blast.",
-                    "Positioning plan: reserve a clear escape route before committing to a long attack animation. More health does not replace avoiding the center of Soul Bomb." },
+                Array.Empty<Element>(), Array.Empty<string>(),
                 new BossSource("EHG 0.9l distance scaling (May 2023)", "https://forum.lastepoch.com/t/beta-0-9l-patch-notes/58685"),
                 new BossSource("EHG 0.9i arena context (April 2023)", "https://forum.lastepoch.com/t/beta-0-9i-patch-notes/57471")),
             new BossProfile("heorot", "Heorot", new[] { "Heorot" },
-                "EHG documents Ice Spike and freezing interactions in this encounter. Historical fixes are not evidence of a current bug or boss immunity.",
+                "EHG's 1.0.3 note fixes Ice Spike stopping projectiles, and being frozen not stopping actions in multiplayer. That historical fix is not evidence of a current bug or of boss immunity.",
                 "The complete damage table is not verified here. An Ice Spike name alone does not establish damage typing.",
-                Array.Empty<Element>(), new[] {
-                    "Ice Spike plan: avoid its telegraph before resuming attacks. Keep a route clear rather than standing still to finish a cast.",
-                    "Freeze plan: if your recorded death shows Freeze, review the ailment advice and recovery options in Last death. Do not assume freezing the boss will stop every hazard." },
+                Array.Empty<Element>(), Array.Empty<string>(),
                 new BossSource("EHG 1.0.3 encounter notes (March 2024)", "https://forum.lastepoch.com/t/last-epoch-patch-1-0-3-patch-notes/68385")),
             new BossProfile("julra", "Chronomancer Julra", new[] { "Chronomancer Julra", "Julra" },
                 "Temporal Sanctum provides Temporal Shift between Divine and Ruined eras. Higher dungeon tiers and selected modifiers increase danger.",
                 "Tunklab's published dungeon data lists Void, Cold and Lightning for Julra. This is encounter coverage, not an attack-by-attack breakdown.",
-                new[] { Element.Void, Element.Cold, Element.Lightning }, new[] {
-                    "Era plan: keep Temporal Shift available for hazards and learn the safe timing in your tier. Switching eras keeps your position, so do not assume it also moves you out of a ground hazard.",
-                    "Preparation plan: check Void, Cold and Lightning coverage. Prioritize the element captured in your death; if capped, review critical protection and measured health loss in Last death before spending gear slots on a larger pool." },
+                new[] { Element.Void, Element.Cold, Element.Lightning }, Array.Empty<string>(),
                 new BossSource("Tunklab dungeon damage and era data", "https://lastepoch.tunklab.com/dungeon/temporal_sanctum"),
                 new BossSource("EHG 0.8.4 dungeon announcement (December 2021)", "https://www.lastepochtools.com/news/article/eternal-legends-beta-0-8-4-patch-notes-45588")),
             new BossProfile("harbinger-hatred", "Harbinger of Hatred", new[] { "Harbinger of Hatred" },
                 "EHG names this variant's Void Rahyeh Dive Bomb. This entry does not describe the ordinary Rahyeh timeline encounter.",
                 "Damage typing is not verified here. The word Void in an ability name is not a measured damage report.",
                 Array.Empty<Element>(), new[] {
-                    "Dive Bomb plan: leave the landing telegraph early and leave room to reposition after it lands. Do not follow the landing point to keep attacking.",
-                    "Variant plan: use the captured ability and element in Last death. A Harbinger imitation is not interchangeable with the original boss's full move set." },
+                    "A Harbinger imitation is not interchangeable with the original boss's full move set." },
                 new BossSource("EHG 1.2.1 variant notes (April 2025)", "https://forum.lastepoch.com/t/last-epoch-patch-1-2-1-notes/76245"))
         });
         public static BossProfile Match(DeathRecord death)

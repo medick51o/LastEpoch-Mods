@@ -1,0 +1,5446 @@
+{
+  "schemaVersion": "1.0.0",
+  "reviewed": "Sources reviewed October 2, 2026. Fact-check of lanes 1 through 6. Tunklab rows are the 1.5 preview extract, not a 1.5.1 client dump. Season 5 encounters still need live verification.",
+  "encounters": [
+    {
+      "id": "abomination",
+      "displayName": "Abomination",
+      "aliases": [
+        {
+          "text": "Abomination",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "abomination-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Altar of Flesh",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "Fall of the Outcasts",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "timeline",
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "abomination.pairing",
+          "statement": "Abomination is the quest 3 boss of Fall of the Outcasts and is followed in the Tunklab 1.5 preview table by Harbinger of Defilement.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "abomination.zone",
+          "statement": "Quest 3 zone on the timeline page is The Altar of Flesh. Normal area level on the timelines index is 62. Stability normal / empowered is 240 / 800.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timeline Fall of the Outcasts",
+            "url": "https://lastepoch.tunklab.com/timeline/fall_of_the_outcasts"
+          }
+        },
+        {
+          "id": "abomination.preview-limit",
+          "statement": "These rows are a 1.5 preview extract (sitemap lastmod 2026-09-30, bundle stamp 1.5-preview1). They are not a 1.5.1 client dump. The readable 1.5 and 1.5.1 forum posts do not restate the ten pairings.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab homepage version label",
+            "url": "https://lastepoch.tunklab.com/"
+          }
+        },
+        {
+          "id": "abomination.season3-levels",
+          "statement": "Season 3 notes raised several pre-90 timeline levels. Blood, Frost, and Death is area level 74 in both that note and this index. An actor base level is a different field.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Season 3 notes, Yayifications post 3, 2025-08-15",
+            "url": "https://forum.lastepoch.com/t/last-epoch-beneath-ancient-skies-patch-notes/78635"
+          }
+        },
+        {
+          "id": "abomination.damage-unknown",
+          "statement": "No attack damage table is confirmed for live 1.5.1. Preview ability arrays are reference data and are not copied into damage coverage when tags disagree or the walk was not re-closed.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "harbinger-defilement",
+      "displayName": "Harbinger of Defilement",
+      "aliases": [
+        {
+          "text": "Harbinger of Defilement",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "abomination"
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "harbinger-defilement-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Altar of Flesh",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "Fall of the Outcasts",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-defilement.follows",
+          "statement": "The Tunklab 1.5 preview timelines table lists Harbinger of Defilement as the Harbinger for Fall of the Outcasts, after Abomination.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "harbinger-defilement.own-style",
+          "statement": "The 2024-06-25 developer post says Harbingers come in Agile and Brute styles and also gain abilities from that timeline's boss. It does not list the abilities or their elements. 1.5 text readable in this pass does not restate the rule.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Harbingers of Ruin blog, Yayifications, 2024-06-25",
+            "url": "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+          }
+        },
+        {
+          "id": "harbinger-defilement.spawn-unconfirmed",
+          "statement": "Corruption minimums and whether the crest rule is unchanged in 1.5.1 were not re-read. The support article returned a Cloudflare challenge.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "harbinger-defilement.damage-unknown",
+          "statement": "Shared kit elements in the preview bundle are not promoted to damage coverage. Community archetype guides are not official.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "god-hunter-argentus",
+      "displayName": "God Hunter Argentus",
+      "aliases": [
+        {
+          "text": "God Hunter Argentus",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "god-hunter-argentus-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "Argentum Spire",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "The Stolen Lance",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "timeline",
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "god-hunter-argentus.pairing",
+          "statement": "God Hunter Argentus is the quest 3 boss of The Stolen Lance and is followed in the Tunklab 1.5 preview table by Harbinger of Pride.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "god-hunter-argentus.zone",
+          "statement": "Quest 3 zone on the timeline page is Argentum Spire. Normal area level on the timelines index is 66. Stability normal / empowered is 250 / 800.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timeline The Stolen Lance",
+            "url": "https://lastepoch.tunklab.com/timeline/the_stolen_lance"
+          }
+        },
+        {
+          "id": "god-hunter-argentus.preview-limit",
+          "statement": "These rows are a 1.5 preview extract (sitemap lastmod 2026-09-30, bundle stamp 1.5-preview1). They are not a 1.5.1 client dump. The readable 1.5 and 1.5.1 forum posts do not restate the ten pairings.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab homepage version label",
+            "url": "https://lastepoch.tunklab.com/"
+          }
+        },
+        {
+          "id": "god-hunter-argentus.season3-levels",
+          "statement": "Season 3 notes raised several pre-90 timeline levels. Blood, Frost, and Death is area level 74 in both that note and this index. An actor base level is a different field.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Season 3 notes, Yayifications post 3, 2025-08-15",
+            "url": "https://forum.lastepoch.com/t/last-epoch-beneath-ancient-skies-patch-notes/78635"
+          }
+        },
+        {
+          "id": "god-hunter-argentus.damage-unknown",
+          "statement": "No attack damage table is confirmed for live 1.5.1. Preview ability arrays are reference data and are not copied into damage coverage when tags disagree or the walk was not re-closed.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "god-hunter-argentus.not-heorot",
+          "statement": "The display name is God Hunter Argentus in The Stolen Lance. An internal id that contains Heorot is not a merge with the Age of Winter boss. That internal id was not re-opened on an NPC page in this pass.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timeline The Stolen Lance",
+            "url": "https://lastepoch.tunklab.com/timeline/the_stolen_lance"
+          }
+        }
+      ]
+    },
+    {
+      "id": "harbinger-pride",
+      "displayName": "Harbinger of Pride",
+      "aliases": [
+        {
+          "text": "Harbinger of Pride",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "god-hunter-argentus"
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "harbinger-pride-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "Argentum Spire",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "The Stolen Lance",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-pride.follows",
+          "statement": "The Tunklab 1.5 preview timelines table lists Harbinger of Pride as the Harbinger for The Stolen Lance, after God Hunter Argentus.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "harbinger-pride.own-style",
+          "statement": "The 2024-06-25 developer post says Harbingers come in Agile and Brute styles and also gain abilities from that timeline's boss. It does not list the abilities or their elements. 1.5 text readable in this pass does not restate the rule.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Harbingers of Ruin blog, Yayifications, 2024-06-25",
+            "url": "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+          }
+        },
+        {
+          "id": "harbinger-pride.spawn-unconfirmed",
+          "statement": "Corruption minimums and whether the crest rule is unchanged in 1.5.1 were not re-read. The support article returned a Cloudflare challenge.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "harbinger-pride.damage-unknown",
+          "statement": "Shared kit elements in the preview bundle are not promoted to damage coverage. Community archetype guides are not official.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "rahyeh-the-black-sun",
+      "displayName": "Rahyeh, The Black Sun",
+      "aliases": [
+        {
+          "text": "Rahyeh, The Black Sun",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "rahyeh-the-black-sun-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Ruins of Solarum",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "The Black Sun",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "timeline",
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "rahyeh-the-black-sun.pairing",
+          "statement": "Rahyeh, The Black Sun is the quest 3 boss of The Black Sun and is followed in the Tunklab 1.5 preview table by Harbinger of Hatred.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "rahyeh-the-black-sun.zone",
+          "statement": "Quest 3 zone on the timeline page is The Ruins of Solarum. Normal area level on the timelines index is 70. Stability normal / empowered is 250 / 800.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timeline The Black Sun",
+            "url": "https://lastepoch.tunklab.com/timeline/the_black_sun"
+          }
+        },
+        {
+          "id": "rahyeh-the-black-sun.preview-limit",
+          "statement": "These rows are a 1.5 preview extract (sitemap lastmod 2026-09-30, bundle stamp 1.5-preview1). They are not a 1.5.1 client dump. The readable 1.5 and 1.5.1 forum posts do not restate the ten pairings.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab homepage version label",
+            "url": "https://lastepoch.tunklab.com/"
+          }
+        },
+        {
+          "id": "rahyeh-the-black-sun.season3-levels",
+          "statement": "Season 3 notes raised several pre-90 timeline levels. Blood, Frost, and Death is area level 74 in both that note and this index. An actor base level is a different field.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Season 3 notes, Yayifications post 3, 2025-08-15",
+            "url": "https://forum.lastepoch.com/t/last-epoch-beneath-ancient-skies-patch-notes/78635"
+          }
+        },
+        {
+          "id": "rahyeh-the-black-sun.damage-unknown",
+          "statement": "No attack damage table is confirmed for live 1.5.1. Preview ability arrays are reference data and are not copied into damage coverage when tags disagree or the walk was not re-closed.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "harbinger-hatred",
+      "displayName": "Harbinger of Hatred",
+      "aliases": [
+        {
+          "text": "Harbinger of Hatred",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "rahyeh-the-black-sun"
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "harbinger-hatred-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Ruins of Solarum",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "The Black Sun",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [
+        {
+          "text": "This Harbinger is not Rahyeh's full move set. Harbingers keep an Agile or Brute style and also gain abilities from the timeline boss.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "harbinger-hatred.follows",
+          "statement": "The Tunklab 1.5 preview timelines table lists Harbinger of Hatred as the Harbinger for The Black Sun, after Rahyeh, The Black Sun.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "harbinger-hatred.own-style",
+          "statement": "The 2024-06-25 developer post says Harbingers come in Agile and Brute styles and also gain abilities from that timeline's boss. It does not list the abilities or their elements. 1.5 text readable in this pass does not restate the rule.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Harbingers of Ruin blog, Yayifications, 2024-06-25",
+            "url": "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+          }
+        },
+        {
+          "id": "harbinger-hatred.spawn-unconfirmed",
+          "statement": "Corruption minimums and whether the crest rule is unchanged in 1.5.1 were not re-read. The support article returned a Cloudflare challenge.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "harbinger-hatred.damage-unknown",
+          "statement": "Shared kit elements in the preview bundle are not promoted to damage coverage. Community archetype guides are not official.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "harbinger-hatred.dive-bomb-visual",
+          "statement": "1.2.1 fixes Harbinger of Hatred's Void Rahyeh Dive Bomb where the visuals did not match the damage. The note names no element and no timing.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG 1.2.1 notes, EHG_Wick, 2025-04-23",
+            "url": "https://forum.lastepoch.com/t/last-epoch-patch-1-2-1-notes/76245"
+          }
+        },
+        {
+          "id": "harbinger-hatred.array-conflict",
+          "statement": "Preview ability BruteHarbingerVoidRahyeh01.2DiveBombAoE is named Dive Bomb, damage array [0,0,0,0,0,1000,0], tags 264. The array index and the tag disagree. The word Void in the name is not the measurement.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab client bundle 1.5-preview1",
+            "url": "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+          }
+        },
+        {
+          "id": "harbinger-hatred.not-rahyeh",
+          "statement": "This profile is not Rahyeh, The Black Sun. The same 1.2.1 note separately mentions Void Rahyeh animation fixes.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG 1.2.1 notes, EHG_Wick, 2025-04-23",
+            "url": "https://forum.lastepoch.com/t/last-epoch-patch-1-2-1-notes/76245"
+          }
+        }
+      ]
+    },
+    {
+      "id": "frost-lich-formosus",
+      "displayName": "Frost Lich Formosus",
+      "aliases": [
+        {
+          "text": "Frost Lich Formosus",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        },
+        {
+          "text": "Formosus the Undying",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "frost-lich-formosus-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Lair of Formosus",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "Blood, Frost, and Death",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "timeline",
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "frost-lich-formosus.pairing",
+          "statement": "Frost Lich Formosus is the quest 3 boss of Blood, Frost, and Death and is followed in the Tunklab 1.5 preview table by Harbinger of War.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "frost-lich-formosus.zone",
+          "statement": "Quest 3 zone on the timeline page is The Lair of Formosus. Normal area level on the timelines index is 74. Stability normal / empowered is 300 / 800.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timeline Blood, Frost, and Death",
+            "url": "https://lastepoch.tunklab.com/timeline/blood_frost_and_death"
+          }
+        },
+        {
+          "id": "frost-lich-formosus.preview-limit",
+          "statement": "These rows are a 1.5 preview extract (sitemap lastmod 2026-09-30, bundle stamp 1.5-preview1). They are not a 1.5.1 client dump. The readable 1.5 and 1.5.1 forum posts do not restate the ten pairings.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab homepage version label",
+            "url": "https://lastepoch.tunklab.com/"
+          }
+        },
+        {
+          "id": "frost-lich-formosus.season3-levels",
+          "statement": "Season 3 notes raised several pre-90 timeline levels. Blood, Frost, and Death is area level 74 in both that note and this index. An actor base level is a different field.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Season 3 notes, Yayifications post 3, 2025-08-15",
+            "url": "https://forum.lastepoch.com/t/last-epoch-beneath-ancient-skies-patch-notes/78635"
+          }
+        },
+        {
+          "id": "frost-lich-formosus.damage-unknown",
+          "statement": "No attack damage table is confirmed for live 1.5.1. Preview ability arrays are reference data and are not copied into damage coverage when tags disagree or the walk was not re-closed.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "frost-lich-formosus.two-levels",
+          "statement": "Timeline area level is 74. The FrostLich page base level is 76 and the custom name is Formosus the Undying. One actor, two fields, not two bosses.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab FrostLich",
+            "url": "https://lastepoch.tunklab.com/npc/FrostLich"
+          }
+        }
+      ]
+    },
+    {
+      "id": "harbinger-war",
+      "displayName": "Harbinger of War",
+      "aliases": [
+        {
+          "text": "Harbinger of War",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "frost-lich-formosus"
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "harbinger-war-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Lair of Formosus",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "Blood, Frost, and Death",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-war.follows",
+          "statement": "The Tunklab 1.5 preview timelines table lists Harbinger of War as the Harbinger for Blood, Frost, and Death, after Frost Lich Formosus.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "harbinger-war.own-style",
+          "statement": "The 2024-06-25 developer post says Harbingers come in Agile and Brute styles and also gain abilities from that timeline's boss. It does not list the abilities or their elements. 1.5 text readable in this pass does not restate the rule.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Harbingers of Ruin blog, Yayifications, 2024-06-25",
+            "url": "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+          }
+        },
+        {
+          "id": "harbinger-war.spawn-unconfirmed",
+          "statement": "Corruption minimums and whether the crest rule is unchanged in 1.5.1 were not re-read. The support article returned a Cloudflare challenge.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "harbinger-war.damage-unknown",
+          "statement": "Shared kit elements in the preview bundle are not promoted to damage coverage. Community archetype guides are not official.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "lagon-monolith",
+      "displayName": "Lagon, God of Storms",
+      "aliases": [
+        {
+          "text": "Lagon, God of Storms",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "lagon-monolith-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "Eye of the Storm",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "Ending the Storm",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "timeline",
+          "boss"
+        ]
+      },
+      "tips": [
+        {
+          "text": "Attack the tentacles. Patch 0.9.2 says campaign and monolith Lagon are damaged through two tentacles that share his health.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        },
+        {
+          "text": "A death that names Lagon's Tentacle is an add. One tentacle actor in the 1.5 preview extract reuses the display name Lagon, God of Storms.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "lagon-monolith.pairing",
+          "statement": "Lagon, God of Storms is the quest 3 boss of Ending the Storm and is followed in the Tunklab 1.5 preview table by Harbinger of Chaos.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "lagon-monolith.zone",
+          "statement": "Quest 3 zone on the timeline page is Eye of the Storm. Normal area level on the timelines index is 78. Stability normal / empowered is 320 / 850.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timeline Ending the Storm",
+            "url": "https://lastepoch.tunklab.com/timeline/ending_the_storm"
+          }
+        },
+        {
+          "id": "lagon-monolith.preview-limit",
+          "statement": "These rows are a 1.5 preview extract (sitemap lastmod 2026-09-30, bundle stamp 1.5-preview1). They are not a 1.5.1 client dump. The readable 1.5 and 1.5.1 forum posts do not restate the ten pairings.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab homepage version label",
+            "url": "https://lastepoch.tunklab.com/"
+          }
+        },
+        {
+          "id": "lagon-monolith.season3-levels",
+          "statement": "Season 3 notes raised several pre-90 timeline levels. Blood, Frost, and Death is area level 74 in both that note and this index. An actor base level is a different field.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Season 3 notes, Yayifications post 3, 2025-08-15",
+            "url": "https://forum.lastepoch.com/t/last-epoch-beneath-ancient-skies-patch-notes/78635"
+          }
+        },
+        {
+          "id": "lagon-monolith.damage-unknown",
+          "statement": "No attack damage table is confirmed for live 1.5.1. Preview ability arrays are reference data and are not copied into damage coverage when tags disagree or the walk was not re-closed.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "lagon-monolith.tentacles",
+          "statement": "Patch 0.9.2 says campaign and monolith Lagon phases 1 and 3 are damaged through two tentacles that share health with Lagon. The preview actor description still says he can only be damaged by attacking tentacles.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG 0.9.2 notes, Yayifications, 2023-09-05",
+            "url": "https://forum.lastepoch.com/t/runes-of-power-beta-0-9-2-patch-notes/60471"
+          }
+        },
+        {
+          "id": "lagon-monolith.skill-ids",
+          "statement": "Both LagonBoss and LagonBossMonolith cskills in the 1.5-preview1 bundle are LagonBossEyeBeamLeftToRight, LagonBossMoonBeam, LagonBossClawGrab, LagonBossLowMoonBeam, and LagonBossMelee. LagonBossTidalWaves is an unreferenced record. The 0.9 names Tidal Wave and Lightning Blast are not that skill list.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab client bundle 1.5-preview1",
+            "url": "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+          }
+        },
+        {
+          "id": "lagon-monolith.name-collision",
+          "statement": "LagonBoss, LagonBossMonolith, and LagonBossTentacleEnemy all use the display name Lagon, God of Storms in the preview bundle. The catalog alias Lagon does not match that string.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab client bundle 1.5-preview1",
+            "url": "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+          }
+        }
+      ]
+    },
+    {
+      "id": "harbinger-chaos",
+      "displayName": "Harbinger of Chaos",
+      "aliases": [
+        {
+          "text": "Harbinger of Chaos",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "lagon-monolith"
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "harbinger-chaos-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "Eye of the Storm",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "Ending the Storm",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-chaos.follows",
+          "statement": "The Tunklab 1.5 preview timelines table lists Harbinger of Chaos as the Harbinger for Ending the Storm, after Lagon, God of Storms.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "harbinger-chaos.own-style",
+          "statement": "The 2024-06-25 developer post says Harbingers come in Agile and Brute styles and also gain abilities from that timeline's boss. It does not list the abilities or their elements. 1.5 text readable in this pass does not restate the rule.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Harbingers of Ruin blog, Yayifications, 2024-06-25",
+            "url": "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+          }
+        },
+        {
+          "id": "harbinger-chaos.spawn-unconfirmed",
+          "statement": "Corruption minimums and whether the crest rule is unchanged in 1.5.1 were not re-read. The support article returned a Cloudflare challenge.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "harbinger-chaos.damage-unknown",
+          "statement": "Shared kit elements in the preview bundle are not promoted to damage coverage. Community archetype guides are not official.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "hartons-husk",
+      "displayName": "Harton's Husk",
+      "aliases": [
+        {
+          "text": "Harton's Husk",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "hartons-husk-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "Dreadnought's Wreckage",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "Fall of the Empire",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "timeline",
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "hartons-husk.pairing",
+          "statement": "Harton's Husk is the quest 3 boss of Fall of the Empire and is followed in the Tunklab 1.5 preview table by Harbinger of Treason.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "hartons-husk.zone",
+          "statement": "Quest 3 zone on the timeline page is Dreadnought's Wreckage. Normal area level on the timelines index is 82. Stability normal / empowered is 320 / 850.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timeline Fall of the Empire",
+            "url": "https://lastepoch.tunklab.com/timeline/fall_of_the_empire"
+          }
+        },
+        {
+          "id": "hartons-husk.preview-limit",
+          "statement": "These rows are a 1.5 preview extract (sitemap lastmod 2026-09-30, bundle stamp 1.5-preview1). They are not a 1.5.1 client dump. The readable 1.5 and 1.5.1 forum posts do not restate the ten pairings.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab homepage version label",
+            "url": "https://lastepoch.tunklab.com/"
+          }
+        },
+        {
+          "id": "hartons-husk.season3-levels",
+          "statement": "Season 3 notes raised several pre-90 timeline levels. Blood, Frost, and Death is area level 74 in both that note and this index. An actor base level is a different field.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Season 3 notes, Yayifications post 3, 2025-08-15",
+            "url": "https://forum.lastepoch.com/t/last-epoch-beneath-ancient-skies-patch-notes/78635"
+          }
+        },
+        {
+          "id": "hartons-husk.damage-unknown",
+          "statement": "No attack damage table is confirmed for live 1.5.1. Preview ability arrays are reference data and are not copied into damage coverage when tags disagree or the walk was not re-closed.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "harbinger-treason",
+      "displayName": "Harbinger of Treason",
+      "aliases": [
+        {
+          "text": "Harbinger of Treason",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "hartons-husk"
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "harbinger-treason-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "Dreadnought's Wreckage",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "Fall of the Empire",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-treason.follows",
+          "statement": "The Tunklab 1.5 preview timelines table lists Harbinger of Treason as the Harbinger for Fall of the Empire, after Harton's Husk.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "harbinger-treason.own-style",
+          "statement": "The 2024-06-25 developer post says Harbingers come in Agile and Brute styles and also gain abilities from that timeline's boss. It does not list the abilities or their elements. 1.5 text readable in this pass does not restate the rule.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Harbingers of Ruin blog, Yayifications, 2024-06-25",
+            "url": "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+          }
+        },
+        {
+          "id": "harbinger-treason.spawn-unconfirmed",
+          "statement": "Corruption minimums and whether the crest rule is unchanged in 1.5.1 were not re-read. The support article returned a Cloudflare challenge.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "harbinger-treason.damage-unknown",
+          "statement": "Shared kit elements in the preview bundle are not promoted to damage coverage. Community archetype guides are not official.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "emperor-of-corpses",
+      "displayName": "Emperor of Corpses",
+      "aliases": [
+        {
+          "text": "Emperor of Corpses",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "emperor-of-corpses-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Rotting Hoard",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "Reign of Dragons",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "timeline",
+          "boss"
+        ]
+      },
+      "tips": [
+        {
+          "text": "Move farther from the center of Soul Bomb. A 2023 note says it deals less damage the farther you are from that center.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        },
+        {
+          "text": "Do not use the Soul Bomb plan for Emperor's Remains. The 0.9 notes already treat that name as a different enemy.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "emperor-of-corpses.pairing",
+          "statement": "Emperor of Corpses is the quest 3 boss of Reign of Dragons and is followed in the Tunklab 1.5 preview table by Harbinger of Destruction.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "emperor-of-corpses.zone",
+          "statement": "Quest 3 zone on the timeline page is The Rotting Hoard. Normal area level on the timelines index is 85. Stability normal / empowered is 400 / 850.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timeline Reign of Dragons",
+            "url": "https://lastepoch.tunklab.com/timeline/reign_of_dragons"
+          }
+        },
+        {
+          "id": "emperor-of-corpses.preview-limit",
+          "statement": "These rows are a 1.5 preview extract (sitemap lastmod 2026-09-30, bundle stamp 1.5-preview1). They are not a 1.5.1 client dump. The readable 1.5 and 1.5.1 forum posts do not restate the ten pairings.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab homepage version label",
+            "url": "https://lastepoch.tunklab.com/"
+          }
+        },
+        {
+          "id": "emperor-of-corpses.season3-levels",
+          "statement": "Season 3 notes raised several pre-90 timeline levels. Blood, Frost, and Death is area level 74 in both that note and this index. An actor base level is a different field.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Season 3 notes, Yayifications post 3, 2025-08-15",
+            "url": "https://forum.lastepoch.com/t/last-epoch-beneath-ancient-skies-patch-notes/78635"
+          }
+        },
+        {
+          "id": "emperor-of-corpses.damage-unknown",
+          "statement": "No attack damage table is confirmed for live 1.5.1. Preview ability arrays are reference data and are not copied into damage coverage when tags disagree or the walk was not re-closed.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "emperor-of-corpses.distance",
+          "statement": "Emperor of Corpses' Soul Bomb deals less damage the further you are from the center. That is a 0.9l sentence, not a 1.5 restatement.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG 0.9l notes, Hackaloken, 2023-05-10",
+            "url": "https://forum.lastepoch.com/t/beta-0-9l-patch-notes/58685"
+          }
+        },
+        {
+          "id": "emperor-of-corpses.arena",
+          "statement": "0.9i restored The Rotting Hoard's arena so Soul Bomb can be avoided, and increased Soul Bomb damage again. No radius is stated.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG 0.9i notes, Hackaloken, 2023-04-12",
+            "url": "https://forum.lastepoch.com/t/beta-0-9i-patch-notes/57471"
+          }
+        },
+        {
+          "id": "emperor-of-corpses.temporary-cut",
+          "statement": "1.4.2 temporarily cut timeline-boss Soul Bomb damage while indicators failed. No reversal was found in the 1.5 text this pass could read. Do not treat the cut or the bug as current.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG 1.4.2 notes, EHG_DerrickG, 2026-04-01",
+            "url": "https://forum.lastepoch.com/t/last-epoch-patch-1-4-2-notes/80956"
+          }
+        },
+        {
+          "id": "emperor-of-corpses.element-conflict",
+          "statement": "Preview ability UndeadDragonExplosionDamage is named Soul Bomb, damage array [0,0,0,0,500,0,0], isHit true, tags 264. Poison Pool (UndeadDragonDamageDonut) is a necrotic-index damage-over-time record, not a poison array. Tags and the pool name disagree with the array. Element stays unknown.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab client bundle 1.5-preview1",
+            "url": "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+          }
+        }
+      ]
+    },
+    {
+      "id": "harbinger-destruction",
+      "displayName": "Harbinger of Destruction",
+      "aliases": [
+        {
+          "text": "Harbinger of Destruction",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "emperor-of-corpses"
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "harbinger-destruction-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Rotting Hoard",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "Reign of Dragons",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-destruction.follows",
+          "statement": "The Tunklab 1.5 preview timelines table lists Harbinger of Destruction as the Harbinger for Reign of Dragons, after Emperor of Corpses.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "harbinger-destruction.own-style",
+          "statement": "The 2024-06-25 developer post says Harbingers come in Agile and Brute styles and also gain abilities from that timeline's boss. It does not list the abilities or their elements. 1.5 text readable in this pass does not restate the rule.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Harbingers of Ruin blog, Yayifications, 2024-06-25",
+            "url": "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+          }
+        },
+        {
+          "id": "harbinger-destruction.spawn-unconfirmed",
+          "statement": "Corruption minimums and whether the crest rule is unchanged in 1.5.1 were not re-read. The support article returned a Cloudflare challenge.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "harbinger-destruction.damage-unknown",
+          "statement": "Shared kit elements in the preview bundle are not promoted to damage coverage. Community archetype guides are not official.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "husk-of-elder-gaspar",
+      "displayName": "The Husk of Elder Gaspar",
+      "aliases": [
+        {
+          "text": "The Husk of Elder Gaspar",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "husk-of-elder-gaspar-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Chambers of Ruin",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "The Last Ruin",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "timeline",
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "husk-of-elder-gaspar.pairing",
+          "statement": "The Husk of Elder Gaspar is the quest 3 boss of The Last Ruin and is followed in the Tunklab 1.5 preview table by Harbinger of Fear.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "husk-of-elder-gaspar.zone",
+          "statement": "Quest 3 zone on the timeline page is The Chambers of Ruin. Normal area level on the timelines index is 90. Stability normal / empowered is 400 / 900.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timeline The Last Ruin",
+            "url": "https://lastepoch.tunklab.com/timeline/the_last_ruin"
+          }
+        },
+        {
+          "id": "husk-of-elder-gaspar.preview-limit",
+          "statement": "These rows are a 1.5 preview extract (sitemap lastmod 2026-09-30, bundle stamp 1.5-preview1). They are not a 1.5.1 client dump. The readable 1.5 and 1.5.1 forum posts do not restate the ten pairings.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab homepage version label",
+            "url": "https://lastepoch.tunklab.com/"
+          }
+        },
+        {
+          "id": "husk-of-elder-gaspar.season3-levels",
+          "statement": "Season 3 notes raised several pre-90 timeline levels. Blood, Frost, and Death is area level 74 in both that note and this index. An actor base level is a different field.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Season 3 notes, Yayifications post 3, 2025-08-15",
+            "url": "https://forum.lastepoch.com/t/last-epoch-beneath-ancient-skies-patch-notes/78635"
+          }
+        },
+        {
+          "id": "husk-of-elder-gaspar.damage-unknown",
+          "statement": "No attack damage table is confirmed for live 1.5.1. Preview ability arrays are reference data and are not copied into damage coverage when tags disagree or the walk was not re-closed.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "harbinger-fear",
+      "displayName": "Harbinger of Fear",
+      "aliases": [
+        {
+          "text": "Harbinger of Fear",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "husk-of-elder-gaspar"
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "harbinger-fear-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Chambers of Ruin",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "The Last Ruin",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-fear.follows",
+          "statement": "The Tunklab 1.5 preview timelines table lists Harbinger of Fear as the Harbinger for The Last Ruin, after The Husk of Elder Gaspar.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "harbinger-fear.own-style",
+          "statement": "The 2024-06-25 developer post says Harbingers come in Agile and Brute styles and also gain abilities from that timeline's boss. It does not list the abilities or their elements. 1.5 text readable in this pass does not restate the rule.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Harbingers of Ruin blog, Yayifications, 2024-06-25",
+            "url": "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+          }
+        },
+        {
+          "id": "harbinger-fear.spawn-unconfirmed",
+          "statement": "Corruption minimums and whether the crest rule is unchanged in 1.5.1 were not re-read. The support article returned a Cloudflare challenge.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "harbinger-fear.damage-unknown",
+          "statement": "Shared kit elements in the preview bundle are not promoted to damage coverage. Community archetype guides are not official.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "heorot-monolith",
+      "displayName": "Heorot",
+      "aliases": [
+        {
+          "text": "Heorot",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "heorot-monolith-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Frozen Citadel",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "The Age of Winter",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "timeline",
+          "boss"
+        ]
+      },
+      "tips": [
+        {
+          "text": "Do not plan on freezing Heorot. The extracted actor text says Cannot be Frozen.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        },
+        {
+          "text": "The 1.0.3 Ice Spike note is a multiplayer bugfix about projectiles and frozen players. It is not a damage type.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "heorot-monolith.pairing",
+          "statement": "Heorot is the quest 3 boss of The Age of Winter and is followed in the Tunklab 1.5 preview table by Harbinger of Tyranny.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "heorot-monolith.zone",
+          "statement": "Quest 3 zone on the timeline page is The Frozen Citadel. Normal area level on the timelines index is 90. Stability normal / empowered is 400 / 900.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timeline The Age of Winter",
+            "url": "https://lastepoch.tunklab.com/timeline/the_age_of_winter"
+          }
+        },
+        {
+          "id": "heorot-monolith.preview-limit",
+          "statement": "These rows are a 1.5 preview extract (sitemap lastmod 2026-09-30, bundle stamp 1.5-preview1). They are not a 1.5.1 client dump. The readable 1.5 and 1.5.1 forum posts do not restate the ten pairings.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab homepage version label",
+            "url": "https://lastepoch.tunklab.com/"
+          }
+        },
+        {
+          "id": "heorot-monolith.season3-levels",
+          "statement": "Season 3 notes raised several pre-90 timeline levels. Blood, Frost, and Death is area level 74 in both that note and this index. An actor base level is a different field.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Season 3 notes, Yayifications post 3, 2025-08-15",
+            "url": "https://forum.lastepoch.com/t/last-epoch-beneath-ancient-skies-patch-notes/78635"
+          }
+        },
+        {
+          "id": "heorot-monolith.damage-unknown",
+          "statement": "No attack damage table is confirmed for live 1.5.1. Preview ability arrays are reference data and are not copied into damage coverage when tags disagree or the walk was not re-closed.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "heorot-monolith.ice-spike-bugfix",
+          "statement": "1.0.3 fixes several Heorot issues including Ice Spike stopping projectiles, and being frozen not stopping actions in multiplayer. It does not state a damage type or immunity.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG 1.0.3 notes, Yayifications, 2024-03-13",
+            "url": "https://forum.lastepoch.com/t/last-epoch-patch-1-0-3-patch-notes/68385"
+          }
+        },
+        {
+          "id": "heorot-monolith.cannot-be-frozen",
+          "statement": "The HeorotBoss page description is Cannot be Frozen. That is datamined actor text on a 1.5 preview site, not a Season 5 developer note.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab HeorotBoss",
+            "url": "https://lastepoch.tunklab.com/npc/HeorotBoss"
+          }
+        },
+        {
+          "id": "heorot-monolith.base-level",
+          "statement": "HeorotBoss base level on that page is 90, in The Frozen Citadel. Formosus is the actor whose base level is 76 while the timeline area level is 74.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab HeorotBoss",
+            "url": "https://lastepoch.tunklab.com/npc/HeorotBoss"
+          }
+        }
+      ]
+    },
+    {
+      "id": "harbinger-tyranny",
+      "displayName": "Harbinger of Tyranny",
+      "aliases": [
+        {
+          "text": "Harbinger of Tyranny",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "heorot-monolith"
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "harbinger-tyranny-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Frozen Citadel",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "The Age of Winter",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-tyranny.follows",
+          "statement": "The Tunklab 1.5 preview timelines table lists Harbinger of Tyranny as the Harbinger for The Age of Winter, after Heorot.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "harbinger-tyranny.own-style",
+          "statement": "The 2024-06-25 developer post says Harbingers come in Agile and Brute styles and also gain abilities from that timeline's boss. It does not list the abilities or their elements. 1.5 text readable in this pass does not restate the rule.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Harbingers of Ruin blog, Yayifications, 2024-06-25",
+            "url": "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+          }
+        },
+        {
+          "id": "harbinger-tyranny.spawn-unconfirmed",
+          "statement": "Corruption minimums and whether the crest rule is unchanged in 1.5.1 were not re-read. The support article returned a Cloudflare challenge.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "harbinger-tyranny.damage-unknown",
+          "statement": "Shared kit elements in the preview bundle are not promoted to damage coverage. Community archetype guides are not official.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "volcanic-shaman",
+      "displayName": "Volcanic Shaman",
+      "aliases": [
+        {
+          "text": "Volcanic Shaman",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "volcanic-shaman-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Caldera of Souls",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "Spirits of Fire",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "timeline",
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "volcanic-shaman.pairing",
+          "statement": "Volcanic Shaman is the quest 3 boss of Spirits of Fire and is followed in the Tunklab 1.5 preview table by Harbinger of Ash.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "volcanic-shaman.zone",
+          "statement": "Quest 3 zone on the timeline page is The Caldera of Souls. Normal area level on the timelines index is 90. Stability normal / empowered is 400 / 900.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timeline Spirits of Fire",
+            "url": "https://lastepoch.tunklab.com/timeline/spirits_of_fire"
+          }
+        },
+        {
+          "id": "volcanic-shaman.preview-limit",
+          "statement": "These rows are a 1.5 preview extract (sitemap lastmod 2026-09-30, bundle stamp 1.5-preview1). They are not a 1.5.1 client dump. The readable 1.5 and 1.5.1 forum posts do not restate the ten pairings.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab homepage version label",
+            "url": "https://lastepoch.tunklab.com/"
+          }
+        },
+        {
+          "id": "volcanic-shaman.season3-levels",
+          "statement": "Season 3 notes raised several pre-90 timeline levels. Blood, Frost, and Death is area level 74 in both that note and this index. An actor base level is a different field.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Season 3 notes, Yayifications post 3, 2025-08-15",
+            "url": "https://forum.lastepoch.com/t/last-epoch-beneath-ancient-skies-patch-notes/78635"
+          }
+        },
+        {
+          "id": "volcanic-shaman.damage-unknown",
+          "statement": "No attack damage table is confirmed for live 1.5.1. Preview ability arrays are reference data and are not copied into damage coverage when tags disagree or the walk was not re-closed.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "volcanic-shaman.three-names",
+          "statement": "Quest 3 text names Bhuldar, Herkir, and Logi at the caldera. Whether each nameplate has a private kit is unknown.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timeline Spirits of Fire",
+            "url": "https://lastepoch.tunklab.com/timeline/spirits_of_fire"
+          }
+        }
+      ]
+    },
+    {
+      "id": "harbinger-ash",
+      "displayName": "Harbinger of Ash",
+      "aliases": [
+        {
+          "text": "Harbinger of Ash",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "volcanic-shaman"
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "harbinger-ash-empowered",
+            "displayName": "Empowered",
+            "relationship": "empowered"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "The Caldera of Souls",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "Spirits of Fire",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-ash.follows",
+          "statement": "The Tunklab 1.5 preview timelines table lists Harbinger of Ash as the Harbinger for Spirits of Fire, after Volcanic Shaman.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab timelines, Game Version 1.5 preview",
+            "url": "https://lastepoch.tunklab.com/timelines"
+          }
+        },
+        {
+          "id": "harbinger-ash.own-style",
+          "statement": "The 2024-06-25 developer post says Harbingers come in Agile and Brute styles and also gain abilities from that timeline's boss. It does not list the abilities or their elements. 1.5 text readable in this pass does not restate the rule.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Harbingers of Ruin blog, Yayifications, 2024-06-25",
+            "url": "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+          }
+        },
+        {
+          "id": "harbinger-ash.spawn-unconfirmed",
+          "statement": "Corruption minimums and whether the crest rule is unchanged in 1.5.1 were not re-read. The support article returned a Cloudflare challenge.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        },
+        {
+          "id": "harbinger-ash.damage-unknown",
+          "statement": "Shared kit elements in the preview bundle are not promoted to damage coverage. Community archetype guides are not official.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "lagon-campaign",
+      "displayName": "Lagon, God of Storms",
+      "aliases": [
+        {
+          "text": "Lagon, God of Storms",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "lagon-campaign-distinct",
+            "displayName": "Campaign actor",
+            "relationship": "alternate"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "Seafloor Colosseum",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [
+        {
+          "text": "Attack the tentacles. Patch 0.9.2 says campaign and monolith Lagon are damaged through two tentacles that share his health.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        },
+        {
+          "text": "A death that names Lagon's Tentacle is an add. One tentacle actor in the 1.5 preview extract reuses the display name Lagon, God of Storms.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "lagon-campaign.separate-actor",
+          "statement": "The preview bundle has a separate id LagonBoss, level 53, zones including G120, with the same five cskill ids as LagonBossMonolith. Same display name, different actor.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab client bundle 1.5-preview1",
+            "url": "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+          }
+        },
+        {
+          "id": "lagon-campaign.tentacles",
+          "statement": "Patch 0.9.2 applies the tentacle health share to both campaign and monolith versions.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG 0.9.2 notes, 2023-09-05",
+            "url": "https://forum.lastepoch.com/t/runes-of-power-beta-0-9-2-patch-notes/60471"
+          }
+        },
+        {
+          "id": "lagon-campaign.no-harbinger",
+          "statement": "Campaign Lagon is not the Ending the Storm echo. Do not attach Harbinger of Chaos unless the timeline variant is identified.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab Ending the Storm",
+            "url": "https://lastepoch.tunklab.com/timeline/ending_the_storm"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lagons-tentacle",
+      "displayName": "Lagon's Tentacle",
+      "aliases": [
+        {
+          "text": "Lagon's Tentacle",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "lagon-monolith"
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "unknown",
+        "items": null
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "lagons-tentacle.add",
+          "statement": "Lagon's Tentacle is an add name. It must not match the boss alias. A second preview actor, LagonBossTentacleEnemy, reuses the boss display name.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab client bundle 1.5-preview1",
+            "url": "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+          }
+        }
+      ]
+    },
+    {
+      "id": "julra",
+      "displayName": "Chronomancer Julra",
+      "aliases": [
+        {
+          "text": "Chronomancer Julra",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        },
+        {
+          "text": "Julra",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "known",
+        "items": [
+          {
+            "id": "julra-tier",
+            "displayName": "Dungeon tier",
+            "relationship": "tier"
+          }
+        ]
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "Temporal Sanctum",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          },
+          {
+            "displayName": "The Sanctum Archive",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "known",
+        "scope": "encounter",
+        "elements": [
+          "Void",
+          "Cold",
+          "Lightning"
+        ],
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "datamined-reference",
+        "confidence": {
+          "status": "known",
+          "level": "low"
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "dungeon"
+        ]
+      },
+      "tips": [
+        {
+          "text": "Temporal Shift travels between the Divine and Ruined eras and does not move you. Leave a ground hazard before you shift.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        },
+        {
+          "text": "The first time Julra uses her most powerful attack, a 1.3 note says an indicator reminds you that Temporal Shift can be used.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "julra.shift",
+          "statement": "Tunklab's Temporal Sanctum page describes Temporal Shift as travel between the Divine and Ruined eras without moving. The site footer says Game Version 1.5 preview. This is not an EHG 1.5.1 sentence.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab Temporal Sanctum",
+            "url": "https://lastepoch.tunklab.com/dungeon/temporal_sanctum"
+          }
+        },
+        {
+          "id": "julra.coverage",
+          "statement": "The same page lists Chronomancer Julra damage types Void, Cold, and Lightning. That is encounter coverage, not an attack map.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab Temporal Sanctum",
+            "url": "https://lastepoch.tunklab.com/dungeon/temporal_sanctum"
+          }
+        },
+        {
+          "id": "julra.indicator",
+          "statement": "Season 3 notes say Temporal Sanctum adds an indicator the first time Julra uses her most powerful attack, to remind the player they can use Temporal Shift. The attack is not named, and the sentence was not found in readable 1.5 text.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Season 3 notes, post 3, 2025-08-15",
+            "url": "https://forum.lastepoch.com/t/last-epoch-beneath-ancient-skies-patch-notes/78635"
+          }
+        },
+        {
+          "id": "julra.tools-reprint",
+          "statement": "The starter source labeled as an EHG 0.8.4 announcement points at lastepochtools.com. This pass received HTTP 403 from Last Epoch Tools. That URL is not developer documentation.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": {
+            "label": "LE Tools reprint, not re-read",
+            "url": "https://www.lastepochtools.com/news/article/eternal-legends-beta-0-8-4-patch-notes-45588"
+          }
+        }
+      ]
+    },
+    {
+      "id": "herald-of-oblivion",
+      "displayName": "Herald of Oblivion",
+      "aliases": [
+        {
+          "text": "Herald of Oblivion",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        },
+        {
+          "text": "Uber Aberroth",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "Threshold of Eternity",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "herald-of-oblivion.name-conflict",
+          "statement": "The Tunklab page title is Herald of Oblivion, with the subtitle Uber Aberroth, difficulty Uber Boss, immune while defended by other Harbingers. Phase 2 add is Harbinger of Regret and phase 4 add is Harbinger of Denial. EHG on 2026-09-21 still says Uber Aberroth. Do not collapse the names.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab UberAterroth",
+            "url": "https://lastepoch.tunklab.com/npc/UberAterroth"
+          }
+        },
+        {
+          "id": "herald-of-oblivion.ehg-name",
+          "statement": "EHG's Morditas announcement says the God of Bloodshed helps bridge the difficulty curve towards Uber Aberroth. It does not use the string Herald of Oblivion.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG Morditas announcement, EHG_DerrickG, 2026-09-21",
+            "url": "https://forum.lastepoch.com/t/rage-of-morditas-coming-to-last-epoch-october-1/81757"
+          }
+        },
+        {
+          "id": "herald-of-oblivion.not-altar",
+          "statement": "The 2024 blog's Aberroth is the altar fight in the Harbinger's Domain after the ten Harbingers. That post does not name this woven echo.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Harbingers blog, 2024-06-25",
+            "url": "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+          }
+        }
+      ]
+    },
+    {
+      "id": "aberroth",
+      "displayName": "Aberroth",
+      "aliases": [
+        {
+          "text": "Aberroth",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "aberroth.2024-design",
+          "statement": "The 2024-06-25 post says all 10 Harbingers, then an Eye on the altar, pulls the player into the Harbinger's Domain to fight Aberroth across four eras. 1.5 text readable here does not restate that gate.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "EHG Harbingers blog, 2024-06-25",
+            "url": "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+          }
+        },
+        {
+          "id": "aberroth.distinct-from-uber",
+          "statement": "Keep this altar profile distinct from Herald of Oblivion. The preview page for UberAterroth uses a different display name.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "Tunklab UberAterroth",
+            "url": "https://lastepoch.tunklab.com/npc/UberAterroth"
+          }
+        },
+        {
+          "id": "aberroth.zone-unresolved",
+          "statement": "Player-facing zone string was not settled. The 2024 post says the altar and the Harbinger's Domain. Tunklab's Altar of Orobyss label was not re-opened.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "harbinger-regret",
+      "displayName": "Harbinger of Regret",
+      "aliases": [
+        {
+          "text": "Harbinger of Regret",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "herald-of-oblivion"
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "Threshold of Eternity",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-regret.add",
+          "statement": "The Herald of Oblivion page lists Harbinger of Regret as the phase 2 add. The page says the body is immune while defended by other Harbingers.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab UberAterroth",
+            "url": "https://lastepoch.tunklab.com/npc/UberAterroth"
+          }
+        }
+      ]
+    },
+    {
+      "id": "harbinger-denial",
+      "displayName": "Harbinger of Denial",
+      "aliases": [
+        {
+          "text": "Harbinger of Denial",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "herald-of-oblivion"
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "known",
+        "items": [
+          {
+            "displayName": "Threshold of Eternity",
+            "sceneId": null,
+            "localizedName": {
+              "status": "unknown",
+              "tag": null
+            }
+          }
+        ]
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-denial.add",
+          "statement": "The Herald of Oblivion page lists Harbinger of Denial as the phase 4 add. The page says the body is immune while defended by other Harbingers.",
+          "evidenceClass": "datamined-reference",
+          "confidence": {
+            "status": "known",
+            "level": "medium"
+          },
+          "source": {
+            "label": "Tunklab UberAterroth",
+            "url": "https://lastepoch.tunklab.com/npc/UberAterroth"
+          }
+        }
+      ]
+    },
+    {
+      "id": "harbinger-cruelty",
+      "displayName": "Harbinger of Cruelty",
+      "aliases": [
+        {
+          "text": "Harbinger of Cruelty",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "unknown",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-cruelty.not-reopened",
+          "statement": "Harbinger of Cruelty is in lane 1's altar list. This pass did not re-open that NPC page, so spawn flags stay unresolved.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "harbinger-brutality",
+      "displayName": "Harbinger of Brutality",
+      "aliases": [
+        {
+          "text": "Harbinger of Brutality",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "unknown",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "harbinger"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "harbinger-brutality.not-reopened",
+          "statement": "Harbinger of Brutality is in lane 1's altar list. This pass did not re-open that NPC page, so spawn flags stay unresolved.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "god-of-bloodshed",
+      "displayName": "God of Bloodshed",
+      "aliases": [
+        {
+          "text": "God of Bloodshed",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        },
+        {
+          "text": "Pinnacle Morditas",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "morditas"
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [
+        {
+          "text": "Place Demigod's Ascendance at 400 corruption. EHG says this fight does not get harder as corruption rises.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        },
+        {
+          "text": "This pinnacle is the God of Bloodshed, also called Pinnacle Morditas. It is a harder fight than the seasonal Morditas.",
+          "evidenceClass": "tactical-inference",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "god-of-bloodshed.harder",
+          "statement": "EHG says the God of Bloodshed is a more difficult version of Morditas, requires 400 corruption, and does not scale difficulty with corruption. It is also called Pinnacle Morditas.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG Morditas announcement, 2026-09-21",
+            "url": "https://forum.lastepoch.com/t/rage-of-morditas-coming-to-last-epoch-october-1/81757"
+          }
+        },
+        {
+          "id": "god-of-bloodshed.offline",
+          "statement": "Patch 1.5.1 enables Pinnacle Morditas for Legacy and Offline characters.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG 1.5.1 notes, EHG_DerrickG, 2026-10-02",
+            "url": "https://forum.lastepoch.com/t/last-epoch-patch-1-5-1-notes/81911"
+          }
+        },
+        {
+          "id": "god-of-bloodshed.separate-actor",
+          "statement": "Keep a separate profile from seasonal Morditas. Internal ids were not re-opened. The two display names are in the EHG post.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG Morditas announcement, 2026-09-21",
+            "url": "https://forum.lastepoch.com/t/rage-of-morditas-coming-to-last-epoch-october-1/81757"
+          }
+        }
+      ]
+    },
+    {
+      "id": "morditas",
+      "displayName": "Morditas",
+      "aliases": [
+        {
+          "text": "Morditas",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "morditas.chain",
+          "statement": "EHG describes a three-part echo chain ending in Morditas, then Demigod's Ascendance for the God of Bloodshed. Anger raises difficulty of the three earlier echoes.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG Morditas announcement, 2026-09-21",
+            "url": "https://forum.lastepoch.com/t/rage-of-morditas-coming-to-last-epoch-october-1/81757"
+          }
+        },
+        {
+          "id": "morditas.not-pinnacle",
+          "statement": "This is not the God of Bloodshed profile.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG Morditas announcement, 2026-09-21",
+            "url": "https://forum.lastepoch.com/t/rage-of-morditas-coming-to-last-epoch-october-1/81757"
+          }
+        }
+      ]
+    },
+    {
+      "id": "yrun-champion-of-morditas",
+      "displayName": "Yrun, Champion of Morditas",
+      "aliases": [
+        {
+          "text": "Yrun, Champion of Morditas",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "yrun-champion-of-morditas.named",
+          "statement": "Lane 1 says the 1.5.1 notes name Yrun, Champion of Morditas in a Dreamslash fix. The forum post links to the notes site, and that site returned a client shell, so the sentence was not re-read. Do not treat the hitbox fix as confirmed.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": {
+            "label": "EHG 1.5.1 forum post, body not in the shell",
+            "url": "https://forum.lastepoch.com/t/last-epoch-patch-1-5-1-notes/81911"
+          }
+        }
+      ]
+    },
+    {
+      "id": "yrun-frostroot",
+      "displayName": "Yrun",
+      "aliases": [
+        {
+          "text": "Yrun",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "yrun-frostroot.distinct",
+          "statement": "Lane 1 separates campaign Yrun, The Frostroot Warden, from Yrun, Champion of Morditas. This pass did not re-open the campaign NPC page. Do not merge the names.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "shade-of-morditas",
+      "displayName": "Shade of Morditas",
+      "aliases": [
+        {
+          "text": "Shade of Morditas",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "unknown",
+        "items": null
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "shade-of-morditas.follower",
+          "statement": "The 2026-09-21 post says touching a Blood Crystal invokes the shade of Morditas, which collects souls the player cannot interact with. It does not say the shade lands the killing blow.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "high"
+          },
+          "source": {
+            "label": "EHG Morditas announcement, 2026-09-21",
+            "url": "https://forum.lastepoch.com/t/rage-of-morditas-coming-to-last-epoch-october-1/81757"
+          }
+        }
+      ]
+    },
+    {
+      "id": "site-of-carnage",
+      "displayName": "Site of Carnage",
+      "aliases": [
+        {
+          "text": "Site of Carnage",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "unknown",
+        "items": null
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "site-of-carnage.chain",
+          "statement": "EHG says the three-part chain encounters familiar foes before Morditas. Lane 1's Wengari wave echo was not re-opened. No single boss is confirmed.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          },
+          "source": {
+            "label": "EHG Morditas announcement, 2026-09-21",
+            "url": "https://forum.lastepoch.com/t/rage-of-morditas-coming-to-last-epoch-october-1/81757"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mountain-beneath",
+      "displayName": "The Mountain Beneath",
+      "aliases": [
+        {
+          "text": "The Mountain Beneath",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "dungeon"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "mountain-beneath.lane1",
+          "statement": "Lightless Arbor dungeon boss in lane 1. Damage-type line not re-fetched.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "stone-titans-heart",
+      "displayName": "Stone Titan's Heart",
+      "aliases": [
+        {
+          "text": "Stone Titan's Heart",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "mountain-beneath"
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "dungeon"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "stone-titans-heart.lane1",
+          "statement": "Second Lightless Arbor actor in lane 1. 1.5 spawn bugfix was inside the unreadable note body.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "fire-lich-cremorus",
+      "displayName": "Fire Lich Cremorus",
+      "aliases": [
+        {
+          "text": "Fire Lich Cremorus",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "dungeon"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "fire-lich-cremorus.lane1",
+          "statement": "Soulfire Bastion boss in lane 1. Fire and Necrotic coverage was not re-fetched.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "majasa-phase-1",
+      "displayName": "Majasa",
+      "aliases": [
+        {
+          "text": "Majasa",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "majasa-phase-1.lane1",
+          "statement": "Campaign Majasa phase 1 in lane 1. Not re-opened. Same display name as phase 2.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "majasa-phase-2",
+      "displayName": "Majasa",
+      "aliases": [
+        {
+          "text": "Majasa",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "majasa-phase-1"
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "majasa-phase-2.lane1",
+          "statement": "Campaign phase 2, same display name. Not re-opened.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "goddess-of-the-sands",
+      "displayName": "Goddess of the Sands",
+      "aliases": [
+        {
+          "text": "Goddess of the Sands",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "goddess-of-the-sands.lane1",
+          "statement": "Tomb of Vessels phase in lane 1. Not re-opened. Objective text was not re-read.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "goddess-of-blood",
+      "displayName": "Goddess of Blood",
+      "aliases": [
+        {
+          "text": "Goddess of Blood",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "goddess-of-the-sands"
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "goddess-of-blood.lane1",
+          "statement": "Tomb of Vessels phase 2 in lane 1. Not re-opened.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "emperors-remains",
+      "displayName": "Emperor's Remains",
+      "aliases": [
+        {
+          "text": "Emperor's Remains",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "emperors-remains.lane1",
+          "statement": "0.9 performance notes mention Void Rifts used by the Emperor's Remains, separate from Emperor of Corpses Soul Bomb.",
+          "evidenceClass": "developer-documentation",
+          "confidence": {
+            "status": "known",
+            "level": "low"
+          },
+          "source": {
+            "label": "EHG 0.9 performance list names Emperor's Remains separately",
+            "url": "https://forum.lastepoch.com/t/the-convergence-update-beta-0-9-patch-notes/51975"
+          }
+        }
+      ]
+    },
+    {
+      "id": "admiral-harton",
+      "displayName": "Admiral Harton",
+      "aliases": [
+        {
+          "text": "Admiral Harton",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "admiral-harton.lane1",
+          "statement": "Not Harton's Husk. NPC page not re-opened. 0.9i mentions Admiral Harton voice lines.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "admiral-harton-summit",
+      "displayName": "Admiral Harton",
+      "aliases": [
+        {
+          "text": "Admiral Harton",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "admiral-harton-summit.lane1",
+          "statement": "Lane 1's second Harton id was not re-opened. Same display name risk.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "husk-of-elder-pannion",
+      "displayName": "The Husk of Elder Pannion",
+      "aliases": [
+        {
+          "text": "The Husk of Elder Pannion",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "husk-of-elder-pannion.lane1",
+          "statement": "Not the Husk of Elder Gaspar. Page not re-opened.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "yulias-husk",
+      "displayName": "Yulia's Husk",
+      "aliases": [
+        {
+          "text": "Yulia's Husk",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "unknown",
+        "items": null
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "yulias-husk.lane1",
+          "statement": "Fall of the Empire quest 1 miniboss in lane 1. Not re-opened. Not the timeline boss.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "the-observer",
+      "displayName": "The Observer",
+      "aliases": [
+        {
+          "text": "The Observer",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "the-observer.lane1",
+          "statement": "Campaign boss in lane 1. Not re-opened.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "shade-of-orobyss",
+      "displayName": "Shade of Orobyss",
+      "aliases": [
+        {
+          "text": "Shade of Orobyss",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "absent",
+        "encounterId": null
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "known",
+        "items": [
+          "boss"
+        ]
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "shade-of-orobyss.lane1",
+          "statement": "Not a timeline Harbinger. Support article not re-read (Cloudflare). Tunklab echo page not re-opened.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "aberroth-invisible-add",
+      "displayName": "Aberroth",
+      "aliases": [
+        {
+          "text": "Aberroth",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "aberroth"
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "unknown",
+        "items": null
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "aberroth-invisible-add.lane1",
+          "statement": "Lane 1 says an invisible add reuses the display name Aberroth. That page was not re-opened.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "soul-vessel",
+      "displayName": "Soul Vessel",
+      "aliases": [
+        {
+          "text": "Soul Vessel",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "abomination"
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "unknown",
+        "items": null
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "soul-vessel.lane1",
+          "statement": "Lane 1 says Soul Vessels grant Abomination invulnerability. Page not re-opened. Do not match the boss alias.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "son-of-artor",
+      "displayName": "Son of Artor",
+      "aliases": [
+        {
+          "text": "Son of Artor",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "heorot-monolith"
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "unknown",
+        "items": null
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "son-of-artor.lane1",
+          "statement": "Heorot add in lane 1. Not re-opened.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "spirit-of-grael",
+      "displayName": "Spirit of Grael",
+      "aliases": [
+        {
+          "text": "Spirit of Grael",
+          "locale": {
+            "status": "unknown",
+            "tag": null
+          }
+        }
+      ],
+      "parent": {
+        "status": "known",
+        "encounterId": "heorot-monolith"
+      },
+      "variants": {
+        "status": "unknown",
+        "items": null
+      },
+      "locations": {
+        "status": "unknown",
+        "items": null
+      },
+      "abilities": {
+        "status": "unknown",
+        "items": null
+      },
+      "damageCoverage": {
+        "status": "unknown",
+        "scope": null,
+        "elements": null,
+        "perAbility": {
+          "status": "unknown",
+          "items": null
+        },
+        "evidenceClass": "unknown",
+        "confidence": {
+          "status": "unknown",
+          "level": null
+        }
+      },
+      "ailments": {
+        "status": "unknown",
+        "items": null
+      },
+      "browseGroups": {
+        "status": "unknown",
+        "items": null
+      },
+      "tips": [],
+      "claims": [
+        {
+          "id": "spirit-of-grael.lane1",
+          "statement": "Heorot add in lane 1. Not re-opened.",
+          "evidenceClass": "unknown",
+          "confidence": {
+            "status": "unknown",
+            "level": null
+          },
+          "source": null
+        }
+      ]
+    }
+  ]
+}

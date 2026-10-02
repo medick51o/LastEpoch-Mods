@@ -1,0 +1,1029 @@
+[
+  {
+    "encounter_id": "abomination",
+    "tips": [
+      {
+        "text": "Destroy the Soul Vessels before you expect the body to take damage. Stay out of the decay they leave on the ground.",
+        "mechanic": "Soul Vessels and Spirit Decay",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://lastepoch.tunklab.com/timelines"
+        ]
+      },
+      {
+        "text": "When the tail flares, step off the marked slam. It is a physical and fire hit, so armor and fire resistance can help. The decay is not a hit, so armor does not.",
+        "mechanic": "Tail Flare",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      },
+      {
+        "text": "Soul Reave is a necrotic hit. Do not stand in melee to finish a long animation while a vessel is still up.",
+        "mechanic": "Soul Reave",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "Actor AbominationBoss, Fall of the Outcasts. Description says invulnerable until vessels are destroyed. Vessel beam element conflicts (necrotic vector, fire tag) and is not in the tip."
+  },
+  {
+    "encounter_id": "harbinger-defilement",
+    "tips": [
+      {
+        "text": "This is a brute in melee, not the vessel puzzle. Leave the large physical slam marks. Circular Attack is the biggest physical hit in the shared brute kit.",
+        "mechanic": "Brute slams",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      },
+      {
+        "text": "It still drops Spirit Decay and uses Tail Flare. Decay is not a hit. Tail Flare is physical and fire. Dodge does not answer the decay.",
+        "mechanic": "Inherited Tail Flare and Spirit Decay",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      },
+      {
+        "text": "Frenzy Howl applies Slow and is not damage. A cleanse can help you move. It does not make the next slam safe.",
+        "mechanic": "Frenzy Howl",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "BruteHarbinger-Abomination. No vessel invulnerability on this actor. Shared brute kit is not repeated on every brute page of the markdown."
+  },
+  {
+    "encounter_id": "god-hunter-argentus",
+    "tips": [
+      {
+        "text": "Leave the Flame Leap landing. In this extract the impact is a large fire hit.",
+        "mechanic": "Flame Leap",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://lastepoch.tunklab.com/timelines"
+        ]
+      },
+      {
+        "text": "Ice Stab is a physical and cold hit and can apply Frostbite. Step aside instead of trading through the stab.",
+        "mechanic": "Ice Stab",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Ice Nova and Fire Bomb are separate hits, cold and fire. Cap both if the death did not already name one element. A movement skill only helps if you are outside the mark.",
+        "mechanic": "Ice Nova and Fire Bomb",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "OsprixHeorotSpearBossEmerging, The Stolen Lance. No summon skill in this extract, so an add phase is not stated. Frostbite chance field is 2.5, so stacks are not stated."
+  },
+  {
+    "encounter_id": "harbinger-pride",
+    "tips": [
+      {
+        "text": "This agile Harbinger does not keep Ice Stab. Leave its fire beam and Fire Bomb. Cold from the bird fight is the wrong prep.",
+        "mechanic": "Fire beam and Fire Bomb",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      },
+      {
+        "text": "Portal spear and lunge are physical and void hits. The spear can shred void resistance. Do not stand in the dash line to keep dealing damage.",
+        "mechanic": "Portal spear and lunge",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Ballista is a summoned attacker. A kill by the ballista is not Argentus and not this Harbinger's beam.",
+        "mechanic": "Summon Ballista",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "AgileHarbinger-Argentus. Inherited skills are Ballista and Fire Bomb only."
+  },
+  {
+    "encounter_id": "rahyeh-black-sun",
+    "tips": [
+      {
+        "text": "Leave void flares as soon as they are marked. In this extract they are void hits and dodge will not roll them.",
+        "mechanic": "Void Flare",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://lastepoch.tunklab.com/timelines"
+        ]
+      },
+      {
+        "text": "Leave the dive landing and do not run back onto it to keep attacking. The area record disagrees with itself on element (void vector, fire tag), so use the element on your death.",
+        "mechanic": "Dive Bomb",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Void Skyfall and Void Blast are void hits. Summoned adds can be the killer. Do not treat an add death as Rahyeh's blast.",
+        "mechanic": "Void Skyfall, Void Blast, summons",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "Actor VoidRahyeh, The Black Sun. Patch 1.2.1 types the Harbinger dive visual, not this fight."
+  },
+  {
+    "encounter_id": "harbinger-hatred",
+    "tips": [
+      {
+        "text": "When the dive shows a landing mark, leave it and do not follow the landing. Patch 1.2.1 says this variant's dive visual had to be fixed to match the damage. No source gives a second count.",
+        "mechanic": "Void Rahyeh Dive Bomb",
+        "evidence_class": "developer documentation",
+        "sources": [
+          "https://forum.lastepoch.com/t/last-epoch-patch-1-2-1-notes/76245",
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Void flares stay from Rahyeh and are undodgeable void hits in this extract. Leave them even while you are watching the slams.",
+        "mechanic": "Void Flare",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "After Rahyeh falls, a brute body slams in melee. The largest shared slam is a physical hit. Void resistance from the flyer does not cover that slam.",
+        "mechanic": "Brute Hammer Slam and Circular Attack",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      }
+    ],
+    "notes": "BruteHarbinger-VoidRahyeh. Replaces the current variant tip, which does not say what to do. Dive area still has a fire tag against a void vector."
+  },
+  {
+    "encounter_id": "frost-lich-formosus",
+    "tips": [
+      {
+        "text": "Leave the ice vortex. It is cold damage over time, so armor and dodge do not cover it. Cold resistance does.",
+        "mechanic": "Ice Vortex",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      },
+      {
+        "text": "Leave the spirit beam. Its element is unresolved in this extract (necrotic vector, fire tag). Use the element recorded on your death.",
+        "mechanic": "Spirit Beam",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Ice on the ground applies Slow and has no damage record here. Resurrected Wengari are a separate attacker. Slow is a movement problem, not a resistance problem.",
+        "mechanic": "Ice Patch and Resurrect Wengari",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "Actor FrostLich. Last Epoch Tools Season 4 page says Formosus the Undying. That string is not a second actor here."
+  },
+  {
+    "encounter_id": "harbinger-war",
+    "tips": [
+      {
+        "text": "The lich's vortex and beam come with a dashing body. Leave the beam and the vortex first. The beam is marked undodgeable, and its element is still unresolved.",
+        "mechanic": "Inherited Spirit Beam and Ice Vortex",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      },
+      {
+        "text": "Its own fire beam is a fire hit, and the lunges are physical and void. Cold resistance from the lich does not cover those.",
+        "mechanic": "Agile fire beam and lunge",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "There is no resurrect skill on this Harbinger. Do not wait for an add phase that belonged to Formosus.",
+        "mechanic": "No Resurrect Wengari",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "AgileHarbinger-FrostLich. Ice vortex base is lower than the lich's. Not a live measurement."
+  },
+  {
+    "encounter_id": "lagon",
+    "tips": [
+      {
+        "text": "When the eye lines up a sweep, cross to the open side of the platform. In this extract that sweep is cold and lightning damage over time, and dodge will not roll it. Armor will not either.",
+        "mechanic": "Sweeping beam",
+        "evidence_class": "community report",
+        "sources": [
+          "https://forum.lastepoch.com/t/how-do-i-best-defeat-lagon/74849",
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651",
+          "https://forum.lastepoch.com/t/the-convergence-update-beta-0-9-patch-notes/51975"
+        ]
+      },
+      {
+        "text": "Leave the Moon Blast mark. It is a cold and lightning hit, dodge will not roll it, and it applies Slow. A movement skill helps only if it gets you out of the mark.",
+        "mechanic": "Moon Blast",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/the-convergence-update-beta-0-9-patch-notes/51975"
+        ]
+      },
+      {
+        "text": "Give each Tidal Wave a clear lane. They are cold hits. You damage the tentacles, not the body. Do not use the stair edge as a safe spot.",
+        "mechanic": "Tidal Waves and tentacles",
+        "evidence_class": "developer documentation",
+        "sources": [
+          "https://forum.lastepoch.com/t/runes-of-power-beta-0-9-2-patch-notes/60471",
+          "https://forum.lastepoch.com/t/the-convergence-update-beta-0-9-patch-notes/51975",
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "Campaign LagonBoss and monolith LagonBossMonolith share skill ids. Monolith wave base coefficient is higher in this extract. Killer Lagon's Tentacle is a physical hit, not the beam. Current health sentence in tip 2 should be deleted."
+  },
+  {
+    "encounter_id": "harbinger-chaos",
+    "tips": [
+      {
+        "text": "There are no tentacles. Leave the moving beam. It is cold and lightning and marked undodgeable. The record also flags it as a hit and as damage over time, so do not trust armor or dodge.",
+        "mechanic": "Moving eye beam",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      },
+      {
+        "text": "Leave the Harbinger's own fire beam. It is a fire hit. Cold and lightning from Lagon do not cover it.",
+        "mechanic": "Agile fire beam",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Dashes and the portal spear are physical and void hits. The spear can shred void resistance. Tidal waves are still cold hits, smaller in this extract than Lagon's.",
+        "mechanic": "Portal spear, lunge, tidal waves",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "AgileHarbinger-Lagon. Positioning change: mobile body plus inherited waves and beam, instead of a tentacle arena."
+  },
+  {
+    "encounter_id": "hartons-husk",
+    "tips": [
+      {
+        "text": "Step off the claw slam. It is a physical hit. The corrupted slash is physical and void.",
+        "mechanic": "Claw Slam and Corrupted Slash",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://lastepoch.tunklab.com/timelines"
+        ]
+      },
+      {
+        "text": "Oblivion Spike is a void hit. Leave the spike mark. The sundering starter has no damage vector, so do not assume it is harmless.",
+        "mechanic": "Oblivion Spike",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "This is not Admiral Harton. That campaign actor uses lightning skills. A Harton death in the campaign is a different fight.",
+        "mechanic": "Distinct from Admiral Harton",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "Actor VoidHarton, Fall of the Empire, Prophet of the Abyssal Sea."
+  },
+  {
+    "encounter_id": "harbinger-treason",
+    "tips": [
+      {
+        "text": "The husk's claw pattern is gone. This agile body dashes and fires a void spike that is a void hit. Leave the spike and the dash line.",
+        "mechanic": "Void spike and dashes",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      },
+      {
+        "text": "Its fire beam is a separate fire hit. Void resistance from the husk does not cover that line.",
+        "mechanic": "Agile fire beam",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Abyssal Sundering remains as a small void hit. Do not stand in a wall of it to keep attacking.",
+        "mechanic": "Abyssal Sundering",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "AgileHarbinger-VoidHarton. Inherited skills are the void walls and the void spike."
+  },
+  {
+    "encounter_id": "emperor-corpses",
+    "tips": [
+      {
+        "text": "Move well away from the center of Soul Bomb before it finishes. Official notes say the hit deals less damage the farther you are from that center. Barely leaving the middle is still the blast.",
+        "mechanic": "Soul Bomb",
+        "evidence_class": "developer documentation",
+        "sources": [
+          "https://forum.lastepoch.com/t/beta-0-9l-patch-notes/58685"
+        ]
+      },
+      {
+        "text": "If the marker looks wrong, still leave the center. A 2026-04-01 note said the markers were failing and cut the damage as a temporary fix. Season 5 posts do not say that cut is still live.",
+        "mechanic": "Soul Bomb marker",
+        "evidence_class": "developer documentation",
+        "sources": [
+          "https://forum.lastepoch.com/t/last-epoch-patch-1-4-2-notes/80956"
+        ]
+      },
+      {
+        "text": "Leave the breath and do not stand in the pool afterward. Breath is necrotic damage over time and dodge will not roll it. The pool's element conflicts in the data, so use the element on your death.",
+        "mechanic": "Spirit Breath and leftover pool",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      }
+    ],
+    "notes": "UndeadDragonBoss. Not Emperor's Remains. Soul Bomb damage child is necrotic with a fire tag. Pool is named Poison Pool, necrotic repeat damage, poison tag."
+  },
+  {
+    "encounter_id": "harbinger-destruction",
+    "tips": [
+      {
+        "text": "This brute does not cast Soul Bomb. Leave the physical slam marks. The circular slam is the largest physical hit in the shared kit.",
+        "mechanic": "Brute slams",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      },
+      {
+        "text": "Spirit Breath remains. It is necrotic damage over time and marked undodgeable. Armor and dodge do not cover it. Cold or fire from other fights do not cover it.",
+        "mechanic": "Spirit Breath",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      },
+      {
+        "text": "The roar can bring adds. An add can be the killer. Frenzy Howl only slows you. A cleanse is not a slam dodge.",
+        "mechanic": "Spawn adds and Frenzy Howl",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "BruteHarbinger-UndeadDragon. Positioning change: melee slams plus breath, not a center bomb."
+  },
+  {
+    "encounter_id": "husk-elder-gaspar",
+    "tips": [
+      {
+        "text": "When Gaspar moves to the center, leave the beams. They are separate fire, cold, and lightning attacks and they are not hits. Armor and dodge do not cover them.",
+        "mechanic": "Tri-beam",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651",
+          "https://lastepoch.tunklab.com/timelines"
+        ]
+      },
+      {
+        "text": "Leave the void blast and the cold storm. Both are hits. The void blast is the larger base in this extract. Mines are lightning hits. Do not walk over the sparks.",
+        "mechanic": "Doom Blast, Frozen Ice Storm, Spark Discharge",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Flaming Void Totems are another attacker. A totem kill is not the beam. This fight uses fire, cold, lightning, and void. One capped element does not clear the others.",
+        "mechanic": "Summoned totems",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "GasparHuskBoss, The Last Ruin. Display name Doom Blast is used for more than one element. Do not trust the name."
+  },
+  {
+    "encounter_id": "harbinger-fear",
+    "tips": [
+      {
+        "text": "The big void blast and the ice storm are not on this Harbinger. The three-color beam is. Leave the beam. It is still not a hit.",
+        "mechanic": "Tri-beam",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      },
+      {
+        "text": "Lightning mines remain. Do not path across them while dodging dashes. The mines are lightning hits.",
+        "mechanic": "Spark Discharge",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Dashes add physical and void hits, and the Harbinger's own beam is fire. You are no longer fighting a boss who stands in the center for the whole pattern.",
+        "mechanic": "Agile kit",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      }
+    ],
+    "notes": "AgileHarbinger-Gaspar. Community advice to walk with a turret is not a measured safe gap."
+  },
+  {
+    "encounter_id": "heorot",
+    "tips": [
+      {
+        "text": "Leave the ice circles. They are cold hits and dodge will not roll them. Bigger circles are the harsher record in this extract.",
+        "mechanic": "Ice circles",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Leave Ice Spike's eruption. It is a cold hit, so armor can help the hit and cold resistance helps the damage. The 2024 note only proves the name, plus an old multiplayer bug.",
+        "mechanic": "Ice Spike",
+        "evidence_class": "developer documentation",
+        "sources": [
+          "https://forum.lastepoch.com/t/last-epoch-patch-1-0-3-patch-notes/68385",
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "The blizzard is cold damage over time and can shred cold resistance. Armor does not cover it. Heorot's actor text says it cannot be frozen. Freezing the boss is not a defense.",
+        "mechanic": "Blizzard and freeze immunity text",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      }
+    ],
+    "notes": "HeorotBoss, The Age of Winter. Spirits of Grael and Jormun are separate actors in the same zone. Current freeze tip should be deleted."
+  },
+  {
+    "encounter_id": "harbinger-tyranny",
+    "tips": [
+      {
+        "text": "The undodgeable ice circles are not on this Harbinger. The frost beam is. It is cold and not a hit. Leave the line. Armor and dodge do not cover it.",
+        "mechanic": "Frost Beam",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      },
+      {
+        "text": "Brute slams are the new lethal hits and they are physical. Cold resistance from Heorot does not cover them. Leave the slam mark before you resume a long attack.",
+        "mechanic": "Brute slams",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "The whirlwind can apply Frostbite and has no damage vector on the parent. Do not treat Frostbite as the whole hit. Heorot's cannot-be-frozen line is not printed on this actor.",
+        "mechanic": "Whirlwind",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "BruteHarbinger-Heorot. Frostbite chance field is 1.6, so stacks are not stated."
+  },
+  {
+    "encounter_id": "volcanic-shaman",
+    "tips": [
+      {
+        "text": "Leave lava plume marks. They are fire hits, and the latest plume in the set has the highest base in this extract.",
+        "mechanic": "Lava Plume",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://lastepoch.tunklab.com/timelines"
+        ]
+      },
+      {
+        "text": "Eruption, Magma Ball, and Flaming Orb are also fire hits. Dragon Strike adds a physical part. Fire resistance is the common gap. Armor can matter on the physical part of the strike.",
+        "mechanic": "Eruption, Magma Ball, Flaming Orb, Dragon Strike",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Torch Flame is fire and not a hit, and it is not tagged as damage over time, so armor is unknown. Do not stand in the flame to finish a cast.",
+        "mechanic": "Torch Flame",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "ShamansBoss, Spirits of Fire. Ground markers, not a beam fight."
+  },
+  {
+    "encounter_id": "harbinger-ash",
+    "tips": [
+      {
+        "text": "Magma Ball remains and dodge will not roll it. It is a fire hit. Leave the ball even when a slam is also starting.",
+        "mechanic": "Magma Ball",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "This Harbinger adds a large necrotic hit and a necrotic spirit. Fire resistance from the shaman does not cover that hit.",
+        "mechanic": "Totemic Flame Burst",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      },
+      {
+        "text": "Brute slams are physical and happen in melee. The shaman plan of only watching fire ground is not enough.",
+        "mechanic": "Brute slams",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "BruteHarbinger-FireShamans. Inherited moves are the necrotic spirit and Magma Ball."
+  },
+  {
+    "encounter_id": "aberroth",
+    "tips": [
+      {
+        "text": "Leave the void beam. It is a void attack that is not a hit, and dodge will not roll it. The beam can come from a second actor, not only the body you are hitting.",
+        "mechanic": "Void Beam",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      },
+      {
+        "text": "Leave fiery ground. It is fire damage over time. Armor and dodge do not cover it. Fire resistance does.",
+        "mechanic": "Fiery Ground",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      },
+      {
+        "text": "Persisting Void is a void hit that dodge will not roll. No current note maps a safe side of the room, so keep moving off the void.",
+        "mechanic": "Persisting Void",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "Actor Aterroth, zone M_Harbinger. Beam description text in the file is a copied player skill and is ignored. Ailment id 129 is unnamed. Roots, winds, lightning, and quicksand parents have no damage vector."
+  },
+  {
+    "encounter_id": "uber-aberroth",
+    "tips": [
+      {
+        "text": "The actor text says Herald of Oblivion is immune while other Harbingers defend it. Kill Harbinger of Regret and Harbinger of Denial before you expect the body to take damage.",
+        "mechanic": "Immunity while defended",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "The skill ids match normal Aberroth in this extract. That does not prove the hits match. Still leave the void beam and the fire ground.",
+        "mechanic": "Shared Aberroth skills",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Regret is the agile kit and Denial is the brute kit. They do not cast Aberroth's beam. A death to either needs that kit's tips, not the beam tip alone.",
+        "mechanic": "Defending Harbingers",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      }
+    ],
+    "notes": "UberAterroth, zone WE524. Official posts do not list uber move changes for Season 5."
+  },
+  {
+    "encounter_id": "harbinger-regret",
+    "tips": [
+      {
+        "text": "This is the agile kit with no inherited Aberroth spell. Leave the fire beam. It is a fire hit.",
+        "mechanic": "Agile fire beam",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Lunges and the portal spear are physical and void. The spear can shred void resistance. Killing this actor is what the uber text requires before Aberroth takes damage.",
+        "mechanic": "Lunge and portal spear",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "AgileHarbinger-UberAberroth. Description: makes Aberroth immune to damage."
+  },
+  {
+    "encounter_id": "harbinger-denial",
+    "tips": [
+      {
+        "text": "This is the brute kit with no inherited Aberroth spell. Leave the physical slam marks. The circular slam is the largest shared physical hit.",
+        "mechanic": "Brute slams",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Frenzy Howl only slows you. It is not the void beam. You still have to remove this actor for the uber body, if the immunity text is still true.",
+        "mechanic": "Frenzy Howl and immunity text",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "BruteHarbinger-UberAberroth. Description: makes Aberroth immune to damage."
+  },
+  {
+    "encounter_id": "harbinger-cruelty",
+    "tips": [
+      {
+        "text": "This is an agile Harbinger in the Aberroth zone with no timeline boss spells. Leave the fire beam and the void dashes.",
+        "mechanic": "Agile kit",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      },
+      {
+        "text": "Do not open a timeline Harbinger tip for this name. It does not absorb a timeline boss in this extract.",
+        "mechanic": "No inherited boss skills",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "AgileHarbinger-pre-Aberroth, zone M_Harbinger. Not a timeline follow-up."
+  },
+  {
+    "encounter_id": "harbinger-brutality",
+    "tips": [
+      {
+        "text": "This is a brute in the Aberroth zone with no timeline boss spells. Leave the physical slam marks.",
+        "mechanic": "Brute kit",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/harbingers-of-ruin-whats-new/71684"
+        ]
+      },
+      {
+        "text": "A death to this name is not Harbinger of Hatred, Destruction, or any other timeline brute.",
+        "mechanic": "No inherited boss skills",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "BruteHarbinger-pre-Aberroth, zone M_Harbinger."
+  },
+  {
+    "encounter_id": "morditas",
+    "tips": [
+      {
+        "text": "Leave the runic leap and the mega slam. The leap is a large physical hit. The mega slam is physical and cold.",
+        "mechanic": "Runic Leap and Mega Slam",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "After the slam, leave the cold storm. It is cold damage over time and can shred cold resistance. Armor does not cover that ground.",
+        "mechanic": "Blood Storm",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      },
+      {
+        "text": "Chest of Ice and the bloodwind trap are cold and dodge will not roll them. The trap is not a hit. A movement skill helps only if it gets you off the trap.",
+        "mechanic": "Chest of Ice and Bloodwind Trap",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "MorditasBoss, zone WE536, Demigod of Bloodshed. Several starters have no damage vector. Official Season 5 post does not list these moves."
+  },
+  {
+    "encounter_id": "god-of-bloodshed",
+    "tips": [
+      {
+        "text": "Use the same exits as Morditas: leave the leap, the mega slam, and the cold ground after it. This extract gives both fights the same skill ids.",
+        "mechanic": "Shared Morditas skills",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://forum.lastepoch.com/t/rage-of-morditas-coming-to-last-epoch-october-1/81757"
+        ]
+      },
+      {
+        "text": "Official text says this pinnacle is harder, needs 400 corruption to place, and does not get harder as corruption rises. Same skill ids are not a promise that the hits match.",
+        "mechanic": "Pinnacle tuning",
+        "evidence_class": "developer documentation",
+        "sources": [
+          "https://forum.lastepoch.com/t/rage-of-morditas-coming-to-last-epoch-october-1/81757"
+        ]
+      },
+      {
+        "text": "Physical resistance and armor address the big hits. Cold resistance addresses the cold part and the ring. Do not grade the whole fight from one recorded element.",
+        "mechanic": "Physical hits and cold ground",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      }
+    ],
+    "notes": "MorditasBossPinnacle, zone WE537. Patch 1.5.1 enables it for Legacy and Offline. The notes body was not fetched."
+  },
+  {
+    "encounter_id": "julra",
+    "tips": [
+      {
+        "text": "When the powerful attack's indicator starts, use Temporal Shift before it finishes. Shifting eras does not move you. The blast in this extract is a void hit and dodge will not roll it.",
+        "mechanic": "Catastrophic Implosion",
+        "evidence_class": "developer documentation",
+        "sources": [
+          "https://forum.lastepoch.com/t/last-epoch-beneath-ancient-skies-patch-notes/78635",
+          "https://lastepoch.tunklab.com/dungeon/temporal_sanctum",
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Tears stay on the ground as void damage over time and can shred void resistance. Place them at an edge, then walk off them after you arrive. The shift will not carry you out.",
+        "mechanic": "Dimension Tear",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://lastepoch.tunklab.com/dungeon/temporal_sanctum"
+        ]
+      },
+      {
+        "text": "Decay beams are void damage over time and dodge will not roll them. Ruined pillars shoot lightning and can shock. Cold tide and cold seekers are separate hits. One capped element does not cover the room.",
+        "mechanic": "Unravelling Decay, pillars, cold attacks",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      }
+    ],
+    "notes": "VoidNagasaBoss. Doom on the blast has chance field 4, which is not shipped as four stacks. Encounter coverage is Void, Cold, and Lightning. Current health sentence in tip 2 should be deleted."
+  },
+  {
+    "encounter_id": "mountain-beneath",
+    "tips": [
+      {
+        "text": "Burn the kindling the dungeon points you at. Those skills are named as kindling that damages the encounter. Root walls say to destroy them to reach kindling.",
+        "mechanic": "Burning Kindling and Root Walls",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Do not treat the body as a normal target during that step. Guides say it cannot be damaged yet. This extract does not print invulnerable, so confirm it in game if the body starts taking damage.",
+        "mechanic": "Kindling phase",
+        "evidence_class": "community report",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Roots are a small physical damage over time. They are not the fight you came to dodge. Save movement for the Heart that follows.",
+        "mechanic": "Entangling Roots",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "StoneTitanBoss. Community pyre step is not promoted to a fact. Shockwave parent has no damage vector."
+  },
+  {
+    "encounter_id": "stone-titans-heart",
+    "tips": [
+      {
+        "text": "Leave the spore beams. They are physical and poison, they are not hits, and dodge will not roll them. Armor does not cover them.",
+        "mechanic": "Spore Beam",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      },
+      {
+        "text": "Leave the energy wave. It is a physical hit and can apply poison. Armor can help the hit. Poison resistance helps the poison.",
+        "mechanic": "Energy Wave",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Volatile bulbs say they are vulnerable to melee. Destroying them is not documented as turning the beams off. Do not stand in a beam to reach a bulb.",
+        "mechanic": "Volatile Bulb",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "StoneTitanHeartBoss, second actor in Lightless Arbor. Rock falls have no damage on the parent."
+  },
+  {
+    "encounter_id": "fire-lich-cremorus",
+    "tips": [
+      {
+        "text": "Walk out of the collapsing necrotic ring. It is a hit and dodge will not roll it. Necrotic resistance is the element in this extract.",
+        "mechanic": "Collapsing Decay",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Leave the fire waves. They are not hits and they apply Ignite. Armor does not cover the ignite. Fire resistance does.",
+        "mechanic": "Incendiary Torrent",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js",
+          "https://support.lastepoch.com/hc/en-us/articles/46361891210651"
+        ]
+      },
+      {
+        "text": "Floor swaps are a phase change with no damage vector here. Do not assume the dungeon shield makes you safe. Thralls are a separate melee killer.",
+        "mechanic": "Swap Floors and Thrall of Cremorus",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "FireLichBoss, Soulfire Bastion. Raging Soul is another fire hit that applies Ignite."
+  },
+  {
+    "encounter_id": "majasa",
+    "tips": [
+      {
+        "text": "Break line of sight on the stare or leave its line. It is marked undodgeable. The record mixes a tiny physical vector, a fire tag, and Stone Stare, so do not call it a fire beam.",
+        "mechanic": "Medusa Stare",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "The second form is physical melee, including armor shred and physical resistance shred. Armor and physical resistance matter there. The stare can still happen.",
+        "mechanic": "Goddess of Avarice melee",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Essence of Opulence, Greed, and Avarice are separate killers with lightning, poison, and a flamethrower. Do not file those deaths under Majasa's stare.",
+        "mechanic": "Essence proxies",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "Majasa and MajasaBossPhase2, zone H140. Gem projectile element conflicts and is omitted. Endgame Goddess of the Sands and Goddess of Blood are additional actors in zone WE5, not fully tipped here."
+  },
+  {
+    "encounter_id": "emperors-remains",
+    "tips": [
+      {
+        "text": "Do not use the Emperor of Corpses Soul Bomb plan. This actor is the Void Puppet, with rifts, mortars, and claw and scythe swipes.",
+        "mechanic": "Distinct encounter",
+        "evidence_class": "datamined/reference data",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      },
+      {
+        "text": "Leave void marks and the swipe. Several of its skills have no damage vector in the parent, so use the element on your death instead of guessing void from the name.",
+        "mechanic": "Void rifts and swipes",
+        "evidence_class": "tactical inference/deduction",
+        "sources": [
+          "https://lastepoch.tunklab.com/_next/static/chunks/3nhe36ktaxpqv.js"
+        ]
+      }
+    ],
+    "notes": "EmperorsRemains, zone B100. Included so the corpses profile is not applied by a similar name."
+  }
+]
