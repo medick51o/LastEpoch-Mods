@@ -53,6 +53,15 @@ namespace medick_DeathCounter.Game
 
         public static int HitHooks, DeathHooks, AilmentHooks;   // AnyDeath counts as a death hook
         static readonly HashSet<IntPtr> _notPlayer = new();
+        static readonly HashSet<string> _hooked = new();
+        static readonly (string type, string method)[] DeathReport =
+        {
+            ("Il2Cpp.Dying", "die"),
+            ("Il2Cpp.ActorSync", "receiveDeath"),
+            ("Il2Cpp.ActorVisuals", "Die"),
+            ("Il2Cpp.DeathScreen", "toggle"),
+            ("Il2Cpp.AnalyticsManager", "PlayerDeath"),
+        };
 
         // ── Install ──────────────────────────────────────────────
         public static void Install(HarmonyLib.Harmony harmony)
@@ -62,7 +71,7 @@ namespace medick_DeathCounter.Game
             {
                 var t = Refl.FindType(typeName);
                 if (t == null) { Dbg.Log($"hook type {typeName} not in this build"); continue; }
-                foreach (var m in t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+                foreach (var m in t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly))
                     if (names.Contains(m.Name) && !m.IsAbstract && !m.IsGenericMethodDefinition && !m.IsSpecialName)
                         targets.Add((role, m));
             }
@@ -90,6 +99,8 @@ namespace medick_DeathCounter.Game
                             harmony.Patch(m, prefix: Hm(nameof(AilmentPrefix)));
                             AilmentHooks++; break;
                     }
+                    _hooked.Add(m.DeclaringType?.FullName + "." + m.Name);
+                    _hooked.Add(m.DeclaringType?.Name + "." + m.Name);
                     Dbg.Log("hooked " + label);
                     if (Prefs.ProbeApi.Value) MelonLogger.Msg("[probe] hooked " + label);
                 }
@@ -98,6 +109,15 @@ namespace medick_DeathCounter.Game
                     MelonLogger.Warning($"hook {label} failed, skipped: {ex.Message}");
                 }
             }
+
+            var bits = new List<string>();
+            foreach (var (type, method) in DeathReport)
+            {
+                string shortType = type.Substring(type.LastIndexOf('.') + 1);
+                bool found = _hooked.Contains(type + "." + method) || _hooked.Contains(shortType + "." + method);
+                bits.Add(shortType + "." + method + (found ? " found" : " missing"));
+            }
+            MelonLogger.Warning("death hooks: " + string.Join(", ", bits));
 
             if (HitHooks == 0)
                 MelonLogger.Warning("no damage hook found: deaths still count (health watch), but the killer will show as unknown. Set ProbeApi=true in UserData/medick_DeathCounter.cfg and send the log.");
@@ -300,7 +320,7 @@ namespace medick_DeathCounter.Game
         // so they only count when the player's health agrees.
         static void AnyDeathPostfix()
         {
-            try { if (DeathTracker.Recording) DeathTracker.OnUnownedDeathSignal(); }
+            try { DeathTracker.OnUnownedDeathSignal(); }
             catch (Exception ex) { Dbg.Log("any-death postfix: " + ex.Message); }
         }
 

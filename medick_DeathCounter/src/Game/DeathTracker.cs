@@ -42,6 +42,8 @@ namespace medick_DeathCounter.Game
         static float _nextCountCheck;
         static readonly DeathCountLedger _ledger = new();   // reconciles CharacterData.Deaths with our records
         static string _deferred;                            // a death signal that fired mid-hit, see FlushDeferredDeath
+        static bool _unknownNameWarned;
+        static bool _unreadableHealthNoted;
 
         public static bool Recording => Prefs.Tracking.Value && PlayerProbe.HasPlayer && !_dead;
 
@@ -56,20 +58,23 @@ namespace medick_DeathCounter.Game
         {
             float now = Time.time;
             if (PlayerProbe.Refresh(now)) OnPlayerChanged(now);
-            if (!PlayerProbe.HasPlayer) return;
 
-            if (now >= _nextNameCheck)
+            if (PlayerProbe.HasPlayer && now >= _nextNameCheck)
             {
                 _nextNameCheck = now + 5f;
                 SetCharacter(PlayerProbe.CharacterName());
             }
 
+            // The game counter and a deferred death do not need a resolved
+            // player object. A missing actor must not silence them.
             FlushDeferredDeath();
             if (now >= _nextCountCheck)
             {
                 _nextCountCheck = now + 0.5f;
                 PollGameDeathCount(now);
             }
+
+            if (!PlayerProbe.HasPlayer) return;
 
             float hp = PlayerProbe.CurrentHealth;
             if (float.IsNaN(hp)) return;
@@ -80,7 +85,10 @@ namespace medick_DeathCounter.Game
 
         static void PollGameDeathCount(float now)
         {
-            int unseen = _ledger.Observe(PlayerProbe.GameDeathCount(), now);
+            if (!Prefs.Tracking.Value) return;
+            int count = PlayerProbe.GameDeathCount();
+            if (count < 0) return;   // needs readable CharacterData, not a player object
+            int unseen = _ledger.Observe(count, now);
             if (unseen <= 0 || _dead) return;
             Dbg.Log($"game death counter shows {unseen} death(s) no hook or health signal saw");
             OnDeath("game");
@@ -98,12 +106,28 @@ namespace medick_DeathCounter.Game
             OnDeath(d);
         }
 
-        // Death screen / analytics: no owner, so only when health agrees.
+        // Death screen / analytics: no owner. Not gated on HasPlayer.
+        // Readable health above 0 is never a death. Unreadable health waits
+        // for CharacterData.Deaths instead of guessing.
         public static void OnUnownedDeathSignal()
         {
+            if (!Prefs.Tracking.Value) return;
             float hp = PlayerProbe.CurrentHealth;
-            if (!float.IsNaN(hp) && hp <= 0f) OnDeath("hook");
-            else Dbg.Log($"unowned death signal ignored (health {hp})");
+            if (!float.IsNaN(hp) && hp > 0f)
+            {
+                Dbg.Log($"unowned death signal ignored (health {hp:0})");
+                return;
+            }
+            if (float.IsNaN(hp))
+            {
+                if (!_unreadableHealthNoted)
+                {
+                    _unreadableHealthNoted = true;
+                    MelonLogger.Msg("unowned death signal with unreadable health; waiting for the game death counter");
+                }
+                return;
+            }
+            OnDeath("hook");
         }
 
         static void OnPlayerChanged(float now)
@@ -129,11 +153,15 @@ namespace medick_DeathCounter.Game
             Dbg.Log(PlayerProbe.HasPlayer ? "player found" : "player gone");
         }
 
+        static bool RealName(string name) =>
+            !string.IsNullOrWhiteSpace(name) && name.Trim() != "Unknown Hero";
+
         static void SetCharacter(string name)
         {
-            // The fallback name means CharacterData was momentarily unreadable,
-            // not that the character changed: keep the ledger (re-review #4).
-            if (name == Character || name == "Unknown Hero" && !string.IsNullOrEmpty(Character)) return;
+            // A missing name, or the old "Unknown Hero" placeholder, is a
+            // CharacterData hiccup. Keep the last real name and its ledger.
+            if (!RealName(name) || name.Trim() == Character) return;
+            name = name.Trim();
             Character = name;
             _ledger.Reset();    // re-baseline the game's counter for this character
             CharacterDeaths = Log?.CountFor(name) ?? 0;
@@ -165,15 +193,40 @@ namespace medick_DeathCounter.Game
 
         public static void OnDeath(string detection)
         {
-            if (_dead || !Prefs.Tracking.Value || !PlayerProbe.HasPlayer) return;
+            if (_dead || !Prefs.Tracking.Value) return;
+            // The game counter is the safety net when no player object exists.
+            // A hook still needs either a player or health we already accepted.
+            if (detection != "game" && !PlayerProbe.HasPlayer && PlayerProbe.Health == null) return;
             if (GameHooks.InPlayerHit) { _deferred ??= detection; return; }
 
             // A hooked "Die" must agree with health when we can read it, so a
-            // mis-guessed hook can never invent deaths.
+            // mis-guessed hook can never invent deaths. Unreadable health is
+            // not counted here; the game counter has to move.
             float hp = PlayerProbe.CurrentHealth;
             if (detection == "hook" && !float.IsNaN(hp) && hp > 0f)
             {
                 Dbg.Log($"death hook fired with health {hp:0}; ignored");
+                return;
+            }
+            if (detection == "hook" && float.IsNaN(hp))
+            {
+                if (!_unreadableHealthNoted)
+                {
+                    _unreadableHealthNoted = true;
+                    MelonLogger.Msg("death hook with unreadable health; waiting for the game death counter");
+                }
+                return;
+            }
+
+            string raw = PlayerProbe.CharacterName();
+            string name = RealName(raw) ? raw.Trim() : (RealName(Character) ? Character : null);
+            if (name == null)
+            {
+                if (!_unknownNameWarned)
+                {
+                    _unknownNameWarned = true;
+                    MelonLogger.Warning("death not recorded: character name is unreadable, and it will not be filed as Unknown Hero");
+                }
                 return;
             }
 
@@ -186,7 +239,7 @@ namespace medick_DeathCounter.Game
                 float max = PlayerProbe.MaxHealth;
                 var ctx = new DeathContext
                 {
-                    Character      = PlayerProbe.CharacterName(),
+                    Character      = name,
                     CharacterClass = PlayerProbe.CharacterClass(),
                     Level          = PlayerProbe.Level(),
                     Zone           = PlayerProbe.Zone(),

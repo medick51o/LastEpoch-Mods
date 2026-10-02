@@ -36,6 +36,7 @@ namespace medick_DeathCounter.UI
 
         public static void Toggle()
         {
+            if (!PlayerProbe.HasPlayer) { Open = false; return; }
             Open = !Open;
             _back = 0;
         }
@@ -87,10 +88,12 @@ namespace medick_DeathCounter.UI
 
             if (n > 0) y = Tabs(cx, cw, y, sc);
 
-            if (n == 0)
+            if (!PlayerProbe.HasPlayer || n == 0)
             {
                 var st = Theme.Label(Mathf.RoundToInt(15 * sc), FontStyle.Bold, TextAnchor.MiddleLeft, serif: true);
-                string msg = Prefs.Tracking.Value ? "No deaths yet. Keep it that way." : "Death tracking is paused (Tracking = false in the cfg).";
+                string msg = !PlayerProbe.HasPlayer
+                    ? "Waiting for your character to load."
+                    : Prefs.Tracking.Value ? "No deaths yet. Keep it that way." : "Death tracking is paused (Tracking = false in the cfg).";
                 y += Theme.Para(cx, y, cw, msg, Theme.TextHi, st) + 8f * sc;
                 y = Footer(cx, cw, y, sc);
                 _lastH = y - top + pad;
