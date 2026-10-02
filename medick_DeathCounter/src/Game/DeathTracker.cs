@@ -26,6 +26,7 @@ namespace medick_DeathCounter.Game
         const double AilmentMemory  = 6.0;   // ailments seen this recently count as "on you"
 
         public static DeathLog Log { get; private set; }
+        public static ReassessmentLog Reassessments { get; private set; }
         public static string   Character { get; private set; } = "";
         public static int      CharacterDeaths { get; private set; }
         public static int      SessionDeaths { get; private set; }
@@ -51,7 +52,15 @@ namespace medick_DeathCounter.Game
         static DeathDetails _details;
         static float _detailsAt = -999f;
         static string _detailsCharacter;
-        static string _pendingCharacter;
+        static PlayContext _pendingPlayContext, _livingPlayContext;
+        static PendingDeath _pendingCapture;
+        static string _livingPlayCharacter;
+        static float _livingPlayAt = -999f;
+        static string _livingZone, _livingScene;
+        static int? _livingZoneLevel;
+        static string _livingClass;
+        static int _livingLevel;
+        static bool _livingHardcore;
         static CounterResets _resets;
 
         public static bool Recording => Prefs.Tracking.Value && PlayerProbe.HasPlayer && !_dead;
@@ -59,6 +68,8 @@ namespace medick_DeathCounter.Game
         public static void Init(string directory)
         {
             Log = new DeathLog(directory, MelonLogger.Warning);
+            Reassessments = new ReassessmentLog(directory, MelonLogger.Warning);
+            Reassessments.Load();
             _resets = new CounterResets(System.IO.Path.Combine(directory, "counter-resets.json"), MelonLogger.Warning);
             try { Log.Load(); }
             catch (Exception ex) { MelonLogger.Warning($"could not read the death log ({ex.Message}); starting fresh for this session"); }
@@ -82,8 +93,8 @@ namespace medick_DeathCounter.Game
             {
                 string detection = _pendingDetection;
                 _committing = true;
-                try { if (PlayerProbe.CharacterName()?.Trim() == _pendingCharacter) OnDeath(detection); }
-                finally { _committing = false; _pendingDetection = null; }
+                try { if (_pendingCapture != null) OnDeath(detection); }
+                finally { _committing = false; _pendingDetection = null; _pendingCapture = null; _pendingPlayContext = null; }
             }
             if (now >= _nextCountCheck)
             {
@@ -95,6 +106,8 @@ namespace medick_DeathCounter.Game
 
             float hp = PlayerProbe.CurrentHealth;
             if (float.IsNaN(hp)) return;
+            if (hp > 0f && !_dead && _pendingDetection == null && now - _defensesAt >= 0.5f)
+                SampleDefenses(now);
             if (!_dead && _lastHp > 0f && hp <= 0f) OnDeath("health");
             else if (_dead && hp > 0f && now - _deadAt > 1f) _dead = false;   // respawned in place
             _lastHp = hp;
@@ -163,10 +176,13 @@ namespace medick_DeathCounter.Game
             _lastHp = float.NaN;
             _hits.Clear();
             _ailments.Clear();
-            _details = null;
-            _detailsAt = -999f;
+            if (_pendingCapture == null) { _details = null; _detailsAt = -999f; }
             _defenses = null;
             _defensesAt = -999f;
+            _livingPlayContext = null;
+            _livingPlayCharacter = null;
+            _livingPlayAt = -999f;
+            _livingZone = null; _livingScene = null; _livingZoneLevel = null;
             GameHooks.OnPlayerChanged();
             _nextNameCheck = now;   // re-read the name this frame
             Dbg.Log(PlayerProbe.HasPlayer ? "player found" : "player gone");
@@ -196,12 +212,28 @@ namespace medick_DeathCounter.Game
         {
             _hits.Add(h);
             float now = Time.time;
-            if (now - _defensesAt >= 1f)
-            {
-                _defensesAt = now;
-                try { _defenses = PlayerProbe.Defenses(); } catch { _defenses = null; }   // never carry an old life's snapshot (review #5)
-            }
+            if (PlayerProbe.CurrentHealth > 0f && now - _defensesAt >= 0.5f) SampleDefenses(now);
             Dbg.Log($"hit {h.Amount:0} from {h.Source ?? "?"} {(h.Ability != null ? "(" + h.Ability + ")" : "")} {h.Ailment ?? ""} hp {h.HealthBefore:0}/{h.MaxHealth:0}");
+        }
+
+        static void SampleDefenses(float now)
+        {
+            _defensesAt = now;
+            try { _defenses = PlayerProbe.Defenses(); }
+            catch { _defenses = null; }
+            string name = PlayerProbe.CharacterName()?.Trim();
+            if (RealName(name))
+            {
+                _livingPlayContext = PlayerProbe.PlayContext(name);
+                _livingPlayCharacter = name;
+                _livingPlayAt = now;
+                _livingZone = PlayerProbe.Zone();
+                _livingScene = PlayerProbe.RawSceneId();
+                _livingZoneLevel = PlayerProbe.ZoneLevel();
+                _livingClass = PlayerProbe.CharacterClass();
+                _livingLevel = PlayerProbe.Level();
+                _livingHardcore = PlayerProbe.Hardcore();
+            }
         }
 
         public static void OnAilment(string name)
@@ -212,10 +244,10 @@ namespace medick_DeathCounter.Game
 
         public static void OnDeath(string detection)
         {
-            if (_dead || !Prefs.Tracking.Value) return;
+            if ((_dead && !_committing) || !Prefs.Tracking.Value) return;
             // The game counter is the safety net when no player object exists.
             // A hook still needs either a player or health we already accepted.
-            if (detection != "game" && !PlayerProbe.HasPlayer && PlayerProbe.Health == null) return;
+            if (!_committing && detection != "game" && !PlayerProbe.HasPlayer && PlayerProbe.Health == null) return;
             if (GameHooks.InPlayerHit) { _deferred ??= detection; return; }
 
             // A hooked "Die" must agree with health when we can read it, so a
@@ -238,7 +270,7 @@ namespace medick_DeathCounter.Game
             }
 
             string raw = PlayerProbe.CharacterName();
-            string name = RealName(raw) ? raw.Trim() : (RealName(Character) ? Character : null);
+            string name = _committing ? _pendingCapture?.Record.Character : RealName(raw) ? raw.Trim() : (RealName(Character) ? Character : null);
             if (name == null)
             {
                 if (!_unknownNameWarned)
@@ -259,7 +291,26 @@ namespace medick_DeathCounter.Game
                     _pendingDetection = detection;
                     _pendingAt = now;
                     _pendingUtc = DateTime.UtcNow;
-                    _pendingCharacter = name;
+                    // Freeze the last living realm before the delayed commit:
+                    // a hardcore death may transfer the character immediately.
+                    bool lateCounter = detection == "game" && (!float.IsFinite(hp) || hp > 0);
+                    bool living = !lateCounter && _livingPlayCharacter == name && now >= _livingPlayAt && now - _livingPlayAt <= 2f;
+                    _pendingPlayContext = lateCounter ? null : living && _livingPlayContext != null
+                        ? _livingPlayContext.Copy() : PlayerProbe.PlayContext(name);
+                    float max = lateCounter ? -1 : _defenses != null && now >= _defensesAt && now - _defensesAt <= 2f && _defenses.TryGetValue("MaxHealth", out float livingMax)
+                        ? livingMax : PlayerProbe.MaxHealth;
+                    var context = new DeathContext
+                    {
+                        Character = name, CharacterClass = living ? _livingClass : PlayerProbe.CharacterClass(), Level = living ? _livingLevel : PlayerProbe.Level(),
+                        Zone = lateCounter ? "" : living ? _livingZone : PlayerProbe.Zone(),
+                        RawSceneId = lateCounter ? null : living ? _livingScene : PlayerProbe.RawSceneId(),
+                        ZoneLevel = lateCounter ? null : living ? _livingZoneLevel : PlayerProbe.ZoneLevel(),
+                        Hardcore = !lateCounter && (living ? _livingHardcore : PlayerProbe.Hardcore()), PlayContext = _pendingPlayContext,
+                        MaxHealth = float.IsFinite(max) ? max : -1,
+                        Detection = detection, ModVersion = BuildInfo.Version, UtcNow = _pendingUtc,
+                    };
+                    _pendingCapture = new PendingDeath(lateCounter ? null : _hits.Since(now - 12), now, context,
+                        lateCounter ? null : _ailments.Where(kv => now >= kv.Value && now - kv.Value <= AilmentMemory).Select(kv => kv.Key), lateCounter ? null : _defenses, _defensesAt, !lateCounter);
                 }
                 return;
             }
@@ -269,36 +320,26 @@ namespace medick_DeathCounter.Game
 
             try
             {
-                float max = PlayerProbe.MaxHealth;
-                var ctx = new DeathContext
-                {
-                    Character      = name,
-                    CharacterClass = PlayerProbe.CharacterClass(),
-                    Level          = PlayerProbe.Level(),
-                    Zone           = PlayerProbe.Zone(),
-                    Hardcore       = PlayerProbe.Hardcore(),
-                    GameDeathInfo  = PlayerProbe.GameDeathInfo(),
-                    MaxHealth      = float.IsNaN(max) ? -1f : max,
-                    Detection      = detection,
-                    ModVersion     = BuildInfo.Version,
-                    UtcNow         = _pendingUtc,
-                };
-                var ailments = _ailments.Where(kv => now - kv.Value <= AilmentMemory).Select(kv => kv.Key).ToList();
-                var rec = DeathAnalyzer.Analyze(_hits.Since(now - 12.0), now, ctx, ailments);
+                var rec = _pendingCapture.Record;
                 if (_details != null && _detailsCharacter == name && Math.Abs(_detailsAt - now) <= 5f)
                     _details.Apply(rec);
-                if (now - _defensesAt > 15f) { try { _defenses = PlayerProbe.Defenses(); } catch { } }   // no recent hit: read now
-                rec.Defenses = _defenses;
+                // Do not present post-death stats as the player's defenses in
+                // combat. Live snapshots also work when no client hit fires.
                 _defenses = null;
                 _defensesAt = -999f;
 
                 Log.Append(rec);
-                SetCharacter(rec.Character);
-                CharacterDeaths = _resets.Count(rec.Character, Log.CountFor(rec.Character));
                 _session[rec.Character] = SessionCount(rec.Character) + 1;
-                SessionDeaths = SessionCount(rec.Character);
+                string current = PlayerProbe.CharacterName();
+                if (RealName(current)) SetCharacter(current);
+                else if (!RealName(Character)) SetCharacter(rec.Character);
+                if (Character == rec.Character)
+                {
+                    CharacterDeaths = _resets.Count(rec.Character, Log.CountFor(rec.Character));
+                    SessionDeaths = SessionCount(rec.Character);
+                }
                 JustDied   = rec;
-                if (detection != "game") _ledger.Recorded(now);
+                if (detection != "game" && Character == rec.Character) _ledger.Recorded(now);
                 JustDiedAt = Time.unscaledTime;
 
                 MelonLogger.Msg("death: " + rec.ToLogLine());
@@ -312,25 +353,35 @@ namespace medick_DeathCounter.Game
                 _hits.Clear();
                 _ailments.Clear();
                 _details = null;
+                _pendingPlayContext = null;
+                _pendingCapture = null;
             }
         }
 
         public static void OnDeathDetails(DeathDetails details)
         {
-            if (details == null || !Prefs.Tracking.Value || !PlayerProbe.HasPlayer) return;
+            if (details == null || !Prefs.Tracking.Value) return;
             string name = PlayerProbe.CharacterName();
-            if (!RealName(name)) return;
-            _details = details;
-            _detailsAt = Time.time;
-            _detailsCharacter = name.Trim();
-            // A later packet enriches the existing death; it never adds a count.
-            if (_dead && JustDied != null && JustDied.Character == _detailsCharacter && Time.time - _deadAt <= 5f)
+            name = RealName(name) ? name.Trim() : null;
+            float health = PlayerProbe.CurrentHealth;
+            bool? alive = float.IsFinite(health) ? health > 0 : null;
+            double? recentAt = JustDied != null ? _deadAt : null;
+            var target = DeathReportRouting.Choose(Time.time, name, _pendingCapture?.Time, _pendingCapture?.Record.Character, recentAt, JustDied?.Character, alive, _dead);
+            if (target == ReportTarget.Reject) { Dbg.Log("death details could not be matched safely; ignored"); return; }
+            if (target == ReportTarget.Recent)
             {
                 details.Apply(JustDied);
                 Log.SaveUpdated();
-                _details = null;
+                return;
             }
-            OnUnownedDeathSignal();
+            if (_detailsCharacter == (target == ReportTarget.Pending ? _pendingCapture.Record.Character : name)
+                && Time.time >= _detailsAt && Time.time - _detailsAt <= 1f)
+                details.PreserveBossFlagFrom(_details);
+            _details = details;
+            _detailsAt = Time.time;
+            _detailsCharacter = target == ReportTarget.Pending ? _pendingCapture.Record.Character : name;
+            // A later packet enriches the existing death; it never adds a count.
+            if (target == ReportTarget.AwaitDeath) OnUnownedDeathSignal();
         }
 
         static int SessionCount(string character) => _session.TryGetValue(character, out var n) ? n : 0;

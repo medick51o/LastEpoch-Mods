@@ -95,7 +95,7 @@ namespace medick_DeathCounter.UI
                 if (Moving && GUI.Button(new Rect(_hint.xMax - 78f * sc, hy + 4f * sc, 72f * sc, hintH - 8f * sc), "Done", Theme.Button(Mathf.RoundToInt(14 * sc))))
                 { EndMove(); DeathPanel.Toggle(); }
             }
-            else if (Prefs.ShowDeathToast.Value && DeathTracker.JustDied != null && Time.unscaledTime - DeathTracker.JustDiedAt < 8f)
+            else if (Prefs.ShowDeathToast.Value && DeathTracker.JustDied?.Character == DeathTracker.Character && Time.unscaledTime - DeathTracker.JustDiedAt < 8f)
             {
                 var death = DeathTracker.JustDied;
                 string toast = string.IsNullOrEmpty(death.Killer) && string.IsNullOrEmpty(death.KillingAilment)

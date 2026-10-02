@@ -48,8 +48,17 @@ namespace medick_DeathCounter.Core
         {
             // Shreds first: the game's AilmentID names them PoisonResShred,
             // FireResShred, ArmourShred ... which must not read as Poison/Ignite.
-            Setup("Armor Shred",      null,             "Lowers your armor so hits land harder.", "armourshred", "armorshred", "armour shred", "armor shred"),
+            Setup("Armor Shred",      null,             "Lowers your armor so hits land harder.", "armourshred", "armorshred", "armour shred", "armor shred", "shred armor"),
+            Shred("Physical", Element.Physical),
+            Shred("Fire", Element.Fire),
+            Shred("Cold", Element.Cold),
+            Shred("Lightning", Element.Lightning),
+            Shred("Necrotic", Element.Necrotic),
+            Shred("Void", Element.Void),
+            Shred("Poison", Element.Poison),
             Setup("Resistance Shred", null,             "Lowers one of your resistances below its cap.", "resshred", "resistanceshred", "resistance shred", "shred"),
+            Setup("Critical Vulnerability", null, "Raises the chance to be critically hit and lowers critical strike avoidance.", "criticalvulnerability", "critical vulnerability"),
+            Setup("Marked for Death", null, "Lowers all resistances by 25 points.", "markedfordeath", "marked for death"),
 
             Dot("Bleed",     Element.Physical,  "Physical damage over time. Armor does not reduce it.", "bleed"),
             Dot("Ignite",    Element.Fire,      "Fire damage over time.", "ignite", "burning"),
@@ -60,9 +69,11 @@ namespace medick_DeathCounter.Core
             Dot("Abyssal Decay", Element.Void,  "Void damage over time.", "abyssaldecay", "abyssal decay"),
             Dot("Doom",      Element.Void,      "Void damage over time that also makes you take more melee damage.", "doom"),
             Dot("Damned",    Element.Necrotic,  "Necrotic damage over time that also cuts your health regen.", "damned"),
+            Dot("Plague", Element.Poison, "Poison damage over time.", "plague"),
+            Dot("Spreading Flames", Element.Fire, "Fire damage over time.", "spreadingflames", "spreading flames"),
 
-            Setup("Freeze",          Element.Cold,      "You cannot act while frozen. Chance falls as max health and current ward rise. Cold resistance does not stop it.", "freeze", "frozen"),
-            Setup("Chill",           Element.Cold,      "Up to 3 stacks. 12% less attack, cast, and movement speed, and half of that against players. Cold resistance does not stop it.", "chill"),
+            Setup("Freeze",          Element.Cold,      "You cannot act while frozen. More max health and current ward make you harder to freeze. Cold resistance does not stop freeze.", "freeze", "frozen"),
+            Setup("Chill",           Element.Cold,      "Slows your attacks, casts and movement. Cold resistance does not prevent chill.", "chill"),
             Setup("Shock",           Element.Lightning, "Lowers your lightning resistance and makes you easier to stun.", "shock"),
             Setup("Stun",            null,              "You cannot act while stunned.", "stun"),
             Setup("Slow",            null,              "Slows your movement, so you cannot walk out of danger.", "slow"),
@@ -72,6 +83,10 @@ namespace medick_DeathCounter.Core
 
         static AilmentInfo Dot(string name, Element el, string effect, params string[] kw) =>
             new() { Name = name, Element = el, IsDot = true, Keywords = kw, Effect = effect };
+
+        static AilmentInfo Shred(string name, Element el) => Setup(name + " Resistance Shred", el,
+            "Lowers " + name.ToLowerInvariant() + " resistance, by 2 points per stack on players, up to 10 stacks.",
+            name + "ResShred", name + "ResistanceShred", "Shred " + name + " Resistance");
 
         static AilmentInfo Setup(string name, Element? el, string effect, params string[] kw) =>
             new() { Name = name, Element = el, IsDot = false, Keywords = kw, Effect = effect };
@@ -185,3 +200,4 @@ namespace medick_DeathCounter.Core
         }
     }
 }
+

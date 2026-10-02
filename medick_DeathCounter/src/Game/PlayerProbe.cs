@@ -245,6 +245,8 @@ namespace medick_DeathCounter.Game
 
         public static bool Hardcore() => Refl.Get(CharacterData(), "Hardcore", "hardcore") is bool b && b;
 
+        public static PlayContext PlayContext(string expectedCharacter) => PlayContextProbe.Read(CharacterData(), expectedCharacter);
+
         // The game's own lifetime death count for this character, or -1.
         public static int GameDeathCount() =>
             Refl.TryFloat(Refl.Get(CharacterData(), "Deaths", "deaths"), out var f) ? (int)f : -1;
@@ -279,13 +281,32 @@ namespace medick_DeathCounter.Game
             ("Block",         new[] { "blockChance" }),
             ("Endurance",     new[] { "endurance" }),
             ("CritAvoidance", new[] { "critAvoidance" }),
+            ("ReducedBonusCritDamage", new[] { "reducedBonusDamageTakenFromCrits" }),
             ("StunAvoidance", new[] { "stunAvoidance" }),
         };
         static bool _defensesLogged;
 
+        public static bool TryCurrentDefenses(string expectedCharacter, out Dictionary<string, float> stats, out string reason)
+        {
+            stats = null;
+            reason = "Load this character and finish respawning before checking current stats.";
+            try
+            {
+                if (!HasPlayer || CurrentHealth <= 0 || !float.IsFinite(CurrentHealth) || CharacterName()?.Trim() != expectedCharacter) return false;
+                var read = Defenses();
+                if (!HasPlayer || CurrentHealth <= 0 || !float.IsFinite(CurrentHealth) || CharacterName()?.Trim() != expectedCharacter) return false;
+                if (read == null || read.Count == 0) { reason = "Current defenses could not be read. Try again once the character has loaded."; return false; }
+                stats = read;
+                reason = null;
+                return true;
+            }
+            catch { reason = "Current stats are temporarily unavailable. Try again once the character has loaded."; return false; }
+        }
+
         public static Dictionary<string, float> Defenses()
         {
-            var prot = Refl.Get(Actor, "protection") ?? Refl.GetComponent(Object, Refl.FindType("Il2Cpp.ProtectionClass"));
+            var prot = Refl.Static("Il2Cpp.PlayerFinder", "getLocalPlayerPrecalculatedStatsHolder")
+                ?? Refl.Get(Actor, "protection") ?? Refl.GetComponent(Object, Refl.FindType("Il2Cpp.ProtectionClass"));
             if (prot == null) return null;
 
             var raw = new Dictionary<string, float>();
@@ -294,10 +315,12 @@ namespace medick_DeathCounter.Game
 
             // Scale (75 vs 0.75) and the cap live in Core/DefenseSnapshot,
             // where they are unit-tested; unknown scale = no percent stats.
-            if (Refl.TryFloat(Refl.Get(prot, "armour", "armor") ?? Refl.Call(prot, "armourForCharacterSheet"), out var armor)) raw["Armor"] = armor;
+            if (Refl.TryFloat(Refl.Call(prot, "getArmour") ?? Refl.Get(prot, "armour", "armor") ?? Refl.Call(prot, "armourForCharacterSheet"), out var armor)) raw["Armor"] = armor;
             if (Refl.TryFloat(Refl.Get(prot, "dodgeRating"), out var dodge)) raw["Dodge"] = dodge;
-            if (Refl.TryFloat(Refl.Get(prot, "enduranceThreshold"), out var et)) raw["EnduranceThreshold"] = et;
-            if (Refl.TryFloat(Refl.Get(prot, "CurrentWard", "currentWard"), out var ward)) raw["Ward"] = ward;
+            if (Refl.TryFloat(Refl.Get(prot, "blockProtection"), out var blockEffect)) raw["BlockEffectiveness"] = blockEffect;
+            if (Refl.TryFloat(Refl.Get(Refl.Static("Il2Cpp.DifficultyManager", "get_instance"), "areaLevel"), out var area) && area > 0f) raw["AreaLevel"] = area;
+            if (Refl.TryFloat(Refl.Call(prot, "getEnduranceThreshold") ?? Refl.Get(prot, "enduranceThreshold"), out var et)) raw["EnduranceThreshold"] = et;
+            if (Refl.TryFloat(Refl.Get(Refl.Static("Il2Cpp.PlayerFinder", "getLocalPlayerWardHolder"), "CurrentWard", "currentWard") ?? Refl.Get(prot, "CurrentWard", "currentWard"), out var ward)) raw["Ward"] = ward;
             float max = MaxHealth;
             if (!float.IsNaN(max)) raw["MaxHealth"] = max;
             var def = DefenseSnapshot.Normalize(raw);
@@ -314,6 +337,16 @@ namespace medick_DeathCounter.Game
         {
             try { return Refl.CleanName(SceneManager.GetActiveScene().name) ?? ""; }
             catch { return ""; }
+        }
+
+        public static string RawSceneId()
+        {
+            try { return SceneManager.GetActiveScene().name; }
+            catch { return null; }
+        }
+        public static int? ZoneLevel()
+        {
+            return Refl.Static("Il2Cpp.ZoneInfoManager", "get_ZoneLevel") is int level && level > 0 ? level : null;
         }
 
         static object CharacterData() => Refl.Static("Il2Cpp.PlayerFinder", "getPlayerData")

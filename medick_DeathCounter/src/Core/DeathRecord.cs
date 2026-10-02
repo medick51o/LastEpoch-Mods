@@ -24,13 +24,17 @@ namespace medick_DeathCounter.Core
     // computed when the death is viewed, so better advice reaches old deaths too.
     public sealed class DeathRecord
     {
+        public string Id { get; set; } // stable link for reassessments; old records use a derived key
         public int      Number         { get; set; }   // this character's Nth death
         public DateTime UtcTime        { get; set; }
         public string   Character      { get; set; }
         public string   CharacterClass { get; set; }
         public int      Level          { get; set; }
         public string   Zone           { get; set; }
+        public string   RawSceneId     { get; set; }
+        public int?     ZoneLevel      { get; set; }
         public bool     Hardcore       { get; set; }
+        public PlayContext PlayContext { get; set; } // realm when this death happened, not today's realm
 
         public string   Killer         { get; set; }
         public string   KillerAbility  { get; set; }
@@ -41,6 +45,8 @@ namespace medick_DeathCounter.Core
         public float    OverkillDamage { get; set; }
         public string   DetailSource   { get; set; }
         public bool?    KillingCrit    { get; set; }
+        public bool?    IsBossFight    { get; set; }
+        public string   IrregularSource { get; set; } // enum name only; no inferred hazard
         public float    MaxHealth      { get; set; }
 
         public DeathKind Kind          { get; set; }
@@ -58,6 +64,7 @@ namespace medick_DeathCounter.Core
         // "Dodge", "Block", "Endurance", "EnduranceThreshold", "Ward",
         // "MaxHealth", "StunAvoidance". Null or missing keys = unknown.
         public Dictionary<string, float> Defenses { get; set; }
+        public float? DefenseSnapshotAgeSeconds { get; set; }
 
         public bool TryDefense(string key, out float v)
         {
@@ -75,9 +82,12 @@ namespace medick_DeathCounter.Core
             if (TryDefense("Armor", out float a))          parts.Add($"Armor {a:N0}");
             if (TryDefense("Dodge", out float dg))         parts.Add($"Dodge {dg:N0}");
             if (TryDefense("Block", out float b))          parts.Add($"Block {b:0}%");
+            if (TryDefense("BlockEffectiveness", out float be)) parts.Add($"Block effectiveness {be:N0}");
             if (TryDefense("Endurance", out float e))      parts.Add($"Endurance {e:0}%");
             if (TryDefense("CritAvoidance", out float c))  parts.Add($"Crit avoid {c:0}%");
-            if (TryDefense("Ward", out float w))           parts.Add($"Ward {w:N0} (after hit)");   // read after the hit's ward absorb
+            if (TryDefense("ReducedBonusCritDamage", out float cb)) parts.Add($"Reduced crit bonus {cb:0}%");
+            if (TryDefense("AreaLevel", out float area))   parts.Add($"Area level {area:0}");
+            if (TryDefense("Ward", out float w))           parts.Add($"Ward {w:N0}" + (DefenseSnapshotAgeSeconds.HasValue ? " (snapshot)" : " (after hit)"));
             return string.Join("  ·  ", parts);
         }
 
@@ -105,6 +115,12 @@ namespace medick_DeathCounter.Core
             _                        => "UNKNOWN",
         };
 
+        public string PlayContextLabel() => PlayContext?.Label() ?? "Season / Legacy unknown";
+
+        public string LocationLabel() =>
+            (!string.IsNullOrWhiteSpace(RawSceneId) ? "Scene: " + RawSceneId : !string.IsNullOrWhiteSpace(Zone) ? Zone : "Zone unavailable")
+            + (ZoneLevel > 0 ? $" (area level {ZoneLevel})" : "");
+
         // Plain-text line for deaths.txt.
         public string ToLogLine()
         {
@@ -114,7 +130,7 @@ namespace medick_DeathCounter.Core
             string abil  = string.IsNullOrEmpty(KillerAbility) ? "" : $" ({KillerAbility})";
             string ail   = AilmentsOnYou.Count > 0 ? $" | ailments: {string.Join(", ", AilmentsOnYou)}" : "";
             string lvl   = (Level > 0 ? $" lvl {Level}" : "") + (Hardcore ? " HC" : "");
-            return $"{when} | {Character}{lvl} death #{Number} | {Zone} | killed by {KillerLine()}{abil}{blow}{elem} | {KindLabel()}{ail}";
+            return $"{when} | {Character}{lvl} death #{Number} | {PlayContextLabel()} | {LocationLabel()} | {BossCatalog.EncounterLabel(this)} | killed by {KillerLine()}{abil}{blow}{elem} | {KindLabel()}{ail}";
         }
     }
 }

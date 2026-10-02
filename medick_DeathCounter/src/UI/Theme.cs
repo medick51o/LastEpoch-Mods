@@ -30,7 +30,7 @@ namespace medick_DeathCounter.UI
         static readonly Color[] ElementColors =
         {
             Hex(0xC8B9A6),   // Physical
-            Hex(0xE2683C),   // Fire
+            Hex(0xFF625E),   // Fire
             Hex(0x6FB7E8),   // Cold
             Hex(0xE8D04A),   // Lightning
             Hex(0x4FB0A0),   // Necrotic

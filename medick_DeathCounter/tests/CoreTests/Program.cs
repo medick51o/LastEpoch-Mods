@@ -6,9 +6,80 @@ using medick_DeathCounter.Core;
 
 // Tiny no-dependency test runner: every static void Test_* runs, any
 // exception is a failure. Exit code = number of failures.
-static class Program
+static partial class Program
 {
     static int _fail;
+
+    static void Test_Port_PostDeathGraceCannotReplaceKiller()
+    {
+        var hits = new List<HitEvent>
+        {
+            Hit(10, 800, "Actual killer", Element.Fire),
+            Hit(10.2, 100, "Later tick", Element.Poison),
+        };
+        var record = DeathAnalyzer.Analyze(hits, 10, Ctx());
+        Eq("Actual killer", record.Killer);
+        Eq("Fire", record.KillingElement);
+        Eq(800f, record.KillingBlow);
+        Eq(900f, record.WindowDamage); // retain the existing grace-period totals
+    }
+
+    static void Test_Port_ReportDowngradesUnsupportedSingleHitOneShot()
+    {
+        var record = new DeathRecord { Kind = DeathKind.OneShot, MaxHealth = 0, Hits = 1 };
+        new DeathDetails { Killer = "Wraith", Damage = 900 }.Apply(record);
+        Eq(DeathKind.Reported, record.Kind);
+        record = new DeathRecord { Kind = DeathKind.OneShot, MaxHealth = 1000, Hits = 1 };
+        new DeathDetails { Damage = 900 }.Apply(record);
+        Eq(DeathKind.OneShot, record.Kind);
+    }
+
+    static void Test_Port_ReportOverkillIsNotCalledHealthRemoved()
+    {
+        var record = new DeathRecord { Kind = DeathKind.OneShot, MaxHealth = 1000, Hits = 1, KillingElement = "Fire", Defenses = new() { ["Res.Fire"] = 75 }, KillingBlow = 2000, OverkillDamage = 1000, DetailSource = "game death report" };
+        var body = Advisor.Suggest(record).Single(t => t.Key == "ehp").Body;
+        True(!body.Contains("100%") && !body.Contains("200%"), "unverified report units are not a life percentage");
+        True(body.Contains("ward") && body.Contains("not been verified"), "explain the missing unit verification");
+    }
+
+    static void Test_DeathText_PreservesColorAndStripsSizeTags()
+    {
+        const string text = "Killed by <color=#FF0000><size=8>fire</size> and <color=#00FFFF>cold</color></color><br>damage";
+        var runs = DeathText.Parse(text);
+        Eq("Killed by fire and cold\ndamage", DeathText.Plain(text));
+        Eq("#FF0000", runs.Single(r => r.Text == "fire").Color);
+        Eq("#00FFFF", runs.Single(r => r.Text == "cold").Color);
+        Eq(null, runs.Last().Color);
+    }
+
+    static void Test_ReportedFire_CappedPrioritizesBuffer()
+    {
+        var record = new DeathRecord { MaxHealth = 1089, Defenses = new() { ["Res.Fire"] = 75 } };
+        new DeathDetails { PrimaryElement = "Fire", Damage = 2200, Overkill = 1000 }.Apply(record);
+        var tips = Advisor.Suggest(record);
+        Eq("ehp", tips[0].Key);
+        True(tips[0].Body.Contains("2,200") && tips[0].Body.Contains("1,089"), "advice cites recorded values");
+        True(tips.Single(t => t.Key == "res_Fire").Title.Contains("capped"), "does not demand more resistance");
+    }
+
+    static void Test_ReportedFire_LowResistanceNamesGap()
+    {
+        var record = new DeathRecord { MaxHealth = 1089, Defenses = new() { ["Res.Fire"] = 41 } };
+        new DeathDetails { PrimaryElement = "Fire", Damage = 950 }.Apply(record);
+        var tips = Advisor.Suggest(record);
+        Eq("res_Fire", tips[0].Key);
+        True(tips[0].Title.Contains("41%") && tips[0].Body.Contains("34 point"), "specific fire gap");
+    }
+
+    static void Test_ReportedIgnite_CappedSuggestsRecovery()
+    {
+        var record = new DeathRecord { MaxHealth = 1089, Defenses = new() { ["Res.Fire"] = 75 } };
+        new DeathDetails { PrimaryElement = "Fire", Damage = 950, Ailment = "Ignite" }.Apply(record);
+        var tips = Advisor.Suggest(record);
+        Eq("dot_Ignite", tips[0].Key);
+        True(tips[0].Body.Contains("75%") && tips[0].Body.Contains("recovery"), "known cap and useful next layer");
+        True(!tips.Any(t => t.Key == "ehp"), "not inferred as a large hit from a DoT tick");
+    }
 
     static void Test_GameReport_BleedDoesNotRecommendArmorForItsDamage()
     {
@@ -139,15 +210,15 @@ static class Program
         Eq(null, Ailments.Find("PoisonResistance")?.Name);
         Eq(null, Ailments.Find("IgniteChance")?.Name);
         Eq(null, Ailments.Find("")?.Name);
-        Eq("Resistance Shred", Ailments.Find("FireResistanceShred")?.Name);
+        Eq("Fire Resistance Shred", Ailments.Find("FireResistanceShred")?.Name);
     }
 
     // The game's AilmentID enum (docs/RESEARCH-game-api.md) names shreds like
     // PoisonResShred / ArmourShred: they must not read as the DoT of that element.
     static void Test_AilmentFind_GameAilmentIdNames()
     {
-        Eq("Resistance Shred", Ailments.Find("PoisonResShred")?.Name);
-        Eq("Resistance Shred", Ailments.Find("FireResShred")?.Name);
+        Eq("Poison Resistance Shred", Ailments.Find("PoisonResShred")?.Name);
+        Eq("Fire Resistance Shred", Ailments.Find("FireResShred")?.Name);
         Eq("Armor Shred", Ailments.Find("ArmourShred")?.Name);
         Eq("Abyssal Decay", Ailments.Find("StackingAbyssalDecay")?.Name);
         Eq("Shock", Ailments.Find("Shock")?.Name);
@@ -292,7 +363,7 @@ static class Program
         var tips = Advisor.Suggest(DeathAnalyzer.Analyze(hits, 10.0, Ctx()));
         Eq("crit", tips[0].Key, "crit first");
         True(tips.Any(t => t.Key == "res_Fire"), "fire res");
-        True(tips.Any(t => t.Key == "ehp"), "ehp");
+        True(!tips.Any(t => t.Key == "ehp"), "unknown resistance and an unresolved crit gap do not justify a pool recommendation");
         True(tips.Count <= Advisor.MaxTips, "capped");
     }
 
@@ -386,7 +457,8 @@ static class Program
     static void Test_Advice_NoSnapshotKeepsGenericText()
     {
         var tip = Advisor.Suggest(FireOneShot(null)).Single(t => t.Key == "res_Fire");
-        Eq("Cap fire resistance (75%)", tip.Title);
+        Eq("Check fire resistance", tip.Title);
+        True(tip.Body.Contains("not captured"), "unknown resistance is not an asserted gap");
     }
 
     static void Test_Log_DefensesRoundTrip()
@@ -503,8 +575,7 @@ static class Program
         Eq("res_Fire", p.Priorities[0].Advice.Key, "fire res first");
         Eq(3, p.Priorities[0].Deaths, "helps 3 of 4");
         True(p.Priorities.Count <= DeathPatterns.MaxPriorities, "capped");
-        True(p.Priorities.Any(x => x.Advice.Key == "ehp" && x.Deaths == 4), "generic tip still listed, with its true count");
-        Eq("ehp", p.Priorities[1].Advice.Key, "ehp beats endurance on the weight tiebreak");
+        True(p.Priorities.All(x => x.Advice.Key != "ehp"), "unknown resistances never become a blanket pool priority");
     }
 
     // Review: per-death-only tips must never become priorities. Needs an
@@ -558,13 +629,15 @@ static class Program
 
     // Found in the mockup: "Cap fire resistance" and "Ignite: fire resistance"
     // both made the top three, saying the same thing twice.
-    static void Test_Patterns_AilmentTipFoldsIntoItsResistance()
+    static void Test_Patterns_RecoveryDoesNotRepeatResistance()
     {
         var log = new List<DeathRecord>();
         for (int i = 0; i < 4; i++) log.Add(DeathAnalyzer.Analyze(new List<HitEvent> { Hit(10, 900, "Lagon", Element.Fire) }, 10, Ctx(), new[] { "Ignite" }));
         var p = DeathPatterns.Build(log, maxPriorities: 10);
         True(p.Priorities.Any(x => x.Advice.Key == "res_Fire"), "fire res listed");
         True(p.Priorities.All(x => x.Advice.Key != "dot_Ignite"), "ignite folded into fire res");
+        var recovery = p.Priorities.Single(x => x.Advice.Key == "recovery");
+        True(!recovery.Advice.Body.Contains("Cap the matching resistance"), "recovery addresses a different problem");
     }
 
     static void Test_Patterns_WindowIsMostRecent()
@@ -613,16 +686,12 @@ static class Program
         finally { try { Directory.Delete(dir, true); } catch { } }
     }
 
-    // ── Mitigation math (research/advice/03-MATH.md) ────────
-    // Every test below pins a row of the regression table in section 7 of
-    // that document. Near() is the 0.001 tolerance the table promises.
     static void Near(float want, float got, string what, float tol = 0.001f)
     {
         if (float.IsNaN(want) != float.IsNaN(got) || Math.Abs(want - got) > tol)
             throw new Exception($"{what} expected <{want}> got <{got}>");
     }
 
-    // A1: armor curve vs three planner builds (46/48/52 percent at L100).
     static void Test_Math_Armor_MatchesPlannerDataPoints()
     {
         Near(0.4595f, MitigationMath.ArmorMitigationFraction(2763, 100), "2763 @ L100");
@@ -630,20 +699,17 @@ static class Program
         Near(0.5199f, MitigationMath.ArmorMitigationFraction(3366, 100), "3366 @ L100");
     }
 
-    // A2: the 2020 forum quote of Tunklab's chart, "701 armor = about 20%".
     static void Test_Math_Armor_MatchesTunklabChartQuote()
     {
         Near(0.1920f, MitigationMath.ArmorMitigationFraction(701, 100), "701 @ L100");
     }
 
-    // A3 + A6: the two terms asymptote at 0.30 + 0.55, the documented 85% cap.
     static void Test_Math_Armor_CapsAt85()
     {
         Near(0.85f, MitigationMath.ArmorMitigationFraction(1e12f, 100), "huge armor capped");
         Eq(0f, MitigationMath.ArmorMitigationFraction(0f, 100), "zero armor mitigates nothing");
     }
 
-    // A4: armor is 70% as effective against non-physical damage.
     static void Test_Math_Armor_NonPhysicalIs70Percent()
     {
         Near(0.3217f, MitigationMath.ArmorMitigationNonPhysicalFraction(2763, 100), "2763 non-physical");
@@ -651,7 +717,6 @@ static class Program
              MitigationMath.ArmorMitigationNonPhysicalFraction(2763, 100), "exactly 70 percent of physical");
     }
 
-    // A5: armor shred below zero increases damage taken by the same magnitude.
     static void Test_Math_Armor_NegativeMirrorsPositive()
     {
         Near(-0.1919f, MitigationMath.ArmorMitigationFraction(-700, 100), "-700 @ L100");
@@ -659,40 +724,34 @@ static class Program
               MitigationMath.ArmorMitigationFraction(-2763, 100), "mirror at 2763");
     }
 
-    // A6: unknown inputs refuse instead of guessing.
     static void Test_Math_Armor_ZeroAndNaN()
     {
         True(float.IsNaN(MitigationMath.ArmorMitigationFraction(float.NaN, 100)), "NaN armor");
         True(float.IsNaN(MitigationMath.ArmorMitigationFraction(2763, float.NaN)), "NaN area level");
     }
 
-    // B1: block effectiveness 325 at L100 computes to 22%, planner shows 22%.
     static void Test_Math_Block_MatchesPlannerDataPoint()
     {
         Near(0.2214f, MitigationMath.BlockMitigationFraction(325, 100), "325 @ L100");
     }
 
-    // B2: 0.25 + 0.60 terms asymptote at the documented 85% cap.
     static void Test_Math_Block_CapsAt85()
     {
         Near(0.85f, MitigationMath.BlockMitigationFraction(1e12f, 100), "huge block capped");
         Eq(0f, MitigationMath.BlockMitigationFraction(0f, 100), "zero block");
     }
 
-    // C1: 16 dodge rating at L100 gives 0.62%, planner rounds to 1%.
     static void Test_Math_Dodge_MatchesPlannerDataPoint()
     {
         Near(0.0062f, MitigationMath.DodgeChanceFraction(16, 100), "16 rating @ L100");
     }
 
-    // C2: the curve value at 1000 rating and the 85% cap.
     static void Test_Math_Dodge_CurveAndCap()
     {
         Near(0.2909f, MitigationMath.DodgeChanceFraction(1000, 100), "1000 rating @ L100");
         Near(0.85f, MitigationMath.DodgeChanceFraction(1e12f, 100), "huge rating capped");
     }
 
-    // D1: 1% enemy penetration per area level, capped at 75; NaN refuses.
     static void Test_Math_Penetration_ByAreaLevel()
     {
         Near(40f, MitigationMath.EnemyPenetration(40), "area 40");
@@ -703,8 +762,6 @@ static class Program
         True(float.IsNaN(MitigationMath.EnemyPenetration(float.NaN)), "unknown area level");
     }
 
-    // Player resistance shred caps at 10 stacks (ailments article, 2026-02-20).
-    // 03-MATH.md still says 20, from a March 2024 mirror. That line is superseded.
     static void Test_Math_ResShred_PlayerStackCapIsTen()
     {
         Eq(10, MitigationMath.PlayerResShredMaxStacks);
@@ -714,7 +771,6 @@ static class Program
         Eq(10, MitigationMath.ShockMaxStacks);
     }
 
-    // D2: shred before the cap, penetration after it, order pinned.
     static void Test_Math_Resist_EffectiveOrderShredCapPen()
     {
         Near(-34f, MitigationMath.EffectiveResistance(41, 0, 75), "41 uncapped, pen 75");
@@ -723,28 +779,24 @@ static class Program
         Near(75f, MitigationMath.EffectiveResistance(150, 60, 0), "deep overcap absorbs heavy shred");
     }
 
-    // D3: negative effective resistance means more than 100% damage taken.
     static void Test_Math_Resist_NegativeGrowsDamage()
     {
         Near(1.34f, MitigationMath.ResistanceTakenFraction(-34), "-34% means 134% taken");
         Near(1.20f, MitigationMath.ResistanceTakenFraction(-20), "-20% means 120% taken");
     }
 
-    // D4: the cap clamps at 75 regardless of overcap when nothing shreds or penetrates.
     static void Test_Math_Resist_OvercapClampedAtCap()
     {
         Near(75f, MitigationMath.EffectiveResistance(150, 0, 0), "150 clamped to 75");
         Near(0.25f, MitigationMath.ResistanceTakenFraction(MitigationMath.EffectiveResistance(150, 0, 0)), "25% taken at cap");
     }
 
-    // D5: shred can push an uncapped resistance below zero.
     static void Test_Math_Resist_ShredBelowZero()
     {
         Near(-30f, MitigationMath.EffectiveResistance(10, 40, 0), "10 res, 40 shred");
         Near(-60f, MitigationMath.EffectiveResistance(75, 60, 75), "poison at 30 stacks in a L100 area");
     }
 
-    // E1: worked example (a), fire 41% vs the 75% cap in a L100 area.
     static void Test_Math_ExampleA_Fire41_Capped_WithPen()
     {
         var cf = MitigationMath.PreviewResistance(1700, 700, 41, 75, 0, 100, DamageMeaning.PostMitigationWithWard);
@@ -758,7 +810,6 @@ static class Program
         Eq(false, MitigationMath.PreviewResistance(1700, 700, 41, 75, 0, 24, DamageMeaning.PostMitigationWithWard).Survived, "area 24 still dies");
     }
 
-    // E2: the honest sentence for a lever that was not enough.
     static void Test_Math_ExampleA_WordingStillKilled()
     {
         var s = MitigationMath.PreviewResistance(1700, 700, 41, 75, 0, 100, DamageMeaning.PostMitigationWithWard).Sentence();
@@ -766,7 +817,6 @@ static class Program
         True(s.Contains("still above the about 1000 you had left, so it would probably still have killed you"), s);
     }
 
-    // E3: without area-level penetration the verdict flips completely.
     static void Test_Math_ExampleA_Fire41_NoPen_Survives()
     {
         var cf = MitigationMath.PreviewResistance(1700, 700, 41, 75, 0, 0, DamageMeaning.PostMitigationWithWard);
@@ -776,7 +826,6 @@ static class Program
         True(cf.Sentence().Contains("would likely have survived"), cf.Sentence());
     }
 
-    // E4: at area 40 and 66 the same gap still kills.
     static void Test_Math_ExampleA_Fire40Area_StillDies()
     {
         var cf40 = MitigationMath.PreviewResistance(1700, 700, 41, 75, 0, 40, DamageMeaning.PostMitigationWithWard);
@@ -789,7 +838,6 @@ static class Program
         Eq(false, cf66.Survived, "area 66");
     }
 
-    // E5: under the pre-mitigation reading the ratio holds but no survival claim.
     static void Test_Math_ExampleA_PreMitigationNoSurvivalClaim()
     {
         var cf = MitigationMath.PreviewResistance(1700, 700, 41, 75, 0, 100, DamageMeaning.PreMitigation);
@@ -799,7 +847,6 @@ static class Program
         True(cf.Sentence().Contains("which may or may not have been enough"), cf.Sentence());
     }
 
-    // E6: the ratio is identical under every damage meaning (layer cancels).
     static void Test_Math_RatioInvariantToDamageMeaning()
     {
         float a = MitigationMath.PreviewResistance(1700, 700, 41, 75, 0, 100, DamageMeaning.PostMitigationWithWard).Ratio;
@@ -809,7 +856,6 @@ static class Program
         Near(b, c, "health-only vs pre-mitigation");
     }
 
-    // E7: capped resistance in a L100 area is a dead end, even with overcap.
     static void Test_Math_ExampleB_CappedResistanceIsADeadEnd()
     {
         var cf = MitigationMath.PreviewResistance(2200, 400, 75, 150, 0, 100, DamageMeaning.PostMitigationWithWard);
@@ -818,7 +864,6 @@ static class Program
         Eq(false, cf.Survived, "still dead");
     }
 
-    // E8: endurance 20 to 60 lands inside the borderline band.
     static void Test_Math_ExampleB_EnduranceMayOrMayNot()
     {
         var cf = MitigationMath.PreviewEndurance(2200, 400, 400, 20, 60, DamageMeaning.PostMitigationWithWard);
@@ -828,7 +873,6 @@ static class Program
         True(cf.Sentence().Contains("may or may not have been enough"), cf.Sentence());
     }
 
-    // E9: the overkill is the exact shortfall for pool levers.
     static void Test_Math_ExampleB_PoolShortfallIsOverkill()
     {
         var cf = MitigationMath.PreviewPoolIncrease(2200, 400, 400, DamageMeaning.PostMitigationWithWard, "400 more health and ward");
@@ -842,7 +886,6 @@ static class Program
         True(shortOf.Sentence().Contains("would not have been enough on its own"), shortOf.Sentence());
     }
 
-    // E10: a blocked version of the (b) hit lands below what you had left.
     static void Test_Math_ExampleB_BlockedVersionSurvives()
     {
         float block = MitigationMath.BlockMitigationFraction(325, 100);
@@ -852,7 +895,6 @@ static class Program
         True(blocked < 1800, "blocked version below the about 1800 you had left");
     }
 
-    // E11: armor never mitigates damage over time; the preview refuses.
     static void Test_Math_ExampleC_ArmorRefusesDot()
     {
         var cf = MitigationMath.PreviewArmor(350, 30, 2763, 4000, 100, false, true, DamageMeaning.PostMitigationWithWard);
@@ -860,7 +902,6 @@ static class Program
         True(cf.Sentence().Contains("armor does not mitigate damage over time"), cf.Sentence());
     }
 
-    // E12: a 15% less damage over time layer on the ignite tick.
     static void Test_Math_ExampleC_LessDotTakenTick()
     {
         var cf = MitigationMath.PreviewLessDamageTaken(350, 30, 15, DamageMeaning.PostMitigationWithWard, "a 15% less damage over time taken layer");
@@ -870,7 +911,6 @@ static class Program
         True(cf.Sentence().Contains("may or may not have been enough"), cf.Sentence() + " (single tick, other stacks keep ticking)");
     }
 
-    // E13: bleed is physical but still a DoT: physical resistance works, armor does not.
     static void Test_Math_ExampleD_BleedPhysicalRes()
     {
         var cf = MitigationMath.PreviewResistance(300, 40, 20, 75, 0, 100, DamageMeaning.PostMitigationWithWard);
@@ -880,7 +920,6 @@ static class Program
         Eq(true, cf.Survived, "this tick would not have killed you");
     }
 
-    // E14: poison overcap is MEASURED advice when stacks were on you.
     static void Test_Math_ExampleE_PoisonOvercapMeasured()
     {
         float shred = 10 * MitigationMath.PoisonResShredPerStack;
@@ -893,7 +932,6 @@ static class Program
         True(cf.Sentence().Contains("may or may not have been enough"), cf.Sentence() + " (inside the band)");
     }
 
-    // E15: without evidenced shred, overcap changes nothing (ratio 1, never advised).
     static void Test_Math_ExampleE_OvercapNeedsEvidencedShred()
     {
         var cf = MitigationMath.PreviewResistance(900, 100, 75, 95, 0, 100, DamageMeaning.PostMitigationWithWard);
@@ -901,7 +939,6 @@ static class Program
         Eq(false, cf.Survived, "still dead");
     }
 
-    // E16: full crit avoidance turns the crit into the normal hit: ratio one half.
     static void Test_Math_ExampleF_AvoidanceHalvesCrit()
     {
         var cf = MitigationMath.PreviewCrit(2000, 600, true, 0, 100, DamageMeaning.PostMitigationWithWard);
@@ -912,7 +949,6 @@ static class Program
         True(cf.Sentence().Contains("would likely have survived, assuming the recorded damage was the whole post-mitigation hit including ward"), cf.Sentence());
     }
 
-    // E17: reduced bonus crit damage 50 leaves the hit lethal.
     static void Test_Math_ExampleF_ReducedBonusCrit()
     {
         Near(2f, MitigationMath.CritHitMultiplier(0), "no reduction: 200%");
@@ -925,7 +961,6 @@ static class Program
         Eq(false, cf.Survived, "1500 still kills");
     }
 
-    // E18: avoidance rolls after the enemy's crit chance (official 30/50 gives 15).
     static void Test_Math_ExampleF_EffectiveCritChance()
     {
         Near(2f, MitigationMath.EffectiveEnemyCritChance(5, 60), "5% enemy chance, 60% avoidance");
@@ -933,7 +968,6 @@ static class Program
         Near(0f, MitigationMath.EffectiveEnemyCritChance(5, 100), "full avoidance: never crit");
     }
 
-    // E19: a non-crit killing blow gets no crit advice.
     static void Test_Math_Crit_NonCritRefuses()
     {
         var cf = MitigationMath.PreviewCrit(1000, 100, false, 0, 100, DamageMeaning.PostMitigationWithWard);
@@ -941,7 +975,6 @@ static class Program
         True(cf.Sentence().Contains("not a critical strike"), cf.Sentence());
     }
 
-    // E20 + E21: the survival budget says how much one lever must deliver.
     static void Test_Math_ExampleG_SmallOverkillThinMargin()
     {
         Near(1000f, MitigationMath.RemainingEffectiveHealth(1050, 50), "remaining");
@@ -954,7 +987,6 @@ static class Program
         Near(0.21f, MitigationMath.SurvivalBudgetRatio(5000, 3950), "budget: no single layer delivers a 79% cut");
     }
 
-    // E22: missing max health blocks the endurance preview, not survival math.
     static void Test_Math_ExampleH_MissingMaxHealth()
     {
         var cf = MitigationMath.PreviewEndurance(1050, 50, float.NaN, 20, 60, DamageMeaning.PostMitigationWithWard);
@@ -964,7 +996,6 @@ static class Program
            "survival never needed max health");
     }
 
-    // E23: ward unknown means survival is not judged, the ratio still is.
     static void Test_Math_ExampleH_HealthOnlyMeaning()
     {
         var cf = MitigationMath.PreviewResistance(1700, 700, 41, 75, 0, 100, DamageMeaning.PostMitigationHealthOnly);
@@ -974,7 +1005,6 @@ static class Program
         True(cf.Sentence().Contains("which may or may not have been enough"), cf.Sentence());
     }
 
-    // E24: armor 2763 to 4000 on the (i) hit lands inside the band.
     static void Test_Math_ExampleI_ArmorRatio()
     {
         var cf = MitigationMath.PreviewArmor(1800, 300, 2763, 4000, 100, false, false, DamageMeaning.PostMitigationWithWard);
@@ -985,7 +1015,6 @@ static class Program
         True(cf.Sentence().Contains("may or may not have been enough"), cf.Sentence() + " (77 <= 150 band)");
     }
 
-    // E25: armor plus endurance clears what neither clears alone.
     static void Test_Math_ExampleI_ArmorPlusEndurance()
     {
         float armorRatio = MitigationMath.ArmorRatio(2763, 4000, 100, false);
@@ -1000,7 +1029,6 @@ static class Program
         Near(MitigationMath.CombineRatios(armorRatio, newTaken / newHit), newTaken / 1800, "CombineRatios agrees");
     }
 
-    // E26: the same armor upgrade is a weak lever against an elemental hit.
     static void Test_Math_ExampleI_ArmorWeakVsElemental()
     {
         var cf = MitigationMath.PreviewArmor(1800, 300, 2763, 4000, 100, true, false, DamageMeaning.PostMitigationWithWard);
@@ -1008,7 +1036,6 @@ static class Program
         True(cf.Ratio > 0.85f, "armor is a weak lever against elemental hits, and the number says so");
     }
 
-    // F1: a hit entirely above the endurance threshold gets nothing from endurance.
     static void Test_Math_Endurance_AboveThresholdNoEffect()
     {
         var cf = MitigationMath.PreviewEndurance(500, 0, 0, 20, 60, DamageMeaning.PostMitigationWithWard);
@@ -1016,20 +1043,17 @@ static class Program
         True(cf.Note.Contains("whole hit landed above the endurance threshold"), cf.Note);
     }
 
-    // F2: the official split example, 100 damage with 50 below the threshold.
     static void Test_Math_Endurance_OfficialSplitExample()
     {
         Near(90f, MitigationMath.EnduranceApplied(100, 1000, 950, 20), "50 plain + 50 at 20% endurance");
     }
 
-    // F3: at or below the threshold the whole damage instance is endurance-d.
     static void Test_Math_Endurance_FullyBelowThreshold()
     {
         Near(80f, MitigationMath.EnduranceApplied(100, 400, 400, 20), "health at the threshold");
         Near(80f, MitigationMath.EnduranceApplied(100, 50, 400, 20), "health below the threshold");
     }
 
-    // F4: ward decay, the 1.1 formula; retention enters as a fraction.
     static void Test_Math_WardDecay_Formula()
     {
         Near(208.333f, MitigationMath.WardDecayPerSecond(1000, 40), "1000 ward, 40 retention");
@@ -1038,7 +1062,6 @@ static class Program
         Eq(0f, MitigationMath.WardDecayPerSecond(0, 40), "no ward, no decay");
     }
 
-    // F5: 41 vs 0.41 style inputs; whole small values refuse to guess.
     static void Test_Math_Units_NeverGuessAmbiguousScale()
     {
         Eq(PercentScale.Fraction, MitigationMath.PercentScaleOf(0.41f));
@@ -1054,7 +1077,6 @@ static class Program
         Eq(PercentScale.Unknown, MitigationMath.PercentScaleOf(float.NaN), "NaN unknown");
     }
 
-    // F6: NaN inputs never produce a number, and previews refuse.
     static void Test_Math_MissingFields_AlwaysRefuse()
     {
         True(float.IsNaN(MitigationMath.EffectiveResistance(float.NaN, 0, 0)), "NaN res");
@@ -1072,7 +1094,6 @@ static class Program
         True(cf.Sentence().Contains("area level unknown"), cf.Sentence());
     }
 
-    // F7: an overkill bigger than the damage is a misread, not a survival claim.
     static void Test_Math_Overkill_OutOfRange()
     {
         True(float.IsNaN(MitigationMath.RemainingEffectiveHealth(1000, 1200)), "overkill > damage");
@@ -1083,7 +1104,6 @@ static class Program
         True(cf.Note.Contains("out of range"), cf.Note);
     }
 
-    // F8: no recorded damage number, so wording is ratio-only.
     static void Test_Math_MissingDamage_RatioOnlyWording()
     {
         var cf = MitigationMath.PreviewResistance(float.NaN, float.NaN, 41, 75, 0, 100, DamageMeaning.PostMitigationWithWard);
@@ -1092,8 +1112,6 @@ static class Program
         True(cf.Sentence().Contains("would have reduced this hit by about 25%"), cf.Sentence());
     }
 
-    // Review 2026-10-02: stun avoidance is a rating. A value of 750 must not
-    // fight a fractional resistance and wipe every percent stat.
     static void Test_Defenses_StunAvoidanceIsRatingNotResistance()
     {
         var d = DefenseSnapshot.Normalize(Raw(("Res.Fire", 0.75f), ("CritAvoidance", 0.4f), ("StunAvoidance", 750f)));
@@ -1117,10 +1135,7 @@ static class Program
     {
         var hits = new List<HitEvent> { new() { Time = 10, Amount = 500, Source = "Boss" } };
         var r = DeathAnalyzer.Analyze(hits, 10, new DeathContext());
-        var body = Advisor.Suggest(r).Single(t => t.Key == "ehp").Body;
-        True(!body.Contains("100%"), body);
-        True(!body.Contains("you out"), body);
-        True(body.Contains("max health"), body);
+        True(!Advisor.Show(r).Any(t => t.Key == "ehp"), "unknown max health cannot establish a pool gap");
     }
 
     static void Test_Advice_BurstWithoutMaxHealthDoesNotClaimFullLife()
@@ -1173,8 +1188,8 @@ static class Program
         d.Defenses = new() { ["Res.Fire"] = 75f };
         var shown = Advisor.Show(d);
         Eq(1, shown.Count);
-        Eq("ehp", shown[0].Key);
-        True(shown[0].Body.Contains("75%"), shown[0].Body);
+        Eq("none", shown[0].Key);
+        True(shown[0].Body.Contains("does not establish"), "do not pad a capped-only record with a gear prescription");
         True(!shown[0].Title.Contains("already capped"), shown[0].Title);
     }
 
@@ -1195,13 +1210,14 @@ static class Program
 
     static void Test_Confidence_NamesWhatIsMissing()
     {
-        Eq("Low: no hit timeline, max health unknown", Advisor.Confidence(new DeathRecord()));
-        Eq("High: game death report, hit timeline, and max health",
-            Advisor.Confidence(new DeathRecord { Hits = 4, MaxHealth = 1000, DetailSource = "game death report" }));
-        Eq("Medium: hit timeline and max health, no game death report",
-            Advisor.Confidence(new DeathRecord { Hits = 2, MaxHealth = 1000 }));
-        Eq("Medium: game death report, no hit timeline, max health unknown",
-            Advisor.Confidence(new DeathRecord { Kind = DeathKind.Reported, DetailSource = "game death report", KillingBlow = 500 }));
+        var text = Advisor.Confidence(new DeathRecord());
+        True(text.StartsWith("Low:") && text.Contains("no hit timeline") && text.Contains("crit unknown") && text.Contains("max health unknown"), text);
+        text = Advisor.Confidence(new DeathRecord { Hits = 4, MaxHealth = 1000, DetailSource = "game death report" });
+        True(text.StartsWith("Medium:") && text.Contains("defenses missing"), "no high-confidence advice without defenses");
+        text = Advisor.Confidence(new DeathRecord { Hits = 2, MaxHealth = 1000 });
+        True(text.StartsWith("Medium:") && text.Contains("no game report"), text);
+        text = Advisor.Confidence(new DeathRecord { Kind = DeathKind.Reported, DetailSource = "game death report", KillingBlow = 500 });
+        True(text.StartsWith("Low:") && text.Contains("max health unknown"), text);
     }
 
     static void Test_DeathText_KeepsShortHexAndCyan()
@@ -1213,3 +1229,4 @@ static class Program
         Eq("cold", DeathText.Plain("<color=cyan>cold</color>"));
     }
 }
+

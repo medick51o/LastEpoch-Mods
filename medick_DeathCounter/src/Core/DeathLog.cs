@@ -88,6 +88,7 @@ namespace medick_DeathCounter.Core
         public bool Append(DeathRecord r)
         {
             r.Number = CountFor(r.Character) + 1;
+            if (string.IsNullOrWhiteSpace(r.Id)) r.Id = Guid.NewGuid().ToString("N");
             _all.Add(r);
             try
             {

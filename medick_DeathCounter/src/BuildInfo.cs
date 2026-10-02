@@ -6,8 +6,8 @@ namespace medick_DeathCounter
     internal static class BuildInfo
     {
         public const string Name         = "Medick death log";
-        public const string DisplayName  = "Terrible Death Counter and Log";
-        public const string OfficialName = "MedicK's Terrible Death Counter and Log";
+        public const string DisplayName  = "Terrible Death Log, Assessment and Counter";
+        public const string OfficialName = "MedicK's Terrible Death Log, Assessment and Counter";
         public const string Tagline      = "a death counter that tells you why";
         public const string Version      = "0.1.2";
         public const string Author       = "medick";

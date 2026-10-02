@@ -56,13 +56,13 @@ namespace medick_DeathCounter.Game
 
         static void Capture(object[] args, bool textUpdated)
         {
-            if (!PlayerProbe.HasPlayer || !Prefs.Tracking.Value || args == null || args.Length < 9) return;
+            if (!Prefs.Tracking.Value || args == null || args.Length < 9) return;
             string formatted = ReportText(args, textUpdated);
             var report = new DeathDetails
             {
                 PrimaryElement = ElementName(args[0]),
                 SecondaryElement = Refl.Get(args[1], "HasValue", "hasValue") is true ? ElementName(Refl.Get(args[1], "Value", "value")) : null,
-                Crit = args[2] is bool crit && crit,
+                Crit = args[2] is bool crit ? crit : null,
                 Damage = Refl.TryFloat(args[3], out float damage) ? damage : 0f,
                 Overkill = Refl.TryFloat(args[4], out float overkill) ? overkill : 0f,
                 Ailment = Localized("GetLocalizedAilmentName", args[5]),
@@ -70,6 +70,8 @@ namespace medick_DeathCounter.Game
                 Killer = Localized("GetLocalizedAttackerName", args[7]),
                 Text = Plain(formatted),
                 RichText = formatted,
+                IrregularSource = EnumName(args[8]),
+                IsBossFight = args.Length > 9 && args[9] is bool boss ? boss : null,
             };
             DeathTracker.OnDeathDetails(report);
             Dbg.Log($"game death report: attacker={report.Killer ?? "unavailable"}, ability={report.Ability ?? "none"}, ailment={report.Ailment ?? "none"}, damage={report.Damage:0}, type={report.PrimaryElement}");
@@ -77,6 +79,12 @@ namespace medick_DeathCounter.Game
 
         static string ElementName(object value) =>
             Elements.TryParse(value?.ToString(), out var el) ? Elements.Name(el) : null;
+
+        static string EnumName(object value)
+        {
+            if (value == null || !value.GetType().IsEnum) return null;
+            return Enum.GetName(value.GetType(), value);
+        }
 
         static string ReportText(object[] args, bool textUpdated)
         {

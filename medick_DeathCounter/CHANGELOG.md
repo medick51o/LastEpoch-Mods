@@ -1,4 +1,15 @@
+# Latest experimental review: Terrible Death Log, Assessment and Counter
+
+Staged v0.1.2, not installed or published. See docs/TERRIBLE-DEATH-EXPERIMENTAL-CHANGELOG.md for current player-facing notes and docs/CODEX-DEATH-FULL-REQUEST-REVIEW.md for evidence, limits and the native test queue. 214 CoreTests and both builds/guards pass. Historical notes below describe earlier candidates and their older verification state.
 # Changelog: MedicK's Terrible Deaths
+
+## Staged v0.1.2 review: reassessment history, not released
+
+- Every reassessment saves a dated update linked to its original death. Current stats, advice, grades and the original capture used are frozen in a separate history file.
+- Reassess previous updates repeatedly, review saved updates, return to the original death, and delete one update or all updates for that death after confirmation. Original death files, counters, other deaths and derived updates stay intact.
+- Explained A/B/C/D or unrated defense progress grades use measured gaps, regressions and evidence coverage. Modeled resistance damage changes remain separate from unproven whole-fight survival odds.
+- Resistance gaps rank first; health/ward advice requires supporting evidence. Each death preserves its own season/Legacy context.
+- Current verification and native test queue are in docs/CODEX-DEATH-REASSESSMENT-HISTORY.md. No installation, merge or publication.
 
 ## v0.1.1: player resolution (not yet run in game)
 

@@ -29,13 +29,13 @@ namespace medick_DeathCounter.Core
         public const int MaxPriorities = 3;
 
         // Tips that only make sense for one death, never as a build priority.
-        static readonly HashSet<string> PerDeathOnly = new() { "nemesis", "unknown" };
+        static readonly HashSet<string> PerDeathOnly = new() { "nemesis", "repeat_ability", "boss", "unknown", "none" };
 
         // Kind-of-death tips that fire on nearly every death of that kind. As a
         // build priority they would win every count and say nothing new, so a
         // specific defence (a resistance, armor, crit avoidance, an ailment
         // counter) outranks them unless they are clearly more common.
-        static readonly HashSet<string> Generic = new() { "ehp", "endurance", "avoid", "sustain", "dot_sustain" };
+        static readonly HashSet<string> Generic = new() { "ehp", "endurance", "avoid", "sustain", "dot_sustain", "recovery" };
         const float GenericDiscount = 0.6f;
 
         public static PatternReport Build(IReadOnlyList<DeathRecord> deaths, int window = DefaultWindow, int maxPriorities = MaxPriorities)
@@ -87,18 +87,15 @@ namespace medick_DeathCounter.Core
             // shown is undiscounted.
             var votes = new Dictionary<string, (Advice latest, int deaths, float weight)>();
             foreach (var d in recent)
-                foreach (var t in Advisor.Suggest(d, max: int.MaxValue).Where(t => !PerDeathOnly.Contains(t.Key)))
+                foreach (var candidate in Advisor.Suggest(d, max: int.MaxValue).Where(t => !t.IsNotice && !PerDeathOnly.Contains(t.Key)))
                 {
-                    votes.TryGetValue(t.Key, out var v);
-                    votes[t.Key] = (t, v.deaths + 1, v.weight + t.Weight);
+                    var t = candidate;
+                    string key = t.Group == "recovery" ? "recovery" : t.Key;
+                    if (key == "recovery")
+                        t = new Advice { Key = key, Group = key, Title = "Improve recovery during combat", Weight = t.Weight };
+                    votes.TryGetValue(key, out var v);
+                    votes[key] = (t, v.deaths + 1, v.weight + t.Weight);
                 }
-            // A DoT ailment's tip ("Ignite: fire resistance") says the same as its
-            // element's resistance tip; when both apply, keep the resistance.
-            foreach (var key in votes.Keys.Where(k => k.StartsWith("dot_") && k != "dot_sustain").ToList())
-            {
-                var el = Ailments.ByName(key.Substring(4))?.Element;
-                if (el.HasValue && votes.ContainsKey("res_" + Elements.Name(el.Value))) votes.Remove(key);
-            }
 
             r.Priorities = votes.Values
                 .OrderByDescending(v => v.deaths * (Generic.Contains(v.latest.Key) ? GenericDiscount : 1f))
@@ -106,7 +103,7 @@ namespace medick_DeathCounter.Core
                 .Take(maxPriorities)
                 .Select(v => new Priority
                 {
-                    Advice = new Advice { Key = v.latest.Key, Title = v.latest.Title, Weight = v.weight,
+                    Advice = new Advice { Key = v.latest.Key, Group = v.latest.Group, Title = v.latest.Title, Weight = v.weight,
                                           Body = Advisor.PatternBody(v.latest, v.deaths, r.Deaths) },
                     Deaths = v.deaths,
                 })

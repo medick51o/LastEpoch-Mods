@@ -11,7 +11,10 @@ namespace medick_DeathCounter.Core
         public string CharacterClass = "";
         public int    Level;
         public string Zone           = "";
+        public string RawSceneId;
+        public int? ZoneLevel;
         public bool   Hardcore;
+        public PlayContext PlayContext;
         public string GameDeathInfo  = "";
         public float  MaxHealth      = -1f;
         public string Detection      = "health";
@@ -42,7 +45,10 @@ namespace medick_DeathCounter.Core
                 CharacterClass = ctx.CharacterClass ?? "",
                 Level          = ctx.Level,
                 Zone           = ctx.Zone ?? "",
+                RawSceneId     = ctx.RawSceneId,
+                ZoneLevel      = ctx.ZoneLevel > 0 ? ctx.ZoneLevel : null,
                 Hardcore       = ctx.Hardcore,
+                PlayContext    = ctx.PlayContext?.Copy(),
                 GameDeathInfo  = ctx.GameDeathInfo ?? "",
                 Detection      = ctx.Detection,
                 ModVersion     = ctx.ModVersion,
@@ -99,7 +105,9 @@ namespace medick_DeathCounter.Core
                 .Take(3)
                 .ToList();
 
-            var last = window[window.Count - 1];
+            // Grace-period events may contribute to the window totals, but
+            // must not replace the last observed cause at the death time.
+            var last = window.LastOrDefault(h => h.Time <= deathTime) ?? window[window.Count - 1];
             rec.KillingBlow    = last.Amount;
             rec.KillingCrit    = last.Crit;
             rec.KillerAbility  = last.Ability ?? "";

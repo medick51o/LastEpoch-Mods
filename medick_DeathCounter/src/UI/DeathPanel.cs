@@ -20,14 +20,149 @@ namespace medick_DeathCounter.UI
         static List<DeathRecord> _records = new();
         static int _knownCount = -1;
         static string _knownCharacter;
-        static readonly string[] Tabs = { "Last death", "History", "Patterns", "Options" };
+        static DeathRecord _assessmentDeath;
+        static CurrentAssessment _assessment;
+        static string _assessmentError;
+        static DateTime _assessmentTime;
+        static int _assessmentRevision;
+        static string _savedUpdateId;
+        static bool _showUpdates, _confirmAssessmentDelete, _deleteAllAssessments;
+        static int _updatePage;
+        static int _bossIndex;
+        static readonly string[] Tabs = { "Last death", "History", "Patterns", "Options", "Boss tips" };
         public static void Toggle()
         {
             if (!PlayerProbe.HasPlayer) { Close(); return; }
             Open = !Open;
+            ClearAssessment();
             if (Open) { _tab = 0; _selected = -1; _scroll = new Vector2(0, 0); }
         }
-        public static void Close() { Open = false; MouseOver = false; _confirmReset = false; }
+        public static void Close() { Open = false; MouseOver = false; _confirmReset = false; ClearAssessment(); }
+        static void ClearAssessment()
+        {
+            _assessmentDeath = null; _assessment = null; _assessmentError = null; _savedUpdateId = null;
+            _showUpdates = false; _updatePage = 0; _confirmAssessmentDelete = false;
+        }
+        static ReassessmentUpdate SelectedUpdate(DeathRecord death) => DeathTracker.Reassessments?.For(death).FirstOrDefault(u => u.Id == _savedUpdateId);
+        static int AssessmentRevision(DeathRecord d) => HashCode.Combine(d.Kind, d.KillingElement, d.SecondaryKillingElement,
+            d.KillingBlow, d.KillingCrit, d.KillingAilment, d.KillerAbility,
+            HashCode.Combine(d.Killer, d.OverkillDamage, d.DetailSource, d.AilmentsOnYou?.Count, d.MaxHealth, d.WindowDamage, d.Hits));
+        static float AssessmentButton(DeathRecord d, float x, float y, float w, float sc)
+        {
+            if (GUI.Button(new Rect(x, y, Math.Min(w, 330f * sc), 44f * sc), "Reassess and save new update", Button(sc)))
+            {
+                _assessmentDeath = d;
+                _assessmentRevision = AssessmentRevision(d);
+                _assessment = null;
+                _assessmentError = null;
+                if (PlayerProbe.TryCurrentDefenses(d.Character, out var stats, out var reason))
+                {
+                    _assessment = CurrentAssessment.Build(d, PlayerProbe.CharacterName(), stats, _records);
+                    _assessmentTime = DateTime.Now;
+                    if (_assessment.Available)
+                    {
+                        var previous = SelectedUpdate(d);
+                        if (DeathTracker.Reassessments?.Save(d, PlayerProbe.CharacterName(), stats, _assessment, previous, out var saved) == true)
+                        {
+                            _savedUpdateId = saved.Id;
+                            _assessment = null;
+                            _assessmentError = null;
+                            _confirmAssessmentDelete = false;
+                        }
+                        else { _savedUpdateId = null; _assessmentError = "This assessment could not be saved. The original death and saved updates are unchanged."; }
+                    }
+                }
+                else _assessmentError = reason;
+            }
+            y += 56f * sc;
+            if (_assessmentError != null) y = Paragraph(x, y, w, _assessmentError, sc);
+            else if (_assessment?.Available != true && SelectedUpdate(d) == null) y = Paragraph(x, y, w, _assessment?.Message ?? "Each click saves a separate dated update. Your original death stays intact.", sc, true);
+            return y;
+        }
+        static float UpdatePicker(DeathRecord death, float x, float y, float w, float sc)
+        {
+            var updates = DeathTracker.Reassessments?.For(death).Reverse().ToList() ?? new();
+            float half = (w - 10f) / 2;
+            if (GUI.Button(new Rect(x, y, half, 40f * sc), "View original death", Button(sc))) { ClearAssessment(); _assessmentDeath = death; _assessmentRevision = AssessmentRevision(death); }
+            if (GUI.Button(new Rect(x + half + 10f, y, half, 40f * sc), $"Saved updates ({updates.Count})", Button(sc))) { _showUpdates = !_showUpdates; _confirmAssessmentDelete = false; }
+            y += 52f * sc;
+            if (_showUpdates && updates.Count > 0)
+            {
+                _updatePage = Math.Clamp(_updatePage, 0, (updates.Count - 1) / 5);
+                foreach (var update in updates.Skip(_updatePage * 5).Take(5))
+                {
+                    float verdictHeight = Theme.Wrap(update.Assessment.Rating.Verdict, Body(sc), w - 28f).Count * (Theme.LineHeight(Body(sc)) + 4f);
+                    float rowHeight = verdictHeight + 52f * sc;
+                    if (GUI.Button(new Rect(x, y, w, rowHeight), "", Button(sc)))
+                    {
+                        _savedUpdateId = update.Id; _assessment = null; _assessmentError = null;
+                        _assessmentDeath = death; _assessmentRevision = AssessmentRevision(death);
+                        _showUpdates = false; _confirmAssessmentDelete = false;
+                    }
+                    Theme.Write(new Rect(x + 14f, y + 8f * sc, w - 28f, 28f * sc), $"{update.UtcTime.ToLocalTime():MMM d, h:mm:ss tt}   |   Grade {update.Assessment.Rating.Grade}", Theme.TextMut, Small(sc));
+                    Theme.Para(x + 14f, y + 36f * sc, w - 28f, update.Assessment.Rating.Verdict, Theme.Text, Body(sc));
+                    y += rowHeight + 10f * sc;
+                }
+                if (updates.Count > 5)
+                {
+                    if (_updatePage > 0 && GUI.Button(new Rect(x, y, half, 38f * sc), "Newer updates", Button(sc))) _updatePage--;
+                    if ((_updatePage + 1) * 5 < updates.Count && GUI.Button(new Rect(x + half + 10f, y, half, 38f * sc), "Older updates", Button(sc))) _updatePage++;
+                    y += 50f * sc;
+                }
+                if (GUI.Button(new Rect(x, y, Math.Min(w, 270f * sc), 40f * sc), "Delete all these updates", Button(sc))) { _confirmAssessmentDelete = true; _deleteAllAssessments = true; }
+                y += 52f * sc;
+            }
+            var selected = SelectedUpdate(death);
+            if (selected != null)
+            {
+                y = Paragraph(x, y, w, $"Saved reassessment from {selected.UtcTime.ToLocalTime():MMM d, h:mm:ss tt}. Based on original death #{death.Number}.", sc, true);
+                if (GUI.Button(new Rect(x, y, Math.Min(w, 260f * sc), 40f * sc), "Delete this update", Button(sc))) { _confirmAssessmentDelete = true; _deleteAllAssessments = false; }
+                y += 52f * sc;
+            }
+            if (_confirmAssessmentDelete)
+            {
+                y = Paragraph(x, y, w, _deleteAllAssessments ? "Delete every reassessment for this death? The original death stays saved." : "Delete this reassessment? The original death and other updates stay saved.", sc);
+                if (GUI.Button(new Rect(x, y, half, 40f * sc), "Delete reassessment", Button(sc)))
+                {
+                    bool removed = _deleteAllAssessments ? DeathTracker.Reassessments?.DeleteFor(death) == true : DeathTracker.Reassessments?.Delete(_savedUpdateId) == true;
+                    if (removed) { ClearAssessment(); _assessmentError = "Reassessment deleted. The original death is unchanged."; }
+                    else { _assessmentError = "Deletion could not be saved. Your reassessments have been kept."; _confirmAssessmentDelete = false; }
+                }
+                if (GUI.Button(new Rect(x + half + 10f, y, half, 40f * sc), "Keep updates", Button(sc))) _confirmAssessmentDelete = false;
+                y += 52f * sc;
+            }
+            return y;
+        }
+        static float DrawAssessment(DeathRecord death, float x, float y, float w, float sc)
+        {
+            var saved = SelectedUpdate(death);
+            var snapshot = saved?.Assessment ?? (_assessment?.Available == true ? AssessmentSnapshot.From(_assessment) : null);
+            if (snapshot == null) return y;
+            y = Heading(x, y, w, "What would you change now?", sc);
+            if (snapshot.Rating != null)
+            {
+                var rating = snapshot.Rating;
+                y += Theme.Para(x, y, w, $"Defense progress: {rating.Grade}   |   {rating.Verdict}", rating.Grade == "A" ? Theme.ElementColor(Element.Poison) : rating.Grade == "C" || rating.Grade == "D" ? Theme.ElementColor(Element.Fire) : Theme.TextHi, Theme.Label(Mathf.RoundToInt(22 * sc), FontStyle.Bold)) + 12f * sc;
+                y = Paragraph(x, y, w, rating.Reason, sc);
+                y = Paragraph(x, y, w, rating.Scope, sc, true);
+            }
+            y = Paragraph(x, y, w, snapshot.Message, sc, true);
+            y = Paragraph(x, y, w, $"Stats captured at {(saved?.UtcTime.ToLocalTime() ?? _assessmentTime):MMM d, h:mm:ss tt}. Reassess after changing gear or buffs.", sc, true);
+            foreach (string change in snapshot.Changes) y = Paragraph(x, y, w, change, sc);
+            if (saved?.SincePrevious?.Count > 0)
+            {
+                y = Heading(x, y, w, "Changes since the update you reassessed", sc);
+                foreach (string change in saved.SincePrevious.Take(8)) y = Paragraph(x, y, w, change, sc);
+                if (saved.SincePrevious.Count > 8) y = Paragraph(x, y, w, $"{saved.SincePrevious.Count - 8} more stat changes are saved in this update's log.", sc, true);
+            }
+            foreach (var savedTip in snapshot.Actions)
+            {
+                var tip = savedTip.ToAdvice();
+                y += Theme.Para(x, y, w, tip.Title, AdviceColor(tip), Theme.Label(Mathf.RoundToInt(20 * sc), FontStyle.Bold)) + 6f;
+                y = Paragraph(x, y, w, tip.Body, sc);
+            }
+            return Heading(x, y, w, "Saved death details", sc);
+        }
         static GUIStyle Body(float sc) => Theme.Label(Mathf.RoundToInt(18f * sc));
         static GUIStyle Small(float sc) => Theme.Label(Mathf.RoundToInt(16f * sc));
         static GUIStyle Button(float sc) => Theme.Button(Mathf.RoundToInt(17f * sc));
@@ -56,13 +191,13 @@ namespace medick_DeathCounter.UI
             Theme.Fill(new Rect(x, top, w, 3f), Theme.Accent);
             float pad = 24f, cx = x + pad, cw = w - 2 * pad;
             float y = top + 19f;
-            Theme.Write(new Rect(cx, y, cw - 245f, 36f), "Terrible Death Counter and Log", Theme.TextHi, Theme.Label(23, FontStyle.Bold));
+            float titleHeight = Theme.Para(cx, y, cw - 245f, BuildInfo.DisplayName, Theme.TextHi, Theme.Label(Mathf.RoundToInt(23 * sc), FontStyle.Bold));
             if (GUI.Button(new Rect(x + w - 228f, y, 144f, 36f), "Move counter", Theme.Button(16))) { CounterHud.BeginMove(); return; }
             if (GUI.Button(new Rect(x + w - 76f, y, 52f, 36f), "Close", Theme.Button(16))) { Close(); return; }
-            y += 43f;
+            y += Mathf.Max(36f, titleHeight) + 12f;
             Theme.Write(new Rect(cx, y, cw, 28f), $"{DeathTracker.Character}   |   Counter: {DeathTracker.CharacterDeaths}   |   {_records.Count} saved deaths", Theme.Text, Theme.Label(17));
             y += 39f;
-            float tabW = (cw - 24f) / 4f;
+            float tabW = (cw - 8f * (Tabs.Length - 1)) / Tabs.Length;
             for (int i = 0; i < Tabs.Length; i++)
             {
                 Rect tr = new(cx + i * (tabW + 8f), y, tabW, 40f);
@@ -80,6 +215,7 @@ namespace medick_DeathCounter.UI
                     1 => DrawHistory(0, contentW, 0, sc),
                     2 => DrawPatterns(0, contentW, 0, sc),
                     3 => DrawOptions(0, contentW, 0, sc),
+                    4 => DrawBossTips(0, contentW, 0, sc),
                     _ => DrawDeath(0, contentW, 0, sc),
                 };
                 _contentHeight = used + 20f;
@@ -97,6 +233,7 @@ namespace medick_DeathCounter.UI
             if (count == _knownCount && character == _knownCharacter) return;
             _knownCount = count;
             _knownCharacter = character;
+            ClearAssessment();
             _records = DeathTracker.Log?.For(character).ToList() ?? new();
             _selected = _records.Count - 1;
         }
@@ -109,25 +246,37 @@ namespace medick_DeathCounter.UI
             }
             _selected = Mathf.Clamp(_selected < 0 ? _records.Count - 1 : _selected, 0, _records.Count - 1);
             var d = _records[_selected];
+            if (_assessmentDeath != null && (!ReferenceEquals(_assessmentDeath, d) || _assessmentRevision != AssessmentRevision(d))) ClearAssessment();
             Theme.Write(new Rect(x, y, w - 210f, 40f), $"Death #{d.Number}   |   {d.UtcTime.ToLocalTime():MMM d, h:mm tt}", Theme.TextMut, Small(sc));
             if (_selected > 0 && GUI.Button(new Rect(x + w - 208f, y, 100f, 38f), "Previous", Button(sc))) _selected--;
             if (_selected < _records.Count - 1 && GUI.Button(new Rect(x + w - 100f, y, 100f, 38f), "Next", Button(sc))) _selected++;
             y += 54f;
+            y = UpdatePicker(d, x, y, w, sc);
             bool cause = !string.IsNullOrWhiteSpace(d.Killer) || !string.IsNullOrWhiteSpace(d.KillingAilment) || !string.IsNullOrWhiteSpace(d.KillerAbility);
-            string title = cause ? (!string.IsNullOrWhiteSpace(d.Killer) || !string.IsNullOrWhiteSpace(d.KillingAilment) ? "Killed by " + d.KillerLine() : "Killed by " + d.KillerAbility) : "Cause not captured";
-            if (!cause && !string.IsNullOrWhiteSpace(d.KillingElement)) title = "Killed by " + d.KillingElement.ToLowerInvariant() + " damage";
-            y += Theme.Para(x, y, w, title, Theme.TextHi, Theme.Label(Mathf.RoundToInt(28 * sc), FontStyle.Bold)) + 14f;
-            string location = (string.IsNullOrWhiteSpace(d.Zone) ? "" : d.Zone + "   |   ") + $"Level {d.Level}" + (d.Hardcore ? "   |   Hardcore" : "");
+            string title = Advisor.Quote(d);
+            y += Theme.Para(x, y, w, title, Elements.TryParse(d.KillingElement, out var titleElement) ? Theme.ElementColor(titleElement) : Theme.TextHi, Theme.Label(Mathf.RoundToInt(28 * sc), FontStyle.Bold)) + 14f;
+            string location = d.LocationLabel() + "   |   " + $"Level {d.Level}   |   {d.PlayContextLabel()}" + (d.Hardcore ? "   |   Hardcore" : "");
             y = Paragraph(x, y, w, location, sc, true);
-            if (!string.IsNullOrWhiteSpace(d.KillerAbility)) y = Paragraph(x, y, w, "Ability: " + d.KillerAbility, sc);
-            if (d.KillingBlow > 0)
+            if (d.Detection == "game" && string.IsNullOrWhiteSpace(d.RawSceneId) && string.IsNullOrWhiteSpace(d.Zone))
+                y = Paragraph(x, y, w, "The game counter confirmed this death after its live context was unavailable. Your current location and defenses have not been substituted for the missing death snapshot.", sc, true);
+            y = Paragraph(x, y, w, BossCatalog.EncounterLabel(d), sc, true);
+            if (d.IsBossFight == true || BossCatalog.AttackerGuide(d) != null)
             {
-                string element = d.KillingElement;
-                if (!string.IsNullOrWhiteSpace(d.SecondaryKillingElement)) element += " / " + d.SecondaryKillingElement;
-                y = Paragraph(x, y, w, $"Killing blow: {d.KillingBlow:N0} {(element ?? "").ToLowerInvariant()} damage" + (d.KillingCrit == true ? "   |   Critical strike" : ""), sc);
+                var boss = BossCatalog.AttackerGuide(d);
+                string caption = boss == null ? "Browse boss tips" : (d.IsBossFight == true ? "Boss tips: " : "Attacker guide: ") + boss.Name;
+                if (GUI.Button(new Rect(x, y, Math.Min(w, 430f * sc), 42f * sc), caption, Button(sc)))
+                {
+                    if (boss != null) _bossIndex = BossCatalog.All.ToList().IndexOf(boss);
+                    _tab = 4; _scroll = new Vector2(0, 0);
+                }
+                y += 54f * sc;
             }
-            if (d.OverkillDamage > 0) y = Paragraph(x, y, w, $"Overkill: {d.OverkillDamage:N0} damage", sc);
-            if (!string.IsNullOrWhiteSpace(d.GameDeathInfo)) y = Paragraph(x, y, w, d.GameDeathInfo, sc);
+            y = AssessmentButton(d, x, y, w, sc);
+            y = DrawAssessment(d, x, y, w, sc);
+            if (SelectedUpdate(d) is ReassessmentUpdate update && AssessmentRevision(update.OriginalCapture) != AssessmentRevision(d))
+                y = Paragraph(x, y, w, "Cause used for this saved update: " + Advisor.Quote(update.OriginalCapture) + " The original death received more details after this assessment.", sc, true);
+            if (!string.IsNullOrWhiteSpace(d.GameDeathInfoRich)) y += Theme.GamePara(x, y, w, d.GameDeathInfoRich, Body(sc)) + 12f * sc;
+            else if (!string.IsNullOrWhiteSpace(d.GameDeathInfo)) y = Paragraph(x, y, w, d.GameDeathInfo, sc);
             if (!string.IsNullOrWhiteSpace(d.DetailSource)) y = Paragraph(x, y, w, "Cause supplied by the game. The full damage timeline may be unavailable.", sc, true);
             if (d.Kind == DeathKind.Unknown && !cause && string.IsNullOrWhiteSpace(d.GameDeathInfo))
                 y = Paragraph(x, y, w, "This death was counted, but its cause was not captured when it happened. Updating the mod cannot recover details that were never saved.", sc, true);
@@ -138,28 +287,33 @@ namespace medick_DeathCounter.UI
             }
             if (d.Hits > 0)
             {
-                y = Heading(x, y, w, $"Damage before death ({d.WindowSeconds:0}s)", sc);
-                y = Paragraph(x, y, w, $"{d.WindowDamage:N0} damage across {d.Hits} recorded hits. {d.KindLabel()}", sc);
+                y = Heading(x, y, w, $"Recorded health loss ({d.WindowSeconds:0}s)", sc);
+                y = Paragraph(x, y, w, $"{d.WindowDamage:N0} health lost across {d.Hits} recorded events. Ward-only damage is not captured in this timeline.", sc);
                 float total = d.DamageByElement?.Sum() ?? 0f;
                 if (total > 0)
+                {
+                    y = Paragraph(x, y, w, "Type attribution uses the incoming pre-mitigation damage mix. These are not measured damage amounts after each resistance.", sc, true);
                     foreach (int i in Enumerable.Range(0, Elements.Count).Where(i => d.DamageByElement[i] > 0).OrderByDescending(i => d.DamageByElement[i]))
-                        y = Paragraph(x, y, w, $"{Elements.Names[i]}: {d.DamageByElement[i]:N0} ({100 * d.DamageByElement[i] / total:0}%)", sc);
+                        y += Theme.Para(x, y, w, $"{Elements.Names[i]}: {d.DamageByElement[i]:N0} ({100 * d.DamageByElement[i] / total:0}%)", Theme.ElementColor((Element)i), Body(sc)) + 12f * sc;
+                }
             }
             if (d.Defenses?.Count > 0)
             {
-                y = Heading(x, y, w, "Your defenses", sc);
+                y = Heading(x, y, w, "Your defenses at death", sc);
+                if (d.DefenseSnapshotAgeSeconds is float age) y = Paragraph(x, y, w, $"Snapshot taken {age:0.0}s before death. Buffs may change between snapshots.", sc, true);
                 y = Paragraph(x, y, w, d.DefenseLine(), sc);
             }
-            var tips = Advisor.Suggest(d, _records).Where(t => t.Key != "unknown").ToList();
-            if (tips.Count > 0)
+            var tips = Advisor.Show(d, _records);
+            if (tips.Count > 0 && _assessment?.Available != true && SelectedUpdate(d) == null)
             {
                 y = Heading(x, y, w, "What may help next time", sc);
                 foreach (var tip in tips)
                 {
-                    y += Theme.Para(x, y, w, tip.Title, Theme.TextHi, Theme.Label(Mathf.RoundToInt(20 * sc), FontStyle.Bold)) + 6f;
+                    y += Theme.Para(x, y, w, tip.Title, AdviceColor(tip), Theme.Label(Mathf.RoundToInt(20 * sc), FontStyle.Bold)) + 6f;
                     y = Paragraph(x, y, w, tip.Body, sc);
                 }
             }
+            y += Theme.Para(x, y, w, "Capture confidence: " + Advisor.Confidence(d) + ".", Theme.TextMut, Small(sc)) + 12f * sc;
             return y;
         }
         static float DrawHistory(float x, float w, float y, float sc)
@@ -169,12 +323,16 @@ namespace medick_DeathCounter.UI
             for (int i = _records.Count - 1; i >= 0; i--)
             {
                 var d = _records[i];
-                float rowH = 92f * sc;
+                string metadata = $"#{d.Number}   {d.UtcTime.ToLocalTime():MMM d, h:mm tt}   |   {d.PlayContextLabel()}";
+                metadata += "   |   " + d.LocationLabel();
+                var metaStyle = Small(sc);
+                float metaH = Theme.Wrap(metadata, metaStyle, w - 28f).Count * (Theme.LineHeight(metaStyle) + 4f);
+                float rowH = Math.Max(92f * sc, metaH + 60f * sc);
                 if (GUI.Button(new Rect(x, y, w, rowH), "", Button(sc))) { _selected = i; _tab = 0; _scroll = new Vector2(0, 0); }
-                Theme.Write(new Rect(x + 14f, y + 10f, w - 28f, 32f * sc), $"#{d.Number}   {d.UtcTime.ToLocalTime():MMM d, h:mm tt}   |   {d.Zone}", Theme.TextMut, Small(sc));
+                Theme.Para(x + 14f, y + 10f * sc, w - 28f, metadata, Theme.TextMut, metaStyle);
                 string text = !string.IsNullOrEmpty(d.Killer) || !string.IsNullOrEmpty(d.KillingAilment) ? d.KillerLine() : d.KillerAbility ?? d.GameDeathInfo ?? "Cause not captured";
                 var lines = Theme.Wrap(text, Body(sc), w - 28f);
-                Theme.Write(new Rect(x + 14f, y + 45f * sc, w - 28f, 34f * sc), lines[0] + (lines.Count > 1 ? "..." : ""), Theme.TextHi, Body(sc));
+                Theme.Write(new Rect(x + 14f, y + metaH + 18f * sc, w - 28f, 34f * sc), lines[0] + (lines.Count > 1 ? "..." : ""), Theme.DamageColor(d.KillingElement), Body(sc));
                 y += rowH + 10f;
             }
             return y;
@@ -205,6 +363,55 @@ namespace medick_DeathCounter.UI
                 }
             }
             else y = Paragraph(x, y, w, "There is not enough recorded cause data to suggest a build change yet.", sc, true);
+            return y;
+        }
+        static float DrawBossTips(float x, float w, float y, float sc)
+        {
+            y = Heading(x, y, w, "Boss field notes", sc);
+            y = Paragraph(x, y, w, "Choose a boss to plan your next attempt. Manual selection does not change or identify a saved death.", sc, true);
+            _bossIndex = Math.Clamp(_bossIndex, 0, BossCatalog.All.Count - 1);
+            for (int i = 0; i < BossCatalog.All.Count; i++)
+            {
+                var profile = BossCatalog.All[i];
+                if (GUI.Button(new Rect(x, y, w, 40f * sc), (_bossIndex == i ? "Selected: " : "") + profile.Name, Button(sc))) _bossIndex = i;
+                y += 48f * sc;
+            }
+            var boss = BossCatalog.All[_bossIndex];
+            y = Heading(x, y, w, boss.Name, sc);
+            var death = _selected >= 0 && _selected < _records.Count ? _records[_selected] : null;
+            if (death != null)
+            {
+                y = Paragraph(x, y, w, $"Selected death #{death.Number}: {death.LocationLabel()}. {BossCatalog.EncounterLabel(death)}.", sc, true);
+                if (BossCatalog.AttackerGuide(death)?.Id == boss.Id)
+                {
+                    if (death.IsBossFight != true) y = Paragraph(x, y, w, "The attacker name matches this guide, but the game did not provide a boss-fight flag. Encounter classification remains unknown.", sc, true);
+                    var observed = BossCatalog.ObservedTypes(death);
+                    foreach (var element in observed)
+                        y += Theme.Para(x, y, w, "Captured killing-blow type: " + Elements.Name(element), Theme.ElementColor(element), Body(sc)) + 12f * sc;
+                    if (observed.Count == 0) y = Paragraph(x, y, w, "The game's report did not provide a recognized damage type for this death.", sc, true);
+                    y = Paragraph(x, y, w, "Open Last death for your measured resistance gaps and saved gear reassessments. These fight notes are a separate movement plan.", sc, true);
+                }
+                else y = Paragraph(x, y, w, "This profile is being browsed manually. It is not linked to the selected death.", sc, true);
+            }
+            y = Paragraph(x, y, w, boss.Mechanics, sc);
+            y = Paragraph(x, y, w, boss.DamageEvidence, sc, true);
+            foreach (var element in boss.DamageTypes)
+                y += Theme.Para(x, y, w, "Published encounter coverage: " + Elements.Name(element), Theme.ElementColor(element), Body(sc)) + 12f * sc;
+            y = Heading(x, y, w, "Suggested fight plan", sc);
+            y = Paragraph(x, y, w, "Tactical recommendations inferred from the documented mechanics. They do not guarantee survival.", sc, true);
+            foreach (var tip in boss.Tips) y = Paragraph(x, y, w, tip, sc);
+            y = Heading(x, y, w, "Sources and coverage", sc);
+            y = Paragraph(x, y, w, BossCatalog.Reviewed + " This is a starter catalog, not every boss or variant.", sc, true);
+            foreach (var source in boss.Sources)
+            {
+                y = Paragraph(x, y, w, source.Label, sc, true);
+                if (GUI.Button(new Rect(x, y, Math.Min(w, 250f * sc), 40f * sc), "Open source in browser", Button(sc)))
+                {
+                    try { Application.OpenURL(source.Url); }
+                    catch (Exception ex) { Dbg.Log("boss source: " + ex.Message); }
+                }
+                y += 52f * sc;
+            }
             return y;
         }
         static float DrawOptions(float x, float w, float y, float sc)
@@ -264,6 +471,12 @@ namespace medick_DeathCounter.UI
             if (DeathTracker.Log == null) return;
             try { OpenFolderInterop(DeathTracker.Log.Directory); }
             catch (Exception ex) { Dbg.Log("open log folder: " + ex.Message); }
+        }
+        static Color AdviceColor(Advice tip)
+        {
+            if (tip.Key.StartsWith("res_", StringComparison.Ordinal)) return Theme.DamageColor(tip.Key.Substring(4));
+            if (tip.Key.StartsWith("dot_", StringComparison.Ordinal) && Ailments.ByName(tip.Key.Substring(4))?.Element is Element el) return Theme.ElementColor(el);
+            return Theme.TextHi;
         }
         static void OpenFolderInterop(string directory)
         {

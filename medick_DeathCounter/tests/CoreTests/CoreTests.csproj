@@ -12,6 +12,12 @@
 
   <ItemGroup>
     <Compile Include="Program.cs" />
+    <Compile Include="AdviceRulesTests.cs" />
+    <Compile Include="PlayContextTests.cs" />
+    <Compile Include="CurrentAssessmentTests.cs" />
+    <Compile Include="ReassessmentLogTests.cs" />
+    <Compile Include="PendingDeathTests.cs" />
+    <Compile Include="BossContextTests.cs" />
     <Compile Include="..\..\src\Core\*.cs" Link="Core\%(Filename)%(Extension)" />
   </ItemGroup>
 

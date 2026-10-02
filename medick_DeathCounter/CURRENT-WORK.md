@@ -1,3 +1,26 @@
+# Latest full request review
+
+October 2, 2026, 12:45 PM PT. Read docs/CODEX-DEATH-FULL-REQUEST-REVIEW.md and README.md first. Display brand is Terrible Death Log, Assessment and Counter. The latest candidate includes persistent reassessments, five-profile Boss tips, exact scene/zone level context, nullable game boss classification, offline attacker-guide lookup, frozen pending deaths and safer late reports. 214 CoreTests pass. Local and NoGame warnings-as-errors builds and both InteropGuard modes pass. Local DLL SHA256: 39A715596FA64B0747FEED42B0A6269A61D26FB60DACDCF09094E6537150D386. Installed DLL unchanged. No native verification, installation, merge, push or publication. Older entries below are historical. Source development and staging are complete for this request; the next required step is authorized live testing. Do not add features or repeat unchanged checks to fill time. Preserve the original death, saved updates, deletion scope, compact HUD, embedded repair, three-action limit and honest uncertainty.
+# Staged saved reassessment history and grades
+
+Latest update: October 2, 2026, 11:57 AM PT. Read docs/CODEX-DEATH-REASSESSMENT-HISTORY.md and README.md first. Each successful reassessment saves a separate dated snapshot linked to an immutable original capture. Reassess earlier updates, browse/paginate history, and delete one/all reassessments for a death with confirmation. Original death files and count stay unchanged. Explained defense progress grades are not whole-fight survival probabilities. 198 CoreTests, both warnings-as-errors builds and both InteropGuard modes pass. Candidate SHA256: 5B79C79F3257330E52DFA0C7882707A728A1BEB128633637228B7556BB50AD5D. Installed DLL unchanged. No installation, merge, publication or native verification. Preserve separate reassessment storage, frozen snapshots, deletion scope, season context, the three-action limit and honest uncertainty during further work.
+
+# Earlier staged current-stat assessment, season history and advice
+
+Latest update: October 2, 2026, 11:36 AM PT. Read docs/CODEX-DEATH-CURRENT-ASSESSMENT.md first. Current-stat reassessment is implemented, resistance gaps rank first, and pool/ward advice is evidence-gated. 182 CoreTests pass; both warnings-as-errors builds and both InteropGuard modes pass. Current review DLL SHA256: 3C341AC0E3BECE24140FCEDB90C1070120DD449C9D2567D0D484369143DE0374. Installed DLL unchanged. No native testing, installation, merge or publication. Older counts/hashes below are historical. Preserve immutable per-death season context and the three-action limit during further work.
+
+# Earlier staged season history and advice
+
+Latest update: October 2, 2026, 11:20 AM PT. Read docs/CODEX-DEATH-SEASON-CONTEXT.md for the new per-death season/Legacy snapshot. 163 CoreTests pass; both warnings-as-errors builds and both InteropGuard modes pass. Current review DLL hash is 9DE9B4C56B97215B31335D060DBE315B2A1084A53AC4B214D01152A2D4B6A6B9. Installed DLL unchanged. No native verification, installation, merge or publication. Earlier counts/hashes below are historical.
+
+# Earlier staged advice research port
+
+Read research/advice/CODEX-LOCAL-PORT-NOTES.md first. Expanded advice has 154 passing tests and passes both builds/InteropGuard modes. New nullable crit/context capture and optional defense fields are staged. Compact HUD and panel controls preserved. Installed 0.1.2 DLL unchanged; no installation, merge or publication. Older notes below are historical.
+
+# Local testing update 0.1.2
+
+Read docs/LOCAL-TEST-2026-10-02-v0.1.2.md first. It records the latest local source, actual checks and remaining game test. Older handoff below is historical context.
+
 # CURRENT-WORK: MedicK's Terrible Deaths (medick_DeathCounter)
 Read this first. Update after every step. Last update: 2026-10-02 (v0.1.1 player resolution, still no game on the machine).
 
@@ -43,3 +66,5 @@ Read this first. Update after every step. Last update: 2026-10-02 (v0.1.1 player
 - Never draw without a player (no ghost counter on menus).
 - Frozen identifiers: assembly `medick_DeathCounter`, prefs category and entry names, cfg path `UserData/medick_DeathCounter.cfg`, log folder `UserData/medick_DeathCounter/`.
 - Nothing copies into the game's Mods folder without Andrew (`-p:DeployToMods=false` on every agent build).
+
+

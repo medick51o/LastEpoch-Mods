@@ -35,17 +35,14 @@ namespace medick_DeathCounter.Core
             return runs;
         }
 
-        // 3-digit hex and the two named colors the panel's hex parser does not
-        // know are widened here, so a death-recap tag still paints. 6- and
-        // 8-digit hex are left unchanged.
         static string Canonical(string raw)
         {
             if (raw.Length == 4 && raw[0] == '#')
                 return $"#{raw[1]}{raw[1]}{raw[2]}{raw[2]}{raw[3]}{raw[3]}";
             return raw.ToLowerInvariant() switch
             {
-                "cyan" => "#13A8C9",
-                "teal" => "#29AB85",
+                "cyan" => "#13A8C9", "teal" => "#29AB85",
+                "grey" or "gray" => "#808080", "black" => "#000000",
                 _ => raw,
             };
         }
