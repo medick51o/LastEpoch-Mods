@@ -1,24 +1,25 @@
-# Terrible Interop Repair v1.0.0
+# Embedded Terrible CoreModule repair
 
-Shared MelonLoader plugin included with the four Season 5 Terrible mod packages.
-Place medick_Terrible_InteropRepair.dll in Last Epoch/Plugins, not Mods.
-Install only one copy; all four ZIPs contain the identical plugin.
+CoreModuleRepair.cs and EmbeddedRepairBootstrap.cs are compiled directly into
+each of the four Terrible mod assemblies. Only the mod DLL is distributed.
+Mono.Cecil is resolved from the existing MelonLoader/net6 runtime; it is not bundled.
 
-Tested assembly-loading workaround: Last Epoch Unity 6000.4.8f1, MelonLoader
-0.7.3, .NET 6.0.32. Rewrites the generated UnityEngine.CoreModule metadata using
-MelonLoader's bundled Mono.Cecil. It does not remove or rename types. No Unity
-or MelonLoader DLL is distributed. There is no networking or telemetry.
+The module initializer runs during mod discovery, after assembly generation and
+before dependency loading. The first Terrible mod normalizes CoreModule metadata;
+other mods observe the SHA256 receipt and skip the unchanged file. Regenerated
+files are normalized again. No types are removed, renamed, or merged.
 
-Runs in OnPreModsLoaded, after generation and before mod dependency loading.
-A SHA256 receipt skips unchanged repaired files. Regenerated files are repaired
-again. A hash-named original backup is preserved before atomic replacement.
-Type/member signature comparison rejects a rewrite that changes those signatures.
-This comparison is not a proof of semantic equivalence for all possible DLLs.
+Original hash-named backups and a receipt are created in Il2CppAssemblies.
+Type/member signatures are compared before atomic replacement. No networking or telemetry.
 
-Close the game before installing or uninstalling. To undo the shared repair,
-remove the plugin, then restore the matching .terrible-original-*.bak over
-MelonLoader/Il2CppAssemblies/UnityEngine.CoreModule.dll and remove its
-.terrible-repair.sha256 receipt. A subsequent game update may require regeneration.
+Verified in a live Last Epoch launch with the original failing CoreModule restored
+and zero plugins installed: embedded repair runs and all four mods initialize.
+Tooltips loads 9/9 patches. This does not establish every gameplay feature.
 
-Build: dotnet build tools/TerribleInteropRepair -c Release
-Override ML when your MelonLoader/net6 directory is elsewhere.
+The csproj in this folder is a test library; EmbeddedRepairBootstrap.cs is excluded
+from that project so tests do not modify a game installation. Mod csprojs link both
+source files. No separate repair DLL is part of any release package.
+
+Tests: dotnet run --project tools/TerribleInteropRepair/tests -- <original-coremodule> <scratch-folder>
+To undo normalization: close the game, remove the updated mod DLLs, restore the
+matching .terrible-original-*.bak over CoreModule, and remove its repair receipt.

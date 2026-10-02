@@ -1,10 +1,11 @@
 [b]MedicK's Terrible Tooltips v3.1.2 — Season 5 compatibility[/b]
 [list]
-[*]Rebuilt for Season 5 and includes the shared Terrible Interop Repair plugin.
+[*]Season 5 compatibility update with the CoreModule startup repair embedded in the mod DLL.
 [*]Updated dropped-item label patch for the game method that no longer takes a boolean parameter.
 [*]Updated item identity handling for the new 32-bit individualID, fixing the old missing-method error on hover.
 [*]Updated multi-stat affix lookup to the Season 5 master affix list API.
+[*]One-DLL installation: replace medick_Terrible_Tooltips.dll in Mods. No extra plugin or repair tool is required.
 [*]Retains the v3.1.1 tooltip lifecycle improvements and existing settings.
 [/list]
-[b]Installation:[/b] Extract the ZIP into the Last Epoch game folder. The mod DLL belongs in Mods and medick_Terrible_InteropRepair.dll belongs in Plugins. All Terrible packages share one identical plugin; only one copy is needed. Close the game before installing.
+[b]Installation:[/b] Close the game and replace medick_Terrible_Tooltips.dll in Last Epoch/Mods. The ZIP contains one DLL; no extra plugin, script, or repair tool is required. Requires MelonLoader 0.7.3.
 

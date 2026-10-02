@@ -3,32 +3,36 @@
 Versions: Terrible Zoom 1.0.2; Terrible Inventory 2.0.2;
 Terrible fog_OF_war 1.0.2; Terrible Tooltips 3.1.2.
 
-Shared fix: all four archives contain the identical
-Plugins/medick_Terrible_InteropRepair.dll v1.0.0. Only one copy is needed.
-It rewrites generated CoreModule metadata after generation and before mod loads,
-without deleting types. Original backups and a hash receipt are retained locally.
-No generated Unity/game DLLs or MelonLoader DLLs are shipped.
+Each archive contains exactly one DLL at its root. Install by replacing that DLL
+in Last Epoch/Mods. No Plugins folder changes, scripts, or extra libraries are needed.
+The CoreModule normalization repair is embedded directly into each mod, using
+Mono.Cecil already bundled with MelonLoader 0.7.3. Generated Unity/game DLLs are not shipped.
 
-Tooltips source incorporates the installed v3.1.1 implementation from commit
+The module initializer runs during mod discovery, after assembly generation.
+The first mod normalizes the generated CoreModule metadata without deleting types.
+Later mods skip the unchanged file using a SHA256 receipt. Regenerated files are
+repaired again. Original backups are created locally before atomic replacement.
+
+Tooltips includes the installed v3.1.1 source from commit
 2271e27e4b3c47168f8705ce20319d12547d0c6f, then updates individualID to uint,
-the parameterless ground-label hook, and the GlobalAssets master affix lookup.
-Other mod sources use bf063c54eac16a5f56f17cd0c2ecd818172848e1 as their baseline.
+the parameterless ground-label hook, and GlobalAssets master affix lookup.
 
 Validation:
-- All four mod builds and the repair plugin build: zero errors/warnings.
-- Original CoreModule fails in a fresh .NET 6.0.32 load test.
-- Rewritten CoreModule loads in a fresh .NET 6.0.32 process.
-- Repair tests pass: backup integrity, unchanged-file no-op, repaired regeneration,
-  and invalid-file preservation.
-- Type/field/method signature comparison on the original manual repair: 40,513
-  records per assembly and zero differences.
-- The user confirmed all four mods worked after the initial shared repair.
-- Live game launch verified: repair plugin ran before mods; all four new versions initialized; Tooltips loaded 9/9 patches. Full feature coverage still depends on gameplay testing.
+- All four mod builds: zero errors/warnings.
+- Original CoreModule fails in .NET 6.0.32; normalization makes it load.
+- Repair tests verify backup integrity, idempotence, regenerated-file repair,
+  and preservation of invalid input.
+- Live game test restored the original broken CoreModule and removed the separate
+  repair plugin. The log reports 0 Plugins, successful embedded normalization,
+  all four updated mods initialized, and Tooltips 9/9 patches loaded.
+- Full gameplay feature coverage is not established by startup verification.
 
-The earlier gameplay log showed third-party FallenStar Improved Tooltips using
-removed StashTabbedUIControls.instance and the old boolean ground-label hook.
-That mod is not modified by these packages.
+The earlier plugin-based archives at these version numbers were replaced before
+Nexus publication to meet the requested one-DLL installation footprint.
+If you installed the earlier test plugin, close the game and remove
+Plugins/medick_Terrible_InteropRepair.dll; it is no longer needed.
 
-Each mod folder has an updated CHANGELOG.md and a BBCode changelog under docs/.
-Archives are in each mod's release/ directory and are also provided separately.
+FallenStar Improved Tooltips is a separate third-party mod with its own Season 5
+API failures. These releases do not modify it.
 
+Each mod has CHANGELOG.md and docs/NEXUS-CHANGELOG-v<version>.txt for Nexus.

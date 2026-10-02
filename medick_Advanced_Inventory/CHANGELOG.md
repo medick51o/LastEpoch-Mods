@@ -1,11 +1,12 @@
 # MedicK's Terrible Inventory v2.0.2 — Season 5 compatibility
 
-- Updated for Season 5 and rebuilt against the current game assemblies.
-- Includes Terrible Interop Repair to resolve the shared CoreModule startup failure.
-- The shared repair keeps a backup and handles regenerated CoreModule files.
-- Existing inventory settings and DLL filename are preserved.
+- Season 5 compatibility update, rebuilt against the current game assemblies.
+- Fixes the shared CoreModule startup failure automatically from inside the mod DLL.
+- One-DLL installation: replace medick_Terrible_Inventory.dll in Mods. No extra plugin or repair tool is required.
+- Keeps an original CoreModule backup and handles regenerated files.
+- Existing inventory settings are preserved.
 
-Installation: extract the ZIP into the Last Epoch game folder. The mod goes in Mods/ and the identical shared repair plugin goes in Plugins/. One plugin copy serves all Terrible mods. Close the game before installing.
+Installation: close the game, then replace medick_Terrible_Inventory.dll in Last Epoch/Mods/. This ZIP contains exactly one DLL. No separate plugin, script, or library download is needed. Requires MelonLoader 0.7.3.
 
 # Changelog — MedicK's Terrible Inventory
 
@@ -84,4 +85,5 @@ a full excavation of the original development history (ARCHAEOLOGY.md).
 ## v1.0–1.1 — 2026-04
 - Initial release: STASH / STASH ALL / TRADER footer buttons, 5-destination
   teleport column; Temporal Sanctum/Lightless Arbor scene swap hotfix.
+
 

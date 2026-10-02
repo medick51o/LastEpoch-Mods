@@ -1,9 +1,10 @@
 [b]MedicK's Terrible Zoom v1.0.2 — Season 5 compatibility[/b]
 [list]
-[*]Updated for Season 5 and rebuilt against the current game assemblies.
-[*]Includes Terrible Interop Repair, which fixes the CoreModule loading failure without deleting types.
-[*]The shared repair keeps a backup and runs again when MelonLoader regenerates CoreModule.
-[*]Existing zoom settings and DLL filename are preserved.
+[*]Season 5 compatibility update, rebuilt against the current game assemblies.
+[*]Fixes the CoreModule startup failure automatically from inside the mod DLL, without removing types.
+[*]One-DLL installation: replace medick_CameraZoom.dll in Mods. No extra plugin or repair tool is required.
+[*]Keeps an original CoreModule backup and repairs regenerated files when needed.
+[*]Existing zoom settings are preserved.
 [/list]
-[b]Installation:[/b] Extract the ZIP into the Last Epoch game folder. The mod DLL belongs in Mods and medick_Terrible_InteropRepair.dll belongs in Plugins. All Terrible packages share one identical plugin; only one copy is needed. Close the game before installing.
+[b]Installation:[/b] Close the game and replace medick_CameraZoom.dll in Last Epoch/Mods. The ZIP contains one DLL; no extra plugin, script, or repair tool is required. Requires MelonLoader 0.7.3.
 

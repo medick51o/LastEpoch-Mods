@@ -59,6 +59,12 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\tools\TerribleInteropRepair\CoreModuleRepair.cs" Link="Compatibility\CoreModuleRepair.cs" />
+    <Compile Include="..\tools\TerribleInteropRepair\EmbeddedRepairBootstrap.cs" Link="Compatibility\EmbeddedRepairBootstrap.cs" />
+    <Reference Include="Mono.Cecil"><HintPath>$(ML)Mono.Cecil.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
 </Project>
+
 
 

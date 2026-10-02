@@ -9,8 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="tests\**\*.cs" />
-    <Reference Include="MelonLoader"><HintPath>$(ML)MelonLoader.dll</HintPath><Private>false</Private></Reference>
+    <Compile Remove="EmbeddedRepairBootstrap.cs" />
     <Reference Include="Mono.Cecil"><HintPath>$(ML)Mono.Cecil.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
 </Project>
-

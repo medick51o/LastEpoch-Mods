@@ -1,6 +1,6 @@
 ## Season 5 update — v1.0.2
 
-Extract the new ZIP into the game folder: Mods/ contains the mod and Plugins/ contains the shared Terrible Interop Repair. Install only one copy of the shared plugin. This package targets MelonLoader 0.7.3 and Unity 6000.4.8f1. See CHANGELOG.md for compatibility changes.
+Drop medick_The_fogOFwar.dll into Last Epoch/Mods/ and replace the old copy. The archive contains one DLL with the CoreModule metadata repair embedded. No separate plugin or extra library is needed. Targets MelonLoader 0.7.3 and Unity 6000.4.8f1. See CHANGELOG.md.
 
 # MedicK's Terrible fog_OF_war
 
@@ -65,4 +65,5 @@ medick_FogOfWar/
 ```
 
 See [SPEC.md](SPEC.md) for the behavior contract and [CHANGELOG.md](CHANGELOG.md) for history.
+
 

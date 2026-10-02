@@ -1,32 +1,10 @@
-using MelonLoader;
-using MelonLoader.Utils;
+using System;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 using Mono.Cecil;
 using System.Security.Cryptography;
-
-[assembly: MelonInfo(typeof(MedicK.TerribleInteropRepair.RepairPlugin), "Terrible Interop Repair", "1.0.0", "medick")]
-[assembly: MelonGame("Eleventh Hour Games", "Last Epoch")]
-
 namespace MedicK.TerribleInteropRepair;
-
-public sealed class RepairPlugin : MelonPlugin
-{
-    // This runs AFTER assembly generation, before mod dependencies are loaded.
-    // OnPreInitialization would repair yesterday's file, then generation could
-    // overwrite it in the same launch.
-    public override void OnPreModsLoaded()
-    {
-        try
-        {
-            string path = Path.Combine(MelonEnvironment.Il2CppAssembliesDirectory, "UnityEngine.CoreModule.dll");
-            string result = CoreModuleRepair.Repair(path);
-            MelonLogger.Msg("[Terrible Interop Repair] " + result);
-        }
-        catch (Exception ex)
-        {
-            MelonLogger.Error("[Terrible Interop Repair] CoreModule repair failed; original retained when replacement did not complete. " + ex);
-        }
-    }
-}
 
 public static class CoreModuleRepair
 {
@@ -98,3 +76,4 @@ public static class CoreModuleRepair
         }
     }
 }
+

@@ -2,7 +2,7 @@
 
 The **Terrible family**: five MelonLoader mods for **Last Epoch** (Il2Cpp · Unity · net6.0), built to look and feel like they shipped with the game. "Filling the void, terribly."
 
-> Season 5 packages: extract Mods/ and Plugins/ into Last Epoch. All four updated packages include one identical shared Terrible Interop Repair plugin. See [the compatibility notes](./SEASON5-TERRIBLE-UPDATES-2026-10-02.md).
+> Season 5 packages contain one mod DLL each. Drop it into Last Epoch/Mods/ and replace the old copy. The compatibility repair is embedded; no extra plugin is needed. See [the compatibility notes](./SEASON5-TERRIBLE-UPDATES-2026-10-02.md).
 > Requires **MelonLoader 0.7.2+**: https://melonwiki.xyz
 
 Released July 1, 2026: the Terrible era. Recently rebranded mods restart at v1.0.0; internal DLL names never change, so upgrades just work.
@@ -52,4 +52,5 @@ Each mod folder carries its own README, CHANGELOG, and (where the build warrante
 ## License
 
 MIT. Fork freely, credit appreciated.
+
 
