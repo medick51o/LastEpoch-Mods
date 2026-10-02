@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace medick_DeathCounter.Core
 {
@@ -59,8 +61,8 @@ namespace medick_DeathCounter.Core
             Dot("Doom",      Element.Void,      "Void damage over time that also makes you take more melee damage.", "doom"),
             Dot("Damned",    Element.Necrotic,  "Necrotic damage over time that also cuts your health regen.", "damned"),
 
-            Setup("Freeze",          Element.Cold,      "You cannot act while frozen. More max health and ward make you harder to freeze.", "freeze", "frozen"),
-            Setup("Chill",           Element.Cold,      "Slows your attacks, casts and movement.", "chill"),
+            Setup("Freeze",          Element.Cold,      "You cannot act while frozen. Chance falls as max health and current ward rise. Cold resistance does not stop it.", "freeze", "frozen"),
+            Setup("Chill",           Element.Cold,      "Up to 3 stacks. 12% less attack, cast, and movement speed, and half of that against players. Cold resistance does not stop it.", "chill"),
             Setup("Shock",           Element.Lightning, "Lowers your lightning resistance and makes you easier to stun.", "shock"),
             Setup("Stun",            null,              "You cannot act while stunned.", "stun"),
             Setup("Slow",            null,              "Slows your movement, so you cannot walk out of danger.", "slow"),
@@ -74,25 +76,104 @@ namespace medick_DeathCounter.Core
         static AilmentInfo Setup(string name, Element? el, string effect, params string[] kw) =>
             new() { Name = name, Element = el, IsDot = false, Keywords = kw, Effect = effect };
 
-        // Map any game-side text (type name, ability name, buff name) to a
-        // known ailment. Null when nothing matches.
+        // Map game-side text (type name, ability name, buff name) to a known
+        // ailment. An exact id wins. Otherwise the name is split on separators
+        // and camel case, and a keyword must be a whole token or a run of
+        // whole tokens. A stat name that only contains the word (Shockwave,
+        // FreezeRate, SlowRetaliation) does not match.
         public static AilmentInfo Find(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return null;
-            string t = text.ToLowerInvariant();
-            string bare = t.Replace(" ", "").Replace("_", "");
-            // An exact AilmentID name (Stun, Chill, ArmourShred ...) wins outright.
+            string bare = Letters(text);
             foreach (var a in All)
                 foreach (var k in a.Keywords)
-                    if (bare == k.Replace(" ", "").Replace("_", "")) return a;
-            // Not ailments on you: stat names ("PoisonResistance", "IgniteChance")
-            // and shrine buffs ("ShrineStun").
-            if (t.Contains("resistance") && !t.Contains("shred")) return null;
-            if (t.Contains("chance") || t.Contains("shrine")) return null;
+                    if (bare == Letters(k)) return a;
+
+            var tokens = Tokens(text);
+            if (tokens.Count == 0) return null;
+            if (tokens.Exists(x => x is "chance" or "shrine" or "rate" or "multiplier" or "retaliation" or "avoidance"))
+                return null;
+            if (tokens.Contains("resistance") && !tokens.Contains("shred")) return null;
+
+            var core = new List<string>();
+            foreach (var tok in tokens)
+                if (tok is not ("ailment" or "clone" or "stacking" or "debuff" or "buff" or "effect"))
+                    core.Add(tok);
+            if (core.Count == 0) return null;
+
             foreach (var a in All)
                 foreach (var k in a.Keywords)
-                    if (t.Contains(k)) return a;
+                    if (KeywordFits(core, Tokens(k))) return a;
             return null;
+        }
+
+        static bool KeywordFits(List<string> core, List<string> kw)
+        {
+            if (kw.Count == 0) return false;
+            for (int i = 0; i <= core.Count - kw.Count; i++)
+            {
+                bool eq = true;
+                for (int j = 0; j < kw.Count; j++)
+                    if (core[i + j] != kw[j]) { eq = false; break; }
+                if (eq && ExtrasAreElements(core, i, kw.Count)) return true;
+            }
+            string smashed = string.Concat(kw);
+            for (int i = 0; i < core.Count; i++)
+            {
+                var join = new StringBuilder();
+                for (int j = i; j < core.Count && join.Length < smashed.Length; j++)
+                {
+                    join.Append(core[j]);
+                    if (join.ToString() == smashed && ExtrasAreElements(core, i, j - i + 1)) return true;
+                }
+            }
+            return false;
+        }
+
+        static bool ExtrasAreElements(List<string> core, int start, int len)
+        {
+            for (int i = 0; i < core.Count; i++)
+            {
+                if (i >= start && i < start + len) continue;
+                switch (core[i])
+                {
+                    case "physical": case "fire": case "cold": case "lightning":
+                    case "necrotic": case "void": case "poison":
+                        break;
+                    default:
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        static string Letters(string s)
+        {
+            var sb = new StringBuilder(s.Length);
+            foreach (char c in s)
+                if (char.IsLetterOrDigit(c)) sb.Append(char.ToLowerInvariant(c));
+            return sb.ToString();
+        }
+
+        static List<string> Tokens(string text)
+        {
+            var list = new List<string>();
+            var sb = new StringBuilder();
+            void Flush()
+            {
+                if (sb.Length == 0) return;
+                list.Add(sb.ToString());
+                sb.Clear();
+            }
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (!char.IsLetterOrDigit(c)) { Flush(); continue; }
+                if (sb.Length > 0 && char.IsUpper(c)) Flush();
+                sb.Append(char.ToLowerInvariant(c));
+            }
+            Flush();
+            return list;
         }
 
         public static AilmentInfo ByName(string name)

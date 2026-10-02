@@ -25,6 +25,7 @@ namespace medick_DeathCounter.Core
     public static class Advisor
     {
         public const int MaxTips = 5;
+        public const int MaxShown = 3;
 
         public static List<Advice> Suggest(DeathRecord d, IEnumerable<DeathRecord> history = null, int max = MaxTips)
         {
@@ -48,26 +49,29 @@ namespace medick_DeathCounter.Core
                     if (share < 0.25f) continue;
                     var el = (Element)i;
                     float w = 50f + 40f * share;
+                    // The window split is the game's pre-mitigation mix, rescaled
+                    // onto health lost (HitEvent.AddTo). It is not the mitigated
+                    // split of the killing blow, so the sentence says so.
+                    string why = $"Recorded health lost was {Pct(share)} {Elements.Name(el).ToLowerInvariant()} on the pre-mitigation mix.";
                     if (el == Element.Physical)
                     {
                         // Armor only helps against the HIT part; bleed and
-                        // other physical DoT get their own tip below.
+                        // other physical DoT still use physical resistance.
                         float dot = d.DotByElement?.Length == Elements.Count ? d.DotByElement[i] : 0f;
                         float hitShare = (d.DamageByElement[i] - dot) / total;
                         if (hitShare >= 0.25f)
                             Add("armor", 50f + 40f * hitShare, "Stack armor",
-                                $"{Pct(hitShare)} of the damage that killed you was physical hits. Armor is the main defence against those; physical resistance on gear helps too.");
+                                $"{Pct(hitShare)} of recorded health lost was physical hits, on the pre-mitigation mix. Armor reduces those hits.{ArmorNote(d)}");
                     }
-                    else
-                        ResTip(Elements.Name(el), w, $"{Pct(share)} of the damage that killed you was {Elements.Name(el).ToLowerInvariant()}.");
+                    ResTip(Elements.Name(el), w, why);
                 }
             }
             else if (Elements.TryParse(d.KillingElement, out var ke))
             {
-                if (ke == Element.Physical && Ailments.ByName(d.KillingAilment)?.IsDot != true)
-                    Add("armor", 60f, "Stack armor", "The killing blow was physical. Armor is the main defence against physical hits.");
-                else if (ke != Element.Physical)
-                    ResTip(Elements.Name(ke), 60f, $"The killing blow was {Elements.Name(ke).ToLowerInvariant()} damage.");
+                var ail = Ailments.ByName(d.KillingAilment) ?? Ailments.Find(d.KillingAilment);
+                if (ke == Element.Physical && ail?.IsDot != true)
+                    Add("armor", 60f, "Stack armor", "The killing blow was a physical hit. Armor reduces physical hits." + ArmorNote(d));
+                ResTip(Elements.Name(ke), 60f, $"The killing blow was {Elements.Name(ke).ToLowerInvariant()} damage.");
             }
 
             // With a snapshot of your defences the tip names your number; a
@@ -99,9 +103,10 @@ namespace medick_DeathCounter.Core
             {
                 case DeathKind.OneShot:
                     Add("ehp", 85f, "Raise your effective health pool",
-                        $"One hit took {(d.MaxHealth > 0 ? Pct(d.KillingBlow / d.MaxHealth) + " of your life" : "you out")}. More health, ward, and a higher endurance threshold are what let you survive the next one.");
-                    Add("endurance", 55f, "Get endurance and endurance threshold",
-                        "Endurance cuts the part of any hit that lands below your endurance threshold, which turns lethal hits into survivable ones. The threshold affix rolls on belts.");
+                        d.MaxHealth > 0
+                            ? $"The last recorded hit removed {Pct(HealthRemoved(d) / d.MaxHealth)} of your max health. More health, ward, and a higher endurance threshold are what let you survive the next one."
+                            : "One hit was recorded and max health was not, so this is not a share of your life and not a confirmed one-shot. More health, ward, and a higher endurance threshold are what let you survive a large hit.");
+                    Add("endurance", 55f, "Get endurance and endurance threshold", EnduranceBody(d));
                     if (d.KillingCrit == true)
                         Add("crit", 95f, "Get critical strike avoidance to 100%",
                             "The killing blow was a critical strike, which hits for double. "
@@ -111,7 +116,9 @@ namespace medick_DeathCounter.Core
 
                 case DeathKind.Burst:
                     Add("avoid", 70f, "Avoid hits: dodge and block",
-                        $"You took {Pct(d.MaxHealth > 0 ? d.WindowDamage / d.MaxHealth : 1f)} of your life in a few seconds. Dodge rating and block chance (with block effectiveness) stop hits before they land.");
+                        d.MaxHealth > 0
+                            ? $"Recorded hits in the burst removed {Pct(d.WindowDamage / d.MaxHealth)} of your max health. Dodge rating and block chance (with block effectiveness) stop hits before they land."
+                            : "Several hits landed close together, and max health was not recorded, so this is not a share of your life. Dodge rating and block chance (with block effectiveness) stop hits before they land.");
                     Add("ehp", 60f, "Raise your effective health pool",
                         "More health and ward buy the second you need to react or use a potion.");
                     break;
@@ -148,9 +155,7 @@ namespace medick_DeathCounter.Core
                     case "Freeze":
                     case "Chill":
                         Add("cc_freeze", killing ? 80f : 65f, $"You were {(a.Name == "Freeze" ? "frozen" : "chilled")}",
-                            "More max health and ward lower your chance to be frozen, and Frostbite stacks raise it."
-                            + (d.TryDefense("Res.Cold", out float cr) && cr >= DefenseSnapshot.ResCap - 0.5f ? "" : " Keep cold resistance capped.")
-                            + " Save a movement skill to break away.");
+                            "More max health and ward lower your chance to be frozen, and Frostbite stacks raise it. Cold resistance does not stop freeze or chill. Save a movement skill to break away.");
                         break;
                     case "Stun":
                         Add("cc_stun", 65f, "Get stun avoidance", "You were stunned in the fight that killed you. Stun avoidance and a bigger health pool keep you acting.");
@@ -200,6 +205,131 @@ namespace medick_DeathCounter.Core
             return tips.Values.OrderByDescending(t => t.Weight).Take(max).ToList();
         }
 
+        // What the panel should show: at most three tips that ask for a change.
+        // "Already capped" is a fact, not an action, so it does not take a slot.
+        // Suggest() still returns it for the log and for tests.
+        public static List<Advice> Show(DeathRecord d, IEnumerable<DeathRecord> history = null)
+        {
+            var all = Suggest(d, history);
+            var shown = all.Where(t => !IsCappedNotice(t)).Take(MaxShown).ToList();
+            if (shown.Count > 0) return shown;
+            if (all.Any(IsCappedNotice))
+                return new List<Advice>
+                {
+                    new()
+                    {
+                        Key = "ehp", Weight = 40f,
+                        Title = "Raise health, ward, and endurance",
+                        Body = "The resistance on the killing blow was already at the 75% cap. The next layer is more health, more ward, and endurance on the damage that lands below the endurance threshold. Endurance does not apply to ward.",
+                    },
+                };
+            return new List<Advice>
+            {
+                new()
+                {
+                    Key = "none", Weight = 0f,
+                    Title = "No supported change from this record",
+                    Body = "The recorded facts do not support a specific fix. Nothing here is a measured gap.",
+                },
+            };
+        }
+
+        // One sentence, only from fields that were actually recorded.
+        public static string Quote(DeathRecord d)
+        {
+            if (d == null) return "The killing blow was not recorded.";
+            string what = FirstText(d.KillerAbility, d.KillingAilment);
+            string who = FirstText(d.Killer);
+            bool typed = FirstText(d.KillingElement, d.SecondaryKillingElement) != null;
+            bool numbered = d.KillingBlow > 0f;
+            if (what == null && who == null && !typed && !numbered && d.KillingCrit != true)
+                return "The killing blow was not recorded.";
+
+            string lead = what != null && who != null ? $"Killed by {what} from {who}"
+                : what != null ? $"Killed by {what}"
+                : who != null ? $"Killed by {who}"
+                : "Killing blow";
+            if (numbered)
+            {
+                string types = TypePhrase(d);
+                lead += types != null ? $", {Num(d.KillingBlow)} {types} damage" : $", {Num(d.KillingBlow)} damage";
+            }
+            else if (typed)
+            {
+                string types = TypePhrase(d);
+                if (types != null) lead += $", {types} damage";
+            }
+            if (d.KillingCrit == true) lead += ", crit";
+            if (d.OverkillDamage > 0f) lead += $", {Num(d.OverkillDamage)} overkill";
+            return lead + ".";
+        }
+
+        // High needs the game report, a hit timeline, and max health.
+        // Anything less says which of those is missing.
+        public static string Confidence(DeathRecord d)
+        {
+            if (d == null) return "Low: no hit timeline, max health unknown";
+            bool report = !string.IsNullOrWhiteSpace(d.DetailSource) || d.Kind == DeathKind.Reported;
+            bool timeline = d.Hits > 0;
+            bool maxHp = d.MaxHealth > 0f;
+            if (report && timeline && maxHp) return "High: game death report, hit timeline, and max health";
+            if (report && timeline) return "Medium: game death report and hit timeline, max health unknown";
+            if (report && maxHp) return "Medium: game death report and max health, no hit timeline";
+            if (report) return "Medium: game death report, no hit timeline, max health unknown";
+            if (timeline && maxHp) return "Medium: hit timeline and max health, no game death report";
+            if (timeline) return "Low: hit timeline, max health unknown";
+            if (maxHp) return "Low: max health only, no hit timeline";
+            return "Low: no hit timeline, max health unknown";
+        }
+
+        static bool IsCappedNotice(Advice t) =>
+            t?.Title != null && t.Title.IndexOf("already capped", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        static string EnduranceBody(DeathRecord d)
+        {
+            string have = "";
+            if (d.TryDefense("Endurance", out float en))
+                have = $" Endurance was {en:0}%.";
+            if (d.TryDefense("EnduranceThreshold", out float th))
+                have += $" Endurance threshold was {Num(th)}.";
+            return "Endurance cuts the part of any damage, hit or damage over time, that lands below your endurance threshold. It does not apply to ward. The reduction caps at 60%." + have;
+        }
+
+        static string ArmorNote(DeathRecord d) =>
+            d.TryDefense("Armor", out float ar)
+                ? $" Recorded armor was {Num(ar)}. That is a rating; mitigation also depends on area level, so no mitigation percent is stated here."
+                : "";
+
+        // Health the killing blow removed. A game report's damage includes
+        // overkill past 0 health, so overkill is taken back out. Ward that
+        // was lost earlier is not in this number.
+        static float HealthRemoved(DeathRecord d)
+        {
+            if (!string.IsNullOrWhiteSpace(d.DetailSource) && d.OverkillDamage > 0f && d.KillingBlow > d.OverkillDamage)
+                return d.KillingBlow - d.OverkillDamage;
+            return d.KillingBlow;
+        }
+
+        static string TypePhrase(DeathRecord d)
+        {
+            string a = FirstText(d.KillingElement);
+            string b = FirstText(d.SecondaryKillingElement);
+            if (a != null && b != null && !string.Equals(a, b, StringComparison.OrdinalIgnoreCase))
+                return a.ToLowerInvariant() + " and " + b.ToLowerInvariant();
+            return (a ?? b)?.ToLowerInvariant();
+        }
+
+        static string FirstText(params string[] parts)
+        {
+            if (parts == null) return null;
+            foreach (var p in parts)
+                if (!string.IsNullOrWhiteSpace(p)) return p.Trim();
+            return null;
+        }
+
+        static string Num(float v) =>
+            MathF.Round(v).ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
+
         // The same tip, worded for a pattern across n of m deaths rather than
         // for one death (the Patterns tab). Falls back to the tip's own body.
         public static string PatternBody(Advice a, int n, int m)
@@ -222,7 +352,7 @@ namespace medick_DeathCounter.Core
                 "sustain"     => $"You were worn down over several seconds in {of}. Health regen, leech and potion upkeep matter most there.",
                 "dot_sustain" => $"Damage over time did most of the work in {of}. Health regen, leech and stepping out of the ground effect beat it.",
                 "bleed_armor" => $"Physical damage over time (bleed) hit you in {of}. Armor does not reduce it; physical resistance, regen and leech do.",
-                "cc_freeze"   => $"You were frozen or chilled in {of}. More max health and ward make you harder to freeze; keep cold resistance capped.",
+                "cc_freeze"   => $"You were frozen or chilled in {of}. More max health and ward make you harder to freeze. Cold resistance does not stop freeze or chill.",
                 "cc_stun"     => $"You were stunned in {of}. Stun avoidance keeps you acting.",
                 "cc_shock"    => $"Shock lowered your lightning resistance in {of}. Overcap lightning resistance and get stun avoidance.",
                 "cc_slow"     => $"You were slowed in {of}. Movement speed and a short-cooldown movement skill help you walk out.",
