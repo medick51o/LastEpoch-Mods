@@ -5,11 +5,12 @@ namespace medick_DeathCounter
     // Nexus upgrade path); the brand is what players see.
     internal static class BuildInfo
     {
-        public const string Name         = "medick_DeathCounter";
-        public const string DisplayName  = "Terrible Deaths";
-        public const string OfficialName = "MedicK's Terrible Deaths";
+        public const string Name         = "Medick death log";
+        public const string DisplayName  = "Terrible Death Counter and Log";
+        public const string OfficialName = "MedicK's Terrible Death Counter and Log";
         public const string Tagline      = "a death counter that tells you why";
-        public const string Version      = "0.1.0";
+        public const string Version      = "0.1.2";
         public const string Author       = "medick";
     }
 }
+

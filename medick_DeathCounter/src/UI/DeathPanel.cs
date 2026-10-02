@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using medick_DeathCounter.Core;
 using medick_DeathCounter.Game;
@@ -7,381 +8,267 @@ using UnityEngine;
 
 namespace medick_DeathCounter.UI
 {
-    // The Last Death panel (PanelKey, default Insert, or click the counter).
-    // Newest death first; ‹ › walk back through this character's history.
-    //
-    //   Killed by <who>                 ‹ 12 / 12 › ✕
-    //   <ability> · 1,240 fire · crit
-    //   3 min ago · Monolith · lvl 84 · [ONE-SHOT]
-    //   AILMENTS ON YOU     [Ignite] [Shock]
-    //   DAMAGE, LAST 5s     ███████ fire 72%  ██ physical 20% ...
-    //   TOP THREATS         Lagon 1,240 (1 hit) ...
-    //   TO SURVIVE NEXT TIME
-    //     1. Cap fire resistance (75%): why ...
-    //   Log: UserData/medick_DeathCounter/deaths.txt      [OPEN LOG FOLDER]
     internal static class DeathPanel
     {
         public static bool Open { get; private set; }
         public static bool MouseOver { get; private set; }
-
-        static int _back;                 // 0 = newest, 1 = the one before ...
-        static float _lastH = 420f;       // last frame's content height (one-frame lag on first open)
-        static DeathRecord _tipsFor;
-        static List<Advice> _tips = new();
-        static List<DeathRecord> _list = new();
-        static int _listCount = -1;
-        static string _listChar;
-        static bool _patterns;            // false = LAST DEATH tab, true = PATTERNS tab
-        static PatternReport _report;     // rebuilt when the list changes
-
+        static int _tab, _selected = -1;
+        static Vector2 _scroll;
+        static float _contentHeight = 560f;
+        static bool _confirmReset;
+        static string _status;
+        static List<DeathRecord> _records = new();
+        static int _knownCount = -1;
+        static string _knownCharacter;
+        static readonly string[] Tabs = { "Last death", "History", "Patterns", "Options" };
         public static void Toggle()
         {
+            if (!PlayerProbe.HasPlayer) { Close(); return; }
             Open = !Open;
-            _back = 0;
+            if (Open) { _tab = 0; _selected = -1; _scroll = new Vector2(0, 0); }
         }
-
-        public static void Close() { Open = false; MouseOver = false; }
-
+        public static void Close() { Open = false; MouseOver = false; _confirmReset = false; }
+        static GUIStyle Body(float sc) => Theme.Label(Mathf.RoundToInt(18f * sc));
+        static GUIStyle Small(float sc) => Theme.Label(Mathf.RoundToInt(16f * sc));
+        static GUIStyle Button(float sc) => Theme.Button(Mathf.RoundToInt(17f * sc));
+        static float Paragraph(float x, float y, float w, string text, float sc, bool muted = false) =>
+            y + Theme.Para(x, y, w, text, muted ? Theme.TextMut : Theme.Text, Body(sc)) + 12f * sc;
+        static float Heading(float x, float y, float w, string text, float sc)
+        {
+            y += 10f * sc;
+            Theme.Fill(new Rect(x, y, w, 1f), Theme.BorderHi);
+            y += 14f * sc;
+            return y + Theme.Para(x, y, w, text, Theme.Accent, Theme.Label(Mathf.RoundToInt(19 * sc), FontStyle.Bold)) + 12f * sc;
+        }
         public static void Draw()
         {
             MouseOver = false;
             if (!Open) return;
-
-            RefreshList();
-            float sc = Prefs.HudScale.Value;
-            float w = Mathf.Min(480f * sc, Screen.width - 32f);
-            float pad = 14f * sc;
-            float x = (Screen.width - w) * 0.5f;
-            float top = Mathf.Max(16f, Screen.height * 0.12f);
-            var panel = new Rect(x, top, w, _lastH);
-
+            Refresh();
+            float sc = Mathf.Clamp(Prefs.PanelScale.Value, 1f, 1.4f);
+            float w = Mathf.Min(820f * sc, Screen.width - 40f);
+            float h = Mathf.Min(700f * sc, Screen.height - 64f);
+            float x = (Screen.width - w) * 0.5f, top = (Screen.height - h) * 0.5f;
+            Rect panel = new(x, top, w, h);
             var ev = Event.current;
             if (ev != null) MouseOver = panel.Contains(ev.mousePosition);
-
             Theme.Box(panel, Theme.Panel);
-            Theme.Fill(new Rect(panel.x, panel.y, panel.width, 2f * sc), Theme.BloodDim);
-
-            float cx = x + pad, cw = w - pad * 2f, y = top + pad;
-
-            // ── Header ───────────────────────────────────────
-            var hdr = Theme.Label(Mathf.RoundToInt(9 * sc), FontStyle.Bold);
-            Theme.Write(new Rect(cx, y, cw, 14f * sc), $"{BuildInfo.DisplayName.ToUpperInvariant()}  ·  {DeathTracker.Character}", Theme.AccentDim, hdr);
-
-            float bs = 20f * sc;
-            var btn = Theme.Button(Mathf.RoundToInt(11 * sc));
-            if (GUI.Button(new Rect(cx + cw - bs, y - 3f * sc, bs, bs), "✕", btn)) { Close(); return; }
-
-            int n = _list.Count;
-            if (n > 0 && !_patterns)
+            Theme.Fill(new Rect(x, top, w, 3f), Theme.Accent);
+            float pad = 24f, cx = x + pad, cw = w - 2 * pad;
+            float y = top + 19f;
+            Theme.Write(new Rect(cx, y, cw - 245f, 36f), "Terrible Death Counter and Log", Theme.TextHi, Theme.Label(23, FontStyle.Bold));
+            if (GUI.Button(new Rect(x + w - 228f, y, 144f, 36f), "Move counter", Theme.Button(16))) { CounterHud.BeginMove(); return; }
+            if (GUI.Button(new Rect(x + w - 76f, y, 52f, 36f), "Close", Theme.Button(16))) { Close(); return; }
+            y += 43f;
+            Theme.Write(new Rect(cx, y, cw, 28f), $"{DeathTracker.Character}   |   Counter: {DeathTracker.CharacterDeaths}   |   {_records.Count} saved deaths", Theme.Text, Theme.Label(17));
+            y += 39f;
+            float tabW = (cw - 24f) / 4f;
+            for (int i = 0; i < Tabs.Length; i++)
             {
-                int idx = n - 1 - Mathf.Clamp(_back, 0, n - 1);
-                var navSt = Theme.Label(Mathf.RoundToInt(10 * sc), FontStyle.Normal, TextAnchor.MiddleCenter);
-                string pos = $"{idx + 1} / {n}";
-                float pw = Theme.Width(pos, navSt) + 10f * sc;
-                float nx = cx + cw - bs - 8f * sc - bs - pw - bs;
-                NavButton(new Rect(nx, y - 3f * sc, bs, bs), "‹", _back < n - 1, btn, navSt, () => _back++);
-                Theme.Write(new Rect(nx + bs, y - 3f * sc, pw, bs), pos, Theme.TextMut, navSt);
-                NavButton(new Rect(nx + bs + pw, y - 3f * sc, bs, bs), "›", _back > 0, btn, navSt, () => _back--);
+                Rect tr = new(cx + i * (tabW + 8f), y, tabW, 40f);
+                if (GUI.Button(tr, Tabs[i], Theme.Button(17))) { _tab = i; _scroll = new Vector2(0, 0); _confirmReset = false; _status = null; }
+                if (_tab == i) Theme.Fill(new Rect(tr.x, tr.yMax - 3f, tr.width, 3f), Theme.Accent);
             }
-            y += 24f * sc;
-
-            if (n > 0) y = Tabs(cx, cw, y, sc);
-
-            if (n == 0)
+            y += 55f;
+            Rect viewport = new(cx, y, cw, top + h - 76f - y);
+            float contentW = cw - 24f;
+            _scroll = GUI.BeginScrollView(viewport, _scroll, new Rect(0, 0, contentW, Mathf.Max(viewport.height, _contentHeight)), GUIStyle.none, GUIStyle.none);
+            try
             {
-                var st = Theme.Label(Mathf.RoundToInt(15 * sc), FontStyle.Bold, TextAnchor.MiddleLeft, serif: true);
-                string msg = Prefs.Tracking.Value ? "No deaths yet. Keep it that way." : "Death tracking is paused (Tracking = false in the cfg).";
-                y += Theme.Para(cx, y, cw, msg, Theme.TextHi, st) + 8f * sc;
-                y = Footer(cx, cw, y, sc);
-                _lastH = y - top + pad;
-                return;
-            }
-
-            if (_patterns)
-            {
-                y = DrawPatterns(cx, cw, y, sc);
-                y = Footer(cx, cw, y + 2f * sc, sc);
-                _lastH = y - top + pad;
-                return;
-            }
-
-            var d = _list[n - 1 - Mathf.Clamp(_back, 0, n - 1)];
-            if (!ReferenceEquals(d, _tipsFor))
-            {
-                _tipsFor = d;
-                _tips = Advisor.Suggest(d, _list);
-            }
-
-            // ── Who ──────────────────────────────────────────
-            var titleSt = Theme.Label(Mathf.RoundToInt(19 * sc), FontStyle.Bold, TextAnchor.MiddleLeft, serif: true);
-            string title = d.Kind == DeathKind.Unknown && string.IsNullOrEmpty(d.Killer) ? "Killed by something unseen" : $"Killed by {d.KillerLine()}";
-            y += Theme.Para(cx, y, cw, title, Theme.TextHi, titleSt) + 2f * sc;
-
-            var how = new List<string>();
-            if (!string.IsNullOrEmpty(d.KillerAbility)) how.Add(d.KillerAbility);
-            if (d.KillingBlow > 0f)
-                how.Add($"{d.KillingBlow:N0}{(string.IsNullOrEmpty(d.KillingElement) ? "" : " " + d.KillingElement.ToLowerInvariant())} damage"
-                        + (d.MaxHealth > 0f ? $" ({d.KillingBlow / d.MaxHealth * 100f:0}% of your life)" : ""));
-            if (d.KillingCrit == true) how.Add("critical strike");
-            var bodySt = Theme.Label(Mathf.RoundToInt(11 * sc));
-            if (how.Count > 0)
-                y += Theme.Para(cx, y, cw, string.Join("  ·  ", how), Theme.Text, bodySt) + 2f * sc;
-            if (!string.IsNullOrWhiteSpace(d.GameDeathInfo))
-                y += Theme.Para(cx, y, cw, "Game says: " + d.GameDeathInfo.Trim(), Theme.TextMut, bodySt) + 2f * sc;
-
-            // Meta line + kind chip
-            var metaSt = Theme.Label(Mathf.RoundToInt(10 * sc));
-            var meta = new List<string> { Ago(d.UtcTime) };
-            if (!string.IsNullOrEmpty(d.Zone)) meta.Add(d.Zone);
-            if (d.Level > 0) meta.Add(string.IsNullOrEmpty(d.CharacterClass) ? $"lvl {d.Level}" : $"lvl {d.Level} {d.CharacterClass}");
-            string metaText = string.Join("  ·  ", meta);
-            float mw = Theme.Width(metaText, metaSt);
-            Theme.Write(new Rect(cx, y, mw + 2, 18f * sc), metaText, Theme.TextMut, metaSt);
-            float kw = Chip(cx + mw + 10f * sc, y, d.KindLabel(), d.Kind == DeathKind.Unknown ? Theme.TextMut : Theme.Blood, sc);
-            if (d.Hardcore) Chip(cx + mw + 16f * sc + kw, y, "HARDCORE", Theme.Blood, sc);
-            y += 26f * sc;
-
-            // ── Your defences at death ───────────────────────
-            if (d.Defenses != null && d.Defenses.Count > 0)
-            {
-                y = Section(cx, cw, y, sc, "YOUR DEFENCES AT DEATH");
-                y += Theme.Para(cx, y, cw, DefenseLine(d), Theme.Text, Theme.Label(Mathf.RoundToInt(10 * sc))) + 8f * sc;
-            }
-
-            // ── Ailments ─────────────────────────────────────
-            if (d.AilmentsOnYou != null && d.AilmentsOnYou.Count > 0)
-            {
-                y = Section(cx, cw, y, sc, "AILMENTS ON YOU");
-                y = ChipRow(cx, cw, y, sc, d.AilmentsOnYou.Select(a => (a, AilmentColor(a))));
-            }
-
-            // ── Damage mix ───────────────────────────────────
-            // The split is the attacker's damage types before your own
-            // "taken as" conversions (review #12), hence "incoming".
-            float total = d.DamageByElement?.Sum() ?? 0f;
-            if (total > 0f)
-            {
-                y = Section(cx, cw, y, sc, $"INCOMING DAMAGE, LAST {d.WindowSeconds:0}s  ·  {d.WindowDamage:N0} in {d.Hits} hit{(d.Hits == 1 ? "" : "s")}");
-                var barSt = Theme.Label(Mathf.RoundToInt(10 * sc));
-                float labelW = 78f * sc, barH = 10f * sc;
-                foreach (var (el, v) in Enumerable.Range(0, Elements.Count)
-                             .Select(i => ((Element)i, d.DamageByElement[i]))
-                             .Where(t => t.Item2 / total >= 0.01f)
-                             .OrderByDescending(t => t.Item2))
+                float used = _tab switch
                 {
-                    float share = v / total;
-                    Theme.Write(new Rect(cx, y, labelW, 16f * sc), Elements.Name(el), Theme.Text, barSt);
-                    var track = new Rect(cx + labelW, y + (16f * sc - barH) * 0.5f, cw - labelW - 44f * sc, barH);
-                    Theme.Fill(track, Theme.Inset);
-                    Theme.Fill(new Rect(track.x, track.y, track.width * share, barH), Theme.ElementColor(el));
-                    Theme.Write(new Rect(track.xMax + 6f * sc, y, 40f * sc, 16f * sc), $"{share * 100f:0}%", Theme.TextMut, barSt);
-                    y += 18f * sc;
-                }
-                y += 6f * sc;
+                    1 => DrawHistory(0, contentW, 0, sc),
+                    2 => DrawPatterns(0, contentW, 0, sc),
+                    3 => DrawOptions(0, contentW, 0, sc),
+                    _ => DrawDeath(0, contentW, 0, sc),
+                };
+                _contentHeight = used + 20f;
             }
-
-            // ── Threats ──────────────────────────────────────
-            if (d.TopSources != null && d.TopSources.Count > 0)
-            {
-                y = Section(cx, cw, y, sc, "TOP THREATS");
-                var tSt = Theme.Label(Mathf.RoundToInt(11 * sc));
-                foreach (var s in d.TopSources)
-                    y += Theme.Para(cx, y, cw, $"{s.Name}   {s.Amount:N0} damage, {s.Hits} hit{(s.Hits == 1 ? "" : "s")}", Theme.Text, tSt);
-                y += 6f * sc;
-            }
-
-            // ── Advice ───────────────────────────────────────
-            if (_tips.Count > 0)
-            {
-                y = Section(cx, cw, y, sc, "TO SURVIVE NEXT TIME");
-                var tipTitle = Theme.Label(Mathf.RoundToInt(12 * sc), FontStyle.Bold);
-                var tipBody  = Theme.Label(Mathf.RoundToInt(10 * sc));
-                float numW = 18f * sc;
-                for (int i = 0; i < _tips.Count; i++)
-                {
-                    var t = _tips[i];
-                    Theme.Write(new Rect(cx, y, numW, Theme.LineHeight(tipTitle)), $"{i + 1}.", Theme.Accent, tipTitle);
-                    y += Theme.Para(cx + numW, y, cw - numW, t.Title, Theme.TextHi, tipTitle);
-                    y += Theme.Para(cx + numW, y, cw - numW, t.Body, Theme.TextMut, tipBody) + 7f * sc;
-                }
-            }
-
-            y = Footer(cx, cw, y + 2f * sc, sc);
-            _lastH = y - top + pad;
+            finally { GUI.EndScrollView(); }
+            y = top + h - 60f;
+            Theme.Fill(new Rect(cx, y, cw, 1), Theme.BorderHi);
+            Theme.Write(new Rect(cx, y + 8f, cw - 185f, 36f), $"{Prefs.PanelKeyCode}: open / close   |   Shift + {Prefs.PanelKeyCode}: show / hide counter", Theme.TextMut, Theme.Label(16));
+            if (GUI.Button(new Rect(x + w - 200f, y + 8f, 176f, 36f), "Open log folder", Theme.Button(16))) OpenFolder();
         }
-
-        static void RefreshList()
+        static void Refresh()
         {
-            var log = DeathTracker.Log;
-            if (log == null) { _list = new List<DeathRecord>(); return; }
-            string who = DeathTracker.Character;
-            int count = log.All.Count;
-            if (count == _listCount && who == _listChar) return;
-            _listCount = count;
-            _listChar = who;
-            _list = log.For(who).ToList();
-            _report = null;
-            _back = 0;   // a new death (or another character) jumps back to the newest
+            int count = DeathTracker.Log?.All.Count ?? 0;
+            string character = DeathTracker.Character;
+            if (count == _knownCount && character == _knownCharacter) return;
+            _knownCount = count;
+            _knownCharacter = character;
+            _records = DeathTracker.Log?.For(character).ToList() ?? new();
+            _selected = _records.Count - 1;
         }
-
-        // LAST DEATH | PATTERNS. The active tab is gold-underlined.
-        static float Tabs(float x, float w, float y, float sc)
+        static float DrawDeath(float x, float w, float y, float sc)
         {
-            float h = 20f * sc, gap = 4f * sc, tw = (w - gap) * 0.5f;
-            var st = Theme.Button(Mathf.RoundToInt(9 * sc));
-            if (GUI.Button(new Rect(x, y, tw, h), "LAST DEATH", st)) _patterns = false;
-            if (GUI.Button(new Rect(x + tw + gap, y, tw, h), "PATTERNS", st)) _patterns = true;
-            Theme.Fill(new Rect(_patterns ? x + tw + gap : x, y + h - 2f * sc, tw, 2f * sc), Theme.Accent);
-            return y + h + 10f * sc;
-        }
-
-        // Across this character's recent deaths: build priorities first (the
-        // "what do I invest in" answer), then who, what and which ailments.
-        static float DrawPatterns(float cx, float cw, float y, float sc)
-        {
-            _report ??= DeathPatterns.Build(_list);
-            var r = _report;
-            var body  = Theme.Label(Mathf.RoundToInt(11 * sc));
-            var small = Theme.Label(Mathf.RoundToInt(10 * sc));
-
-            if (r.Priorities.Count > 0)
+            if (_records.Count == 0)
             {
-                y = Section(cx, cw, y, sc, $"BUILD PRIORITIES  ·  LAST {r.Deaths} DEATH{(r.Deaths == 1 ? "" : "S")}");
-                var tTitle = Theme.Label(Mathf.RoundToInt(12 * sc), FontStyle.Bold);
-                var tBody  = Theme.Label(Mathf.RoundToInt(10 * sc));
-                float numW = 18f * sc;
-                for (int i = 0; i < r.Priorities.Count; i++)
+                y += Theme.Para(x, y, w, "Deaths: 0", Theme.TextHi, Theme.Label(Mathf.RoundToInt(30 * sc), FontStyle.Bold)) + 16f;
+                return Paragraph(x, y, w, "Your deaths will appear here with the cause, damage and time when the game provides them.", sc);
+            }
+            _selected = Mathf.Clamp(_selected < 0 ? _records.Count - 1 : _selected, 0, _records.Count - 1);
+            var d = _records[_selected];
+            Theme.Write(new Rect(x, y, w - 210f, 40f), $"Death #{d.Number}   |   {d.UtcTime.ToLocalTime():MMM d, h:mm tt}", Theme.TextMut, Small(sc));
+            if (_selected > 0 && GUI.Button(new Rect(x + w - 208f, y, 100f, 38f), "Previous", Button(sc))) _selected--;
+            if (_selected < _records.Count - 1 && GUI.Button(new Rect(x + w - 100f, y, 100f, 38f), "Next", Button(sc))) _selected++;
+            y += 54f;
+            bool cause = !string.IsNullOrWhiteSpace(d.Killer) || !string.IsNullOrWhiteSpace(d.KillingAilment) || !string.IsNullOrWhiteSpace(d.KillerAbility);
+            string title = cause ? (!string.IsNullOrWhiteSpace(d.Killer) || !string.IsNullOrWhiteSpace(d.KillingAilment) ? "Killed by " + d.KillerLine() : "Killed by " + d.KillerAbility) : "Cause not captured";
+            if (!cause && !string.IsNullOrWhiteSpace(d.KillingElement)) title = "Killed by " + d.KillingElement.ToLowerInvariant() + " damage";
+            y += Theme.Para(x, y, w, title, Theme.TextHi, Theme.Label(Mathf.RoundToInt(28 * sc), FontStyle.Bold)) + 14f;
+            string location = (string.IsNullOrWhiteSpace(d.Zone) ? "" : d.Zone + "   |   ") + $"Level {d.Level}" + (d.Hardcore ? "   |   Hardcore" : "");
+            y = Paragraph(x, y, w, location, sc, true);
+            if (!string.IsNullOrWhiteSpace(d.KillerAbility)) y = Paragraph(x, y, w, "Ability: " + d.KillerAbility, sc);
+            if (d.KillingBlow > 0)
+            {
+                string element = d.KillingElement;
+                if (!string.IsNullOrWhiteSpace(d.SecondaryKillingElement)) element += " / " + d.SecondaryKillingElement;
+                y = Paragraph(x, y, w, $"Killing blow: {d.KillingBlow:N0} {(element ?? "").ToLowerInvariant()} damage" + (d.KillingCrit == true ? "   |   Critical strike" : ""), sc);
+            }
+            if (d.OverkillDamage > 0) y = Paragraph(x, y, w, $"Overkill: {d.OverkillDamage:N0} damage", sc);
+            if (!string.IsNullOrWhiteSpace(d.GameDeathInfo)) y = Paragraph(x, y, w, d.GameDeathInfo, sc);
+            if (!string.IsNullOrWhiteSpace(d.DetailSource)) y = Paragraph(x, y, w, "Cause supplied by the game. The full damage timeline may be unavailable.", sc, true);
+            if (d.Kind == DeathKind.Unknown && !cause && string.IsNullOrWhiteSpace(d.GameDeathInfo))
+                y = Paragraph(x, y, w, "This death was counted, but its cause was not captured when it happened. Updating the mod cannot recover details that were never saved.", sc, true);
+            if (d.AilmentsOnYou?.Count > 0)
+            {
+                y = Heading(x, y, w, "Ailments", sc);
+                y = Paragraph(x, y, w, string.Join(", ", d.AilmentsOnYou), sc);
+            }
+            if (d.Hits > 0)
+            {
+                y = Heading(x, y, w, $"Damage before death ({d.WindowSeconds:0}s)", sc);
+                y = Paragraph(x, y, w, $"{d.WindowDamage:N0} damage across {d.Hits} recorded hits. {d.KindLabel()}", sc);
+                float total = d.DamageByElement?.Sum() ?? 0f;
+                if (total > 0)
+                    foreach (int i in Enumerable.Range(0, Elements.Count).Where(i => d.DamageByElement[i] > 0).OrderByDescending(i => d.DamageByElement[i]))
+                        y = Paragraph(x, y, w, $"{Elements.Names[i]}: {d.DamageByElement[i]:N0} ({100 * d.DamageByElement[i] / total:0}%)", sc);
+            }
+            if (d.Defenses?.Count > 0)
+            {
+                y = Heading(x, y, w, "Your defenses", sc);
+                y = Paragraph(x, y, w, d.DefenseLine(), sc);
+            }
+            var tips = Advisor.Suggest(d, _records).Where(t => t.Key != "unknown").ToList();
+            if (tips.Count > 0)
+            {
+                y = Heading(x, y, w, "What may help next time", sc);
+                foreach (var tip in tips)
                 {
-                    var p = r.Priorities[i];
-                    Theme.Write(new Rect(cx, y, numW, Theme.LineHeight(tTitle)), $"{i + 1}.", Theme.Accent, tTitle);
-                    y += Theme.Para(cx + numW, y, cw - numW, $"{p.Advice.Title}  ({p.Deaths} of {r.Deaths} deaths)", Theme.TextHi, tTitle);
-                    y += Theme.Para(cx + numW, y, cw - numW, p.Advice.Body, Theme.TextMut, tBody) + 7f * sc;
+                    y += Theme.Para(x, y, w, tip.Title, Theme.TextHi, Theme.Label(Mathf.RoundToInt(20 * sc), FontStyle.Bold)) + 6f;
+                    y = Paragraph(x, y, w, tip.Body, sc);
                 }
             }
-
-            if (r.TopKillers.Count > 0)
-            {
-                y = Section(cx, cw, y, sc, "WHO KEEPS KILLING YOU");
-                foreach (var (name, count) in r.TopKillers)
-                    y += Theme.Para(cx, y, cw, $"{name}   {count} death{(count == 1 ? "" : "s")}", Theme.Text, body);
-                y += 6f * sc;
-            }
-
-            if (r.ElementShares.Count > 0)
-            {
-                y = Section(cx, cw, y, sc, "WHAT KILLS YOU  ·  INCOMING DAMAGE BY TYPE");
-                float labelW = 78f * sc, barH = 10f * sc;
-                foreach (var (el, share) in r.ElementShares.Where(e => e.Share >= 0.01f))
-                {
-                    Theme.Write(new Rect(cx, y, labelW, 16f * sc), Elements.Name(el), Theme.Text, small);
-                    var track = new Rect(cx + labelW, y + (16f * sc - barH) * 0.5f, cw - labelW - 44f * sc, barH);
-                    Theme.Fill(track, Theme.Inset);
-                    Theme.Fill(new Rect(track.x, track.y, track.width * share, barH), Theme.ElementColor(el));
-                    Theme.Write(new Rect(track.xMax + 6f * sc, y, 40f * sc, 16f * sc), $"{share * 100f:0}%", Theme.TextMut, small);
-                    y += 18f * sc;
-                }
-                y += 6f * sc;
-            }
-
-            if (r.TopAilments.Count > 0)
-            {
-                y = Section(cx, cw, y, sc, "AILMENTS ON YOU MOST");
-                y = ChipRow(cx, cw, y, sc, r.TopAilments.Select(a => ($"{a.Name} ×{a.Count}", AilmentColor(a.Name))));
-            }
-
-            if (r.KindsLine.Length > 0) y += Theme.Para(cx, y, cw, r.KindsLine, Theme.TextMut, small) + 4f * sc;
             return y;
         }
-
-        static float Section(float x, float w, float y, float sc, string title)
+        static float DrawHistory(float x, float w, float y, float sc)
         {
-            var st = Theme.Label(Mathf.RoundToInt(9 * sc), FontStyle.Bold);
-            float tw = Theme.Width(title, st);
-            Theme.Write(new Rect(x, y, tw + 2, 14f * sc), title, Theme.AccentDim, st);
-            if (x + tw + 8f * sc < x + w)
-                Theme.Fill(new Rect(x + tw + 8f * sc, y + 7f * sc, w - tw - 8f * sc, 1f), Theme.Border);
-            return y + 18f * sc;
-        }
-
-        static float ChipWidth(string text, float sc) =>
-            Theme.Width(text, Theme.Label(Mathf.RoundToInt(9 * sc), FontStyle.Bold, TextAnchor.MiddleCenter)) + 14f * sc;
-
-        // A row of chips that wraps BEFORE a chip would cross the right edge.
-        static float ChipRow(float cx, float cw, float y, float sc, IEnumerable<(string text, Color color)> chips)
-        {
-            float ax = cx;
-            foreach (var (text, color) in chips)
+            y = Paragraph(x, y, w, "Choose a death to review its details. Your history stays saved when you reset the counter.", sc, true);
+            if (_records.Count == 0) return Paragraph(x, y, w, "No saved deaths.", sc);
+            for (int i = _records.Count - 1; i >= 0; i--)
             {
-                float w = ChipWidth(text, sc);
-                if (ax > cx && ax + w > cx + cw) { ax = cx; y += 22f * sc; }
-                ax += Chip(ax, y, text, color, sc) + 6f * sc;
+                var d = _records[i];
+                float rowH = 92f * sc;
+                if (GUI.Button(new Rect(x, y, w, rowH), "", Button(sc))) { _selected = i; _tab = 0; _scroll = new Vector2(0, 0); }
+                Theme.Write(new Rect(x + 14f, y + 10f, w - 28f, 32f * sc), $"#{d.Number}   {d.UtcTime.ToLocalTime():MMM d, h:mm tt}   |   {d.Zone}", Theme.TextMut, Small(sc));
+                string text = !string.IsNullOrEmpty(d.Killer) || !string.IsNullOrEmpty(d.KillingAilment) ? d.KillerLine() : d.KillerAbility ?? d.GameDeathInfo ?? "Cause not captured";
+                var lines = Theme.Wrap(text, Body(sc), w - 28f);
+                Theme.Write(new Rect(x + 14f, y + 45f * sc, w - 28f, 34f * sc), lines[0] + (lines.Count > 1 ? "..." : ""), Theme.TextHi, Body(sc));
+                y += rowH + 10f;
             }
-            return y + 26f * sc;
+            return y;
         }
-
-        static Color AilmentColor(string name) =>
-            Ailments.ByName(name)?.Element is Element el ? Theme.ElementColor(el) : Theme.Text;
-
-        static float Chip(float x, float y, string text, Color c, float sc)
+        static float DrawPatterns(float x, float w, float y, float sc)
         {
-            var st = Theme.Label(Mathf.RoundToInt(9 * sc), FontStyle.Bold, TextAnchor.MiddleCenter);
-            float w = Theme.Width(text, st) + 14f * sc;
-            var r = new Rect(x, y, w, 18f * sc);
-            Theme.Box(r, Theme.Chip);
-            Theme.Fill(new Rect(r.x, r.y, 2f * sc, r.height), c);
-            Theme.Write(r, text, c, st);
-            return w;
-        }
-
-        static float Footer(float x, float w, float y, float sc)
-        {
-            Theme.Fill(new Rect(x, y, w, 1f), Theme.Border);
-            y += 6f * sc;
-            var st = Theme.Label(Mathf.RoundToInt(9 * sc));
-            string path = DeathTracker.Log != null ? $"Log: UserData/medick_DeathCounter/{DeathLog.TextFile}" : "";
-            Theme.Write(new Rect(x, y, w - 130f * sc, 20f * sc), path, Theme.TextMut, st);
-            if (DeathTracker.Log != null &&
-                GUI.Button(new Rect(x + w - 124f * sc, y, 124f * sc, 20f * sc), "OPEN LOG FOLDER", Theme.Button(Mathf.RoundToInt(9 * sc))))
+            var report = DeathPatterns.Build(_records);
+            y = Paragraph(x, y, w, $"Across {_records.Count} saved deaths for {DeathTracker.Character}.", sc, true);
+            if (_records.Count == 0) return Paragraph(x, y, w, "Patterns will appear after deaths have been recorded.", sc);
+            if (report.TopKillers.Count > 0)
             {
-                // Separate method: if Application.OpenURL was stripped from the
-                // game, the JIT failure lands inside this try, not in Draw.
-                try { OpenFolder(DeathTracker.Log.Directory); }
-                catch { }
+                y = Heading(x, y, w, "Frequent killers", sc);
+                foreach (var (name, count) in report.TopKillers) y = Paragraph(x, y, w, $"{name}: {count} deaths", sc);
             }
-            return y + 24f * sc;
+            if (report.TopAilments.Count > 0)
+            {
+                y = Heading(x, y, w, "Frequent ailments", sc);
+                foreach (var a in report.TopAilments) y = Paragraph(x, y, w, $"{a.Name}: {a.Count} deaths", sc);
+            }
+            var priorities = report.Priorities.Where(p => p.Advice.Key != "unknown").ToList();
+            if (priorities.Count > 0)
+            {
+                y = Heading(x, y, w, "Build priorities", sc);
+                foreach (var p in priorities)
+                {
+                    y += Theme.Para(x, y, w, $"{p.Advice.Title} ({p.Deaths} deaths)", Theme.TextHi, Theme.Label(Mathf.RoundToInt(20 * sc), FontStyle.Bold)) + 6f;
+                    y = Paragraph(x, y, w, p.Advice.Body, sc);
+                }
+            }
+            else y = Paragraph(x, y, w, "There is not enough recorded cause data to suggest a build change yet.", sc, true);
+            return y;
         }
-
-        // Built once per record (DeathRecord.DefenseLine, unit-tested in Core).
-        static DeathRecord _defFor;
-        static string _defLine = "";
-
-        static string DefenseLine(DeathRecord d)
+        static float DrawOptions(float x, float w, float y, float sc)
         {
-            if (!ReferenceEquals(d, _defFor)) { _defFor = d; _defLine = d.DefenseLine(); }
-            return _defLine;
+            y = Heading(x, y, w, "Counter position and size", sc);
+            y = Paragraph(x, y, w, "Hover over the number to reveal the MOVE handle, or use Move counter below. Drag to reposition it. Your position is saved automatically.", sc);
+            if (GUI.Button(new Rect(x, y, 160f, 42f), "Move counter", Button(sc))) CounterHud.BeginMove();
+            if (GUI.Button(new Rect(x + 174f, y, 175f, 42f), "Reset position", Button(sc))) { Prefs.HudX.Value = 0.5f; Prefs.HudY.Value = 0.015f; Prefs.Save(); }
+            y += 57f;
+            y = SizeControl(x, w, y, sc, "Counter size", Prefs.HudScale.Value, 0.9f, 2f, v => { Prefs.HudScale.Value = v; Prefs.Save(); });
+            y = SizeControl(x, w, y, sc, "Log text size", Prefs.PanelScale.Value, 1f, 1.4f, v => { Prefs.PanelScale.Value = v; Prefs.Save(); });
+            y = Heading(x, y, w, "Tracking and display", sc);
+            if (GUI.Button(new Rect(x, y, w, 42f), Prefs.ShowCounter.Value ? "Counter: visible (click to hide)" : "Counter: hidden (click to show)", Button(sc))) { Prefs.ShowCounter.Value = !Prefs.ShowCounter.Value; Prefs.Save(); }
+            y += 52f;
+            if (GUI.Button(new Rect(x, y, w, 42f), Prefs.Tracking.Value ? "Recording: on (click to pause)" : "Recording: paused (click to resume)", Button(sc))) { Prefs.Tracking.Value = !Prefs.Tracking.Value; Prefs.Save(); }
+            y += 52f;
+            if (GUI.Button(new Rect(x, y, w, 42f), Prefs.ShowDeathToast.Value ? "Death notification: on" : "Death notification: off", Button(sc))) { Prefs.ShowDeathToast.Value = !Prefs.ShowDeathToast.Value; Prefs.Save(); }
+            y += 54f;
+            y = Heading(x, y, w, "Death history", sc);
+            y = Paragraph(x, y, w, "Reset sets this character's displayed counter and session count to zero. Saved deaths and the game's death count stay intact.", sc);
+            if (!_confirmReset)
+            {
+                if (GUI.Button(new Rect(x, y, 210f, 42f), "Reset death counter", Button(sc))) _confirmReset = true;
+                y += 56f;
+            }
+            else
+            {
+                y = Paragraph(x, y, w, "Resetting the counter does not make you a bad person. But Medick, the author, will judge you.", sc);
+                if (GUI.Button(new Rect(x, y, 170f, 42f), "Reset anyway", Button(sc))) { _status = DeathTracker.ResetCounter() ? "Counter reset. All saved deaths are still in History." : "Reset could not be saved. The counter has been kept."; _confirmReset = false; }
+                if (GUI.Button(new Rect(x + 184f, y, 180f, 42f), "Face my deaths", Button(sc))) _confirmReset = false;
+                y += 56f;
+            }
+            if (GUI.Button(new Rect(x, y, 230f, 42f), "Export character log", Button(sc)))
+            {
+                try
+                {
+                    string safe = string.Concat(DeathTracker.Character.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
+                    string file = Path.Combine(DeathTracker.Log.Directory, safe + "-deaths-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".txt");
+                    File.WriteAllLines(file, _records.Select(d => d.ToLogLine()));
+                    _status = "Export saved. Open log folder to find it.";
+                }
+                catch (Exception) { _status = "Export could not be saved. Your existing history is unchanged."; }
+            }
+            y += 56f;
+            if (_status != null) y = Paragraph(x, y, w, _status, sc);
+            return y;
         }
-
-        static void OpenFolder(string dir)
+        static float SizeControl(float x, float w, float y, float sc, string caption, float value, float min, float max, Action<float> change)
         {
-            System.IO.Directory.CreateDirectory(dir);
-            Application.OpenURL("file:///" + dir.Replace('\\', '/'));
+            Theme.Write(new Rect(x, y, w - 152f, 42f), $"{caption}: {value:0.0}x", Theme.Text, Body(sc));
+            if (GUI.Button(new Rect(x + w - 144f, y, 64f, 42f), "Smaller", Theme.Button(14))) change(Mathf.Clamp(value - 0.1f, min, max));
+            if (GUI.Button(new Rect(x + w - 72f, y, 72f, 42f), "Larger", Theme.Button(14))) change(Mathf.Clamp(value + 0.1f, min, max));
+            return y + 54f;
         }
-
-        // A disabled nav arrow is plain dim text, not a greyed-out button
-        // (GUI.enabled is not in any shipped Terrible mod).
-        static void NavButton(Rect r, string glyph, bool active, GUIStyle btn, GUIStyle textSt, Action onClick)
+        static void OpenFolder()
         {
-            if (!active) { Theme.Write(r, glyph, Theme.Border, textSt); return; }
-            if (GUI.Button(r, glyph, btn)) onClick();
+            if (DeathTracker.Log == null) return;
+            try { OpenFolderInterop(DeathTracker.Log.Directory); }
+            catch (Exception ex) { Dbg.Log("open log folder: " + ex.Message); }
         }
-
-        static string Ago(DateTime utc)
+        static void OpenFolderInterop(string directory)
         {
-            var dt = DateTime.UtcNow - utc;
-            if (dt.TotalSeconds < 60) return "just now";
-            if (dt.TotalMinutes < 60) return $"{(int)dt.TotalMinutes} min ago";
-            if (dt.TotalHours < 24)   return $"{(int)dt.TotalHours} h ago";
-            return utc.ToLocalTime().ToString("MMM d, HH:mm");
+            Directory.CreateDirectory(directory);
+            Application.OpenURL("file:///" + directory.Replace('\\', '/'));
         }
     }
 }

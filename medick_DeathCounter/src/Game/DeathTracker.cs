@@ -42,12 +42,24 @@ namespace medick_DeathCounter.Game
         static float _nextCountCheck;
         static readonly DeathCountLedger _ledger = new();   // reconciles CharacterData.Deaths with our records
         static string _deferred;                            // a death signal that fired mid-hit, see FlushDeferredDeath
+        static bool _unknownNameWarned;
+        static bool _unreadableHealthNoted;
+        static string _pendingDetection;
+        static float _pendingAt;
+        static DateTime _pendingUtc;
+        static bool _committing;
+        static DeathDetails _details;
+        static float _detailsAt = -999f;
+        static string _detailsCharacter;
+        static string _pendingCharacter;
+        static CounterResets _resets;
 
         public static bool Recording => Prefs.Tracking.Value && PlayerProbe.HasPlayer && !_dead;
 
         public static void Init(string directory)
         {
             Log = new DeathLog(directory, MelonLogger.Warning);
+            _resets = new CounterResets(System.IO.Path.Combine(directory, "counter-resets.json"), MelonLogger.Warning);
             try { Log.Load(); }
             catch (Exception ex) { MelonLogger.Warning($"could not read the death log ({ex.Message}); starting fresh for this session"); }
         }
@@ -56,20 +68,30 @@ namespace medick_DeathCounter.Game
         {
             float now = Time.time;
             if (PlayerProbe.Refresh(now)) OnPlayerChanged(now);
-            if (!PlayerProbe.HasPlayer) return;
 
-            if (now >= _nextNameCheck)
+            if (PlayerProbe.HasPlayer && now >= _nextNameCheck)
             {
                 _nextNameCheck = now + 5f;
                 SetCharacter(PlayerProbe.CharacterName());
             }
 
+            // The game counter and a deferred death do not need a resolved
+            // player object. A missing actor must not silence them.
             FlushDeferredDeath();
+            if (_pendingDetection != null && now - _pendingAt >= 0.75f)
+            {
+                string detection = _pendingDetection;
+                _committing = true;
+                try { if (PlayerProbe.CharacterName()?.Trim() == _pendingCharacter) OnDeath(detection); }
+                finally { _committing = false; _pendingDetection = null; }
+            }
             if (now >= _nextCountCheck)
             {
                 _nextCountCheck = now + 0.5f;
                 PollGameDeathCount(now);
             }
+
+            if (!PlayerProbe.HasPlayer) return;
 
             float hp = PlayerProbe.CurrentHealth;
             if (float.IsNaN(hp)) return;
@@ -80,7 +102,10 @@ namespace medick_DeathCounter.Game
 
         static void PollGameDeathCount(float now)
         {
-            int unseen = _ledger.Observe(PlayerProbe.GameDeathCount(), now);
+            if (!Prefs.Tracking.Value) return;
+            int count = PlayerProbe.GameDeathCount();
+            if (count < 0) return;   // needs readable CharacterData, not a player object
+            int unseen = _ledger.Observe(count, now);
             if (unseen <= 0 || _dead) return;
             Dbg.Log($"game death counter shows {unseen} death(s) no hook or health signal saw");
             OnDeath("game");
@@ -98,12 +123,28 @@ namespace medick_DeathCounter.Game
             OnDeath(d);
         }
 
-        // Death screen / analytics: no owner, so only when health agrees.
+        // Death screen / analytics: no owner. Not gated on HasPlayer.
+        // Readable health above 0 is never a death. Unreadable health waits
+        // for CharacterData.Deaths instead of guessing.
         public static void OnUnownedDeathSignal()
         {
+            if (!Prefs.Tracking.Value) return;
             float hp = PlayerProbe.CurrentHealth;
-            if (!float.IsNaN(hp) && hp <= 0f) OnDeath("hook");
-            else Dbg.Log($"unowned death signal ignored (health {hp})");
+            if (!float.IsNaN(hp) && hp > 0f)
+            {
+                Dbg.Log($"unowned death signal ignored (health {hp:0})");
+                return;
+            }
+            if (float.IsNaN(hp))
+            {
+                if (!_unreadableHealthNoted)
+                {
+                    _unreadableHealthNoted = true;
+                    MelonLogger.Msg("unowned death signal with unreadable health; waiting for the game death counter");
+                }
+                return;
+            }
+            OnDeath("hook");
         }
 
         static void OnPlayerChanged(float now)
@@ -122,6 +163,8 @@ namespace medick_DeathCounter.Game
             _lastHp = float.NaN;
             _hits.Clear();
             _ailments.Clear();
+            _details = null;
+            _detailsAt = -999f;
             _defenses = null;
             _defensesAt = -999f;
             GameHooks.OnPlayerChanged();
@@ -129,14 +172,18 @@ namespace medick_DeathCounter.Game
             Dbg.Log(PlayerProbe.HasPlayer ? "player found" : "player gone");
         }
 
+        static bool RealName(string name) =>
+            !string.IsNullOrWhiteSpace(name) && name.Trim() != "Unknown Hero";
+
         static void SetCharacter(string name)
         {
-            // The fallback name means CharacterData was momentarily unreadable,
-            // not that the character changed: keep the ledger (re-review #4).
-            if (name == Character || name == "Unknown Hero" && !string.IsNullOrEmpty(Character)) return;
+            // A missing name, or the old "Unknown Hero" placeholder, is a
+            // CharacterData hiccup. Keep the last real name and its ledger.
+            if (!RealName(name) || name.Trim() == Character) return;
+            name = name.Trim();
             Character = name;
             _ledger.Reset();    // re-baseline the game's counter for this character
-            CharacterDeaths = Log?.CountFor(name) ?? 0;
+            CharacterDeaths = _resets?.Count(name, Log?.CountFor(name) ?? 0) ?? 0;
             SessionDeaths = SessionCount(name);
         }
 
@@ -165,19 +212,58 @@ namespace medick_DeathCounter.Game
 
         public static void OnDeath(string detection)
         {
-            if (_dead || !Prefs.Tracking.Value || !PlayerProbe.HasPlayer) return;
+            if (_dead || !Prefs.Tracking.Value) return;
+            // The game counter is the safety net when no player object exists.
+            // A hook still needs either a player or health we already accepted.
+            if (detection != "game" && !PlayerProbe.HasPlayer && PlayerProbe.Health == null) return;
             if (GameHooks.InPlayerHit) { _deferred ??= detection; return; }
 
             // A hooked "Die" must agree with health when we can read it, so a
-            // mis-guessed hook can never invent deaths.
+            // mis-guessed hook can never invent deaths. Unreadable health is
+            // not counted here; the game counter has to move.
             float hp = PlayerProbe.CurrentHealth;
-            if (detection == "hook" && !float.IsNaN(hp) && hp > 0f)
+            if (!_committing && detection == "hook" && !float.IsNaN(hp) && hp > 0f)
             {
                 Dbg.Log($"death hook fired with health {hp:0}; ignored");
                 return;
             }
+            if (!_committing && detection == "hook" && float.IsNaN(hp))
+            {
+                if (!_unreadableHealthNoted)
+                {
+                    _unreadableHealthNoted = true;
+                    MelonLogger.Msg("death hook with unreadable health; waiting for the game death counter");
+                }
+                return;
+            }
+
+            string raw = PlayerProbe.CharacterName();
+            string name = RealName(raw) ? raw.Trim() : (RealName(Character) ? Character : null);
+            if (name == null)
+            {
+                if (!_unknownNameWarned)
+                {
+                    _unknownNameWarned = true;
+                    MelonLogger.Warning("death not recorded: character name is unreadable, and it will not be filed as Unknown Hero");
+                }
+                return;
+            }
 
             float now = Time.time;
+            // The server report can arrive after the health update. Give it a
+            // short window, retaining the original death time and hit cutoff.
+            if (!_committing)
+            {
+                if (_pendingDetection == null)
+                {
+                    _pendingDetection = detection;
+                    _pendingAt = now;
+                    _pendingUtc = DateTime.UtcNow;
+                    _pendingCharacter = name;
+                }
+                return;
+            }
+            now = _pendingAt;
             _dead = true;
             _deadAt = now;
 
@@ -186,7 +272,7 @@ namespace medick_DeathCounter.Game
                 float max = PlayerProbe.MaxHealth;
                 var ctx = new DeathContext
                 {
-                    Character      = PlayerProbe.CharacterName(),
+                    Character      = name,
                     CharacterClass = PlayerProbe.CharacterClass(),
                     Level          = PlayerProbe.Level(),
                     Zone           = PlayerProbe.Zone(),
@@ -195,10 +281,12 @@ namespace medick_DeathCounter.Game
                     MaxHealth      = float.IsNaN(max) ? -1f : max,
                     Detection      = detection,
                     ModVersion     = BuildInfo.Version,
-                    UtcNow         = DateTime.UtcNow,
+                    UtcNow         = _pendingUtc,
                 };
                 var ailments = _ailments.Where(kv => now - kv.Value <= AilmentMemory).Select(kv => kv.Key).ToList();
                 var rec = DeathAnalyzer.Analyze(_hits.Since(now - 12.0), now, ctx, ailments);
+                if (_details != null && _detailsCharacter == name && Math.Abs(_detailsAt - now) <= 5f)
+                    _details.Apply(rec);
                 if (now - _defensesAt > 15f) { try { _defenses = PlayerProbe.Defenses(); } catch { } }   // no recent hit: read now
                 rec.Defenses = _defenses;
                 _defenses = null;
@@ -206,7 +294,7 @@ namespace medick_DeathCounter.Game
 
                 Log.Append(rec);
                 SetCharacter(rec.Character);
-                CharacterDeaths = Log.CountFor(rec.Character);
+                CharacterDeaths = _resets.Count(rec.Character, Log.CountFor(rec.Character));
                 _session[rec.Character] = SessionCount(rec.Character) + 1;
                 SessionDeaths = SessionCount(rec.Character);
                 JustDied   = rec;
@@ -223,10 +311,39 @@ namespace medick_DeathCounter.Game
             {
                 _hits.Clear();
                 _ailments.Clear();
+                _details = null;
             }
         }
 
+        public static void OnDeathDetails(DeathDetails details)
+        {
+            if (details == null || !Prefs.Tracking.Value || !PlayerProbe.HasPlayer) return;
+            string name = PlayerProbe.CharacterName();
+            if (!RealName(name)) return;
+            _details = details;
+            _detailsAt = Time.time;
+            _detailsCharacter = name.Trim();
+            // A later packet enriches the existing death; it never adds a count.
+            if (_dead && JustDied != null && JustDied.Character == _detailsCharacter && Time.time - _deadAt <= 5f)
+            {
+                details.Apply(JustDied);
+                Log.SaveUpdated();
+                _details = null;
+            }
+            OnUnownedDeathSignal();
+        }
+
         static int SessionCount(string character) => _session.TryGetValue(character, out var n) ? n : 0;
+
+        public static bool ResetCounter()
+        {
+            if (!RealName(Character) || Log == null || _pendingDetection != null) return false;
+            if (!_resets.Reset(Character, Log.CountFor(Character))) return false;
+            CharacterDeaths = 0;
+            _session[Character] = 0;
+            SessionDeaths = 0;
+            return true;
+        }
 
         public static int SessionFor(string character) => SessionCount(character);
     }

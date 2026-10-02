@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using medick_DeathCounter.Core;
 using UnityEngine;
 
@@ -10,17 +13,17 @@ namespace medick_DeathCounter.UI
     // OnGUI: GUI.skin is invalid elsewhere.
     internal static class Theme
     {
-        public static readonly Color Bg        = Hex(0x0C0E13, 0.96f);
+        public static readonly Color Bg        = Hex(0x10141C);
         public static readonly Color Surface   = Hex(0x161A24);
         public static readonly Color SurfaceHi = Hex(0x202637);
         public static readonly Color Inset     = Hex(0x10131B);
         public static readonly Color Border    = Hex(0x2A3040);
         public static readonly Color BorderHi  = Hex(0x3C4456);
         public static readonly Color Accent    = Hex(0xC9A653);   // LE gold
-        public static readonly Color AccentDim = Hex(0x8A7339);
+        public static readonly Color AccentDim = Hex(0xC9A653);
         public static readonly Color TextHi    = Hex(0xEDE6D4);
-        public static readonly Color Text      = Hex(0xC6C2B6);
-        public static readonly Color TextMut   = Hex(0x807D8C);
+        public static readonly Color Text      = Hex(0xE0E4EB);
+        public static readonly Color TextMut   = Hex(0xB8C1CF);
         public static readonly Color Blood     = Hex(0xC23B3B);
         public static readonly Color BloodDim  = Hex(0x6E2226);
 
@@ -35,6 +38,7 @@ namespace medick_DeathCounter.UI
             Hex(0x7BC043),   // Poison
         };
         public static Color ElementColor(Element e) => ElementColors[(int)e];
+        public static Color DamageColor(string element) => Elements.TryParse(element, out var el) ? ElementColor(el) : Text;
 
         static Color Hex(int rgb, float a = 1f) => new(
             ((rgb >> 16) & 0xFF) / 255f, ((rgb >> 8) & 0xFF) / 255f, (rgb & 0xFF) / 255f, a);
@@ -149,11 +153,48 @@ namespace medick_DeathCounter.UI
         // Draws text wrapped to width; returns the height used.
         public static float Para(float x, float y, float width, string text, Color c, GUIStyle st)
         {
-            float lh = LineHeight(st);
+            float lh = LineHeight(st) + 4f;
             var lines = Wrap(text, st, width);
             for (int i = 0; i < lines.Count; i++)
                 Write(new Rect(x, y + i * lh, width, lh), lines[i], c, st);
             return lines.Count * lh;
+        }
+
+        static readonly Regex Tokens = new("\\r\\n|\\n|[^\\S\\r\\n]+|[^\\s]+", RegexOptions.Compiled);
+        public static float GamePara(float x, float y, float width, string text, GUIStyle st)
+        {
+            float at = 0, row = 0, lh = LineHeight(st) + 4f;
+            foreach (var run in DeathText.Parse(text))
+            {
+                Color color = GameColor(run.Color);
+                foreach (Match match in Tokens.Matches(run.Text))
+                {
+                    string word = match.Value;
+                    if (word.Contains('\n')) { at = 0; row += lh; continue; }
+                    float ww = Width(word, st);
+                    if (at > 0 && at + ww > width) { at = 0; row += lh; }
+                    if (at == 0 && string.IsNullOrWhiteSpace(word)) continue;
+                    Write(new Rect(x + at, y + row, ww + 1f, lh), word, color, st);
+                    at += ww;
+                }
+            }
+            return row + lh;
+        }
+        static Color GameColor(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return Text;
+            if (raw.StartsWith("#", StringComparison.Ordinal) && uint.TryParse(raw.Substring(1), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint rgb))
+            {
+                if (raw.Length == 9) rgb >>= 8; // preserve color, keep text fully readable
+                return Hex((int)rgb);
+            }
+            return raw.ToLowerInvariant() switch
+            {
+                "red" => Hex(0xFF5555), "white" => Color.white,
+                "yellow" => Hex(0xFFFF00), "orange" => Hex(0xFFA500),
+                "green" => Hex(0x00FF00), "blue" => Hex(0x5599FF),
+                "purple" => Hex(0xAA77EE), _ => Text,
+            };
         }
 
         public static void Fill(Rect r, Color c)

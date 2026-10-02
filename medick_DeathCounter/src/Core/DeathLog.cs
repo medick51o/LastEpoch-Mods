@@ -65,6 +65,23 @@ namespace medick_DeathCounter.Core
 
         public DeathRecord LastFor(string character) => For(character).LastOrDefault();
 
+        // Late server details update a numbered record without a second death.
+        // Replace each file atomically; keep the previous JSON as a recovery copy.
+        public bool SaveUpdated()
+        {
+            try
+            {
+                System.IO.Directory.CreateDirectory(_dir);
+                File.WriteAllLines(JsonPath + ".tmp", _all.Select(r => JsonSerializer.Serialize(r, Json)));
+                File.WriteAllLines(TextPath + ".tmp", _all.Select(r => r.ToLogLine()));
+                if (File.Exists(JsonPath)) File.Copy(JsonPath, JsonPath + ".bak", true);
+                File.Move(JsonPath + ".tmp", JsonPath, true);
+                File.Move(TextPath + ".tmp", TextPath, true);
+                return true;
+            }
+            catch (Exception ex) { _warn("could not save updated death details: " + ex.Message); return false; }
+        }
+
         // Numbers the record as this character's next death, keeps it in
         // memory, and appends it to both files. Returns false if the disk
         // write failed (the death still counts for this session).

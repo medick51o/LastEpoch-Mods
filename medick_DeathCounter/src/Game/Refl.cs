@@ -21,7 +21,9 @@ namespace medick_DeathCounter.Game
         static readonly Dictionary<(Type, string), MemberInfo> _members = new();
         static readonly Dictionary<string, Type> _types = new();
 
-        // "Il2Cpp.BaseHealth" → the interop Type, or null. Cached, including misses.
+        // "Il2Cpp.BaseHealth" → the interop Type, or null. Hits are cached.
+        // A miss is not: the first lookup can run before the game assemblies
+        // are visible, and a cached null would never resolve the player.
         public static Type FindType(string fullName)
         {
             if (string.IsNullOrEmpty(fullName)) return null;
@@ -32,7 +34,7 @@ namespace medick_DeathCounter.Game
                 try { t = asm.GetType(fullName, false); } catch { }
                 if (t != null) break;
             }
-            _types[fullName] = t;
+            if (t != null) _types[fullName] = t;
             return t;
         }
 
@@ -246,27 +248,46 @@ namespace medick_DeathCounter.Game
             catch { return null; }
         }
 
-        // Static zero-argument method or property on a type known by name.
-        public static object Static(string typeName, string member)
+        // Result of a static call. Detail is "missing", "null", "ok",
+        // "type missing", or the exception type and message.
+        internal struct StaticRead
         {
+            public object Value;
+            public string Detail;
+        }
+
+        // Static zero-argument method or property on a type known by name.
+        // Missing types are not cached. Exceptions are returned in Detail,
+        // not swallowed, so a resolution failure can name the getter that threw.
+        public static object Static(string typeName, string member) => ReadStatic(typeName, member).Value;
+
+        public static StaticRead ReadStatic(string typeName, string member)
+        {
+            var t = FindType(typeName);
+            if (t == null) return new StaticRead { Detail = "type missing" };
             var key = (typeName, member);
             if (!_statics.TryGetValue(key, out var mi))
             {
-                var t = FindType(typeName);
-                mi = (MemberInfo)t?.GetMethod(member, BindingFlags.Public | BindingFlags.Static, null, Type.EmptyTypes, null)
-                     ?? t?.GetProperty(member, BindingFlags.Public | BindingFlags.Static);
-                _statics[key] = mi;
+                mi = (MemberInfo)t.GetMethod(member, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, Type.EmptyTypes, null)
+                     ?? t.GetProperty(member, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                _statics[key] = mi; // the type exists; a missing member will not appear later
             }
+            if (mi == null) return new StaticRead { Detail = "missing" };
             try
             {
-                return mi switch
+                object value = mi switch
                 {
                     MethodInfo m   => m.Invoke(null, null),
                     PropertyInfo p => p.GetValue(null),
                     _              => null,
                 };
+                return new StaticRead { Value = value, Detail = value == null ? "null" : "ok" };
             }
-            catch { return null; }
+            catch (Exception ex)
+            {
+                var inner = ex.InnerException ?? ex;
+                return new StaticRead { Detail = inner.GetType().Name + ": " + inner.Message };
+            }
         }
         static readonly Dictionary<(string, string), MemberInfo> _statics = new();
 

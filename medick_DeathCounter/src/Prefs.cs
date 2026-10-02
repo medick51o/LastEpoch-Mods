@@ -17,6 +17,7 @@ namespace medick_DeathCounter
         public static MelonPreferences_Entry<float>  HudX;
         public static MelonPreferences_Entry<float>  HudY;
         public static MelonPreferences_Entry<float>  HudScale;
+        public static MelonPreferences_Entry<float>  PanelScale;
         public static MelonPreferences_Entry<bool>   ProbeApi;
         public static MelonPreferences_Entry<string> HookOverrides;
         public static MelonPreferences_Entry<bool>   DebugLog;
@@ -36,7 +37,8 @@ namespace medick_DeathCounter
                 "Any Unity KeyCode name: Insert, F9, PageDown, Backslash ...");
             HudX           = Category.CreateEntry("HudX",           0.5f,  "Counter X (0 = left edge, 1 = right edge)");
             HudY           = Category.CreateEntry("HudY",           0.015f, "Counter Y (0 = top, 1 = bottom)");
-            HudScale       = Category.CreateEntry("HudScale",       1.0f,  "Counter and panel scale");
+            HudScale       = Category.CreateEntry("HudScale",       1.0f,  "Counter scale");
+            PanelScale     = Category.CreateEntry("PanelScale",     1.0f,  "Death log text scale");
             ProbeApi       = Category.CreateEntry("ProbeApi",       false, "Log the game's health/death/ailment API at startup",
                 "Turn on if deaths show as UNKNOWN, then send the MelonLoader log.");
             HookOverrides  = Category.CreateEntry("HookOverrides",  "",    "Extra hooks, e.g. hit:Il2Cpp.BaseHealth.ReceiveDamage; death:Il2Cpp.PlayerHealth.Die",
@@ -51,9 +53,11 @@ namespace medick_DeathCounter
             if (!float.IsFinite(HudX.Value))     HudX.Value = HudX.DefaultValue;
             if (!float.IsFinite(HudY.Value))     HudY.Value = HudY.DefaultValue;
             if (!float.IsFinite(HudScale.Value)) HudScale.Value = HudScale.DefaultValue;
+            if (!float.IsFinite(PanelScale.Value)) PanelScale.Value = PanelScale.DefaultValue;
             HudX.Value     = Mathf.Clamp01(HudX.Value);
             HudY.Value     = Mathf.Clamp01(HudY.Value);
-            HudScale.Value = Mathf.Clamp(HudScale.Value, 0.6f, 2.5f);
+            HudScale.Value = Mathf.Clamp(HudScale.Value, 0.9f, 2f);
+            PanelScale.Value = Mathf.Clamp(PanelScale.Value, 1f, 1.4f);
 
             if (Enum.TryParse(PanelKey.Value?.Trim(), ignoreCase: true, out KeyCode k) && k != KeyCode.None)
                 PanelKeyCode = k;

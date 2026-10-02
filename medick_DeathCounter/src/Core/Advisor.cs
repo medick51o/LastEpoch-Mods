@@ -64,9 +64,9 @@ namespace medick_DeathCounter.Core
             }
             else if (Elements.TryParse(d.KillingElement, out var ke))
             {
-                if (ke == Element.Physical)
+                if (ke == Element.Physical && Ailments.ByName(d.KillingAilment)?.IsDot != true)
                     Add("armor", 60f, "Stack armor", "The killing blow was physical. Armor is the main defence against physical hits.");
-                else
+                else if (ke != Element.Physical)
                     ResTip(Elements.Name(ke), 60f, $"The killing blow was {Elements.Name(ke).ToLowerInvariant()} damage.");
             }
 

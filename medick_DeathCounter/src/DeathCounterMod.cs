@@ -52,7 +52,13 @@ namespace medick_DeathCounter
                     Prefs.ShowCounter.Value = !Prefs.ShowCounter.Value;
                     Prefs.Save();
                 }
-                else DeathPanel.Toggle();
+                else if (PlayerProbe.HasPlayer) DeathPanel.Toggle();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (CounterHud.Moving) CounterHud.EndMove();
+                if (DeathPanel.Open) DeathPanel.Close();
             }
 
             // Clicks on our UI must not also walk the character there.

@@ -10,6 +10,89 @@ static class Program
 {
     static int _fail;
 
+    static void Test_GameReport_BleedDoesNotRecommendArmorForItsDamage()
+    {
+        var record = new DeathRecord();
+        new DeathDetails { Ailment = "Bleed", PrimaryElement = "Physical", Damage = 100 }.Apply(record);
+        True(!Advisor.Suggest(record).Any(t => t.Key == "armor"), "armor does not reduce bleed");
+    }
+
+    static void Test_GameReport_EnrichesWithoutInventingTimeline()
+    {
+        var record = new DeathRecord { Character = "Medick", Kind = DeathKind.Unknown };
+        var details = new DeathDetails { Killer = "Void Horror", Ability = "Void Nova", Ailment = "Time Rot", PrimaryElement = "Void", SecondaryElement = "Physical", Damage = 1234, Overkill = 100, Crit = true };
+        details.Apply(record);
+        details.Apply(record); // shared death text + network fallback can report twice
+        Eq("Void Horror", record.Killer);
+        Eq("Void Nova", record.KillerAbility);
+        Eq("Void", record.KillingElement);
+        Eq("Physical", record.SecondaryKillingElement);
+        Eq(1234f, record.KillingBlow);
+        Eq(true, record.KillingCrit);
+        Eq(DeathKind.Reported, record.Kind);
+        Eq(0, record.Hits);
+        Eq(0f, record.WindowDamage);
+        Eq(0f, record.DamageByElement.Sum());
+        Eq(1, record.AilmentsOnYou.Count);
+        True(!Advisor.Suggest(record).Any(t => t.Key == "unknown"), "reported cause should offer relevant advice");
+    }
+
+    static void Test_GameReport_PreservesObservedHitClassification()
+    {
+        var record = new DeathRecord { Kind = DeathKind.Burst, Hits = 4, WindowDamage = 1400, Killer = "old source" };
+        new DeathDetails { Killer = "reported source", PrimaryElement = "Fire", Damage = 500, Crit = false }.Apply(record);
+        Eq(DeathKind.Burst, record.Kind);
+        Eq(4, record.Hits);
+        Eq(1400f, record.WindowDamage);
+        Eq("reported source", record.Killer);
+        Eq(false, record.KillingCrit);
+    }
+
+    static void Test_LateGameReport_PersistsSameRecordAndCount()
+    {
+        string dir = Path.Combine(Path.GetTempPath(), "terrible-death-test-" + Guid.NewGuid());
+        try
+        {
+            var log = new DeathLog(dir);
+            var record = new DeathRecord { Character = "Medick", UtcTime = DateTime.UtcNow };
+            log.Append(record);
+            new DeathDetails { Killer = "Wengari", Damage = 900, PrimaryElement = "Cold" }.Apply(record);
+            True(log.SaveUpdated(), "details saved");
+            var loaded = new DeathLog(dir);
+            loaded.Load();
+            Eq(1, loaded.CountFor("Medick"));
+            Eq(1, loaded.All[0].Number);
+            Eq("Wengari", loaded.All[0].Killer);
+            Eq(900f, loaded.All[0].KillingBlow);
+            True(File.ReadAllText(loaded.TextPath).Contains("Wengari"), "human log updated too");
+            True(File.Exists(loaded.JsonPath + ".bak"), "previous log retained");
+        }
+        finally { if (Directory.Exists(dir)) Directory.Delete(dir, true); }
+    }
+
+    static void Test_CounterReset_PersistsPerCharacterAndKeepsHistory()
+    {
+        string dir = Path.Combine(Path.GetTempPath(), "terrible-death-test-" + Guid.NewGuid());
+        try
+        {
+            var log = new DeathLog(dir);
+            log.Append(new DeathRecord { Character = "Medick" });
+            log.Append(new DeathRecord { Character = "Medick" });
+            string path = Path.Combine(dir, "counter-resets.json");
+            var resets = new CounterResets(path);
+            True(resets.Reset("Medick", log.CountFor("Medick")), "reset saved");
+            Eq(0, resets.Count("Medick", log.CountFor("Medick")));
+            Eq(7, resets.Count("Other", 7));
+            log.Append(new DeathRecord { Character = "Medick" });
+            resets = new CounterResets(path);
+            Eq(1, resets.Count("Medick", log.CountFor("Medick")));
+            Eq(3, log.CountFor("Medick"));
+            Eq(3, log.All.Last().Number);
+            Eq(0, resets.Count("Medick", 0));
+        }
+        finally { if (Directory.Exists(dir)) Directory.Delete(dir, true); }
+    }
+
     static int Main()
     {
         var tests = typeof(Program).GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)

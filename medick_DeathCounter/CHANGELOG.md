@@ -1,5 +1,15 @@
 # Changelog: MedicK's Terrible Deaths
 
+## v0.1.1: player resolution (not yet run in game)
+
+Not verified in Last Epoch. Aimed at the monolith death that recorded nothing because the player object never resolved and the safety nets required that object.
+
+- Player lookup tries `getPlayerActor`, then `getLocalPlayerHealth` and that health's actor, before the unproven names. Health is adopted even when the object route fails, and a missing health is tried again. One warning names the getters that failed, including the exception.
+- `CharacterData.Deaths` is polled without a resolved player. The death screen and analytics signals are not gated on recording. A hooked death still does not count while readable health is above 0. Unreadable health waits for the game counter.
+- A death is not filed under "Unknown Hero". The last real character name is kept.
+- The review panel does not open with no character loaded. If it is already open, it says "Waiting for your character to load."
+- Startup logs which of the five death-hook candidates this build actually has.
+
 ## v0.1.0: first build (not yet run in game)
 
 Written on a machine without Last Epoch or MelonLoader. Core logic is unit-tested and the whole mod compiles against NuGet MelonLoader 0.7.2 / HarmonyX / Il2CppInterop / Unity 2021.3 with stubbed game types; the game hooks are educated guesses until the first in-hand launch (CURRENT-WORK.md).

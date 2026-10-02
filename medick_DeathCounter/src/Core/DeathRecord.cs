@@ -10,6 +10,7 @@ namespace medick_DeathCounter.Core
         Burst,           // several hits inside ~2 seconds
         DamageOverTime,  // ailments / DoT did most of the work
         Attrition,       // worn down over several seconds
+        Reported,        // game's killing-blow report; no complete hit timeline
     }
 
     public sealed class SourceShare
@@ -36,6 +37,9 @@ namespace medick_DeathCounter.Core
         public string   KillingAilment { get; set; }
         public string   KillingElement { get; set; }
         public float    KillingBlow    { get; set; }
+        public string   SecondaryKillingElement { get; set; }
+        public float    OverkillDamage { get; set; }
+        public string   DetailSource   { get; set; }
         public bool?    KillingCrit    { get; set; }
         public float    MaxHealth      { get; set; }
 
@@ -78,6 +82,7 @@ namespace medick_DeathCounter.Core
         }
 
         public string   GameDeathInfo  { get; set; }   // the game's own death text (ProtectionClass.deathInformation), when readable
+        public string   GameDeathInfoRich { get; set; } // original colors, rendered at our own readable font size
         public string   Detection      { get; set; }   // "hook" | "health" | "game", for bug reports
         public string   ModVersion     { get; set; }
 
@@ -96,6 +101,7 @@ namespace medick_DeathCounter.Core
             DeathKind.Burst          => "BURST",
             DeathKind.DamageOverTime => "DAMAGE OVER TIME",
             DeathKind.Attrition      => "WORN DOWN",
+            DeathKind.Reported       => "GAME DEATH REPORT",
             _                        => "UNKNOWN",
         };
 
