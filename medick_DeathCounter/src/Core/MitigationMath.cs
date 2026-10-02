@@ -142,8 +142,11 @@ namespace medick_DeathCounter.Core
         public const float EnduranceBase = 20f;
         public const float EnduranceCap = 60f;
         public const float EnduranceThresholdBaseFraction = 0.20f; // of max health
-        public const float PlayerResShredPerStack = 2f;        // per stack on players
-        public const int PlayerResShredMaxStacks = 20;
+        public const float PlayerResShredPerStack = 2f;        // per stack on players and bosses
+        // 10 stacks, 4 seconds. The ailments article (updated 2026-02-20) still
+        // says 10. The cap of 20 is the pre-0.9 value. 03-MATH.md repeats 20
+        // from a March 2024 guide mirror; that line is superseded by 01b.
+        public const int PlayerResShredMaxStacks = 10;
         public const float PoisonResShredPerStack = 2f;        // players, first 30 stacks
         public const int PoisonShredStacksThatCount = 30;
         public const float ShockResShredPerStack = 2f;         // lightning res, on players
@@ -218,7 +221,10 @@ namespace medick_DeathCounter.Core
 
         // ── Block and dodge (hits only) ──────────────────────────
         // Fraction of a blocked hit's damage removed by block
-        // effectiveness at an area level, capped at 85%.
+        // effectiveness at an area level, capped at 85%. This is the guide
+        // image on the Block article (updated 2026-07-14): x is block
+        // effectiveness, a is area level. Block chance is a separate stat
+        // and the guide does not cap that chance at 85%.
         public static float BlockMitigationFraction(float blockEffectiveness, float areaLevel)
         {
             if (!float.IsFinite(blockEffectiveness) || !float.IsFinite(areaLevel)) return float.NaN;
@@ -230,10 +236,11 @@ namespace medick_DeathCounter.Core
             return Math.Min(t1 + t2, BlockMitigationCap);
         }
 
-        // Dodge chance as a fraction from dodge rating at an area level,
-        // capped at 85%. Tunklab's curve (Maxroll embeds it as current);
-        // note the official guide still prints an older "10 times area level
-        // rating gives about 50%" rule of thumb that this curve contradicts.
+        // Dodge chance as a fraction from dodge rating at an area level.
+        // This is the guide image on the Dodge article (updated 2026-07-14):
+        // x is dodge rating, a is area level. The same page's rule of thumb
+        // ("rating equal to 10 times the area level is about 50%") does not
+        // match the image. At area level 100, rating 1000 is about 29.1%.
         public static float DodgeChanceFraction(float dodgeRating, float areaLevel)
         {
             if (!float.IsFinite(dodgeRating) || !float.IsFinite(areaLevel)) return float.NaN;

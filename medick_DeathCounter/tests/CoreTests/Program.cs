@@ -703,6 +703,17 @@ static class Program
         True(float.IsNaN(MitigationMath.EnemyPenetration(float.NaN)), "unknown area level");
     }
 
+    // Player resistance shred caps at 10 stacks (ailments article, 2026-02-20).
+    // 03-MATH.md still says 20, from a March 2024 mirror. That line is superseded.
+    static void Test_Math_ResShred_PlayerStackCapIsTen()
+    {
+        Eq(10, MitigationMath.PlayerResShredMaxStacks);
+        Eq(2f, MitigationMath.PlayerResShredPerStack);
+        Eq(2f, MitigationMath.PoisonResShredPerStack);
+        Eq(30, MitigationMath.PoisonShredStacksThatCount);
+        Eq(10, MitigationMath.ShockMaxStacks);
+    }
+
     // D2: shred before the cap, penetration after it, order pinned.
     static void Test_Math_Resist_EffectiveOrderShredCapPen()
     {
