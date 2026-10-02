@@ -1,3 +1,16 @@
+# MedicK's Terrible Inventory v2.0.2 — Season 5 compatibility
+
+- Season 5 compatibility update, rebuilt against the current game assemblies.
+- Fixes the shared CoreModule startup failure automatically from inside the mod DLL.
+- One-DLL installation: replace medick_Terrible_Inventory.dll in Mods. No extra plugin or repair tool is required.
+- Keeps an original CoreModule backup and handles regenerated files.
+- Existing inventory settings are preserved.
+
+Installation: close the game, then replace medick_Terrible_Inventory.dll in Last Epoch/Mods/. This ZIP contains exactly one DLL. No separate plugin, script, or library download is needed. Requires MelonLoader 0.7.3.
+
+
+Known issue: Quick Teleport currently does not work reliably in Season 5. The mod can incorrectly treat unlocked destinations as locked. Please use the normal world map for travel while we work on a fix.
+
 # Changelog — MedicK's Terrible Inventory
 
 ## v2.0.1 — council pass (2026-09-10)
@@ -75,3 +88,5 @@ a full excavation of the original development history (ARCHAEOLOGY.md).
 ## v1.0–1.1 — 2026-04
 - Initial release: STASH / STASH ALL / TRADER footer buttons, 5-destination
   teleport column; Temporal Sanctum/Lightless Arbor scene swap hotfix.
+
+

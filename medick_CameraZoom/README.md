@@ -1,3 +1,7 @@
+## Season 5 update — v1.0.2
+
+Drop medick_CameraZoom.dll into Last Epoch/Mods/ and replace the old copy. The archive contains one DLL with the CoreModule metadata repair embedded. No separate plugin or extra library is needed. Targets MelonLoader 0.7.3 and Unity 6000.4.8f1. See CHANGELOG.md.
+
 # MedicK's Terrible Zoom
 
 *a camera mod* — **Terrible Zoom** for short. A [MelonLoader](https://melonwiki.xyz) mod for **Last Epoch** that extends the camera's zoom-out range and exposes every camera parameter through a live in-game settings panel.
@@ -57,3 +61,5 @@ src/
 ```
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
+
+

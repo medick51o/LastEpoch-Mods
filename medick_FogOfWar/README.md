@@ -1,3 +1,7 @@
+## Season 5 update — v1.0.2
+
+Drop medick_The_fogOFwar.dll into Last Epoch/Mods/ and replace the old copy. The archive contains one DLL with the CoreModule metadata repair embedded. No separate plugin or extra library is needed. Targets MelonLoader 0.7.3 and Unity 6000.4.8f1. See CHANGELOG.md.
+
 # MedicK's Terrible fog_OF_war
 
 *a fog control mod* — **fog_OF_war** for short. A [MelonLoader](https://melonwiki.xyz) mod for **Last Epoch** with a 6-level vision dial, living inside the game's own settings screen. Slide left to go in blind. Slide right because we all know why you're really here.
@@ -61,3 +65,5 @@ medick_FogOfWar/
 ```
 
 See [SPEC.md](SPEC.md) for the behavior contract and [CHANGELOG.md](CHANGELOG.md) for history.
+
+

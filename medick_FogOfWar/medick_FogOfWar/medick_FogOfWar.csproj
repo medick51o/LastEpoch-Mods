@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>medick_The_fogOFwar</AssemblyName>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <RootNamespace>medick_FogOfWar</RootNamespace>
     <Nullable>disable</Nullable>
     <LangVersion>latest</LangVersion>
@@ -79,4 +80,12 @@
           DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\Mods\" />
   </Target>
 
+  <ItemGroup>
+    <Compile Include="..\..\tools\TerribleInteropRepair\CoreModuleRepair.cs" Link="Compatibility\CoreModuleRepair.cs" />
+    <Compile Include="..\..\tools\TerribleInteropRepair\EmbeddedRepairBootstrap.cs" Link="Compatibility\EmbeddedRepairBootstrap.cs" />
+    <Reference Include="Mono.Cecil"><HintPath>$(ML)Mono.Cecil.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
 </Project>
+
+
+

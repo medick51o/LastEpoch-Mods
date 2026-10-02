@@ -1,3 +1,13 @@
+# MedicK's Terrible fog_OF_war v1.0.2 — Season 5 compatibility
+
+- Season 5 compatibility update, rebuilt against the current game assemblies.
+- Fixes the shared CoreModule startup failure automatically from inside the mod DLL.
+- One-DLL installation: replace medick_The_fogOFwar.dll in Mods. No extra plugin or repair tool is required.
+- Keeps an original CoreModule backup and handles regenerated files.
+- Existing vision settings are preserved.
+
+Installation: close the game, then replace medick_The_fogOFwar.dll in Last Epoch/Mods/. This ZIP contains exactly one DLL. No separate plugin, script, or library download is needed. Requires MelonLoader 0.7.3.
+
 # Changelog — MedicK's Terrible fog_OF_war
 
 ## v1.0.1 — BLIND no longer hides ground item labels
@@ -79,3 +89,5 @@ starts here (succeeds The fog OF war v1.0 from April).
   NORMAL / SCOUT / ORACLE), Map Vision dropdown + level legend injected into
   the game's settings screen, persisted to UserData/medick_The_fogOFwar.cfg.
 - BLIND required a full game restart in both directions.
+
+

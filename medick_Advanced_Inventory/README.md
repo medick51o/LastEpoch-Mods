@@ -1,3 +1,7 @@
+## Season 5 update — v2.0.2
+
+Drop medick_Terrible_Inventory.dll into Last Epoch/Mods/ and replace the old copy. The archive contains one DLL with the CoreModule metadata repair embedded. No separate plugin or extra library is needed. Targets MelonLoader 0.7.3 and Unity 6000.4.8f1. See CHANGELOG.md.
+
 # MedicK's Terrible Inventory
 
 *an inventory mod* — **Terrible Inventory** for short. A [MelonLoader](https://melonwiki.xyz) mod for **Last Epoch** that puts the things you actually do — stashing, vendoring, getting around — one click from your inventory.
@@ -54,3 +58,5 @@ src/
 ```
 
 See [SPEC.md](SPEC.md) for the behavior contract and [ARCHAEOLOGY.md](ARCHAEOLOGY.md) for the recovered development history.
+
+
