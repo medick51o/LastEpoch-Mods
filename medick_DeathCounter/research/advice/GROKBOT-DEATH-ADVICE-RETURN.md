@@ -774,9 +774,9 @@ Synthesis commit (the parent of the patch file): see the sentence under the patc
 
 The sha256 below is of that patch file. The patch does not contain itself. Applying the patch onto a tree whose `medick_DeathCounter` matches `4b5341e` reproduces the synthesis commit. On the branch tip, the two lines below are filled in. The copy of this file inside the patch is the synthesis commit's copy, so those two lines there still show the unfilled markers. Trust the copy on the branch tip, or the pull request body. Your newer files outside that snapshot, especially anything you have changed in `src/Game` or `src/UI`, should be ported by hand rather than overwritten.
 
-Synthesis commit: `SYNTHESIS_SHA`
+Synthesis commit: `0b01440b500776aa2ce0fbe73f2d90af1ad5dbf8`
 
-Patch sha256: `PATCH_SHA256`
+Patch sha256: `3b389f149a28e437cf90ed51ca65295de615948011e2bac478f8c3e7babcb722`
 
 ### File manifest
 
