@@ -17,7 +17,12 @@ namespace medick_DeathCounter.Core
     {
         public const float ResCap = 75f;
 
-        static readonly string[] PercentKeys = { "Block", "Endurance", "CritAvoidance", "StunAvoidance" };
+        // StunAvoidance is a rating, not a percent (official stun page: every
+        // 100 rating raises the stun threshold by 1%, and players have 250
+        // plus 5 per level). Leaving it here makes a normal rating of ~750
+        // look like percent evidence and, next to a fractional resistance,
+        // drops every resistance.
+        static readonly string[] PercentKeys = { "Block", "Endurance", "CritAvoidance" };
 
         static bool IsPercentKey(string k) => k.StartsWith("Res.") || PercentKeys.Contains(k);
 
