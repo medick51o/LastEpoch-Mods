@@ -651,3 +651,11 @@ The body does not say "you take more damage" for ordinary Shock.
 - This file.
 
 Not changed: `DeathAnalyzer.cs`, `DeathDetails.cs`, `PlayerProbe.cs`, `DeathReportHooks.cs`, `DeathTracker.cs`, `ArgReader.cs`, `GameHooks.cs`, `DeathPanel.cs`, `Theme.cs`. The patches for those are in the bug list. No extra DLL is added for players.
+
+## Verification
+
+SDK `8.0.425`.
+
+`dotnet run --project medick_DeathCounter/tests/CoreTests`: 67 tests, all passed. Exit code 0.
+
+`dotnet build medick_DeathCounter -c Release -p:NoGame=true -p:DeployToMods=false -warnaserror`: succeeded. 0 warnings, 0 errors. The assembly is the existing mod output under `bin/Release/net6.0/`. `DeployToMods=false` kept it out of any game folder.
