@@ -12,7 +12,7 @@ namespace medick_DeathCounter.Core
     public static class DeathText
     {
         static readonly Regex Tags = new("(<[^>]*>)", RegexOptions.Compiled);
-        static readonly Regex ColorTag = new("^<color=[\"']?(#[0-9a-f]{6}(?:[0-9a-f]{2})?|red|white|yellow|orange|green|blue|purple)[\"']?>$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        static readonly Regex ColorTag = new("^<color=[\"']?(#[0-9a-f]{8}|#[0-9a-f]{6}|#[0-9a-f]{3}|red|white|yellow|orange|green|blue|purple|cyan|teal|grey|gray|black)[\"']?>$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public static string Plain(string text) => string.Concat(Parse(text).ConvertAll(r => r.Text)).Trim();
         public static List<DeathTextRun> Parse(string text)
         {
@@ -24,7 +24,7 @@ namespace medick_DeathCounter.Core
                 if (part.StartsWith("<", StringComparison.Ordinal) && part.EndsWith(">", StringComparison.Ordinal))
                 {
                     var match = ColorTag.Match(part);
-                    if (match.Success) colors.Push(match.Groups[1].Value);
+                    if (match.Success) colors.Push(Canonical(match.Groups[1].Value));
                     else if (part.Equals("</color>", StringComparison.OrdinalIgnoreCase) && colors.Count > 0) colors.Pop();
                     else if (part.Equals("<br>", StringComparison.OrdinalIgnoreCase) || part.Equals("<br/>", StringComparison.OrdinalIgnoreCase))
                         runs.Add(new DeathTextRun { Text = "\n", Color = colors.Count > 0 ? colors.Peek() : null });
@@ -33,6 +33,21 @@ namespace medick_DeathCounter.Core
                 runs.Add(new DeathTextRun { Text = part, Color = colors.Count > 0 ? colors.Peek() : null });
             }
             return runs;
+        }
+
+        // 3-digit hex and the two named colors the panel's hex parser does not
+        // know are widened here, so a death-recap tag still paints. 6- and
+        // 8-digit hex are left unchanged.
+        static string Canonical(string raw)
+        {
+            if (raw.Length == 4 && raw[0] == '#')
+                return $"#{raw[1]}{raw[1]}{raw[2]}{raw[2]}{raw[3]}{raw[3]}";
+            return raw.ToLowerInvariant() switch
+            {
+                "cyan" => "#13A8C9",
+                "teal" => "#29AB85",
+                _ => raw,
+            };
         }
     }
 }

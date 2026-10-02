@@ -612,4 +612,125 @@ static class Program
         }
         finally { try { Directory.Delete(dir, true); } catch { } }
     }
+
+    // Review 2026-10-02: stun avoidance is a rating. A value of 750 must not
+    // fight a fractional resistance and wipe every percent stat.
+    static void Test_Defenses_StunAvoidanceIsRatingNotResistance()
+    {
+        var d = DefenseSnapshot.Normalize(Raw(("Res.Fire", 0.75f), ("CritAvoidance", 0.4f), ("StunAvoidance", 750f)));
+        True(Math.Abs(d["Res.Fire"] - 75f) < 0.01f, "fire scaled from a fraction");
+        True(Math.Abs(d["CritAvoidance"] - 40f) < 0.01f, "crit avoidance still a percent");
+        Eq(750f, d["StunAvoidance"], "stun avoidance kept as a rating");
+    }
+
+    static void Test_AilmentFind_RejectsStatCompounds()
+    {
+        Eq(null, Ailments.Find("Shockwave")?.Name);
+        Eq(null, Ailments.Find("ShockWave")?.Name);
+        Eq(null, Ailments.Find("FreezeRate")?.Name);
+        Eq(null, Ailments.Find("FreezeRateMultiplier")?.Name);
+        Eq(null, Ailments.Find("SlowRetaliation")?.Name);
+        Eq("Shock", Ailments.Find("Shock")?.Name);
+        Eq("Freeze", Ailments.Find("Frozen")?.Name);
+    }
+
+    static void Test_Advice_UnknownMaxHealthDoesNotClaimFullLife()
+    {
+        var hits = new List<HitEvent> { new() { Time = 10, Amount = 500, Source = "Boss" } };
+        var r = DeathAnalyzer.Analyze(hits, 10, new DeathContext());
+        var body = Advisor.Suggest(r).Single(t => t.Key == "ehp").Body;
+        True(!body.Contains("100%"), body);
+        True(!body.Contains("you out"), body);
+        True(body.Contains("max health"), body);
+    }
+
+    static void Test_Advice_BurstWithoutMaxHealthDoesNotClaimFullLife()
+    {
+        var hits = new List<HitEvent>
+        {
+            new() { Time = 9.2, Amount = 200, Source = "A" },
+            new() { Time = 10, Amount = 200, Source = "A" },
+        };
+        var r = DeathAnalyzer.Analyze(hits, 10, new DeathContext());
+        Eq(DeathKind.Burst, r.Kind);
+        var body = Advisor.Suggest(r).Single(t => t.Key == "avoid").Body;
+        True(!body.Contains("100%"), body);
+        True(body.Contains("max health"), body);
+    }
+
+    static void Test_Advice_PhysicalHitQuotesResistanceAndEndurance()
+    {
+        var r = DeathAnalyzer.Analyze(new List<HitEvent> { Hit(10, 800, "Brute", Element.Physical) }, 10, Ctx());
+        r.Defenses = new() { ["Res.Physical"] = 40f, ["Endurance"] = 20f, ["EnduranceThreshold"] = 400f, ["Armor"] = 1800f };
+        var tips = Advisor.Suggest(r);
+        True(tips.Single(t => t.Key == "res_Physical").Title.Contains("40%"), "physical res quoted");
+        var end = tips.Single(t => t.Key == "endurance").Body;
+        True(end.Contains("20%"), end);
+        True(end.Contains("400"), end);
+        True(!end.Contains("belt"), end);
+        True(tips.Single(t => t.Key == "armor").Body.Contains("1,800"), "armor rating quoted, not a percent");
+    }
+
+    static void Test_Advice_FreezeDoesNotSayCapCold()
+    {
+        var r = DeathAnalyzer.Analyze(new List<HitEvent> { Hit(10, 400, "Wraith", Element.Cold) }, 10, Ctx(), new[] { "Freeze" });
+        var body = Advisor.Suggest(r).Single(t => t.Key == "cc_freeze").Body;
+        True(!body.Contains("Keep cold resistance capped"), body);
+        True(body.Contains("does not stop freeze"), body);
+        True(!Advisor.PatternBody(new Advice { Key = "cc_freeze" }, 2, 4).Contains("keep cold resistance capped"), "pattern freeze");
+    }
+
+    static void Test_Advice_ShowSkipsCappedAndStopsAtThree()
+    {
+        var shown = Advisor.Show(FireOneShot(new() { ["Res.Fire"] = 75f }));
+        True(shown.Count <= Advisor.MaxShown, "at most three");
+        True(shown.All(t => !t.Title.Contains("already capped")), "capped notice is not a recommendation");
+        True(shown.Any(t => t.Key == "crit"), "a real action remains");
+    }
+
+    static void Test_Advice_ShowFallbackWhenOnlyCapped()
+    {
+        var d = new DeathRecord { Kind = DeathKind.Reported, KillingElement = "Fire", KillingBlow = 900, DetailSource = "game death report" };
+        d.Defenses = new() { ["Res.Fire"] = 75f };
+        var shown = Advisor.Show(d);
+        Eq(1, shown.Count);
+        Eq("ehp", shown[0].Key);
+        True(shown[0].Body.Contains("75%"), shown[0].Body);
+        True(!shown[0].Title.Contains("already capped"), shown[0].Title);
+    }
+
+    static void Test_Quote_UsesOnlyRecordedFields()
+    {
+        var d = new DeathRecord
+        {
+            Killer = "Rahyeh", KillerAbility = "Lightning Bolt", KillingElement = "Lightning",
+            KillingBlow = 1240f, KillingCrit = true,
+        };
+        Eq("Killed by Lightning Bolt from Rahyeh, 1,240 lightning damage, crit.", Advisor.Quote(d));
+        d.SecondaryKillingElement = "Physical";
+        True(!Advisor.Quote(d).Contains("620"), "a mixed hit is not split in half");
+        True(Advisor.Quote(d).Contains("lightning and physical"), Advisor.Quote(d));
+        Eq("The killing blow was not recorded.", Advisor.Quote(new DeathRecord()));
+        Eq("The killing blow was not recorded.", Advisor.Quote(null));
+    }
+
+    static void Test_Confidence_NamesWhatIsMissing()
+    {
+        Eq("Low: no hit timeline, max health unknown", Advisor.Confidence(new DeathRecord()));
+        Eq("High: game death report, hit timeline, and max health",
+            Advisor.Confidence(new DeathRecord { Hits = 4, MaxHealth = 1000, DetailSource = "game death report" }));
+        Eq("Medium: hit timeline and max health, no game death report",
+            Advisor.Confidence(new DeathRecord { Hits = 2, MaxHealth = 1000 }));
+        Eq("Medium: game death report, no hit timeline, max health unknown",
+            Advisor.Confidence(new DeathRecord { Kind = DeathKind.Reported, DetailSource = "game death report", KillingBlow = 500 }));
+    }
+
+    static void Test_DeathText_KeepsShortHexAndCyan()
+    {
+        var runs = DeathText.Parse("Hit for <color=#f00>12</color> <color=cyan>cold</color>");
+        Eq("#ff0000", runs[1].Color);
+        Eq("12", runs[1].Text);
+        Eq("#13A8C9", runs[3].Color);
+        Eq("cold", DeathText.Plain("<color=cyan>cold</color>"));
+    }
 }
