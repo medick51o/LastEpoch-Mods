@@ -1,0 +1,335 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "medick-death-counter/boss-catalog/1.0.0",
+  "title": "Terrible Death Log boss and Harbinger catalog",
+  "description": "Version 1.0.0 catalog for encounter guides. Absence is explicit: status unknown means not established, status absent means established as none, and JSON null is only used inside a status object. Do not treat an empty damage list from the v0.1.2 BossProfile constructor as absent. That empty list means the damage table is unknown. Confidence unknown means this lane did not rate live Season 5 applicability. The example is the baseline Julra projection only. Its tips are copied from the starter catalog and are not approved copy; lane6-starter-audit.md recommends deleting them. The other four starter profiles use this same shape with damage coverage status unknown.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "reviewed", "encounters"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "reviewed": { "type": "string", "minLength": 1 },
+    "encounters": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/encounter" }
+    }
+  },
+  "$defs": {
+    "status": { "enum": ["unknown", "absent", "known"] },
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "evidenceClass": {
+      "enum": ["unknown", "captured-game", "datamined-reference", "developer-documentation", "tactical-inference"]
+    },
+    "positiveEvidence": {
+      "enum": ["captured-game", "datamined-reference", "developer-documentation"]
+    },
+    "element": {
+      "enum": ["Physical", "Fire", "Cold", "Lightning", "Necrotic", "Void", "Poison"]
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "level"],
+      "properties": {
+        "status": { "$ref": "#/$defs/status" },
+        "level": { "type": ["string", "null"], "enum": ["low", "medium", "high", null] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "known" } }, "required": ["status"] },
+          "then": { "properties": { "level": { "enum": ["low", "medium", "high"] } } }
+        },
+        {
+          "if": { "properties": { "status": { "enum": ["unknown", "absent"] } }, "required": ["status"] },
+          "then": { "properties": { "level": { "type": "null" } } }
+        }
+      ]
+    },
+    "locale": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "tag"],
+      "properties": {
+        "status": { "$ref": "#/$defs/status" },
+        "tag": { "type": ["string", "null"], "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "known" } }, "required": ["status"] },
+          "then": { "properties": { "tag": { "type": "string", "minLength": 1 } } }
+        },
+        {
+          "if": { "properties": { "status": { "enum": ["unknown", "absent"] } }, "required": ["status"] },
+          "then": { "properties": { "tag": { "type": "null" } } }
+        }
+      ]
+    },
+    "parent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "encounterId"],
+      "properties": {
+        "status": { "$ref": "#/$defs/status" },
+        "encounterId": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "known" } }, "required": ["status"] },
+          "then": { "properties": { "encounterId": { "$ref": "#/$defs/slug" } } }
+        },
+        {
+          "if": { "properties": { "status": { "enum": ["unknown", "absent"] } }, "required": ["status"] },
+          "then": { "properties": { "encounterId": { "type": "null" } } }
+        }
+      ]
+    },
+    "alias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "locale"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "locale": { "$ref": "#/$defs/locale" }
+      }
+    },
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "displayName", "relationship"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "displayName": { "type": "string", "minLength": 1 },
+        "relationship": { "enum": ["alternate", "empowered", "tier", "reskin", "transformed", "inherited-move"] }
+      }
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["displayName", "sceneId", "localizedName"],
+      "properties": {
+        "displayName": { "type": ["string", "null"] },
+        "sceneId": { "type": ["string", "null"] },
+        "localizedName": { "$ref": "#/$defs/locale" }
+      }
+    },
+    "ability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "displayName", "internalName", "inheritedFromEncounterId"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "displayName": { "type": ["string", "null"] },
+        "internalName": { "type": ["string", "null"] },
+        "inheritedFromEncounterId": { "type": ["string", "null"] }
+      }
+    },
+    "ailment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "effect"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "effect": { "type": ["string", "null"] }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["abilityId", "element", "delivery", "evidenceClass", "confidence"],
+      "properties": {
+        "abilityId": { "type": ["string", "null"] },
+        "element": { "$ref": "#/$defs/element" },
+        "delivery": { "enum": ["hit", "dot", "mixed", "unknown"] },
+        "evidenceClass": { "$ref": "#/$defs/positiveEvidence" },
+        "confidence": { "$ref": "#/$defs/confidence" }
+      },
+      "description": "A component needs captured, datamined, or developer evidence. Tactical inference and an ability title are not evidence of its element."
+    },
+    "list": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "items"],
+      "properties": {
+        "status": { "$ref": "#/$defs/status" },
+        "items": {}
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "known" } }, "required": ["status"] },
+          "then": { "properties": { "items": { "type": "array" } } }
+        },
+        {
+          "if": { "properties": { "status": { "enum": ["unknown", "absent"] } }, "required": ["status"] },
+          "then": { "properties": { "items": { "type": "null" } } }
+        }
+      ]
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "scope", "elements", "perAbility", "evidenceClass", "confidence"],
+      "properties": {
+        "status": { "$ref": "#/$defs/status" },
+        "scope": { "type": ["string", "null"], "enum": ["encounter", "ability", null] },
+        "elements": {
+          "type": ["array", "null"],
+          "items": { "$ref": "#/$defs/element" },
+          "uniqueItems": true
+        },
+        "perAbility": { "$ref": "#/$defs/list" },
+        "evidenceClass": { "$ref": "#/$defs/evidenceClass" },
+        "confidence": { "$ref": "#/$defs/confidence" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "known" } }, "required": ["status"] },
+          "then": {
+            "properties": {
+              "scope": { "enum": ["encounter", "ability"] },
+              "elements": { "type": "array", "minItems": 1 },
+              "evidenceClass": { "$ref": "#/$defs/positiveEvidence" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "enum": ["unknown", "absent"] } }, "required": ["status"] },
+          "then": {
+            "properties": {
+              "scope": { "type": "null" },
+              "elements": { "type": "null" },
+              "evidenceClass": { "const": "unknown" }
+            }
+          }
+        }
+      ]
+    },
+    "tip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "evidenceClass", "confidence"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "evidenceClass": { "const": "tactical-inference" },
+        "confidence": { "$ref": "#/$defs/confidence" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "url"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "minLength": 1 }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "evidenceClass", "confidence", "source"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*$" },
+        "statement": { "type": "string", "minLength": 1 },
+        "evidenceClass": { "$ref": "#/$defs/evidenceClass" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "source": { "type": ["object", "null"] }
+      }
+    },
+    "encounter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "displayName", "aliases", "parent", "variants", "locations", "abilities", "damageCoverage", "ailments", "browseGroups", "tips", "claims"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "displayName": { "type": "string", "minLength": 1 },
+        "aliases": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/alias" } },
+        "parent": { "$ref": "#/$defs/parent" },
+        "variants": { "$ref": "#/$defs/list" },
+        "locations": { "$ref": "#/$defs/list" },
+        "abilities": { "$ref": "#/$defs/list" },
+        "damageCoverage": { "$ref": "#/$defs/coverage" },
+        "ailments": { "$ref": "#/$defs/list" },
+        "browseGroups": { "$ref": "#/$defs/list" },
+        "tips": { "type": "array", "items": { "$ref": "#/$defs/tip" } },
+        "claims": { "type": "array", "items": { "$ref": "#/$defs/claim" } }
+      }
+    }
+  },
+  "examples": [
+    {
+      "schemaVersion": "1.0.0",
+      "reviewed": "Sources reviewed October 2, 2026. Historical mechanics and published game data; Season 5 encounters still need live verification.",
+      "encounters": [
+        {
+          "id": "julra",
+          "displayName": "Chronomancer Julra",
+          "aliases": [
+            { "text": "Chronomancer Julra", "locale": { "status": "unknown", "tag": null } },
+            { "text": "Julra", "locale": { "status": "unknown", "tag": null } }
+          ],
+          "parent": { "status": "unknown", "encounterId": null },
+          "variants": { "status": "unknown", "items": null },
+          "locations": { "status": "unknown", "items": null },
+          "abilities": { "status": "unknown", "items": null },
+          "damageCoverage": {
+            "status": "known",
+            "scope": "encounter",
+            "elements": ["Void", "Cold", "Lightning"],
+            "perAbility": { "status": "unknown", "items": null },
+            "evidenceClass": "datamined-reference",
+            "confidence": { "status": "unknown", "level": null }
+          },
+          "ailments": { "status": "unknown", "items": null },
+          "browseGroups": { "status": "unknown", "items": null },
+          "tips": [
+            {
+              "text": "Era plan: keep Temporal Shift available for hazards and learn the safe timing in your tier. Switching eras keeps your position, so do not assume it also moves you out of a ground hazard.",
+              "evidenceClass": "tactical-inference",
+              "confidence": { "status": "unknown", "level": null }
+            },
+            {
+              "text": "Preparation plan: check Void, Cold and Lightning coverage. Prioritize the element captured in your death; if capped, review critical protection and measured health loss in Last death before spending gear slots on a larger pool.",
+              "evidenceClass": "tactical-inference",
+              "confidence": { "status": "unknown", "level": null }
+            }
+          ],
+          "claims": [
+            {
+              "id": "julra.mechanics",
+              "statement": "Temporal Sanctum provides Temporal Shift between Divine and Ruined eras. Higher dungeon tiers and selected modifiers increase danger.",
+              "evidenceClass": "unknown",
+              "confidence": { "status": "unknown", "level": null },
+              "source": null
+            },
+            {
+              "id": "julra.damage-evidence",
+              "statement": "Tunklab's published dungeon data lists Void, Cold and Lightning for Julra. This is encounter coverage, not an attack-by-attack breakdown.",
+              "evidenceClass": "unknown",
+              "confidence": { "status": "unknown", "level": null },
+              "source": null
+            },
+            {
+              "id": "julra.source.1",
+              "statement": "Tunklab dungeon damage and era data",
+              "evidenceClass": "datamined-reference",
+              "confidence": { "status": "unknown", "level": null },
+              "source": {
+                "label": "Tunklab dungeon damage and era data",
+                "url": "https://lastepoch.tunklab.com/dungeon/temporal_sanctum"
+              }
+            },
+            {
+              "id": "julra.source.2",
+              "statement": "EHG 0.8.4 dungeon announcement (December 2021)",
+              "evidenceClass": "unknown",
+              "confidence": { "status": "unknown", "level": null },
+              "source": {
+                "label": "EHG 0.8.4 dungeon announcement (December 2021)",
+                "url": "https://www.lastepochtools.com/news/article/eternal-legends-beta-0-8-4-patch-notes-45588"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
