@@ -1,0 +1,725 @@
+{
+  "meta": {
+    "lane": "02-rules",
+    "title": "Death advice decision rules (evidence to advice matrix)",
+    "project": "medick_DeathCounter (MelonLoader mod for Last Epoch Season 5, patch 1.5)",
+    "generated_utc": "2026-10-02",
+    "base_branch_note": "Written against cursor/advice-research-base (4b5341e, Codex local snapshot 2026-10-02). The lane started before that branch existed on the remote, drafted against claude/last-epoch-death-counter-yspgnf (6790c86), then rebased and reconciled against the real files (src/Core/DeathDetails.cs, src/Game/DeathReportHooks.cs, src/Core/DeathRecord.cs, src/Game/PlayerProbe.cs). Still PLANNED: IrregularDamageSourceID and IsBossfight (in the hooked wire signature but not yet read into DeathDetails) and PlayerFinder.getLocalPlayerPrecalculatedStatsHolder (PlayerProbe does not use it yet).",
+    "companion_document": "02-RULES.md",
+    "hard_rules": [
+      "C1: never infer a one-shot or burst from the killing blow alone; one-shot and burst require DeathRecord.Hits > 0",
+      "C2: never assume a class, passive, item, encounter mechanic or unique effect without recorded evidence",
+      "C3: never recommend resistance above the 75% cap unless shred, Shock, Poison self-shred, Marked for Death or penetration is evidenced",
+      "C4: never claim a change would have prevented the death unless units, ward, remaining health, modifiers, damage split and timeline are all known",
+      "C5: when evidence is missing, say so; downgrade or show an honest not-enough-data line"
+    ],
+    "style": "plain language, no double dashes, quote recorded values, say why the advice applies"
+  },
+  "evidence_fields": {
+    "death_report_api": {
+      "source": "Il2Cpp.DeathInformationText.UpdateDeathInfo (9 args, local death screen) and Il2Cpp.PlayerActorSync.ReceiveDetailedDeathInfo (10 args, network report, local-player filtered), both hooked by src/Game/DeathReportHooks.cs on cursor/advice-research-base; Capture() reads args 0 to 7 into src/Core/DeathDetails.cs; DeathDetails.Apply() merges into DeathRecord, sets DetailSource to 'game death report', sets Kind to DeathKind.Reported when no timeline exists, and appends a recorded Ailment to AilmentsOnYou. Wire names are from the lane briefing; the hook reads by index.",
+      "wire_params": [
+        {"index": 0, "wire_name": "primaryDamageType", "death_details_field": "DeathDetails.PrimaryElement", "death_record_field": "DeathRecord.KillingElement", "captured": true},
+        {"index": 1, "wire_name": "secondaryDamageType", "death_details_field": "DeathDetails.SecondaryElement", "death_record_field": "DeathRecord.SecondaryKillingElement", "captured": true, "note": "nullable; null means no second type"},
+        {"index": 2, "wire_name": "wasCrit", "death_details_field": "DeathDetails.Crit", "death_record_field": "DeathRecord.KillingCrit", "captured": true},
+        {"index": 3, "wire_name": "damage", "death_details_field": "DeathDetails.Damage", "death_record_field": "DeathRecord.KillingBlow", "captured": true, "note": "units unproven (U3)"},
+        {"index": 4, "wire_name": "overkillDamage", "death_details_field": "DeathDetails.Overkill", "death_record_field": "DeathRecord.OverkillDamage", "captured": true, "note": "units unproven (U3)"},
+        {"index": 5, "wire_name": "ailment", "death_details_field": "DeathDetails.Ailment", "death_record_field": "DeathRecord.KillingAilment", "captured": true, "note": "localized via DeathInformationText.GetLocalizedAilmentName with displayName/ailmentName fallback; also appended to AilmentsOnYou"},
+        {"index": 6, "wire_name": "ability", "death_details_field": "DeathDetails.Ability", "death_record_field": "DeathRecord.KillerAbility", "captured": true},
+        {"index": 7, "wire_name": "attacker", "death_details_field": "DeathDetails.Killer", "death_record_field": "DeathRecord.Killer", "captured": true},
+        {"index": 8, "wire_name": "irregularDamageSourceID", "death_details_field": "PLANNED DeathDetails.IrregularDamageSourceID", "death_record_field": null, "captured": false, "note": "Capture() reads args 0 to 7 only; R-06 needs this one-line addition; none-encoding unconfirmed"},
+        {"index": 9, "wire_name": "isBossfight", "death_details_field": "PLANNED DeathDetails.IsBossfight", "death_record_field": null, "captured": false, "note": "10-arg network report only; R-22 needs this one-line addition; the 9-arg local report's last argument is unmapped"}
+      ],
+      "also_captured": {"DeathDetails.Text": "DeathRecord.GameDeathInfo", "DeathDetails.RichText": "DeathRecord.GameDeathInfoRich"},
+      "cautions": ["Damage and Overkill units unproven until probed against health deltas (U3)", "map ailment by enum name, never by number", "missing string fields arrive as null, not empty"]
+    },
+    "defenses": {
+      "source": "DeathRecord.Defenses dictionary (PlayerProbe.Defenses via DefenseSnapshot.Normalize; on the base branch PlayerProbe reads ProtectionClass fields such as uncappedPhysicalResistance, armour, dodgeRating; PLANNED and not yet implemented: PlayerFinder.getLocalPlayerPrecalculatedStatsHolder)",
+      "keys": ["Res.Physical", "Res.Fire", "Res.Cold", "Res.Lightning", "Res.Necrotic", "Res.Void", "Res.Poison", "ResUncapped.<Element>", "Armor", "Dodge", "Block", "Endurance", "EnduranceThreshold", "CritAvoidance", "StunAvoidance", "Ward", "MaxHealth"],
+      "cautions": ["missing key means unknown, never zero", "percent scale (75 vs 0.75) decided by DefenseSnapshot.Scale; ambiguous scale means no percent stats at all", "Ward is read after the killing hit's absorb"]
+    },
+    "timeline": {
+      "source": "DeathRecord fields computed by DeathAnalyzer from HitEvent; present only when DeathRecord.Hits > 0",
+      "fields": ["Hits", "Kind", "WindowSeconds", "WindowDamage", "DotDamage", "DotByElement[7]", "DamageByElement[7]", "TopSources", "AilmentsOnYou", "KillingBlow", "KillingCrit", "Killer", "KillerAbility", "KillingAilment", "KillingElement"],
+      "analyzer_constants": {"WindowSeconds": 5.0, "BurstSeconds": 2.0, "OneShotFraction": 0.7, "BurstFraction": 0.8, "DotFraction": 0.5, "HitBufferSeconds": 12.0, "AilmentMemorySeconds": 6.0}
+    },
+    "history": {
+      "source": "DeathPatterns.PatternReport over the last 20 deaths (DefaultWindow)",
+      "fields": ["Deaths", "TopKillers", "ElementShares", "TopAilments", "Kinds", "Priorities"]
+    },
+    "context": ["DeathRecord.Level", "DeathRecord.Zone", "DeathRecord.CharacterClass", "DeathRecord.Hardcore", "DeathRecord.GameDeathInfo", "DeathRecord.Detection"]
+  },
+  "mechanics_facts": [
+    {"id": "F1", "fact": "Resistances cap at 75% for all seven types; negative resistance increases damage taken point for point; resistances reduce DoT as well as hits", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361885661851-Resistances (updated 2026-07-14, accessed 2026-10-02)"]},
+    {"id": "F2", "fact": "All enemies gain 1% penetration per area level, max 75% at area level 75+, applied after the resistance cap; overcap does not help against penetration; at area 75+ capped resistance is the balanced baseline and below cap is effectively negative", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361871026971-Penetrations (updated 2026-02-24, accessed 2026-10-02)", "https://support.lastepoch.com/hc/en-us/articles/46363284011419-If-75-resistance-is-the-max-and-the-enemies-get-penetration-per-level-up-to-75-do-I-need-150-resistance (updated 2026-02-12, accessed 2026-10-02)"]},
+    {"id": "F3", "fact": "Overcap resistance only absorbs resistance-reducing effects: resistance shreds, Shock, Poison stacks, Marked for Death (-25% all resistances, 8 s)", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments (updated 2026-02-14, accessed 2026-10-02)"]},
+    {"id": "F4", "fact": "Versus players: resistance shred 2% per stack, max 10 stacks (max -20%), 4 s; Shock -2% lightning resistance and +8% stun chance per stack, max 10; Poison self-shred -2% poison resistance per stack, first 30 stacks (max -60%); armor shred -100 armor per stack, unlimited, 4 s, no player reduction listed (U1)", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments (updated 2026-02-14, accessed 2026-10-02)", "https://forum.lastepoch.com/t/the-convergence-update-beta-0-9-patch-notes/51975 (stack cap 10, accessed 2026-10-02)"]},
+    {"id": "F5", "fact": "Armor reduces all hits, 70% as effective against non-physical, mitigation cap 85% (59.5% non-physical), scales down with area level, no effect on DoT; armor-applies-to-DoT exists only on specific items the mod cannot see", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361891210651-Armor (updated 2026-07-13, accessed 2026-10-02)", "https://www.lastepochtools.com/db/items/IIwBgTCkBySQ (accessed 2026-10-02)"]},
+    {"id": "F6", "fact": "Endurance: base 20%, threshold base 20% of max health, cap 60%, threshold uncapped; reduces the part of hits and DoT below the threshold including the crossing part; does not apply to ward", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361855013787-Endurance (updated 2026-02-13, accessed 2026-10-02)"]},
+    {"id": "F7", "fact": "Ward takes damage before health, no cap, decays (retention slows, decay threshold floors); only Arena Echoes traps bypass it and they cannot kill; ward versus DoT believed yes but not explicit (U2)", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361876030235-Ward (updated 2026-07-14, accessed 2026-10-02)", "https://support.lastepoch.com/hc/en-us/articles/46363263694235-What-is-Ward-and-can-damage-bypass-it (updated 2026-02-20, accessed 2026-10-02)", "https://support.lastepoch.com/hc/en-us/articles/46361875581211-Hit-Vs-Damage-Over-Time (updated 2026-02-13, accessed 2026-10-02)"]},
+    {"id": "F8", "fact": "Enemy hits: 5% base crit chance, fixed 200% crit multiplier; critical strike avoidance rolls after attacker crit chance and multiplies it, cap 100% means never crit; less bonus damage taken from crits caps at 100%; DoT cannot crit", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361891709211-Critical-Strikes (updated 2026-02-13, accessed 2026-10-02)"]},
+    {"id": "F9", "fact": "Critical Vulnerability: +2% chance to receive a crit and -10% critical strike avoidance per stack, max 10 stacks, 4 s; breaks capped avoidance", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments (updated 2026-02-14, accessed 2026-10-02)"]},
+    {"id": "F10", "fact": "Dodge: chance from rating, lower at higher area level, cap 85% (rule of thumb rating = 10 x area level gives about 50%); dodging avoids the hit and its ailments; DoT cannot be dodged", "sources": ["https://www.lastepochtools.com/guide/section/dodge (accessed 2026-10-02)", "https://maxroll.gg/last-epoch/resources/defenses-explained (accessed 2026-10-02)"]},
+    {"id": "F11", "fact": "Block: chance rolls on every hit including spells; blocked hit mitigated by block effectiveness, scales with area level, cap 85%; blocking counts as being hit; DoT cannot be blocked", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361876155547-Block (updated 2026-07-14, accessed 2026-10-02)"]},
+    {"id": "F12", "fact": "Glancing blow: 35% less hit damage, chance cap 100%, hits only", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361871332251-Glancing-Blow (updated 2026-02-13, accessed 2026-10-02)"]},
+    {"id": "F13", "fact": "Stun: base 0.4 s; non-player hits must exceed 5% of target max health to have any stun chance; every 100 stun avoidance raises the threshold 1%; players have 250 + 5 per level inherent; Shock raises stun chance", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361891772443-Stun (updated 2026-02-13, accessed 2026-10-02)"]},
+    {"id": "F14", "fact": "Freeze: base 1.2 s; chance is attacker freeze rate divided by target (max health + current ward); first 15 Frostbite stacks each add 20% increased freeze chance", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361855307035-Freeze (updated 2026-07-14, accessed 2026-10-02)"]},
+    {"id": "F15", "fact": "Corruption raises monster health and damage (no official per-point formula; 0.5% per point is a 2023 community figure, outdated); empowered monoliths are area level 100 starting at 100 corruption; echo modifiers exist that reduce player resistances, raise enemy crit chance, or raise enemy damage", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46363308884635-What-is-affected-by-Corruption (updated 2026-02-12, accessed 2026-10-02)", "https://maxroll.gg/last-epoch/monolith/empowered-guide (accessed 2026-10-02)", "https://maxroll.gg/last-epoch/monolith/the-last-ruin-timeline-guide (accessed 2026-10-02)"]},
+    {"id": "F16", "fact": "Community health floors for level 100 content: under 2000 HP is very low, 3000 to 3500 comfortable, ward builds 4000 to 5000 ward; community guidance, always Medium confidence", "sources": ["https://forum.lastepoch.com/t/what-do-you-do-to-solve-your-survivability-when-you-first-reach-empowered-monos/73162 (accessed 2026-10-02)", "https://www.thegamer.com/last-epoch-all-defensive-layers-explained/ (accessed 2026-10-02)", "https://steamcommunity.com/app/899770/discussions/0/4295943164872849597/ (accessed 2026-10-02)"]},
+    {"id": "F17", "fact": "Ailment table: Ignite 40 fire/2.5 s; Bleed 53 physical/3 s; Poison 28 poison/3 s plus self-shred; Frostbite 50 cold/3 s plus freeze chance; Electrify 44 lightning/2.5 s; Time Rot 60 void/3 s max 12 stacks +5% stun duration received; Doom 400 void/4 s max 4 stacks +4% melee damage taken; Damned 35 necrotic/2.5 s and 20% reduced health regen; Plague 150 poison/4 s spreads; Spreading Flames 200 fire/4 s spreads; Abyssal Decay void, remaining damage applies when hit", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments (updated 2026-02-14, accessed 2026-10-02)"]},
+    {"id": "F18", "fact": "Season 5 (1.5) launched 2026-10-01 with hotfix 1.5.0.1 the same day; no core defense mechanic changes found in the notes; re-verify after any 1.5.x balance patch", "sources": ["https://forum.lastepoch.com/t/season-5-rage-of-the-frostborn-patch-notes/81789 (2026-09-25, accessed 2026-10-02)", "https://forum.lastepoch.com/t/last-epoch-hotfix-1-5-0-1-notes/81887 (2026-10-01, accessed 2026-10-02)"]}
+  ],
+  "uncertainty_register": [
+    {"id": "U1", "note": "Armor shred versus players: current official article lists flat -100 armor per stack with no player reduction; an older forum reading claimed 2% per stack. Use flat 100, Medium confidence."},
+    {"id": "U2", "note": "Ward versus DoT: believed absorbed (ward takes damage first) but the official DoT article lists only resistances as DoT mitigation. Word DoT advice around resistances, endurance and sustain first."},
+    {"id": "U3", "note": "Damage and Overkill units in the death report are unproven until the probe compares them to health deltas."},
+    {"id": "U4", "note": "Corruption per-point scaling: official sources confirm direction only."},
+    {"id": "U5", "note": "Armor and dodge mitigation need the area level, which the mod does not record; never quote a mitigation percent from a recorded armor or dodge value."},
+    {"id": "U6", "note": "IrregularDamageSourceID values are unmapped and the field is not captured yet (args[8] of the 10-arg report); say hazard or ground effect and nothing more specific."}
+  ],
+  "classification": {
+    "description": "Runs before the rules; first match wins",
+    "order": [
+      {"class": "ailment", "when": "report Ailment (or KillingAilment) names a known damaging ailment (Ailments.ByName(...).IsDot == true)", "conflict": "Crit true on a DoT is a data conflict (DoT cannot crit, F8): mark Low confidence, R-01 skips"},
+      {"class": "irregular", "when": "IrregularDamageSourceID present and not the none value (PLANNED field, not yet captured), or no Killer and no Ability with a DoT-ish or absent Ailment"},
+      {"class": "hit", "when": "Killer or Ability present; Crit is meaningful"},
+      {"class": "unknown", "when": "none of the above; only tier-agnostic rules and the fallback may fire"}
+    ],
+    "element_resolution": "Map PrimaryElement by enum name via Elements.TryParse; SecondaryElement may be mentioned as 'mostly {primary} with some {secondary}' but the split is never quantified without a timeline (DamageByElement)"
+  },
+  "rules": [
+    {
+      "type": "rule",
+      "id": "R-01",
+      "key": "crit-killing-blow",
+      "rank": 1,
+      "tier": "killing-blow",
+      "title": "Get critical strike avoidance to 100%",
+      "required_evidence": [{"field": "Crit", "from": "death_report", "alt": "DeathRecord.KillingCrit"}],
+      "optional_evidence": ["Defenses.CritAvoidance", "Damage", "AilmentsOnYou"],
+      "conditions": [
+        {"field": "Crit", "op": "eq", "value": true, "note": "the killing blow crit"},
+        {"field": "Defenses.CritAvoidance", "op": "lt", "value": 99.5, "note": "when known; 99.5 tolerates float rounding of a true 100"},
+        {"field": "Defenses.CritAvoidance", "op": "ge", "value": 99.5, "note": "only fire if AilmentsOnYou contains Critical Vulnerability (R-11 owns wording); otherwise the record contradicts itself, skip and note the conflict"}
+      ],
+      "thresholds": [
+        {"name": "enemy_crit_multiplier", "value": 2.0, "unit": "x", "justification": "enemy crits deal double damage (F8)", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361891709211-Critical-Strikes"]},
+        {"name": "crit_avoidance_cap", "value": 100, "unit": "percent", "justification": "at 100% avoidance no enemy hit can crit (F8)", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361891709211-Critical-Strikes"]}
+      ],
+      "exclusions": ["killing blow classified as ailment or DoT (DoTs cannot crit, F8)", "Crit false", "avoidance at cap without Critical Vulnerability recorded"],
+      "wording": {
+        "title": "Get critical strike avoidance to 100%",
+        "body": "The killing blow was a critical strike for {Damage}. Enemy crits deal double damage, and your critical strike avoidance was {CritAvoidance}%: at 100% no enemy hit can crit you.",
+        "body_avoidance_unknown": "The killing blow was a critical strike for {Damage}. Enemy crits deal double damage. Check critical strike avoidance on your character sheet: at 100% no enemy hit can crit you."
+      },
+      "confidence_label": "High confidence: the crit flag was recorded by the game's own death report. (Avoidance unknown: Medium confidence: the crit was recorded, but your avoidance was not.)",
+      "missing_data": {"Crit": "skip", "Defenses.CritAvoidance": "downgrade to body_avoidance_unknown", "Damage": "drop the 'for {Damage}' clause"},
+      "counterexamples": ["killing blow was an Ignite tick with Crit false: must not fire", "Crit true on a recorded DoT ailment: data conflict, must not fire, flag the conflict in the data line"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361891709211-Critical-Strikes (updated 2026-02-13, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-02",
+      "key": "res-gap-killing-element",
+      "rank": 2,
+      "tier": "killing-blow",
+      "title": "Cap {element} resistance: you had {Res}%",
+      "required_evidence": [{"field": "PrimaryElement", "from": "death_report", "alt": "DeathRecord.KillingElement"}, {"field": "Defenses.Res.<Element>", "from": "defenses", "alt": null}],
+      "optional_evidence": ["Defenses.ResUncapped.<Element>", "DamageByElement", "Level", "Zone"],
+      "conditions": [
+        {"field": "PrimaryElement", "op": "known", "value": null, "note": "element resolved via Elements.TryParse"},
+        {"field": "Defenses.Res.<Element>", "op": "lt", "value": 74.5, "note": "half a point of tolerance around the 75 cap (F1)"},
+        {"field": "DamageByElement", "op": "share_ge", "value": 0.25, "note": "only when a timeline exists; the killing element alone is enough"}
+      ],
+      "thresholds": [
+        {"name": "resistance_cap", "value": 75, "unit": "percent", "justification": "hard cap for all seven types (F1)", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361885661851-Resistances"]},
+        {"name": "area_penetration", "value": "1% per area level, max 75% at area level 75+", "unit": "percent", "justification": "applied after the cap, so below cap at high area level is effectively negative (F2)", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361871026971-Penetrations"]}
+      ],
+      "exclusions": ["Res.<Element> >= 74.5 (R-10 owns that case)", "matching shred ailment recorded (R-03 owns it)", "element unknown"],
+      "wording": {
+        "title": "Cap {element} resistance: you had {Res}%",
+        "body": "The killing blow was {element}. Your {element} resistance was {Res}%, which is {gap} points under the 75% cap. In high level areas enemies also penetrate up to 75% resistance, so below the cap you are not just unprotected, you take increased damage.",
+        "body_res_unknown": "The killing blow was {element}. Check your {element} resistance: every point under the 75% cap is damage you take for free."
+      },
+      "confidence_label": "High confidence: the killing damage type and your resistance were both recorded. (Resistance unknown: Medium.)",
+      "missing_data": {"PrimaryElement": "skip", "Defenses.Res.<Element>": "downgrade to body_res_unknown, Medium confidence", "timeline": "fire anyway on the killing element, no share check"},
+      "counterexamples": ["Res.Fire reads 75% and the killing blow was fire: must not fire (R-10)", "killing element fire but Fire Resistance Shred recorded: must not fire (R-03)"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361885661851-Resistances (updated 2026-07-14, accessed 2026-10-02)", "https://support.lastepoch.com/hc/en-us/articles/46361871026971-Penetrations (updated 2026-02-24, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-03",
+      "key": "shred-recorded",
+      "rank": 3,
+      "tier": "killing-blow",
+      "title": "Your {element} resistance was being shredded",
+      "required_evidence": [{"field": "AilmentsOnYou", "from": "timeline_or_taps", "alt": "killing ailment when it self-shreds (Poison)"}],
+      "optional_evidence": ["Defenses.ResUncapped.<Element>", "Defenses.Res.<Element>", "Defenses.Armor"],
+      "conditions": [
+        {"field": "AilmentsOnYou", "op": "contains_any", "value": ["<Element> Resistance Shred", "Resistance Shred", "Shock (lightning deaths)", "Poison (poison deaths)", "Marked for Death", "Armor Shred or Stagger (hit deaths)"], "note": "shred must match the killing element; Marked for Death matches all"}
+      ],
+      "thresholds": [
+        {"name": "res_shred_vs_player", "value": "2% per stack, max 10 stacks (max -20%), 4 s", "justification": "5% base with 60% less effect against players (F4)", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments"]},
+        {"name": "poison_self_shred", "value": "2% per stack, first 30 stacks (max -60%)", "justification": "F4", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments"]},
+        {"name": "armor_shred", "value": "-100 armor per stack, unlimited, 4 s", "justification": "F4, Medium confidence (U1)", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments"]}
+      ],
+      "exclusions": ["no shred-class ailment recorded: never mention overcap (C3)", "shred element does not match the killing element or DoT element"],
+      "wording": {
+        "title": "Your {element} resistance was being shredded",
+        "body": "You had {Ailment} stacks on you. Each stack strips 2% {element} resistance (up to 20% at 10 stacks), applied before the 75% cap. Your sheet showed {ResUncapped}% uncapped: keep {element} resistance at least 20 points over the cap against this enemy, or kill the shredder first.",
+        "body_armor": "Armor Shred removes about 100 armor per stack with no stack cap. Kill the shredder first, or lean on a layer shred cannot touch: dodge, block, or a bigger pool."
+      },
+      "confidence_label": "High confidence: the shred ailment was recorded on you. (Armor shred: Medium, U1.)",
+      "missing_data": {"AilmentsOnYou": "skip; shred is never assumed (C2)", "Defenses.ResUncapped.<Element>": "drop the sentence that quotes it"},
+      "counterexamples": ["AilmentsOnYou empty and the killing blow was fire: must not recommend overcap; R-02 or R-10 owns the death", "Cold Resistance Shred recorded but the killer was an Ignite: must not fire for fire"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments (updated 2026-02-14, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-04",
+      "key": "dot-kill",
+      "rank": 4,
+      "tier": "killing-blow",
+      "title": "{Ailment}: {element} resistance and sustain",
+      "required_evidence": [{"field": "Ailment", "from": "death_report", "alt": "DeathRecord.KillingAilment or timeline DotDamage/WindowDamage >= 0.5"}],
+      "optional_evidence": ["Defenses.Res.<Element>", "DotByElement", "Defenses.Endurance"],
+      "conditions": [
+        {"field": "Ailment", "op": "is_dot", "value": true, "note": "Ailments.ByName(Ailment).IsDot == true"},
+        {"field": "DotDamage/WindowDamage", "op": "ge", "value": 0.5, "note": "alternative: timeline DoT dominated (DeathAnalyzer.DotFraction)"}
+      ],
+      "thresholds": [
+        {"name": "dot_dominance", "value": 0.5, "unit": "share", "justification": "existing analyzer boundary", "sources": ["src/Core/DeathAnalyzer.cs"]},
+        {"name": "dot_mitigation", "value": "resistances, endurance (health portion), ward (U2), sustain; never armor, dodge, block, glancing; cannot crit", "justification": "F5, F6, F7, F8", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361875581211-Hit-Vs-Damage-Over-Time"]}
+      ],
+      "exclusions": ["killing blow was a hit and no timeline shows DoT dominance", "Crit true with a DoT ailment: data conflict, fire with Low confidence and note the conflict"],
+      "wording": {
+        "title": "{Ailment}: {element} resistance and sustain",
+        "body_ignite": "Ignite deals fire damage over time. Armor, dodge and block do nothing against damage over time: fire resistance, endurance, ward and sustain (leech, regen, potions) are what help.",
+        "body_bleed": "Bleed deals physical damage over time, and armor does not reduce it. Physical resistance, endurance and sustain do.",
+        "body_poison": "Poison deals poison damage over time, and each stack also strips 2% of your poison resistance (first 30 stacks). Poison resistance with overcap headroom, and sustain.",
+        "body_damned": "Damned deals necrotic damage over time and cuts your health regen by 20%: lean on leech or ward instead of regen.",
+        "body_time_rot": "Time Rot deals void damage over time and makes stuns on you last longer. Void resistance, sustain, and stun avoidance.",
+        "body_doom": "Doom deals void damage over time and makes you take 4% more melee damage per stack: keep out of melee of the source.",
+        "body_frostbite": "Frostbite deals cold damage over time and each of the first 15 stacks makes you 20% more likely to be frozen: cold resistance, sustain, and a bigger pool.",
+        "body_generic": "Most of the damage that killed you was over time. Armor, dodge and block do nothing against it: the matching resistance, endurance, ward and sustain are what help."
+      },
+      "confidence_label": "High confidence: the killing ailment was recorded. (Timeline only: Medium confidence: no death report, but most of the recorded damage was over time.)",
+      "missing_data": {"Ailment": "use body_generic when the timeline is DoT dominated", "element": "drop the resistance sentence, keep the DoT mechanics sentence"},
+      "counterexamples": ["death report shows a melee hit, no ailment, no timeline: must not fire", "KillingAilment == Bleed: armor must not be recommended anywhere in the wording"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments (updated 2026-02-14, accessed 2026-10-02)", "https://support.lastepoch.com/hc/en-us/articles/46361875581211-Hit-Vs-Damage-Over-Time (updated 2026-02-13, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-05",
+      "key": "overkill-exceeds-pool",
+      "rank": 5,
+      "tier": "killing-blow",
+      "title": "That one hit was larger than your full health",
+      "required_evidence": [{"field": "Damage", "from": "death_report", "alt": null}, {"field": "Overkill", "from": "death_report", "alt": null}, {"field": "Defenses.MaxHealth", "from": "defenses", "alt": "DeathRecord.MaxHealth"}, {"field": "report_units_validated", "from": "probe", "alt": null}],
+      "optional_evidence": ["Defenses.Ward", "Hits"],
+      "conditions": [
+        {"field": "Overkill", "op": "ge", "value": "MaxHealth", "note": "the killing hit alone dealt more than the entire maximum health: it would have killed from full, a comparison of recorded numbers, not a prevention claim (C4)"}
+      ],
+      "thresholds": [],
+      "exclusions": ["units not validated (U3): downgrade to the fact line, Medium confidence", "MaxHealth unknown: skip (large hits are judged against the pool only when the pool is known)", "Ward after hit > 0 contradicts the death (ward takes damage first, F7): note the inconsistency and skip the pool comparison"],
+      "wording": {
+        "title": "That one hit was larger than your full health",
+        "body": "The killing hit dealt {Damage}, and {Overkill} of that was more than needed to kill you: it would have killed you from your full {MaxHealth} health on its own. Against a hit that size the only answers are a much bigger pool (health or ward), not standing there, or recorded mitigation you were missing.",
+        "body_units_unvalidated": "The game's death report says the killing blow dealt {Damage} with {Overkill} overkill. The mod has not yet confirmed how that number maps to your health, so treat it as the game's own figure."
+      },
+      "confidence_label": "High confidence: killing damage, overkill and your max health were all recorded. (Downgrade: Low confidence: the damage figure comes straight from the game and its units are unconfirmed.)",
+      "missing_data": {"Overkill": "skip", "Damage": "skip", "MaxHealth": "skip"},
+      "counterexamples": ["Overkill 50 against 2,000 max health: a finishing blow while already low, must not fire (R-09 owns it if a timeline exists)", "MaxHealth missing from the snapshot: must not fire even with a huge recorded damage number"],
+      "sources": ["lane briefing (ReceiveDetailedDeathInfo fields)", "https://support.lastepoch.com/hc/en-us/articles/46361876030235-Ward (updated 2026-07-14, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-06",
+      "key": "irregular-source",
+      "rank": 6,
+      "tier": "killing-blow",
+      "title": "A hazard or ground effect killed you",
+      "required_evidence": [{"field": "IrregularDamageSourceID", "from": "death_report", "alt": "no Killer and no Ability with a DoT-ish or absent Ailment", "status": "PLANNED: wire value at args[8] of the 10-arg report, not yet read by Capture(); until the one-line DeathDetails addition lands only the alt condition can fire"}],
+      "optional_evidence": ["Ailment", "Zone", "PrimaryElement"],
+      "conditions": [{"field": "classification", "op": "eq", "value": "irregular", "note": "section 3 decision list"}],
+      "thresholds": [
+        {"name": "ground_effects_are_dot", "value": "area effects such as Fire Aura, Tornado, Consecrated Ground are damage over time", "justification": "F7; they cannot be dodged, blocked or glanced", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361875581211-Hit-Vs-Damage-Over-Time"]}
+      ],
+      "exclusions": ["a recorded attacker or ability (a normal monster hit)", "any specific hazard or mechanic claim (U6, C2)"],
+      "wording": {
+        "title": "A hazard or ground effect killed you",
+        "body": "The killing damage came from a hazard or ground effect, not a direct monster hit. Those are usually damage over time: they cannot be dodged, blocked or glanced. {element} resistance, ward, endurance and simply moving out are what help."
+      },
+      "confidence_label": "Medium confidence: the game flagged an irregular damage source, but the mod cannot tell which hazard it was.",
+      "missing_data": {"PrimaryElement": "drop the resistance phrase, keep 'the matching resistance'", "IrregularDamageSourceID": "skip"},
+      "counterexamples": ["Killer 'Rogue Archer' with Ability 'Multishot': a normal hit, must not fire"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361875581211-Hit-Vs-Damage-Over-Time (updated 2026-02-13, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-07",
+      "key": "oneshot-ehp",
+      "rank": 7,
+      "tier": "timeline",
+      "title": "Raise your effective health pool",
+      "required_evidence": [{"field": "DeathRecord.Kind", "from": "timeline", "alt": null}, {"field": "DeathRecord.Hits", "from": "timeline", "alt": null}, {"field": "DeathRecord.MaxHealth", "from": "timeline", "alt": "Defenses.MaxHealth"}],
+      "optional_evidence": ["KillingBlow", "Defenses.Endurance", "Defenses.EnduranceThreshold", "Defenses.Ward"],
+      "conditions": [
+        {"field": "Kind", "op": "eq", "value": "OneShot", "note": "one recorded hit >= 70% of max health (OneShotFraction)"},
+        {"field": "Hits", "op": "gt", "value": 0, "note": "C1: never infer a one-shot from the killing blow alone"},
+        {"field": "MaxHealth", "op": "gt", "value": 0, "note": "the analyzer's shape-only fallback without max health is not enough for this wording"}
+      ],
+      "thresholds": [{"name": "oneshot_fraction", "value": 0.7, "unit": "share of max health", "justification": "existing analyzer constant", "sources": ["src/Core/DeathAnalyzer.cs"]}],
+      "exclusions": ["Hits == 0", "MaxHealth unknown: downgrade to R-05's fact line if overkill allows, else skip"],
+      "wording": {
+        "title": "Raise your effective health pool",
+        "body": "One hit took {KillingBlow} damage, {share}% of your {MaxHealth} health. More health, more ward, and a higher endurance threshold ({EnduranceThreshold} now) are what let you survive the next one."
+      },
+      "confidence_label": "High confidence: the hit timeline and your max health were both recorded.",
+      "missing_data": {"EnduranceThreshold": "drop that clause", "KillingBlow": "drop the number, keep the share"},
+      "counterexamples": ["Hits == 0 and the death report shows an 1,800 killing blow: must not fire; that blow may have been the tenth hit (C1)"],
+      "sources": ["src/Core/DeathAnalyzer.cs", "https://support.lastepoch.com/hc/en-us/articles/46361855013787-Endurance (updated 2026-02-13, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-08",
+      "key": "burst-avoidance",
+      "rank": 8,
+      "tier": "timeline",
+      "title": "Avoid hits: dodge and block",
+      "required_evidence": [{"field": "DeathRecord.Kind", "from": "timeline", "alt": null}, {"field": "DeathRecord.Hits", "from": "timeline", "alt": null}],
+      "optional_evidence": ["WindowDamage", "MaxHealth", "Defenses.Dodge", "Defenses.Block"],
+      "conditions": [
+        {"field": "Kind", "op": "eq", "value": "Burst", "note": ">= 80% of max health inside 2 s (BurstFraction, BurstSeconds); shape fallback with max health unknown fires at Medium confidence"},
+        {"field": "Hits", "op": "gt", "value": 0, "note": "C1"}
+      ],
+      "thresholds": [
+        {"name": "burst_fraction", "value": 0.8, "unit": "share of max health", "justification": "existing analyzer constant", "sources": ["src/Core/DeathAnalyzer.cs"]},
+        {"name": "burst_seconds", "value": 2.0, "unit": "seconds", "justification": "existing analyzer constant", "sources": ["src/Core/DeathAnalyzer.cs"]}
+      ],
+      "exclusions": ["DoT dominated window (R-04 owns it; dodge and block do nothing there, F7)", "Hits == 0"],
+      "wording": {
+        "title": "Avoid hits: dodge and block",
+        "body": "You took {WindowDamage} damage in about {WindowSeconds} seconds across {Hits} hits. Dodge rating and block chance stop hits before they land, and a bigger pool buys the second you need to react or potion."
+      },
+      "confidence_label": "High confidence: the hit timeline was recorded. (Shape fallback: Medium.)",
+      "missing_data": {"MaxHealth": "drop the percent framing", "Defenses.Dodge/Block": "keep generic; do not claim the player lacks them (that is R-17, and it needs the snapshot)"},
+      "counterexamples": ["DotDamage is 60% of WindowDamage: must not recommend dodge against a bleed"],
+      "sources": ["https://www.lastepochtools.com/guide/section/dodge (accessed 2026-10-02)", "https://support.lastepoch.com/hc/en-us/articles/46361876155547-Block (updated 2026-07-14, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-09",
+      "key": "attrition-sustain",
+      "rank": 9,
+      "tier": "timeline",
+      "title": "Improve sustain",
+      "required_evidence": [{"field": "DeathRecord.Kind", "from": "timeline", "alt": "Hits >= 3 and Overkill < 10% of MaxHealth"}],
+      "optional_evidence": ["WindowSeconds", "TopSources", "Damage"],
+      "conditions": [
+        {"field": "Kind", "op": "eq", "value": "Attrition", "note": "worn down over several seconds"},
+        {"field": "Overkill/MaxHealth", "op": "lt", "value": 0.1, "note": "alternative: small finishing blow, the player was already nearly dead"}
+      ],
+      "thresholds": [{"name": "finishing_blow_boundary", "value": 0.1, "unit": "share of pool", "justification": "marks 'already nearly dead': the fix is the previous seconds, which is sustain (F16)", "sources": ["https://forum.lastepoch.com/t/what-do-you-do-to-solve-your-survivability-when-you-first-reach-empowered-monos/73162"]}],
+      "exclusions": ["single-hit deaths (R-07)", "DoT dominated (R-04)", "no timeline and overkill unknown: skip"],
+      "wording": {
+        "title": "Improve sustain",
+        "body": "You were worn down over {WindowSeconds} seconds and the killing blow was only {Damage}. Health regen, leech, health on kill and potion discipline matter more here than any single mitigation layer."
+      },
+      "confidence_label": "Medium confidence: the timeline shows a slow death, but the mod cannot see your leech or regen.",
+      "missing_data": {"Damage": "drop 'was only {Damage}'", "WindowSeconds": "skip"},
+      "counterexamples": ["Hits == 1: must not fire"],
+      "sources": ["https://forum.lastepoch.com/t/what-do-you-do-to-solve-your-survivability-when-you-first-reach-empowered-monos/73162 (accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-10",
+      "key": "res-capped-next-layer",
+      "rank": 10,
+      "tier": "killing-blow",
+      "title": "{element} resistance was already capped",
+      "required_evidence": [{"field": "PrimaryElement", "from": "death_report", "alt": "DeathRecord.KillingElement"}, {"field": "Defenses.Res.<Element>", "from": "defenses", "alt": null}],
+      "optional_evidence": ["Defenses.ResUncapped.<Element>"],
+      "conditions": [
+        {"field": "Defenses.Res.<Element>", "op": "ge", "value": 74.5, "note": "at cap (F1)"},
+        {"field": "AilmentsOnYou", "op": "not_contains_matching_shred", "value": null, "note": "reciprocal of R-03"}
+      ],
+      "thresholds": [{"name": "resistance_cap", "value": 75, "unit": "percent", "justification": "at cap, more resistance does nothing against normal hits, and overcap does nothing against area penetration (F1, F2)", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361885661851-Resistances", "https://support.lastepoch.com/hc/en-us/articles/46361871026971-Penetrations"]}],
+      "exclusions": ["any matching shred or Marked for Death recorded (R-03)", "element unknown"],
+      "wording": {
+        "title": "{element} resistance was already capped",
+        "body": "Your {element} resistance was {Res}% (capped{, {ResUncapped}% before the cap, which only helps against shred}), and the {element} damage still killed you. Resistance is not the gap here: health, ward, endurance, and avoiding the hit are the next layer."
+      },
+      "confidence_label": "High confidence: your resistance was recorded at cap.",
+      "missing_data": {"Defenses.ResUncapped.<Element>": "drop the parenthetical"},
+      "counterexamples": ["Res.Fire 75% but Fire Resistance Shred recorded: must not say 'resistance is not the gap'; the shred made it the gap again (R-03)"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361885661851-Resistances (updated 2026-07-14, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-11",
+      "key": "crit-vulnerability-breaks-avoidance",
+      "rank": 11,
+      "tier": "ailment",
+      "title": "Critical Vulnerability broke your crit immunity",
+      "required_evidence": [{"field": "Crit", "from": "death_report", "alt": "DeathRecord.KillingCrit"}, {"field": "Defenses.CritAvoidance", "from": "defenses", "alt": null}, {"field": "AilmentsOnYou", "from": "timeline_or_taps", "alt": null}],
+      "optional_evidence": [],
+      "conditions": [
+        {"field": "Crit", "op": "eq", "value": true, "note": ""},
+        {"field": "Defenses.CritAvoidance", "op": "ge", "value": 99.5, "note": "capped"},
+        {"field": "AilmentsOnYou", "op": "contains", "value": "Critical Vulnerability", "note": "resolves the apparent contradiction"}
+      ],
+      "thresholds": [{"name": "crit_vulnerability", "value": "+2% chance to receive a crit and -10% crit avoidance per stack, max 10 stacks, 4 s", "justification": "F9; one stack turns 100% into an effective 90%", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments"]}],
+      "exclusions": ["no Critical Vulnerability recorded: skip and let the data line note the unexplained crit", "avoidance below cap (R-01 owns the wording)"],
+      "wording": {
+        "title": "Critical Vulnerability broke your crit immunity",
+        "body": "Your critical strike avoidance read {CritAvoidance}%, but you had Critical Vulnerability on you: each stack subtracts 10% avoidance, so the crit got through. Cleanse ailments, or kill whatever applies it before the stacks build."
+      },
+      "confidence_label": "High confidence: the crit, your avoidance, and the ailment were all recorded.",
+      "missing_data": {"AilmentsOnYou": "skip (never assume the ailment, C2)"},
+      "counterexamples": ["avoidance 100%, Crit true, no Critical Vulnerability recorded: must not invent an explanation; the data line flags the conflict instead"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments (updated 2026-02-14, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-12",
+      "key": "freeze-frostbite",
+      "rank": 12,
+      "tier": "ailment",
+      "title": "You were frozen (or chilled into it)",
+      "required_evidence": [{"field": "AilmentsOnYou", "from": "timeline_or_taps", "alt": "killing ailment == Frostbite"}],
+      "optional_evidence": ["Defenses.MaxHealth", "Defenses.Ward", "Defenses.Res.Cold"],
+      "conditions": [
+        {"field": "AilmentsOnYou", "op": "contains_any", "value": ["Freeze", "Chill", "Frostbite"], "note": ""},
+        {"field": "killing_element_or_share", "op": "eq", "value": "Cold", "note": "cold-aligned death: killing element cold, or cold share >= 25% with a timeline"}
+      ],
+      "thresholds": [
+        {"name": "freeze_chance", "value": "freeze rate / (max health + current ward)", "justification": "a bigger pool directly lowers freeze chance (F14)", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361855307035-Freeze"]},
+        {"name": "frostbite_stacks", "value": "first 15 stacks each +20% increased freeze chance", "justification": "F14/F17", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments"]}
+      ],
+      "exclusions": ["no freeze-family ailment recorded", "non-cold death with a stray Chill: downgrade to a mention, not a top tip"],
+      "wording": {
+        "title": "You were frozen (or chilled into it)",
+        "body": "Freeze chance scales against your max health plus current ward: your pool was {MaxHealth} health. Each Frostbite stack (up to 15) makes you 20% easier to freeze. A bigger pool and capped cold resistance ({Res.Cold}% now) are the counters; keep a movement skill for the chill."
+      },
+      "confidence_label": "Medium confidence: the ailment was recorded, but freeze chance also depends on the attacker's freeze rate, which the mod cannot see.",
+      "missing_data": {"Defenses.MaxHealth": "drop the pool sentence", "Defenses.Res.Cold": "drop the parenthetical"},
+      "counterexamples": ["AilmentsOnYou lists only Ignite on a fire death: must not fire"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361855307035-Freeze (updated 2026-07-14, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-13",
+      "key": "stun-recorded",
+      "rank": 13,
+      "tier": "ailment",
+      "title": "Get stun avoidance",
+      "required_evidence": [{"field": "AilmentsOnYou", "from": "timeline_or_taps", "alt": null}],
+      "optional_evidence": ["Defenses.StunAvoidance", "Defenses.MaxHealth", "AilmentsOnYou contains Shock"],
+      "conditions": [{"field": "AilmentsOnYou", "op": "contains", "value": "Stun", "note": "stun recorded during the fatal window"}],
+      "thresholds": [
+        {"name": "stun_threshold", "value": "non-player hits must exceed 5% of max health; +1% per 100 stun avoidance; inherent 250 + 5 per level", "justification": "F13", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361891772443-Stun"]},
+        {"name": "shock_stun", "value": "+8% stun chance per Shock stack versus players", "justification": "F4", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments"]}
+      ],
+      "exclusions": ["no Stun recorded"],
+      "wording": {
+        "title": "Get stun avoidance",
+        "body": "You were stunned during the fight that killed you. Hits above 5% of your max health ({MaxHealth}) can stun; every 100 stun avoidance raises that threshold by 1% (you had {StunAvoidance}). A bigger health pool raises it too."
+      },
+      "confidence_label": "Medium confidence: the stun was recorded; the attacker's increased stun chance is not visible.",
+      "missing_data": {"Defenses.StunAvoidance": "drop the parenthetical", "Defenses.MaxHealth": "drop the number in the 5% sentence"},
+      "counterexamples": ["a death with no Stun in AilmentsOnYou: must not fire, even if the player was probably stun-locked; unrecorded is unrecorded (C2)"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361891772443-Stun (updated 2026-02-13, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-14",
+      "key": "amplifier-ailment",
+      "rank": 14,
+      "tier": "ailment",
+      "title": "{Ailment} was on you",
+      "required_evidence": [{"field": "AilmentsOnYou", "from": "timeline_or_taps", "alt": null}],
+      "optional_evidence": [],
+      "conditions": [{"field": "AilmentsOnYou", "op": "contains_any", "value": ["Marked for Death", "Acid Skin", "Stagger", "Efficacious Toxin", "Mimic Feast", "Spiders", "Frailty of Aberroth", "Curse of Aberroth", "Exposed Flesh", "Decrepify", "Melee Defense Shred"], "note": "each ailment maps to one fixed sentence so no mechanic is invented"}],
+      "thresholds": [
+        {"name": "amplifier_values", "value": "Marked for Death -25% all res 8 s; Acid Skin +20% chance to be crit; Stagger -100 armor and +10% damage taken; Efficacious Toxin +12% DoT taken; Mimic Feast void DoT and 100% less leech; Spiders +5% chance to be crit per stack (max 4); Curse of Aberroth -10% all res, cannot be cleansed; Exposed Flesh -15% cold res and +30% freeze chance; Decrepify +15% more DoT taken; Melee Defense Shred +10% more melee damage taken per stack", "justification": "all from the official Negative Ailments article (F4)", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments"]}
+      ],
+      "exclusions": ["none recorded", "naming any effect not in the fixed table"],
+      "wording": {
+        "title": "{Ailment} was on you",
+        "body": "One recorded-effect sentence plus one counter sentence, for example Marked for Death: 'Marked for Death lowers all your resistances by 25% for 8 seconds. Overcapped resistance absorbs it; otherwise play defensively until it falls off.'"
+      },
+      "confidence_label": "Medium confidence: the ailment was recorded, but its stack count and remaining duration were not.",
+      "missing_data": {"AilmentsOnYou": "skip"},
+      "counterexamples": ["AilmentsOnYou contains only Slow: not an amplifier, must not fire"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361887879963-Negative-Ailments (updated 2026-02-14, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-15",
+      "key": "low-pool",
+      "rank": 15,
+      "tier": "defenses",
+      "title": "Your pool is thin for this content",
+      "required_evidence": [{"field": "Defenses.MaxHealth", "from": "defenses", "alt": "DeathRecord.MaxHealth"}, {"field": "DeathRecord.Level", "from": "context", "alt": null}],
+      "optional_evidence": ["Defenses.Ward", "Zone"],
+      "conditions": [
+        {"field": "Level", "op": "ge", "value": 70, "note": "the community floor maps to endgame; campaign pools are smaller by design"},
+        {"field": "MaxHealth + max(0, Ward)", "op": "lt", "value": 1500, "note": "deliberately conservative trigger; between 1500 and 2000 fire only as a supporting tip when R-05 or R-07 also fired"}
+      ],
+      "thresholds": [{"name": "community_pool_floor", "value": "under 2000 HP very low; 2000 minimum; 3000 to 3500 comfortable; ward builds 4000 to 5000 ward", "unit": "health", "justification": "community guidance for level 100 content (F16), always Medium confidence", "sources": ["https://forum.lastepoch.com/t/what-do-you-do-to-solve-your-survivability-when-you-first-reach-empowered-monos/73162", "https://www.thegamer.com/last-epoch-all-defensive-layers-explained/"]}],
+      "exclusions": ["Level < 70", "pool >= 2000", "MaxHealth unknown"],
+      "wording": {
+        "title": "Your pool is thin for this content",
+        "body": "You had {MaxHealth} health{ and {Ward} ward} at level {Level}. Community guides treat roughly 2,000 health (or about 4,000 ward on ward builds) as the floor for level 100 content. Hybrid health affixes, Stout idols and passive health nodes are the usual sources."
+      },
+      "confidence_label": "Medium confidence: your pool was recorded, but the right pool depends on build and content, and the 2,000 figure is community guidance, not a game rule.",
+      "missing_data": {"Defenses.Ward": "drop the ward clause", "DeathRecord.Level": "skip (the floor needs context)"},
+      "counterexamples": ["a level 35 character with 900 health dying in the campaign: must not fire"],
+      "sources": ["https://forum.lastepoch.com/t/what-do-you-do-to-solve-your-survivability-when-you-first-reach-empowered-monos/73162 (accessed 2026-10-02)", "https://www.thegamer.com/last-epoch-all-defensive-layers-explained/ (accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-16",
+      "key": "armor-for-physical",
+      "rank": 16,
+      "tier": "defenses",
+      "title": "Stack armor for physical hits",
+      "required_evidence": [{"field": "PrimaryElement", "from": "death_report", "alt": "DeathRecord.KillingElement or DamageByElement physical share"}],
+      "optional_evidence": ["Defenses.Armor"],
+      "conditions": [
+        {"field": "classification", "op": "eq", "value": "hit", "note": "direct hit death"},
+        {"field": "physical_share", "op": "ge", "value": 0.25, "note": "or physical is the killing element"}
+      ],
+      "thresholds": [{"name": "armor_mechanics", "value": "100% effective versus physical hits, cap 85%, scales with area level", "justification": "F5; physical resistance is rarer on gear than other resistances", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361891210651-Armor"]}],
+      "exclusions": ["any DoT dominance or Bleed as the killer (armor does nothing, F5; R-04 owns it)", "killing element not physical and physical share < 25%"],
+      "wording": {
+        "title": "Stack armor for physical hits",
+        "body": "Physical hits were what killed you. Armor mitigates every physical hit (your sheet showed {Armor}); physical resistance and block help too. Armor does nothing for bleeds, so check whether the kill was a hit or a bleed before investing."
+      },
+      "confidence_label": "Medium confidence: the damage type was recorded, but how much your armor mitigates depends on the area level, which the mod does not record (U5).",
+      "missing_data": {"Defenses.Armor": "drop the parenthetical"},
+      "counterexamples": ["KillingAilment == Bleed: physical damage, but armor must not be recommended; must not fire"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361891210651-Armor (updated 2026-07-13, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-17",
+      "key": "no-avoidance-layer",
+      "rank": 17,
+      "tier": "defenses",
+      "title": "Add one avoidance layer",
+      "required_evidence": [{"field": "Defenses.Dodge", "from": "defenses", "alt": null}, {"field": "Defenses.Block", "from": "defenses", "alt": null}],
+      "optional_evidence": ["Hits"],
+      "conditions": [
+        {"field": "Defenses.Dodge", "op": "eq", "value": 0, "note": "recorded zero, not missing"},
+        {"field": "Defenses.Block", "op": "eq", "value": 0, "note": "recorded zero, not missing"},
+        {"field": "classification", "op": "eq", "value": "hit", "note": "hit-based death"}
+      ],
+      "thresholds": [{"name": "avoidance_layers", "value": "dodge avoids the hit and its ailments (F10); block mitigates every hit including spells (F11)", "justification": "community checklists treat at least one hit layer as standard (F16)", "sources": ["https://www.lastepochtools.com/guide/section/dodge", "https://support.lastepoch.com/hc/en-us/articles/46361876155547-Block"]}],
+      "exclusions": ["either stat missing from the snapshot (unknown is not zero)", "DoT death (neither layer applies, F7)"],
+      "wording": {
+        "title": "Add one avoidance layer",
+        "body": "Your snapshot showed 0 dodge rating and 0 block chance, so every hit landed. Either layer stops a fraction of hits before they land, and dodge also prevents the ailments those hits would apply."
+      },
+      "confidence_label": "Medium confidence: your dodge and block were recorded, but the right layer depends on your class and gear, which the mod does not inspect.",
+      "missing_data": {"Defenses.Dodge or Defenses.Block": "skip (cannot prove 'no layer')"},
+      "counterexamples": ["Dodge = 800 recorded: must not fire, even though 800 rating may be a low chance at high area level (U5)"],
+      "sources": ["https://www.lastepochtools.com/guide/section/dodge (accessed 2026-10-02)", "https://support.lastepoch.com/hc/en-us/articles/46361876155547-Block (updated 2026-07-14, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-18",
+      "key": "endurance-gap",
+      "rank": 18,
+      "tier": "defenses",
+      "title": "Raise endurance and its threshold",
+      "required_evidence": [{"field": "Defenses.Endurance", "from": "defenses", "alt": null}],
+      "optional_evidence": ["Defenses.EnduranceThreshold", "Defenses.MaxHealth", "Defenses.Ward"],
+      "conditions": [
+        {"field": "Defenses.Endurance", "op": "lt", "value": 59.5, "note": "below the 60% cap with tolerance"},
+        {"field": "death_involves_health_damage", "op": "eq", "value": true, "note": "always true on death; ward is depleted first (F7)"}
+      ],
+      "thresholds": [
+        {"name": "endurance_cap", "value": 60, "unit": "percent", "justification": "F6", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361855013787-Endurance"]},
+        {"name": "endurance_base", "value": "20% endurance, threshold 20% of max health; threshold rolls on belts", "justification": "F6", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361855013787-Endurance"]}
+      ],
+      "exclusions": ["Endurance >= 59.5", "Endurance unknown", "Ward after hit > MaxHealth: downgrade to a mention (endurance does not protect ward, F6)"],
+      "wording": {
+        "title": "Raise endurance and its threshold",
+        "body": "Your endurance was {Endurance}% (cap 60%) with a threshold of {EnduranceThreshold}. Endurance cuts the part of each hit below the threshold, including the lethal tail of a big one. Threshold rolls on belts; endurance rolls as a suffix."
+      },
+      "confidence_label": "Medium confidence: your endurance was recorded, but whether it would have engaged depends on your health before the killing hit, which is only known with a timeline.",
+      "missing_data": {"Defenses.EnduranceThreshold": "drop the threshold sentence"},
+      "counterexamples": ["Endurance = 60 recorded: must not fire"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361855013787-Endurance (updated 2026-02-13, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-19",
+      "key": "repeat-killer",
+      "rank": 19,
+      "tier": "pattern",
+      "title": "{Killer} has killed you {n} of the last {m} times",
+      "required_evidence": [{"field": "PatternReport.TopKillers", "from": "history", "alt": null}],
+      "optional_evidence": [],
+      "conditions": [{"field": "TopKillers[0].Count", "op": "ge", "value": 3, "note": "over the last 20 deaths (DeathPatterns.DefaultWindow); existing nemesis threshold in Advisor.cs"}],
+      "thresholds": [{"name": "repeat_window", "value": "3 of 20", "justification": "repetition is the strongest evidence of a pattern rather than bad luck", "sources": ["src/Core/Advisor.cs", "src/Core/DeathPatterns.cs"]}],
+      "exclusions": ["count < 3", "attacker name empty"],
+      "wording": {
+        "title": "{Killer} has killed you {n} of the last {m} times",
+        "body": "That is a pattern, not bad luck. Watch for its wind-up, keep a movement skill ready when it appears, and check whether the same damage type keeps coming with it."
+      },
+      "confidence_label": "High confidence: the mod's own death log is the evidence.",
+      "missing_data": {"history": "skip (fresh log)"},
+      "counterexamples": ["two deaths to Rogue Archer in 20: must not fire"],
+      "sources": ["src/Core/DeathPatterns.cs"]
+    },
+    {
+      "type": "rule",
+      "id": "R-20",
+      "key": "repeat-ability",
+      "rank": 20,
+      "tier": "pattern",
+      "title": "{Ability} keeps killing you",
+      "required_evidence": [{"field": "history of KillerAbility/ability values", "from": "history", "alt": null}],
+      "optional_evidence": [],
+      "conditions": [{"field": "top_ability_count", "op": "ge", "value": 3, "note": "of the last 20 deaths, regardless of attacker"}],
+      "thresholds": [{"name": "repeat_window", "value": "3 of 20", "justification": "same as R-19, but naming the ability points at the telegraph rather than the monster", "sources": ["src/Core/DeathPatterns.cs"]}],
+      "exclusions": ["ability names missing or all distinct"],
+      "wording": {
+        "title": "{Ability} keeps killing you",
+        "body": "{n} of your last {m} deaths credit {Ability}. That specific attack is the thing to learn: its wind-up, its range, and when it is safe to stand still."
+      },
+      "confidence_label": "High confidence: repeated ability names come straight from the death log.",
+      "missing_data": {"Ability": "skip"},
+      "counterexamples": ["each of the last 5 deaths credits a different ability: must not fire"],
+      "sources": ["src/Core/DeathPatterns.cs"]
+    },
+    {
+      "type": "rule",
+      "id": "R-21",
+      "key": "repeat-element",
+      "rank": 21,
+      "tier": "pattern",
+      "title": "{element} is your recurring killer",
+      "required_evidence": [{"field": "PatternReport.ElementShares", "from": "history", "alt": null}, {"field": "Defenses.Res.<Element>", "from": "defenses", "alt": null}],
+      "optional_evidence": [],
+      "conditions": [
+        {"field": "ElementShares top", "op": "ge", "value": 0.5, "note": "one element accounts for half or more of recent death damage, each death counted once"},
+        {"field": "deaths_with_timelines", "op": "ge", "value": 3, "note": "too thin below that"}
+      ],
+      "thresholds": [{"name": "element_share", "value": 0.5, "unit": "share of deaths", "justification": "a deliberate 'most of your deaths' boundary; aggregates R-02 into a build-level priority", "sources": ["src/Core/DeathPatterns.cs"]}],
+      "exclusions": ["top share < 50%", "resistance never recorded: downgrade to 'most of your recent deaths were {element}' without the gap claim"],
+      "wording": {
+        "title": "{element} is your recurring killer",
+        "body": "{share}% of the damage across your last {m} deaths was {element}, and your {element} resistance read {Res}%. Capping it is the single change that would have helped the most deaths."
+      },
+      "confidence_label": "Medium confidence: shares are computed over the recorded windows; deaths without timelines do not contribute.",
+      "missing_data": {"ElementShares": "skip", "Defenses.Res.<Element>": "downgrade as above"},
+      "counterexamples": ["shares split 30/30/40 across three elements: no element reaches half, must not fire"],
+      "sources": ["src/Core/DeathPatterns.cs"]
+    },
+    {
+      "type": "rule",
+      "id": "R-22",
+      "key": "boss-fight-context",
+      "rank": 22,
+      "tier": "context",
+      "title": "Boss fight: the telegraph is the mechanic",
+      "required_evidence": [{"field": "IsBossfight", "from": "death_report", "alt": null, "status": "PLANNED: wire value at args[9] of the 10-arg network report, not yet read into DeathDetails; the rule cannot fire until that one-line addition lands"}],
+      "optional_evidence": ["Killer", "Ability", "PatternReport.TopKillers"],
+      "conditions": [{"field": "IsBossfight", "op": "eq", "value": true, "note": "the game flagged the death as a boss fight"}],
+      "thresholds": [],
+      "exclusions": ["IsBossfight false or absent", "any boss-specific mechanic claim without a recorded ability name (C2)"],
+      "wording": {
+        "title": "Boss fight: the telegraph is the mechanic",
+        "body": "The game flagged this as a boss fight{ against {Killer}}. Boss kills almost always come from telegraphed abilities{ like {Ability}}: keep a movement skill for the wind-up and do not greed the cast."
+      },
+      "confidence_label": "Medium confidence: the boss flag was recorded; which ability is dangerous is only known if the death report named it.",
+      "missing_data": {"Killer/Ability": "drop the clauses"},
+      "counterexamples": ["IsBossfight false on a regular echo death: must not fire"],
+      "sources": ["lane briefing (ReceiveDetailedDeathInfo wire parameters)", "src/Game/DeathReportHooks.cs on cursor/advice-research-base (10-arg signature hooked; args[9] not yet captured)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-23",
+      "key": "area-penetration-context",
+      "rank": 23,
+      "tier": "context",
+      "title": "Enemies here penetrate your resistances",
+      "required_evidence": [{"field": "areaLevel", "from": "planned_field", "alt": "Zone unambiguously naming an empowered timeline"}],
+      "optional_evidence": ["Zone", "Level"],
+      "conditions": [{"field": "areaLevel", "op": "ge", "value": 75, "note": "standalone fire only with real area-level evidence; until such a field exists the penetration sentence rides inside R-02's wording"}],
+      "thresholds": [{"name": "area_penetration", "value": "1% per area level, max 75% at area level 75+, applied after the cap", "justification": "F2; at that point capped resistance is the balanced baseline and below cap is increased damage taken", "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361871026971-Penetrations"]}],
+      "exclusions": ["area level unknown: never claim the current area's penetration (C2)", "character Level is not a proxy for area level"],
+      "wording": {
+        "title": "Enemies here penetrate your resistances",
+        "body": "This area is level {areaLevel}, so enemies penetrate {pen}% of your resistances after the cap. A capped 75% resistance is exactly the baseline here; anything under cap is increased damage taken, and overcap does not help against penetration, only against shred."
+      },
+      "confidence_label": "Medium confidence: the penetration rule is official, but the mod cannot see which echo modifiers are active.",
+      "missing_data": {"areaLevel": "attach the short penetration sentence to R-02 instead of firing standalone"},
+      "counterexamples": ["a level 40 campaign zone: must not fire; penetration at area level 40 is 40% and the wording would overstate the case"],
+      "sources": ["https://support.lastepoch.com/hc/en-us/articles/46361871026971-Penetrations (updated 2026-02-24, accessed 2026-10-02)", "https://support.lastepoch.com/hc/en-us/articles/46363284011419-If-75-resistance-is-the-max-and-the-enemies-get-penetration-per-level-up-to-75-do-I-need-150-resistance (updated 2026-02-12, accessed 2026-10-02)"]
+    },
+    {
+      "type": "rule",
+      "id": "R-24",
+      "key": "unknown-no-data",
+      "rank": 24,
+      "tier": "honesty",
+      "title": "Not enough data to give specific advice",
+      "required_evidence": [],
+      "optional_evidence": ["Detection"],
+      "conditions": [{"field": "no_other_rule_fired", "op": "eq", "value": true, "note": "or Kind == Unknown with no death report fields at all"}],
+      "thresholds": [],
+      "exclusions": ["any other rule fired"],
+      "wording": {
+        "title": "Not enough data to give specific advice",
+        "body": "The mod saw the death but recorded nothing about what caused it: no killing blow, no ailments, no defence snapshot. There is nothing specific to fix from this death alone. To change that, set ProbeApi = true and DebugLog = true in UserData/medick_DeathCounter.cfg, play until you die again, and send MelonLoader/Latest.log so the hooks can be repaired.",
+        "body_detection_game": "The mod noticed the death only through the game's own counter, which means every hook missed: the log from a ProbeApi run is the only way to fix that."
+      },
+      "confidence_label": "none (this is the absence of confidence)",
+      "missing_data": {},
+      "counterexamples": ["a death with a recorded crit killing blow: R-01 fired, so this rule must not"],
+      "sources": ["src/Core/Advisor.cs (the existing 'unknown' tip)", "src/Prefs.cs (ProbeApi, DebugLog, HookOverrides)"]
+    }
+  ],
+  "selection": {
+    "type": "meta",
+    "id": "top-3-selection",
+    "steps": [
+      "1. Evaluate every rule; a rule fires only when all required evidence is present and no exclusion matches; missing optional evidence only downgrades wording",
+      "2. score = (100 - rank) + 2 x (required evidence fields beyond the first) + 3 if the wording quotes at least one recorded value; rank dominates, specificity breaks ties, recorded numbers beat generalities",
+      "3. Dedupe by group: res:<element> = {R-02, R-03, R-10}; crit = {R-01, R-11}; dot = {R-04, R-06 when the irregular source is a DoT}; pool = {R-05, R-07, R-15}; pattern = {R-19, R-20, R-21} (at most one pattern tip on the single-death view)",
+      "4. Sort by score descending, then rank ascending; take the top 3",
+      "5. Never pad: fewer than 3 fired means fewer shown; none fired means R-24; generic advice is never filler",
+      "6. The data-confidence line is always appended and does not count toward the 3"
+    ]
+  },
+  "confidence_line": {
+    "type": "meta",
+    "id": "data-confidence-line",
+    "format": "Data: death report {yes|no} · crit flag {yes|no} · defences {yes|partial|no} · hit timeline {yes ({Hits} hits)|no} · ailments {yes|no} · history {n} deaths. Confidence: {High|Medium|Low} ({reason}).",
+    "levels": {
+      "High": "death report and defences and timeline all present, or the claim rests entirely on recorded values (for example R-19 on the log)",
+      "Medium": "death report and defences but no timeline; or timeline and defences without a death report; or the threshold is community guidance (R-15)",
+      "Low": "only one tier present, or a recorded conflict exists (crit on a DoT, ward remaining after a lethal hit, crit at capped avoidance without Critical Vulnerability); name the conflict in the reason"
+    },
+    "reason_examples": ["no hit timeline, so burst versus one-shot cannot be told apart", "defence snapshot missing, resistances unknown"]
+  },
+  "fallback": {
+    "type": "meta",
+    "id": "fallback",
+    "rule": "R-24",
+    "principles": ["say what was not recorded", "say there is nothing specific to fix", "say exactly how to turn on better data (ProbeApi and DebugLog in UserData/medick_DeathCounter.cfg, then share MelonLoader/Latest.log)", "never fill the gap with a generic checklist", "if Detection == 'game', add that every hook missed and a ProbeApi log is the only fix"]
+  },
+  "open_questions": [
+    "Done: DeathDetails field names reconciled against cursor/advice-research-base. Remaining: capture args[8] (IrregularDamageSourceID) and args[9] (IsBossfight) into DeathDetails (one line each in Capture()), confirm how none is encoded for each, and identify the 9-arg local report's last argument",
+    "Units of Damage and Overkill (U3): one probe run comparing them to health deltas settles it; until then R-05 stays downgraded",
+    "Whether the precalculated stats holder exposes block effectiveness, glancing blow, ward retention and less damage over time taken: each would sharpen R-08 or R-04 without new logic",
+    "An area-level source for R-23 and for interpreting armor and dodge (U5): a game field is preferred over a scene-name mapping",
+    "Armor shred versus players, flat 100 or reduced (U1): needs an in-game check with a shredding enemy",
+    "Whether Ailments.All in Elements.cs should learn Critical Vulnerability, Marked for Death, Acid Skin, Stagger and the other amplifier names: R-11 and R-14 depend on recognizing them"
+  ]
+}
