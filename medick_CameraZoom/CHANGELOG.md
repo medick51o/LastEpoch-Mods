@@ -1,3 +1,12 @@
+# MedicK's Terrible Zoom v1.0.2 — Season 5 compatibility
+
+- Updated for Season 5 and rebuilt against the current game assemblies.
+- Includes Terrible Interop Repair, which fixes the CoreModule loading failure without deleting types.
+- The shared repair keeps a backup and runs again when MelonLoader regenerates CoreModule.
+- Existing zoom settings and DLL filename are preserved.
+
+Installation: extract the ZIP into the Last Epoch game folder. The mod goes in Mods/ and the identical shared repair plugin goes in Plugins/. One plugin copy serves all Terrible mods. Close the game before installing.
+
 # Changelog — MedicK's Terrible Zoom
 
 ## v1.0.1 — council pass (2026-09-11)
@@ -81,3 +90,4 @@ Terrible era starts here (succeeds Camera Zoom v1.2).
   angle lock, End-key settings panel, live status banner.
 - Patches CameraManager fields, not `Camera.main.fieldOfView` (which the
   manager overrides every frame).
+

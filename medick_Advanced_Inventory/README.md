@@ -1,3 +1,7 @@
+## Season 5 update — v2.0.2
+
+Extract the new ZIP into the game folder: Mods/ contains the mod and Plugins/ contains the shared Terrible Interop Repair. Install only one copy of the shared plugin. This package targets MelonLoader 0.7.3 and Unity 6000.4.8f1. See CHANGELOG.md for compatibility changes.
+
 # MedicK's Terrible Inventory
 
 *an inventory mod* — **Terrible Inventory** for short. A [MelonLoader](https://melonwiki.xyz) mod for **Last Epoch** that puts the things you actually do — stashing, vendoring, getting around — one click from your inventory.
@@ -54,3 +58,4 @@ src/
 ```
 
 See [SPEC.md](SPEC.md) for the behavior contract and [ARCHAEOLOGY.md](ARCHAEOLOGY.md) for the recovered development history.
+

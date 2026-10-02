@@ -1,3 +1,12 @@
+# MedicK's Terrible fog_OF_war v1.0.2 — Season 5 compatibility
+
+- Updated for Season 5 and rebuilt against the current game assemblies.
+- Includes Terrible Interop Repair to resolve the shared CoreModule startup failure.
+- The shared repair keeps a backup and handles regenerated CoreModule files.
+- Existing vision settings and DLL filename are preserved.
+
+Installation: extract the ZIP into the Last Epoch game folder. The mod goes in Mods/ and the identical shared repair plugin goes in Plugins/. One plugin copy serves all Terrible mods. Close the game before installing.
+
 # Changelog — MedicK's Terrible fog_OF_war
 
 ## v1.0.1 — BLIND no longer hides ground item labels
@@ -79,3 +88,4 @@ starts here (succeeds The fog OF war v1.0 from April).
   NORMAL / SCOUT / ORACLE), Map Vision dropdown + level legend injected into
   the game's settings screen, persisted to UserData/medick_The_fogOFwar.cfg.
 - BLIND required a full game restart in both directions.
+

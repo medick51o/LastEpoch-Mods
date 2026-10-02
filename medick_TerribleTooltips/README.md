@@ -1,3 +1,7 @@
+## Season 5 update — v3.1.2
+
+Extract the new ZIP into the game folder: Mods/ contains the mod and Plugins/ contains the shared Terrible Interop Repair. Install only one copy of the shared plugin. This package targets MelonLoader 0.7.3 and Unity 6000.4.8f1. See CHANGELOG.md for compatibility changes.
+
 # MedicK's Terrible Tooltips
 **by medick** — v3.1.0
 
@@ -126,3 +130,4 @@ Fine. It teleports you to the Bazaar. *Shocking.* Revolutionary, even. A button,
 Drop `medick_Terrible_Tooltips.dll` into your `Last Epoch/Mods/` folder.
 
 Requires **MelonLoader 0.7.2+**.
+

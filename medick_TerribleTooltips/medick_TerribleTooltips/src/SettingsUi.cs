@@ -77,10 +77,28 @@ internal static class SettingsUi
 
         NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Name Color",
             "<color=#FF44FF>Affix Name Color</color>",
-            "TierColor = the affix text itself wears its tier color, so you identify it instantly. " +
+            "GreaterAffix = only T6/T7 affix text is tinted (default). TierColor = restores the pre-3.1.0 coloured affix text, with each affix wearing its tier color. " +
             "GameDefault = the game's own text color — only the Tier·Grade signal is colored.",
             Prefs.NameColorMode,
             i => { Prefs.NameColorMode.Value = (AffixNameColorMode)i; SaveAndRefresh(reRender: true); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Show Signal",
+            "<color=#FF44FF>Show Tier and Grade</color>",
+            "Show the tier and roll grade on each affix line. Turn this off to hide the entire signal, including its divider and border.",
+            Prefs.ShowSignal.Value,
+            v => { Prefs.ShowSignal.Value = v; SaveAndRefresh(reRender: true); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Compact Tier",
+            "<color=#FF44FF>Compact Tier Word (T7)</color>",
+            "ON = T7. OFF = Tier 7. Applies to the tooltip signal; ground labels are unchanged.",
+            Prefs.TierWord.Value == TierWordStyle.Compact,
+            v => { Prefs.TierWord.Value = v ? TierWordStyle.Compact : TierWordStyle.Spelled; SaveAndRefresh(reRender: true); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Unit Border",
+            "<color=#FF44FF>Tier and Grade Border</color>",
+            "Draw a box around the tier/grade signal in PlainText style. Turn this off to show the signal without a box.",
+            Prefs.UnitBorder.Value,
+            v => { Prefs.UnitBorder.Value = v; SaveAndRefresh(reRender: true); });
 
         NativeSettings.CreateToggle(settings, Cat, "TT - Grade Letters",
             "<color=#FF44FF>Show Grade Letters</color>",

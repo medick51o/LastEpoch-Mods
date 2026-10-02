@@ -1,3 +1,7 @@
+## Season 5 update — v1.0.2
+
+Extract the new ZIP into the game folder: Mods/ contains the mod and Plugins/ contains the shared Terrible Interop Repair. Install only one copy of the shared plugin. This package targets MelonLoader 0.7.3 and Unity 6000.4.8f1. See CHANGELOG.md for compatibility changes.
+
 # MedicK's Terrible Zoom
 
 *a camera mod* — **Terrible Zoom** for short. A [MelonLoader](https://melonwiki.xyz) mod for **Last Epoch** that extends the camera's zoom-out range and exposes every camera parameter through a live in-game settings panel.
@@ -57,3 +61,4 @@ src/
 ```
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
+

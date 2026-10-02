@@ -1,0 +1,9 @@
+[b]MedicK's Terrible Inventory v2.0.2 — Season 5 compatibility[/b]
+[list]
+[*]Updated for Season 5 and rebuilt against the current game assemblies.
+[*]Includes Terrible Interop Repair to resolve the shared CoreModule startup failure.
+[*]The shared repair keeps a backup and handles regenerated CoreModule files.
+[*]Existing inventory settings and DLL filename are preserved.
+[/list]
+[b]Installation:[/b] Extract the ZIP into the Last Epoch game folder. The mod DLL belongs in Mods and medick_Terrible_InteropRepair.dll belongs in Plugins. All Terrible packages share one identical plugin; only one copy is needed. Close the game before installing.
+

@@ -104,7 +104,7 @@ public static class AffixInjector
             foreach (ItemAffix ia in item.affixes)
             {
                 if (ia == null) continue;
-                AffixList.Affix def = AffixList.instance.GetAffix(ia.affixId);
+                AffixList.Affix def = Il2CppLE.AssetManagement.GlobalAssets.MasterAffixesList?.GetAffix(ia.affixId);
                 if (def != null && def.HasProperty(modProperty))
                 {
                     match = ia;
@@ -234,3 +234,4 @@ public static class AffixInjector
         }
     }
 }
+
