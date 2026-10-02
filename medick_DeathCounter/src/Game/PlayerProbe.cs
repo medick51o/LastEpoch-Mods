@@ -49,15 +49,27 @@ namespace medick_DeathCounter.Game
             }
             catch { }
             GameObject go = null;
-            try { go = actor != null ? actor.gameObject : null; } catch { }
+                        try { go = actor != null ? actor.gameObject : null; } catch { }
+            // PlayerFinder's Actor can be null in multiplayer even while the
+            // LocalPlayer component and its health are available.
+            Component localPlayer = null;
+            try
+            {
+                localPlayer = Refl.Static("Il2Cpp.PlayerFinder", "getLocalPlayerInMultiplayer") as Component;
+                go ??= Refl.Static("Il2Cpp.PlayerFinder", "getPlayer") as GameObject;
+                go ??= localPlayer != null ? localPlayer.gameObject : null;
+                if (actor == null && go != null) actor = Refl.GetComponent(go, ActorType);
+            }
+            catch (Exception ex) { Dbg.Log("player fallback: " + ex.Message); }
             IntPtr ptr = Refl.Ptr(go);
             if (ptr == ObjectPtr) return false;
 
             Actor = actor; Object = go; ObjectPtr = ptr;
+            Dbg.Log($"player resolved: object={go?.name ?? "none"}, actor={actor?.GetType().FullName ?? "none"}, multiplayer={localPlayer != null}");
             Health = null; HealthPtr = IntPtr.Zero;
             if (go != null)
             {
-                if (Refl.Static("Il2Cpp.PlayerFinder", "getLocalPlayerHealth") is Component lph && IsPlayerObject(SafeGo(lph)))
+                if ((Refl.Static("Il2Cpp.PlayerFinder", "getLocalPlayerHealth") ?? Refl.Get(localPlayer, "playerHealth")) is Component lph)
                     AdoptHealth(lph);
                 else foreach (var name in HealthTypes)
                 {
@@ -203,6 +215,8 @@ namespace medick_DeathCounter.Game
             catch { return ""; }
         }
 
-        static object CharacterData() => Refl.Static("Il2Cpp.PlayerFinder", "getPlayerData");
+        static object CharacterData() => Refl.Static("Il2Cpp.PlayerFinder", "getPlayerData")
+            ?? Refl.Get(Refl.Static("Il2Cpp.PlayerFinder", "getPlayerDataTracker"), "charData");
     }
 }
+

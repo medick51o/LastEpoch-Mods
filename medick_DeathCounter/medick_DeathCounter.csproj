@@ -2,9 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>medick_DeathCounter</AssemblyName>
     <RootNamespace>medick_DeathCounter</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Nullable>disable</Nullable>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
@@ -13,6 +14,7 @@
 
   <!-- tests/ builds on its own (CoreTests: game-free unit tests) -->
   <ItemGroup>
+    <Compile Remove="src\Compatibility\NullableAttribute.cs" Condition="'$(NoGame)' == 'true'" />
     <Compile Remove="tests\**\*.cs" />
     <Compile Remove="docs\**\*.cs" />
     <Compile Remove="mockups\**\*.cs" />
@@ -35,6 +37,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(NoGame)' != 'true'">
+    <Reference Include="Mono.Cecil"><HintPath>$(ML)Mono.Cecil.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="MelonLoader">
       <HintPath>$(ML)MelonLoader.dll</HintPath>
       <Private>false</Private>
@@ -47,6 +50,7 @@
       <HintPath>$(ML)Il2CppInterop.Runtime.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Il2Cppmscorlib"><HintPath>$(GM)Il2Cppmscorlib.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(GM)UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
@@ -71,6 +75,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(NoGame)' == 'true'">
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" ExcludeAssets="runtime" PrivateAssets="all" />
     <PackageReference Include="LavaGang.MelonLoader" Version="0.7.2" ExcludeAssets="runtime" PrivateAssets="all" />
     <PackageReference Include="HarmonyX" Version="2.10.2" ExcludeAssets="runtime" PrivateAssets="all" />
     <PackageReference Include="Il2CppInterop.Runtime" Version="1.5.1" ExcludeAssets="runtime" PrivateAssets="all" />
@@ -83,4 +88,13 @@
           DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\Mods\" />
   </Target>
 
+  <ItemGroup>
+    <Compile Include="..\tools\TerribleInteropRepair\CoreModuleRepair.cs" Link="Compatibility\CoreModuleRepair.cs" />
+    <Compile Include="..\tools\TerribleInteropRepair\EmbeddedRepairBootstrap.cs" Link="Compatibility\EmbeddedRepairBootstrap.cs" />
+  </ItemGroup>
 </Project>
+
+
+
+
+
