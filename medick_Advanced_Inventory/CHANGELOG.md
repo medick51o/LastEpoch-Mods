@@ -8,6 +8,9 @@
 
 Installation: close the game, then replace medick_Terrible_Inventory.dll in Last Epoch/Mods/. This ZIP contains exactly one DLL. No separate plugin, script, or library download is needed. Requires MelonLoader 0.7.3.
 
+
+Known issue: Quick Teleport currently does not work reliably in Season 5. The mod can incorrectly treat unlocked destinations as locked. Please use the normal world map for travel while we work on a fix.
+
 # Changelog — MedicK's Terrible Inventory
 
 ## v2.0.1 — council pass (2026-09-10)
