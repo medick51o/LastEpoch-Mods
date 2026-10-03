@@ -116,9 +116,22 @@ namespace medick_DeathCounter.Core
             rec.Killer         = !string.IsNullOrWhiteSpace(last.Source)
                 ? last.Source
                 : rec.TopSources.FirstOrDefault(s => s.Name != "Unknown")?.Name ?? "";
+            rec.KillingHealthLoss = last.HealthLost;
+            rec.KillingWardLoss = last.WardLost;
 
             rec.Kind = Classify(window, last, maxHp, deathTime, rec);
             return rec;
+        }
+
+        // Health loss against max health when every hit in the window recorded it.
+        // Otherwise the ward-inclusive amount against max health plus ward at the
+        // killing hit, when that ward was read. Timeline totals are unchanged.
+        static float ClassAmount(HitEvent h, bool healthBasis) => healthBasis ? Math.Max(0f, h.HealthLost) : h.Amount;
+        static float ClassPool(IReadOnlyList<HitEvent> window, HitEvent last, float maxHp, bool healthBasis)
+        {
+            if (healthBasis) return maxHp;
+            float ward = last.WardAtHit >= 0f ? last.WardAtHit : window.Select(h => h.WardAtHit).DefaultIfEmpty(-1f).Max();
+            return ward >= 0f ? maxHp + ward : maxHp;
         }
 
         static DeathKind Classify(List<HitEvent> window, HitEvent last, float maxHp, double deathTime, DeathRecord rec)
@@ -128,11 +141,16 @@ namespace medick_DeathCounter.Core
 
             if (maxHp > 0f)
             {
-                if (!last.IsDot && last.Amount >= OneShotFraction * maxHp)
+                bool healthBasis = window.Count > 0 && window.All(h => h.HealthLost >= 0f);
+                float pool = ClassPool(window, last, maxHp, healthBasis);
+                rec.ClassPool = pool;
+                float lastLoss = ClassAmount(last, healthBasis);
+                float burst = window.Where(h => h.Time >= deathTime - BurstSeconds).Sum(h => ClassAmount(h, healthBasis));
+                rec.ClassLoss = Math.Max(lastLoss, burst);
+                if (!last.IsDot && lastLoss >= OneShotFraction * pool)
                     return DeathKind.OneShot;
 
-                float burst = window.Where(h => h.Time >= deathTime - BurstSeconds).Sum(h => h.Amount);
-                if (burst >= BurstFraction * maxHp)
+                if (burst >= BurstFraction * pool)
                     return DeathKind.Burst;
 
                 return DeathKind.Attrition;

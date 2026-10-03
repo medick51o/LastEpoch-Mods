@@ -10,25 +10,27 @@ namespace medick_DeathCounter.Core
     {
         readonly string _path;
         readonly Action<string> _warn;
+        public const string Unavailable = "counter baselines unavailable";
         Dictionary<string, int> _baselines = new();
         bool _broken;
+        bool _hasBaselines;
         public bool Broken => _broken;
+        public bool HasBaselines => _hasBaselines;
         public CounterResets(string path, Action<string> warn = null)
         {
             _path = path;
             _warn = warn ?? (_ => { });
-            try
-            {
-                if (File.Exists(path)) _baselines = JsonSerializer.Deserialize<Dictionary<string, int>>(File.ReadAllText(path)) ?? new();
-            }
-            catch (Exception ex)
-            {
-                _broken = true;
-                _baselines = new();
-                _warn("could not read counter resets: " + ex.Message);
-            }
+            TryRead(false);
         }
-        public int Count(string character, int recorded) => Math.Max(0, recorded - Math.Max(0, _baselines.TryGetValue(character, out int n) ? n : 0));
+        public int Count(string character, int recorded)
+        {
+            int baseline = _baselines.TryGetValue(character ?? "", out int n) ? n : 0;
+            return Math.Max(0, recorded - Math.Max(0, baseline));
+        }
+        // The number to show. A torn file with no earlier baselines must not
+        // display the full saved count as if the resets were zero.
+        public string Label(string character, int recorded)
+            => _broken && !_hasBaselines ? Unavailable : Count(character, recorded).ToString();
         public bool Reset(string character, int recorded)
         {
             if (string.IsNullOrWhiteSpace(character)) return false;
@@ -47,27 +49,42 @@ namespace medick_DeathCounter.Core
                 }
                 File.Move(_path + ".tmp", _path, true);
                 _baselines = next;
+                _hasBaselines = true;
+                _broken = false;
                 return true;
             }
             catch (Exception ex) { _warn("could not save counter reset: " + ex.Message); return false; }
         }
         // A torn file blocks Reset until a later read succeeds, so a new
         // baseline cannot replace Hero and Alt with a single new name.
-        bool TryReread()
+        bool TryReread() => _broken ? TryRead(true) : true;
+        // keepExisting: a failed read leaves the last good baselines in place.
+        bool TryRead(bool keepExisting)
         {
-            if (!_broken) return true;
             try
             {
-                if (!File.Exists(_path)) { _broken = false; _baselines = new(); return true; }
-                _baselines = JsonSerializer.Deserialize<Dictionary<string, int>>(File.ReadAllText(_path)) ?? new();
+                if (!File.Exists(_path))
+                {
+                    _broken = false;
+                    _baselines = new();
+                    _hasBaselines = false;
+                    return true;
+                }
+                var next = JsonSerializer.Deserialize<Dictionary<string, int>>(File.ReadAllText(_path)) ?? new();
+                _baselines = next;
+                _hasBaselines = true;
                 _broken = false;
                 return true;
             }
             catch (Exception ex)
             {
+                _broken = true;
+                if (!keepExisting || !_hasBaselines) _baselines = new();
                 _warn("could not read counter resets: " + ex.Message);
                 return false;
             }
         }
+        // Re-read the file. A torn read keeps the last good baselines.
+        public bool Refresh() => TryRead(true);
     }
 }

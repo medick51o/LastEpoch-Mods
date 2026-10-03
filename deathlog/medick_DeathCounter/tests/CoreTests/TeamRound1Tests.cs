@@ -73,7 +73,8 @@ static partial class Program
         saved.Defenses["EnduranceThreshold"] = 2000;
         var live = Advisor.Suggest(saved, max: 100).Single(t => t.Key == "endurance");
         True(live.Weight >= 65, "weight " + live.Weight);
-        True(live.Body.Contains("would likely have survived") && live.Body.Contains("including ward"), live.Body);
+        True(!live.Body.Contains("would likely have survived"), live.Body);
+        True(live.Body.Contains("reduced this hit") && live.Body.Contains("may or may not"), live.Body);
 
         var plain = AdviceDeath();
         plain.Kind = DeathKind.OneShot;
@@ -244,17 +245,22 @@ static partial class Program
         Eq(302, moves.Count);
         Eq(302, MaxrollPlayerNotes.MoveCount);
         int avoids = 0, danger = 0, oneShot = 0;
+        var avoidUses = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (var move in moves)
         {
             True(MaxrollPlayerNotes.TryMove(move.Id, out string spot, out string avoid, out bool flagged, out bool shot), move.Id);
             True(!string.IsNullOrWhiteSpace(spot), move.Id + " spot");
+            True(FinishedLine(spot), move.Id + " spot unfinished: " + spot);
             True(WordCount(spot) <= MaxrollPlayerNotes.LineWordCap, move.Id + " spot length " + WordCount(spot));
             True(!spot.Contains("--") && !spot.Contains("survive") && !spot.Contains("guarantee"), move.Id);
             if (!string.IsNullOrWhiteSpace(avoid))
             {
                 avoids++;
+                True(FinishedLine(avoid), move.Id + " avoid unfinished: " + avoid);
                 True(WordCount(avoid) <= MaxrollPlayerNotes.LineWordCap, move.Id + " avoid length");
                 True(!avoid.Contains("--") && !avoid.Contains("survive") && !avoid.Contains("guarantee"), move.Id);
+                avoidUses.TryGetValue(avoid, out int used);
+                avoidUses[avoid] = used + 1;
             }
             if (flagged) danger++;
             if (shot) oneShot++;
@@ -265,6 +271,7 @@ static partial class Program
             else if (flagged) True(lines.Any(l => l.Contains("dangerous")), move.Id);
         }
         True(avoids > 0 && danger > 0 && oneShot > 0, $"avoid {avoids} danger {danger} one-shot {oneShot}");
+        True(!avoidUses.Any(kv => kv.Value > 2), "an avoid is reused on more than 2 moves");
         Eq(16, MaxrollPlayerNotes.ResistCount);
         foreach (var boss in BossCatalog.All)
         {
@@ -301,6 +308,56 @@ static partial class Program
         var card = BossFieldNotes.ForDeath(new DeathRecord { Killer = "Harbinger of Pride", KillerAbility = "Spear Beam", IsBossFight = true }, out _, out _);
         True(card.Any(l => l.StartsWith(MaxrollPlayerNotes.Attribution, StringComparison.Ordinal)), "killing move card is attributed");
         True(card.Any(l => l.StartsWith("How to spot it: ", StringComparison.Ordinal)), "killing move card has a spot line");
+        Eq(1, card.Count(l => l == MaxrollPlayerNotes.Attribution || l.StartsWith(MaxrollPlayerNotes.Attribution + ":", StringComparison.Ordinal)));
+        CheckDodge("lagon-campaign-moon-beam", "red", "eye", "opposite");
+        CheckDodge("lagon-monolith-moon-beam", "red", "eye", "opposite");
+        CheckDodge("mountain-beneath-shockwave", "left", "center-right");
+        CheckDodge("julra-catastrophic-implosion", "Temporal Shift", "12", "Doom");
+        CheckDodge("shade-of-orobyss-void-meteor", "end comes", "telegraph");
+        CheckDodge("aberroth-triple-flail-slam", "behind");
+        CheckDodge("rahyeh-the-black-sun-wave-dash", "still", "either");
+        foreach (string era in new[] { "pride", "war", "chaos", "treason", "fear" })
+        {
+            True(MaxrollPlayerNotes.TryMove("harbinger-" + era + "-spear-beam", out string beamSpot, out string beamAvoid, out _, out _), era);
+            string beam = (beamSpot + " " + beamAvoid).ToLowerInvariant();
+            True(beam.Contains("front") || beam.Contains("ahead"), era + " spear beam forward: " + beam);
+            True(beam.Contains("behind") || beam.Contains("rear") || beam.Contains("back"), era + " spear beam rear: " + beam);
+        }
+        CheckDodge("harbinger-treason-void-anomaly", "whole", "circle");
+        CheckDodge("harbinger-tyranny-blizzard", "near");
+        CheckDodge("harbinger-war-ice-vortex", "outside");
+        CheckDodge("shade-of-orobyss-exploding-black-hole", "black hole", "star");
+    }
+
+    static void CheckDodge(string id, params string[] words)
+    {
+        True(MaxrollPlayerNotes.TryMove(id, out string spot, out string avoid, out _, out _), id);
+        string text = (spot + " " + avoid).ToLowerInvariant();
+        foreach (string word in words)
+            True(text.Contains(word.ToLowerInvariant()), id + " missing " + word + ": " + text);
+    }
+
+    static readonly HashSet<string> DanglingWords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "while", "before", "then", "who", "he", "and", "the", "a", "an", "of", "to", "with",
+        "from", "that", "which", "so", "on", "or", "but", "if", "when", "as", "at", "in",
+        "for", "into", "over", "after", "until", "because", "than", "by", "his", "its", "their", "your", "she"
+    };
+    static bool FinishedLine(string line)
+    {
+        if (string.IsNullOrWhiteSpace(line)) return false;
+        char end = line[line.Length - 1];
+        if (end != '.' && end != '!' && end != '?') return false;
+        var words = Words(line);
+        if (words.Count == 0 || DanglingWords.Contains(words[words.Count - 1])) return false;
+        int marks = 0;
+        for (int i = 0; i < line.Length; i++)
+        {
+            char c = line[i];
+            if (c == '!' || c == '?') marks++;
+            else if (c == '.' && !(i > 0 && i + 1 < line.Length && char.IsDigit(line[i - 1]) && char.IsDigit(line[i + 1]))) marks++;
+        }
+        return marks >= 1 && marks <= 2;
     }
 
     static int WordCount(string text) => Words(text).Count;

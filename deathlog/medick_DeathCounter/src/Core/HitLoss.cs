@@ -10,13 +10,14 @@ namespace medick_DeathCounter.Core
         {
             bool health = float.IsFinite(healthBefore) && float.IsFinite(healthAfter);
             bool ward = float.IsFinite(wardBefore) && float.IsFinite(wardAfter);
-            if (health || ward)
-            {
-                float hp = health ? Math.Max(0f, healthBefore - healthAfter) : 0f;
-                float wd = ward ? Math.Max(0f, wardBefore - wardAfter) : 0f;
-                float total = hp + wd;
-                return total > 0f ? total : (float?)null;
-            }
+            float hp = health ? Math.Max(0f, healthBefore - healthAfter) : 0f;
+            float wd = ward ? Math.Max(0f, wardBefore - wardAfter) : 0f;
+            // Both sides were read and nothing moved: a dodge or a full block.
+            if (health && ward) return hp + wd > 0f ? hp + wd : (float?)null;
+            // Health did not move and ward could not be read. Keep a positive
+            // fallback so a ward-only hit is not dropped.
+            if (health && !ward) return hp > 0f ? hp : (fallbackAmount > 0f ? fallbackAmount : (float?)null);
+            if (!health && ward) return wd > 0f ? wd : (fallbackAmount > 0f ? fallbackAmount : (float?)null);
             return fallbackAmount > 0f ? fallbackAmount : (float?)null;
         }
     }

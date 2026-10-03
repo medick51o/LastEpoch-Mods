@@ -17,28 +17,46 @@ namespace medick_DeathCounter.Core
 
         int _last = -1;
         readonly Queue<double> _credits = new();
+        // True when Observe already spent the newest credit against the baseline.
+        bool _latestSpent;
 
         public void Reset()
         {
             _last = -1;
             _credits.Clear();
+            _latestSpent = false;
         }
 
         // A death this mod recorded itself.
-        public void Recorded(double now) => _credits.Enqueue(now);
+        public void Recorded(double now)
+        {
+            _credits.Enqueue(now);
+            _latestSpent = false;
+        }
 
         // Drop the newest credit when a pending death is cancelled because
         // health recovered. Older credits stay, so a real earlier death is
-        // not forgotten.
+        // not forgotten. If Observe already spent that credit, step the
+        // baseline back by one so the same counter increase is seen again.
         public bool RetractLatest()
         {
-            if (_credits.Count == 0) return false;
-            var kept = new Queue<double>();
-            int leave = _credits.Count - 1;
-            for (int i = 0; i < leave; i++) kept.Enqueue(_credits.Dequeue());
-            _credits.Clear();
-            while (kept.Count > 0) _credits.Enqueue(kept.Dequeue());
-            return true;
+            if (_credits.Count > 0)
+            {
+                var kept = new Queue<double>();
+                int leave = _credits.Count - 1;
+                for (int i = 0; i < leave; i++) kept.Enqueue(_credits.Dequeue());
+                _credits.Clear();
+                while (kept.Count > 0) _credits.Enqueue(kept.Dequeue());
+                _latestSpent = false;
+                return true;
+            }
+            if (_latestSpent && _last > 0)
+            {
+                _last--;
+                _latestSpent = false;
+                return true;
+            }
+            return false;
         }
 
         // Feed the counter's current value. Returns how many deaths it shows
@@ -52,7 +70,10 @@ namespace medick_DeathCounter.Core
             if (before < 0 || count <= before) return 0;
 
             int unexplained = count - before;
+            int queued = _credits.Count;
             while (unexplained > 0 && _credits.Count > 0) { _credits.Dequeue(); unexplained--; }
+            // Spending every queued credit includes the newest one.
+            if (queued > 0 && _credits.Count == 0) _latestSpent = true;
             return unexplained;
         }
     }

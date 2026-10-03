@@ -1,3 +1,19 @@
+# Experimental v0.1.14 (team review round 2)
+
+- Boss move notes are rewritten as finished sentences. Each one says how to spot the move and how to avoid it, including which side, when to move, the safe spot, an era shift, a cleanse, or a voice line when the guide gives that detail.
+- A boss death card shows the Maxroll (community guide) header once.
+- Endurance advice claims you would have lived only when ward at the hit is known to be zero. Otherwise it shows the percent change and leaves survival unknown. A change that still would have killed you stays off the death toast.
+- A second death signal cannot replace a capture that already has hits or defenses with an empty one. The frozen hit list is kept after the player object changes.
+- Gameplay input pauses only for the mouse button that went down on the counter, and that pause ends when the button comes up or the pointer leaves.
+- If a pending death is cancelled after its counter credit was already spent, that counter step is counted again.
+- A hit that does not move health, when ward cannot be read, keeps the fallback amount.
+- Shock of Aberroth is 5% increased damage taken per stack. Frailty of Aberroth uses the full guide line for less damage and less recovery. The death card shows each ailment's effect. Chill of Aberroth and Shock of Aberroth get their own advice.
+- A torn counter reset file keeps the last good baselines. If there are none, the counter says counter baselines unavailable.
+- One-shot and burst labels use health loss when it was read, or max health plus ward when it was not. Timeline totals still include ward. The card says so when ward took more of the killing hit than health did.
+- The expanded boss attack list is paged, with the killing move first, and it remembers measured heights.
+
+Not installed or published. Native testing pending.
+
 # Experimental v0.1.13 (team review round 1)
 
 - The next step card shows the exact-hit survival sentence, including the assumption that the reported damage was the whole hit after your defenses, including ward.

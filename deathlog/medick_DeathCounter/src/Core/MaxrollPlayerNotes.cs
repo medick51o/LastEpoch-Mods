@@ -9,7 +9,7 @@ namespace medick_DeathCounter.Core
     public static class MaxrollPlayerNotes
     {
         public const string Attribution = "Maxroll (community guide)";
-        public const int LineWordCap = 22;
+        public const int LineWordCap = 30;
         static readonly JsonSerializerOptions Json = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         static readonly Dictionary<string, string> _resists;
         static readonly Dictionary<string, MoveNote> _moves;
@@ -43,15 +43,22 @@ namespace medick_DeathCounter.Core
             spot = note.Spot; avoid = note.Avoid; danger = note.Danger; oneShot = note.OneShot;
             return true;
         }
-        public static string Resists(string encounterId)
+        public static string ResistBody(string encounterId)
         {
             if (encounterId == null || !_resists.TryGetValue(encounterId, out var text) || string.IsNullOrWhiteSpace(text)) return null;
-            return Attribution + ": " + text.Trim();
+            return text.Trim();
         }
-        public static IReadOnlyList<string> MoveLines(string moveId)
+        public static string Resists(string encounterId)
+        {
+            string body = ResistBody(encounterId);
+            return body == null ? null : Attribution + ": " + body;
+        }
+        public static IReadOnlyList<string> MoveLines(string moveId) => MoveLines(moveId, true);
+        public static IReadOnlyList<string> MoveLines(string moveId, bool attribution)
         {
             if (!TryMove(moveId, out var spot, out var avoid, out bool danger, out bool oneShot)) return Array.Empty<string>();
-            var lines = new List<string> { Attribution };
+            var lines = new List<string>();
+            if (attribution) lines.Add(Attribution);
             if (oneShot) lines.Add("The guide marks this as a one-shot.");
             else if (danger) lines.Add("The guide marks this as dangerous.");
             if (!string.IsNullOrWhiteSpace(spot)) lines.Add("How to spot it: " + spot.Trim());

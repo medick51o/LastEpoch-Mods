@@ -32,6 +32,7 @@
     <Compile Include="R1ReviewTests.cs" />
     <Compile Include="R2ReviewTests.cs" />
     <Compile Include="TeamRound1Tests.cs" />
+    <Compile Include="Round2Tests.cs" />
     <Compile Include="..\..\src\Core\*.cs" Link="Core\%(Filename)%(Extension)" />
     <None Include="..\..\src\Core\Data\boss-harbinger.proposed.json" Link="Fixtures\boss-harbinger.proposed.json" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="..\..\src\Core\Data\boss-harbinger.runtime.json" LogicalName="medick_DeathCounter.BossResearchCatalog.json" />

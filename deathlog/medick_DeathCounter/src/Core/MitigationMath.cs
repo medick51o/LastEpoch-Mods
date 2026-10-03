@@ -461,16 +461,19 @@ namespace medick_DeathCounter.Core
 
         // Endurance lever. The recorded damage is the hit AFTER endurance was
         // already applied, so this undoes the old endurance before applying
-        // the new one. Needs the post-mitigation-with-ward meaning: health
-        // at the hit is damage minus overkill, assuming no ward was left,
-        // which understates the benefit (any ward makes more of the hit land
-        // below the threshold). threshold is the endurance threshold in
-        // health points.
+        // the new one. Ward is spent first and is not reduced by endurance.
+        // Treating damage minus overkill as all health overstates the benefit
+        // whenever ward was up, so a survival claim is made only when ward at
+        // the hit is known to be zero. Otherwise the percent change is still
+        // shown and survival stays unknown. A result that is still dead is
+        // kept: if even this larger reduction fails, the real one fails too.
+        // threshold is the endurance threshold in health points.
+        // wardAtHit: NaN when ward at the hit was not read.
         public static Counterfactual PreviewEndurance(
             float recordedDamage, float overkill,
             float threshold,
             float oldEndurancePoints, float newEndurancePoints,
-            DamageMeaning meaning, string lever = null)
+            DamageMeaning meaning, string lever = null, float wardAtHit = float.NaN)
         {
             if (meaning != DamageMeaning.PostMitigationWithWard)
                 return Refuse("the endurance counterfactual needs the recorded damage to be the post-mitigation hit; under other meanings the size of the hit that landed is unknown");
@@ -492,17 +495,33 @@ namespace medick_DeathCounter.Core
                     lever ?? $"endurance {oldEndurancePoints:0}% to {newEndurancePoints:0}%",
                     $"endurance threshold {threshold:0} health",
                     "the whole hit landed above the endurance threshold, so endurance never applied to it");
-                return whole;
+                return ApplyWardSurvival(whole, wardAtHit);
             }
             float takenBelow = recordedDamage - above;         // after old endurance
             float preBelow = takenBelow / (1f - eOld);          // undo old endurance
             float newTaken = above + preBelow * (1f - eNew);
             if (recordedDamage <= 0f) return Refuse("recorded damage is missing");
             float ratio = newTaken / recordedDamage;
-            return Finish(recordedDamage, overkill, ratio, meaning,
+            var done = Finish(recordedDamage, overkill, ratio, meaning,
                 lever ?? $"endurance {oldEndurancePoints:0}% to {newEndurancePoints:0}%",
                 $"endurance threshold {threshold:0} health, applies to the part of the hit below it",
-                "assumes no ward was left: any ward means more of the hit lands below the threshold, so this is the smallest possible benefit");
+                "the percent assumes the hit landed on health; ward is spent first and endurance does not reduce it");
+            return ApplyWardSurvival(done, wardAtHit);
+        }
+
+        // A computed survival is claimed only when ward at the hit is known to be 0.
+        static Counterfactual ApplyWardSurvival(Counterfactual cf, float wardAtHit)
+        {
+            if (cf == null) return cf;
+            bool wardKnownZero = float.IsFinite(wardAtHit) && wardAtHit <= 0f;
+            if (!wardKnownZero && cf.Survived == true)
+            {
+                cf.Survived = null;
+                cf.Note = Append(cf.Note, "ward at the hit was not known to be zero, so survival is not claimed");
+            }
+            else if (wardKnownZero && cf.Survived != null)
+                cf.Note = Append(cf.Note, "ward at the hit was zero");
+            return cf;
         }
 
         // Shared tail: apply the ratio to the recorded numbers and decide

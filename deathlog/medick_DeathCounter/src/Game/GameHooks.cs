@@ -290,10 +290,15 @@ namespace medick_DeathCounter.Game
                 if (h == null) return;
 
                 float before = __state.Before, after = PlayerProbe.CurrentHealth;
+                float wardAfter = PlayerProbe.CurrentWard;
                 bool known = !float.IsNaN(before) && !float.IsNaN(after);
-                float? lost = HitLoss.Amount(before, after, __state.WardBefore, PlayerProbe.CurrentWard, h.Amount);
+                bool wardKnown = !float.IsNaN(__state.WardBefore) && !float.IsNaN(wardAfter);
+                float? lost = HitLoss.Amount(before, after, __state.WardBefore, wardAfter, h.Amount);
                 if (lost == null) return;
                 h.Amount = lost.Value;
+                h.HealthLost = known ? Math.Max(0f, before - after) : -1f;
+                h.WardAtHit = wardKnown ? __state.WardBefore : -1f;
+                h.WardLost = wardKnown ? Math.Max(0f, __state.WardBefore - wardAfter) : -1f;
 
                 float max = PlayerProbe.MaxHealth;
                 h.Time         = Time.time;

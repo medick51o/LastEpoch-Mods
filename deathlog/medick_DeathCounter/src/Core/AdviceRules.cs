@@ -186,13 +186,18 @@ namespace medick_DeathCounter.Core
             // or an unresolved crit gap. Reported damage is not a health-loss unit.
             bool defensesClosed = types.Count > 0 && types.All(e => Def("Res." + Elements.Name(e), out float r) && r >= 74.5f)
                 && !tips.Values.Any(t => !t.IsNotice && (t.Group == "crit" || t.Group.StartsWith("res:")));
-            bool observedLargeLoss = (d.Kind == DeathKind.OneShot || d.Kind == DeathKind.Burst) && d.MaxHealth > 0 && d.Hits > 0 && d.WindowDamage >= d.MaxHealth * 0.8f;
+            // Same pool the death kind used. WindowDamage stays ward-inclusive and is not the threshold.
+            bool observedLargeLoss = d.ClassPool > 0
+                ? (d.Kind == DeathKind.OneShot || d.Kind == DeathKind.Burst) && d.Hits > 0 && d.ClassLoss >= d.ClassPool * 0.8f
+                : (d.Kind == DeathKind.OneShot || d.Kind == DeathKind.Burst) && d.MaxHealth > 0 && d.Hits > 0 && d.WindowDamage >= d.MaxHealth * 0.8f;
             bool reportedLargeHit = d.MaxHealth > 0 && d.KillingBlow >= d.MaxHealth && d.OverkillDamage > 0 && !string.IsNullOrWhiteSpace(d.DetailSource);
             bool poolEvidence = !dots && defensesClosed && (observedLargeLoss || reportedLargeHit);
             if (poolEvidence)
             {
                 string body = observedLargeLoss
-                    ? $"Recorded health loss was {d.WindowDamage:N0} against {d.MaxHealth:N0} max health at death. "
+                    ? (d.ClassPool > 0
+                        ? $"The death kind compared {d.ClassLoss:N0} against a pool of {d.ClassPool:N0}. Timeline totals still include ward. "
+                        : $"Recorded health loss was {d.WindowDamage:N0} against {d.MaxHealth:N0} max health at death. ")
                     : $"The game reported {d.KillingBlow:N0} damage and {d.OverkillDamage:N0} overkill against {d.MaxHealth:N0} max health at death. Report units have not been verified against health and ward. "
                       + (d.OverkillDamage < d.KillingBlow ? $"If the reported damage is the whole hit after your defenses, you were about {d.OverkillDamage:N0} health and ward short of surviving this exact hit. " : "");
                 body += "The relevant resistance gaps are closed" + (current ? " in your current stats" : " in the snapshot") + "; adding more resistance alone is not the next fix. ";
@@ -226,8 +231,10 @@ namespace medick_DeathCounter.Core
                 if (!current && Def("EnduranceThreshold", out float knownThreshold) && d.KillingBlow > 0 && d.OverkillDamage > 0
                     && d.OverkillDamage < d.KillingBlow && !string.IsNullOrWhiteSpace(d.DetailSource))
                 {
+                    float wardAtHit = float.NaN;
+                    if (Def("Ward", out float snapshotWard)) wardAtHit = snapshotWard;
                     var preview = MitigationMath.PreviewEndurance(d.KillingBlow, d.OverkillDamage, knownThreshold, endurance, 60,
-                        DamageMeaning.PostMitigationWithWard, $"raising endurance from {endurance:0}% to 60%");
+                        DamageMeaning.PostMitigationWithWard, $"raising endurance from {endurance:0}% to 60%", wardAtHit);
                     if (float.IsFinite(preview.Ratio))
                     {
                         enduranceBody += " " + preview.Sentence();
@@ -244,6 +251,12 @@ namespace medick_DeathCounter.Core
             else if (Has("Chill"))
                 Add("cc_chill", "control", 78, "Keep mobility while chilled",
                     "Chill was recorded and slows movement, attacks and casts. Cold resistance does not prevent chill. Check chill protection or cleansing your build supports and keep a movement skill available; do not treat extra health as chill immunity.");
+            if (Has("Chill of Aberroth"))
+                Add("cc_chill_aberroth", "control:aberroth-chill", 78, "Chill of Aberroth slows you",
+                    "Chill of Aberroth slows movement, attacks and casts. It is not Chill, and cold resistance does not stop it. Keep a movement skill ready.");
+            if (Has("Shock of Aberroth"))
+                Add("cc_shock_aberroth", "control:aberroth-shock", 72, "Shock of Aberroth raises damage taken",
+                    "Shock of Aberroth is 5% increased damage taken per stack. It does not lower lightning resistance. Fewer stacks mean less extra damage taken.");
             if (Has("Stun"))
                 Add("cc_stun", "control:stun", 79, "Improve stun avoidance",
                     "Stun was recorded. Stun avoidance is a flat rating. " + (Def("StunAvoidance", out float stun) ? $"Your snapshot had {stun:N0} stun avoidance. " : "")

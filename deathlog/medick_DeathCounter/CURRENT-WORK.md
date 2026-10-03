@@ -1,3 +1,7 @@
+# v0.1.14 team review round 2
+
+Built on v0.1.13. See CHANGELOG.md. The NoGame Release build and CoreTests pass on Linux. Still to do on the Windows laptop: the game-linked Release build, both InteropGuard modes, and an in-game pass. Nothing has been installed or published.
+
 # v0.1.13 team review round 1
 
 Built on v0.1.12. See CHANGELOG.md. The NoGame Release build and CoreTests pass on Linux. Still to do on the Windows laptop: the game-linked Release build, both InteropGuard modes, and the in-game checklist. Nothing has been installed or published.

@@ -70,6 +70,8 @@ namespace medick_DeathCounter.UI
         static int _bossPage;
         static string _bossGroup = "all", _shownBossId;
         static bool _showBossMoves, _showContributions, _showBossBrowser, _showBossSources;
+        static int _bossMovePage;
+        static readonly HeightCache _bossMoveHeights = new();
         static EncounterRecord _bossResearch;
         static IReadOnlyList<string> _bossPreparation, _bossSources;
         static readonly string[] Tabs = { "Last death", "History", "Patterns", "Boss notes", "Settings" };
@@ -652,12 +654,14 @@ namespace medick_DeathCounter.UI
             if (d.AilmentsOnYou?.Count > 0)
             {
                 y = Heading(x, y, w, "Ailments", sc);
-                y = Paragraph(x, y, w, string.Join(", ", d.AilmentsOnYou), sc);
+                foreach (var name in d.AilmentsOnYou)
+                    y = Paragraph(x, y, w, Ailments.CardLine(name), sc);
             }
             if (d.Hits > 0)
             {
                 y = Heading(x, y, w, $"Recorded health loss ({d.WindowSeconds:0}s)", sc);
                 y = Paragraph(x, y, w, $"{d.WindowDamage:N0} health lost across {d.Hits} recorded events. Recorded loss is health plus ward when both could be read. A hit that only broke ward is kept.", sc);
+                if (d.WardDominatedLine() is string wardNote) y = Paragraph(x, y, w, wardNote, sc);
                 // An old or hand-edited record can carry a short array.
                 float total = d.DamageByElement?.Length == Elements.Count ? d.DamageByElement.Sum() : 0f;
                 if (total > 0)
@@ -780,7 +784,7 @@ namespace medick_DeathCounter.UI
             if (_shownBossId != boss.Id)
             {
                 _shownBossId = boss.Id; _bossResearch = boss.Encounter; _bossPreparation = BossFieldNotes.Preparation(boss); _bossSources = BossFieldNotes.SourceLines(boss);
-                _showBossMoves = false;
+                _showBossMoves = false; _bossMovePage = 0;
             }
             y = Heading(x, y, w, BossBrowseName(boss), sc);
             if (BossContextLabels.Label(boss) is string bossContext) y = Paragraph(x, y, w, "(" + bossContext + ")", sc, true);
@@ -820,18 +824,40 @@ namespace medick_DeathCounter.UI
                 y += 46f * sc;
                 if (_showBossMoves)
                 {
+                    var deathMove = death != null && BossCatalog.AttackerGuide(death)?.Id == boss.Id ? BossGuideMoves.KillingMove(death) : null;
+                    var orderedIds = BossAttackPages.Order(moves.Select(m => m.Id).ToList(), deathMove?.Id);
+                    var byId = moves.ToDictionary(m => m.Id, m => m, StringComparer.Ordinal);
+                    _bossMovePage = BossAttackPages.Clamp(_bossMovePage, orderedIds.Count);
+                    int movePages = BossAttackPages.Count(orderedIds.Count);
+                    string heightKey = boss.Id + ":" + _bossMovePage + ":" + (int)w + ":" + sc.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + ":" + (deathMove?.Id ?? "");
                     y = Paragraph(x, y, w, "Reported attack facts. Missing types, ailments and hit/DoT details remain unknown. These do not replace your captured killing blow.", sc, true);
-                    foreach (var move in moves)
+                    if (movePages > 1) y = Paragraph(x, y, w, $"Page {_bossMovePage + 1} of {movePages}. The killing move is first when this death has one.", sc, true);
+                    float pageTop = y;
+                    if (movePages > 1)
                     {
-                        y = Heading(x, y, w, move.Name, sc);
+                        float half = (w - 12f * sc) / 2f, ly = y, ry = y;
+                        if (ActionButton(x, ref ly, half, "Previous attacks", sc, _bossMovePage > 0)) _bossMovePage--;
+                        if (ActionButton(x + half + 12f * sc, ref ry, half, "Next attacks", sc, _bossMovePage < movePages - 1)) _bossMovePage++;
+                        y = Mathf.Max(ly, ry);
+                        pageTop = y;
+                    }
+                    bool attributed = false;
+                    foreach (var id in BossAttackPages.Page(orderedIds, _bossMovePage))
+                    {
+                        if (!byId.TryGetValue(id, out var move)) continue;
+                        y = Heading(x, y, w, move.Id == deathMove?.Id ? "Killing move: " + move.Name : move.Name, sc);
                         foreach (var element in move.Elements)
                             y += Theme.Para(x, y, w, "Reported damage: " + Elements.Name(element), Theme.ElementColor(element), Body(sc)) + 8f * sc;
                         if (move.Elements.Count == 0) y = Paragraph(x, y, w, "Damage type not mapped.", sc, true);
                         if (move.Ailments.Count > 0) y = Paragraph(x, y, w, "Reported ailments: " + string.Join(", ", move.Ailments), sc, true);
                         if (move.Delivery != "unknown") y = Paragraph(x, y, w, "Reported delivery: " + (move.Delivery == "dot" ? "damage over time" : move.Delivery), sc, true);
-                        foreach (string line in MaxrollPlayerNotes.MoveLines(move.Id))
+                        foreach (string line in MaxrollPlayerNotes.MoveLines(move.Id, !attributed))
+                        {
+                            if (line == MaxrollPlayerNotes.Attribution) attributed = true;
                             y = Paragraph(x, y, w, line, sc);
+                        }
                     }
+                    if (!_bossMoveHeights.TryGet(heightKey, out _)) _bossMoveHeights.Store(heightKey, Math.Max(1f, y - pageTop));
                 }
             }
             var sources = _bossSources ?? Array.Empty<string>();

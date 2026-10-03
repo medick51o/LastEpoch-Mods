@@ -48,6 +48,13 @@ namespace medick_DeathCounter.Core
         public bool?    IsBossFight    { get; set; }
         public string   IrregularSource { get; set; } // enum name only; no inferred hazard
         public float    MaxHealth      { get; set; }
+        // Pool and loss the death kind was judged against. 0 means an older record
+        // with no split. Timeline WindowDamage stays health plus ward.
+        public float    ClassPool      { get; set; }
+        public float    ClassLoss      { get; set; }
+        // Negative when that part of the killing hit was not read.
+        public float    KillingHealthLoss { get; set; } = -1f;
+        public float    KillingWardLoss   { get; set; } = -1f;
 
         public DeathKind Kind          { get; set; }
         public float    WindowSeconds  { get; set; }
@@ -127,6 +134,13 @@ namespace medick_DeathCounter.Core
         public bool CauseTitleNamesAttack() => !string.IsNullOrWhiteSpace(KillerAbility) || !string.IsNullOrWhiteSpace(KillingAilment);
 
         public string KillingAilmentLabel() => string.IsNullOrWhiteSpace(KillingAilment) ? "Not recorded" : KillingAilment.Trim();
+
+        // Shown when ward, not health, was most of the killing hit.
+        public string WardDominatedLine()
+        {
+            if (KillingHealthLoss < 0f || KillingWardLoss < 0f || KillingWardLoss <= KillingHealthLoss) return null;
+            return "Ward took more of the killing hit than health did. The death kind is based on health loss.";
+        }
 
         public string KillerLine()
         {

@@ -29,6 +29,9 @@ namespace medick_DeathCounter.Game
         public static ReassessmentLog Reassessments { get; private set; }
         public static string   Character { get; private set; } = "";
         public static int      CharacterDeaths { get; private set; }
+        public static string   CounterText =>
+            _resets == null ? CharacterDeaths.ToString()
+            : _resets.Label(Character, Log?.CountFor(Character) ?? 0);
         public static int      SessionDeaths { get; private set; }
         public static DeathRecord JustDied { get; private set; }
         public static float    JustDiedAt { get; private set; } = -999f;
@@ -63,6 +66,19 @@ namespace medick_DeathCounter.Game
         static int _livingLevel;
         static bool _livingHardcore;
         static CounterResets _resets;
+        static List<HitEvent> _frozenHits;
+        static List<string> _frozenAilments;
+        static Dictionary<string, float> _frozenDefenses;
+        static float _frozenDefensesAt = -999f;
+        static bool _frozenReady;
+        static void ClearFrozen()
+        {
+            _frozenHits = null;
+            _frozenAilments = null;
+            _frozenDefenses = null;
+            _frozenDefensesAt = -999f;
+            _frozenReady = false;
+        }
 
         public static bool Recording => PlayerProbe.HasPlayer && !_dead;
         public static bool AwaitingDeathDetails => _pendingDetection != null || (_dead && Time.time >= _deadAt && Time.time - _deadAt <= 5f);
@@ -102,13 +118,14 @@ namespace medick_DeathCounter.Game
                     _pendingDetection = null;
                     _pendingCapture = null;
                     _pendingPlayContext = null;
+                    ClearFrozen();
                 }
                 else
                 {
                     string detection = _pendingDetection;
                     _committing = true;
                     try { if (_pendingCapture != null) OnDeath(detection); }
-                    finally { _committing = false; _pendingDetection = null; _pendingCapture = null; _pendingPlayContext = null; _pendingCredited = false; }
+                    finally { _committing = false; _pendingDetection = null; _pendingCapture = null; _pendingPlayContext = null; _pendingCredited = false; ClearFrozen(); }
                 }
             }
             if (now >= _nextCountCheck)
@@ -190,6 +207,8 @@ namespace medick_DeathCounter.Game
             _hits.Clear();
             _ailments.Clear();
             if (_pendingCapture == null) { _details = null; _detailsAt = -999f; }
+            // Live buffers clear with the actor. A pending death keeps the
+            // frozen copies taken at the first signal.
             _defenses = null;
             _defensesAt = -999f;
             _livingPlayContext = null;
@@ -352,12 +371,25 @@ namespace medick_DeathCounter.Game
                 _details = null;
                 _pendingPlayContext = null;
                 _pendingCapture = null;
+                ClearFrozen();
             }
         }
 
         // First signal freezes the death time. A later signal in the same
         // window can refresh the hit list without moving that time, and it
         // does not add a second counter credit.
+        static bool LiveFilled() => _hits.Count > 0 || (_defenses != null && _defenses.Count > 0);
+        static bool CaptureFilled(PendingDeath pending) =>
+            pending != null && (pending.Record.Hits > 0 || (pending.Record.Defenses != null && pending.Record.Defenses.Count > 0));
+        static void SnapshotFrozen(float now)
+        {
+            _frozenHits = _hits.Since(now - 12);
+            _frozenAilments = _ailments.Where(kv => now >= kv.Value && now - kv.Value <= AilmentMemory).Select(kv => kv.Key).ToList();
+            _frozenDefenses = _defenses == null ? null : new Dictionary<string, float>(_defenses);
+            _frozenDefensesAt = _defensesAt;
+            _frozenReady = (_frozenHits != null && _frozenHits.Count > 0) || (_frozenDefenses != null && _frozenDefenses.Count > 0);
+        }
+
         static void FreezePending(string name, float hp, float now, bool fresh)
         {
             if (fresh)
@@ -367,10 +399,16 @@ namespace medick_DeathCounter.Game
             }
             string detection = _pendingDetection;
             bool lateCounter = detection == "game" && (!float.IsFinite(hp) || hp > 0);
+            bool liveHas = !lateCounter && LiveFilled();
+            if (liveHas) SnapshotFrozen(now);
+            var choice = CaptureRefresh.Choose(fresh, liveHas, !lateCounter && _frozenReady, CaptureFilled(_pendingCapture));
+            if (choice.KeepExisting) return;
             bool living = !lateCounter && _livingPlayCharacter == name && now >= _livingPlayAt && now - _livingPlayAt <= 2f;
             _pendingPlayContext = lateCounter ? null : living && _livingPlayContext != null
                 ? _livingPlayContext.Copy() : PlayerProbe.PlayContext(name);
-            float max = lateCounter ? -1 : _defenses != null && now >= _defensesAt && now - _defensesAt <= 2f && _defenses.TryGetValue("MaxHealth", out float livingMax)
+            var defenseSource = lateCounter ? null : choice.UseFrozen ? _frozenDefenses : _defenses;
+            float defenseAt = choice.UseFrozen ? _frozenDefensesAt : _defensesAt;
+            float max = lateCounter ? -1 : defenseSource != null && now >= defenseAt && now - defenseAt <= 2f && defenseSource.TryGetValue("MaxHealth", out float livingMax)
                 ? livingMax : PlayerProbe.MaxHealth;
             var context = new DeathContext
             {
@@ -382,8 +420,10 @@ namespace medick_DeathCounter.Game
                 MaxHealth = float.IsFinite(max) ? max : -1,
                 Detection = detection, ModVersion = BuildInfo.Version, UtcNow = _pendingUtc,
             };
-            _pendingCapture = new PendingDeath(lateCounter ? null : _hits.Since(now - 12), fresh ? now : _pendingAt, context,
-                lateCounter ? null : _ailments.Where(kv => now >= kv.Value && now - kv.Value <= AilmentMemory).Select(kv => kv.Key), lateCounter ? null : _defenses, _defensesAt, !lateCounter);
+            IReadOnlyList<HitEvent> hits = lateCounter ? null : choice.UseFrozen ? _frozenHits : _hits.Since(now - 12);
+            IEnumerable<string> ailments = lateCounter ? null : choice.UseFrozen ? _frozenAilments
+                : _ailments.Where(kv => now >= kv.Value && now - kv.Value <= AilmentMemory).Select(kv => kv.Key);
+            _pendingCapture = new PendingDeath(hits, fresh ? now : _pendingAt, context, ailments, defenseSource, defenseAt, !lateCounter);
             if (fresh && detection != "game" && Character == name)
             {
                 _ledger.Recorded(now);

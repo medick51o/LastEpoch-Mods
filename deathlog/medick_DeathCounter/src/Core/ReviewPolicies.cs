@@ -102,4 +102,103 @@ namespace medick_DeathCounter.Core
         public bool Matches(int a, int b, int c) => _a == a && _b == b && _c == c;
         public void Remember(int a, int b, int c) { _a = a; _b = b; _c = c; }
     }
+
+    // A later death signal may fill an empty capture. It must not replace a
+    // capture that already has hits or defenses with an empty one. After the
+    // live buffers are cleared, the frozen copy is the one to read.
+    public readonly struct CaptureChoice
+    {
+        public bool KeepExisting { get; }
+        public bool UseFrozen { get; }
+        public CaptureChoice(bool keepExisting, bool useFrozen)
+        {
+            KeepExisting = keepExisting;
+            UseFrozen = useFrozen;
+        }
+    }
+
+    public static class CaptureRefresh
+    {
+        public static CaptureChoice Choose(bool fresh, bool liveHas, bool frozenHas, bool existingHas)
+        {
+            if (liveHas) return new CaptureChoice(false, false);
+            if (frozenHas) return new CaptureChoice(false, true);
+            if (!fresh && existingHas) return new CaptureChoice(true, false);
+            return new CaptureChoice(false, false);
+        }
+    }
+
+    // A press counts only for the button that went down while the pointer was
+    // on the counter. It clears on release, and it does not count a button
+    // that was already held on entry or still held after the pointer leaves.
+    public sealed class CounterPressLatch
+    {
+        int _armed;
+        public void Clear() => _armed = 0;
+        public bool Update(bool pointerOver, bool down0, bool down1, bool down2, bool held0, bool held1, bool held2)
+        {
+            if (!held0) _armed &= ~1;
+            if (!held1) _armed &= ~2;
+            if (!held2) _armed &= ~4;
+            if (!pointerOver)
+            {
+                _armed = 0;
+                return false;
+            }
+            if (down0) _armed |= 1;
+            if (down1) _armed |= 2;
+            if (down2) _armed |= 4;
+            return _armed != 0;
+        }
+    }
+
+    // Expanded boss attacks: killing move first, then a short page.
+    public static class BossAttackPages
+    {
+        public const int Size = 4;
+        public static List<string> Order(IReadOnlyList<string> moveIds, string killingMoveId)
+        {
+            var list = new List<string>();
+            if (moveIds == null) return list;
+            if (!string.IsNullOrEmpty(killingMoveId))
+                foreach (var id in moveIds)
+                    if (id == killingMoveId) { list.Add(id); break; }
+            foreach (var id in moveIds)
+                if (list.Count == 0 || id != list[0]) list.Add(id);
+            return list;
+        }
+        public static int Count(int moves) => moves <= 0 ? 1 : (moves + Size - 1) / Size;
+        public static int Clamp(int page, int moves)
+        {
+            int last = Count(moves) - 1;
+            if (page < 0) return 0;
+            return page > last ? last : page;
+        }
+        public static List<string> Page(IReadOnlyList<string> ordered, int page)
+        {
+            var list = new List<string>();
+            if (ordered == null || ordered.Count == 0) return list;
+            page = Clamp(page, ordered.Count);
+            int start = page * Size;
+            for (int i = start; i < ordered.Count && list.Count < Size; i++) list.Add(ordered[i]);
+            return list;
+        }
+    }
+
+    // Measured block heights, keyed by the caller (boss id, page, width).
+    public sealed class HeightCache
+    {
+        readonly Dictionary<string, float> _heights = new(StringComparer.Ordinal);
+        public int Count => _heights.Count;
+        public bool TryGet(string key, out float height)
+        {
+            height = 0f;
+            return key != null && _heights.TryGetValue(key, out height);
+        }
+        public void Store(string key, float height)
+        {
+            if (string.IsNullOrEmpty(key) || !float.IsFinite(height) || height <= 0f) return;
+            _heights[key] = height;
+        }
+    }
 }

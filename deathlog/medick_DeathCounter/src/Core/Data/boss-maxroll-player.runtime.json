@@ -19,1199 +19,1273 @@
   },
   "moves": {
     "harbinger-defilement-slam": {
-      "spot": "Look for tight strike with a follow-up ring going away from the middle.",
-      "avoid": "Step aside unless your defenses are already very sturdy."
+      "spot": "A tight floor strike lands, then a ring travels away from him.",
+      "avoid": "Step off the impact, and do not linger where the ring is spreading."
     },
     "harbinger-defilement-massive-slam": {
-      "spot": "The enemy strikes the floor in a wide area.",
-      "avoid": "Step aside unless your defenses are already very sturdy."
+      "spot": "He strikes a wide area of the floor.",
+      "avoid": "Get outside the wide patch before the slam connects."
     },
     "harbinger-defilement-echo-slam": {
-      "spot": "Look for the enemy and five Echoes strike the same place in quick succession.",
-      "avoid": "Do not stand in the middle of it.",
+      "spot": "He and five echoes hit the same place in a row. Lines travel out from each echo.",
+      "avoid": "Do not stand where those slams overlap. The lines leave each echo.",
       "danger": true
     },
     "harbinger-defilement-void-combo-strike": {
-      "spot": "Look for three slashes, then a floor strike.",
-      "avoid": "Step aside unless your defenses are already very sturdy.",
+      "spot": "Three cuts come first. The ground slam after them is the heavy part.",
+      "avoid": "You can meet a cut. Be clear before the closing slam.",
       "danger": true
     },
     "harbinger-defilement-void-orbs": {
-      "spot": "Look for a few spheres on the floor that linger for a short time.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "Several orbs sit on the floor for a short time.",
+      "avoid": "They hit only if you walk on them. Path around the patches."
     },
     "harbinger-defilement-void-portal-blast": {
-      "spot": "You will see a gate next to him."
+      "spot": "A gate opens beside him. After a short timer he thrusts the hammer through it.",
+      "avoid": "Leave the space in front of that gate before the delayed thrust."
     },
     "harbinger-defilement-void-rush": {
-      "spot": "The enemy rushes at you and strikes in front."
+      "spot": "He rushes toward you and strikes the space in front of him.",
+      "avoid": "Sidestep the path of the rush so the front hit misses."
     },
     "harbinger-defilement-void-strike": {
-      "spot": "The enemy strikes forward, creating a tight wave."
+      "spot": "He swings forward and sends a short wave.",
+      "avoid": "A side step takes you off that narrow wave."
     },
     "harbinger-defilement-void-turrets": {
-      "spot": "Look for spheres placed on the floor that fire in a single direction for a few moments.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "Orbs on the floor shoot one direction for several seconds.",
+      "avoid": "Stand off the line each orb is firing."
     },
     "harbinger-defilement-spirit-decay": {
-      "spot": "Look for a wide puddle on the floor.",
-      "avoid": "Leave the Necrotic puddles.",
+      "spot": "A large pool spreads on the ground.",
+      "avoid": "Leave the necrotic pool. Standing in it is a heavy hit.",
       "danger": true
     },
     "harbinger-defilement-tail-flare": {
-      "spot": "Look for especially wide shown early strike area, then shown early spreading rings.",
-      "avoid": "The windup is easy to read. Step out of it.",
+      "spot": "A very large slam area is shown, then shockwaves are shown after it.",
+      "avoid": "Exit the first slam and the shockwaves. Both are marked before they hit.",
       "danger": true
     },
     "harbinger-pride-portal-spear": {
-      "spot": "Look for two gates, one beside the Enemy and one near you.",
-      "avoid": "The windup is easy to read. Step out of it."
+      "spot": "One gate is beside her and one is near you. The spear comes out of the far gate after a delay.",
+      "avoid": "Step off the portal near you before the spear arrives there."
     },
     "harbinger-pride-spear-beam": {
-      "spot": "The enemy charges, then fires a Fire beam.",
-      "avoid": "The windup is easy to read, so the extra damage is optional."
+      "spot": "She charges, then a fire beam runs both in front of her and behind her.",
+      "avoid": "Step off the front line and the back line. The beam uses both."
     },
     "harbinger-pride-spear-dash": {
-      "spot": "The enemy dashes at you with spear drawn.",
-      "avoid": "It is hard to leave up close. Soak it, or keep your distance."
+      "spot": "She dashes at you with the spear drawn.",
+      "avoid": "At range, slide off the dash. Up close the hit is light if you cannot."
     },
     "harbinger-pride-spear-thrust": {
-      "spot": "Look for two quick swings while sliding forward.",
-      "avoid": "To stay safe, tank it or stay at range."
+      "spot": "Two fast cuts come while she slides forward.",
+      "avoid": "Step off the slide. Both swings ride that movement."
     },
     "harbinger-pride-void-blast": {
-      "spot": "Look for a few spheres on the floor that linger briefly.",
-      "avoid": "To stay safe, walk around the spheres."
+      "spot": "Several orbs rest on the ground for a brief time.",
+      "avoid": "Walk around the orbs. Stepping on one is the hit."
     },
     "harbinger-pride-void-slam": {
-      "spot": "Look for flies up, then strikes a shown early area.",
-      "avoid": "Leave the shown early area."
+      "spot": "She rises, then drops on a marked patch.",
+      "avoid": "Exit the marked landing before she comes down."
     },
     "harbinger-pride-void-slash": {
-      "spot": "The enemy spins and slashes, creating a blast wave.",
-      "avoid": "To stay safe, tank it or stay at range."
+      "spot": "She spins into a slash, and a wave travels away from her.",
+      "avoid": "Clear the spin and the wave that keeps going outward."
     },
     "harbinger-pride-void-spears": {
-      "spot": "Look for two Void spears on the floor explode into shots after a few moments.",
-      "avoid": "Leave it, like Gate Spear."
+      "spot": "Two spears sit on the ground, then burst into shots. They also apply frailty and armor shred.",
+      "avoid": "Move away before the spears burst."
     },
     "harbinger-pride-turrets": {
-      "spot": "Look for turrets in the arena aim at you.",
-      "avoid": "Keep stepping sideways until it stops tracking you."
+      "spot": "Turrets aim at you, follow briefly, then lock a spot. No damage type is stated.",
+      "avoid": "Strafe until they lock. These turrets can be destroyed, so break them between mechanics."
     },
     "harbinger-pride-fire-bomb": {
-      "spot": "Look for a spiral of AoE rings starting on the Enemy and exploding away from the middle.",
-      "avoid": "Leave when possible, but tankable for most reasonably."
+      "spot": "A spiral of circles starts on her and explodes outward.",
+      "avoid": "Move out of the spiral when you can. It is a moderate fire hit."
     },
     "harbinger-hatred-slam": {
-      "spot": "Look for tight strike with a follow-up ring going away from the middle.",
-      "avoid": "Step aside unless your defenses are already very sturdy."
+      "spot": "The first hit is small. A follow-up ring moves outward from the boss.",
+      "avoid": "Leave that small patch before the outward ring reaches you."
     },
     "harbinger-hatred-massive-slam": {
-      "spot": "The enemy strikes the floor in a wide area.",
-      "avoid": "Step aside unless your defenses are already very sturdy."
+      "spot": "The marked area for this slam is large.",
+      "avoid": "Give the broad floor hit a full step of room."
     },
     "harbinger-hatred-echo-slam": {
-      "spot": "Look for the enemy and five Echoes strike the same place in quick succession.",
-      "avoid": "Do not stand in the middle of it.",
+      "spot": "Five echoes join his slam on one shared point, then damage runs outward.",
+      "avoid": "The shared middle is where several hits stack. Stand off that point.",
       "danger": true
     },
     "harbinger-hatred-void-combo-strike": {
-      "spot": "Look for three slashes, then a floor strike.",
-      "avoid": "Step aside unless your defenses are already very sturdy.",
+      "spot": "He slashes three times, then brings the weapon down.",
+      "avoid": "The last slam is the hard hit. Step out before it lands.",
       "danger": true
     },
     "harbinger-hatred-void-orbs": {
-      "spot": "Look for a few spheres on the floor that linger for a short time.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "Orbs appear underfoot and linger briefly.",
+      "avoid": "Route past each orb until it fades."
     },
     "harbinger-hatred-void-portal-blast": {
-      "spot": "You will see a gate next to him."
+      "spot": "The portal shows up next to him, then the hammer comes through.",
+      "avoid": "Use the pause after the gate appears to step off its line."
     },
     "harbinger-hatred-void-rush": {
-      "spot": "The enemy rushes at you and strikes in front."
+      "spot": "The charge ends in a swing ahead of his body.",
+      "avoid": "Be beside the rush, not on the line he is running."
     },
     "harbinger-hatred-void-strike": {
-      "spot": "The enemy strikes forward, creating a tight wave."
+      "spot": "The wave is small and travels straight out from him.",
+      "avoid": "Do not stand on the short wave he sends ahead."
     },
     "harbinger-hatred-void-turrets": {
-      "spot": "Look for spheres placed on the floor that fire in a single direction for a few moments.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "Each placed orb fires a single way until it stops.",
+      "avoid": "Step to either side of that shot."
     },
     "harbinger-hatred-void-slam": {
-      "spot": "The enemy targets a wide area in front of him.",
-      "avoid": "The windup is easy to read. Step out of it.",
+      "spot": "He marks a large area in front of him. There is a short delay before it hits.",
+      "avoid": "Use that delay to leave the marked area.",
       "danger": true
     },
     "harbinger-hatred-void-skyfall": {
-      "spot": "Look for meteor-like shots over a few moments.",
-      "avoid": "Stay out as much as possible."
+      "spot": "Meteor-like shots fall over several seconds.",
+      "avoid": "Stay out of them. Two at once add up."
     },
     "harbinger-hatred-void-flares": {
-      "spot": "The enemy charges a series of wedge-shaped swings in a pie pattern.",
-      "avoid": "To stay safe, moves clockwise, the opposite of Rahyeh.",
+      "spot": "He channels cones in a pie from the center, moving clockwise. He does not have to stay in the middle.",
+      "avoid": "Shift with the rotation. The edge is a harder place to stand than it looks.",
       "danger": true
     },
     "harbinger-war-portal-spear": {
-      "spot": "Look for two gates, one beside the Enemy and one near you.",
-      "avoid": "The windup is easy to read. Step out of it."
+      "spot": "Two portals open, and the thrust travels from hers into the one by you.",
+      "avoid": "The exit portal is the danger. Be off it when the spear comes through."
     },
     "harbinger-war-spear-beam": {
-      "spot": "The enemy charges, then fires a Fire beam.",
-      "avoid": "The windup is easy to read, so the extra damage is optional."
+      "spot": "After the charge, the fire shot is not only forward.",
+      "avoid": "Leave the line ahead of her and the line behind her."
     },
     "harbinger-war-spear-dash": {
-      "spot": "The enemy dashes at you with spear drawn.",
-      "avoid": "It is hard to leave up close. Soak it, or keep your distance."
+      "spot": "The spear dash comes straight at you.",
+      "avoid": "Sidestep when you have room. The damage is the smaller hit."
     },
     "harbinger-war-spear-thrust": {
-      "spot": "Look for two quick swings while sliding forward.",
-      "avoid": "To stay safe, tank it or stay at range."
+      "spot": "She moves toward you and attacks twice in a row.",
+      "avoid": "Give the forward slide a side step."
     },
     "harbinger-war-void-blast": {
-      "spot": "Look for a few spheres on the floor that linger briefly.",
-      "avoid": "To stay safe, walk around the spheres."
+      "spot": "Short-lived floor orbs are the whole attack.",
+      "avoid": "Keep your path off those orbs until they expire."
     },
     "harbinger-war-void-slam": {
-      "spot": "Look for flies up, then strikes a shown early area.",
-      "avoid": "Leave the shown early area."
+      "spot": "The landing spot is shown while she is in the air.",
+      "avoid": "Be outside that mark when she lands."
     },
     "harbinger-war-void-slash": {
-      "spot": "The enemy spins and slashes, creating a blast wave.",
-      "avoid": "To stay safe, tank it or stay at range."
+      "spot": "Both the slash and the blast wave that leaves her are hits.",
+      "avoid": "Step off her and off the path the wave takes."
     },
     "harbinger-war-void-spears": {
-      "spot": "Look for two Void spears on the floor explode into shots after a few moments.",
-      "avoid": "Leave it, like Gate Spear."
+      "spot": "The ground spears explode into projectiles after a few seconds.",
+      "avoid": "Leave them before the pop, or you take frailty and armor shred."
     },
     "harbinger-war-ice-vortex": {
-      "spot": "Look for tornado-like DoTs that slowly move in unpredictable directions and grow stronger over time.",
-      "avoid": "To stay safe, moves slowly, so it is relatively easy.",
+      "spot": "Slow cold storms wander at random and keep getting stronger.",
+      "avoid": "Stay outside them. They move slowly, so you can keep clear.",
       "danger": true
     },
     "harbinger-war-spirit-beam": {
-      "spot": "The enemy channels a wide beam in front for a few moments.",
-      "avoid": "The windup is easy to read. Step out of it.",
+      "spot": "A thick beam sits in front of him and widens the longer the channel lasts.",
+      "avoid": "The beam is shown in front of him. Leave that line.",
       "danger": true
     },
     "harbinger-chaos-portal-spear": {
-      "spot": "Look for two gates, one beside the Enemy and one near you.",
-      "avoid": "The windup is easy to read. Step out of it."
+      "spot": "A short delay separates the portals from the spear shot.",
+      "avoid": "Watch the gate closest to you and leave that spot before the thrust."
     },
     "harbinger-chaos-spear-beam": {
-      "spot": "The enemy charges, then fires a Fire beam.",
-      "avoid": "The windup is easy to read, so the extra damage is optional."
+      "spot": "The beam fires along her facing, front and rear together.",
+      "avoid": "Get off both sides of that line before it fires."
     },
     "harbinger-chaos-spear-dash": {
-      "spot": "The enemy dashes at you with spear drawn.",
-      "avoid": "It is hard to leave up close. Soak it, or keep your distance."
+      "spot": "She closes with the spear out.",
+      "avoid": "Stay off her dash path if you can. In melee there is little time, and the hit is light."
     },
     "harbinger-chaos-spear-thrust": {
-      "spot": "Look for two quick swings while sliding forward.",
-      "avoid": "To stay safe, tank it or stay at range."
+      "spot": "The pair of cuts travels with her approach.",
+      "avoid": "Do not stay on the path of that slide."
     },
     "harbinger-chaos-void-blast": {
-      "spot": "Look for a few spheres on the floor that linger briefly.",
-      "avoid": "To stay safe, walk around the spheres."
+      "spot": "Orbs spawn underfoot and do not chase.",
+      "avoid": "Circle around them instead of crossing the patch."
     },
     "harbinger-chaos-void-slam": {
-      "spot": "Look for flies up, then strikes a shown early area.",
-      "avoid": "Leave the shown early area."
+      "spot": "A telegraph appears, then she slams down on it.",
+      "avoid": "Leave the shown patch as soon as she leaves the ground."
     },
     "harbinger-chaos-void-slash": {
-      "spot": "The enemy spins and slashes, creating a blast wave.",
-      "avoid": "To stay safe, tank it or stay at range."
+      "spot": "A quick spin sends a wave outward.",
+      "avoid": "Do not stand in the spin or on the departing wave."
     },
     "harbinger-chaos-void-spears": {
-      "spot": "Look for two Void spears on the floor explode into shots after a few moments.",
-      "avoid": "Leave it, like Gate Spear."
+      "spot": "Two void spears detonate into a spread.",
+      "avoid": "Be elsewhere when they split. The burst shreds armor and applies frailty."
     },
     "harbinger-chaos-lagonian-waves": {
-      "spot": "Look for waves from the Lagon fight continue through.",
-      "avoid": "Leave as much as possible."
+      "spot": "Cold waves from the Lagon fight keep coming during this harbinger.",
+      "avoid": "Dodge what you can. The hits are moderate and add up if you stand in them."
     },
     "harbinger-chaos-lagonian-beam": {
-      "spot": "Her moon beam is brief and does not sweep the platform.",
-      "avoid": "Do not stand in the middle of it."
+      "spot": "Her beam is shorter than Lagon's, less clearly shown, and it does not sweep the platform.",
+      "avoid": "Do not stand in the beam. It still burns health quickly."
     },
     "harbinger-treason-portal-spear": {
-      "spot": "Look for two gates, one beside the Enemy and one near you.",
-      "avoid": "The windup is easy to read. Step out of it."
+      "spot": "One gate is beside her and one is near you. The spear comes out of the far gate after a delay.",
+      "avoid": "Step off the portal near you before the spear arrives there."
     },
     "harbinger-treason-spear-beam": {
-      "spot": "The enemy charges, then fires a Fire beam.",
-      "avoid": "The windup is easy to read, so the extra damage is optional."
+      "spot": "She charges, then a fire beam runs both in front of her and behind her.",
+      "avoid": "Step off the front line and the back line. The beam uses both."
     },
     "harbinger-treason-spear-dash": {
-      "spot": "The enemy dashes at you with spear drawn.",
-      "avoid": "It is hard to leave up close. Soak it, or keep your distance."
+      "spot": "She dashes at you with the spear drawn.",
+      "avoid": "At range, slide off the dash. Up close the hit is light if you cannot."
     },
     "harbinger-treason-spear-thrust": {
-      "spot": "Look for two quick swings while sliding forward.",
-      "avoid": "To stay safe, tank it or stay at range."
+      "spot": "Two fast cuts come while she slides forward.",
+      "avoid": "Step off the slide. Both swings ride that movement."
     },
     "harbinger-treason-void-blast": {
-      "spot": "Look for a few spheres on the floor that linger briefly.",
-      "avoid": "To stay safe, walk around the spheres."
+      "spot": "Several orbs rest on the ground for a brief time.",
+      "avoid": "Walk around the orbs. Stepping on one is the hit."
     },
     "harbinger-treason-void-slam": {
-      "spot": "Look for flies up, then strikes a shown early area.",
-      "avoid": "Leave the shown early area."
+      "spot": "She rises, then drops on a marked patch.",
+      "avoid": "Exit the marked landing before she comes down."
     },
     "harbinger-treason-void-slash": {
-      "spot": "The enemy spins and slashes, creating a blast wave.",
-      "avoid": "To stay safe, tank it or stay at range."
+      "spot": "She spins into a slash, and a wave travels away from her.",
+      "avoid": "Clear the spin and the wave that keeps going outward."
     },
     "harbinger-treason-void-spears": {
-      "spot": "Look for two Void spears on the floor explode into shots after a few moments.",
-      "avoid": "Leave it, like Gate Spear."
+      "spot": "Two spears sit on the ground, then burst into shots. They also apply frailty and armor shred.",
+      "avoid": "Move away before the spears burst."
     },
     "harbinger-treason-idols-of-ruin": {
-      "spot": "Leftover idols from the previous fight can still be here.",
-      "avoid": "Remove them in the previous fight so they do not carry over."
+      "spot": "Idols left alive in the Harton fight keep attacking here.",
+      "avoid": "Kill the idols during Harton so they are not still up for this fight."
     },
     "harbinger-treason-void-worms": {
-      "spot": "Look for summoned periodically.",
-      "avoid": "To stay safe, mostly harmless with low HP."
+      "spot": "Worms are summoned on a timer. No damage type is stated.",
+      "avoid": "They are a low hit with low health. Kill them when you have a moment."
     },
     "harbinger-treason-void-anomaly": {
-      "spot": "Look for a wide Void ring that lingers for a few moments.",
-      "avoid": "Do not stand in the middle of it.",
+      "spot": "A large circle sits on the ground for several seconds.",
+      "avoid": "The whole circle is the hit. Do not stand anywhere inside it.",
       "danger": true
     },
     "harbinger-treason-void-starfire": {
-      "spot": "Look for star pattern of lines around the Enemy that lingers a few moments.",
-      "avoid": "To stay safe, easy to leave, stay out to stay healthy for other swings."
+      "spot": "A star of lines forms around her and stays up for several seconds.",
+      "avoid": "Stand in the gaps of the star so the other hits do not land on you as well."
     },
     "harbinger-destruction-slam": {
-      "spot": "Look for tight strike with a follow-up ring going away from the middle.",
-      "avoid": "Step aside unless your defenses are already very sturdy."
+      "spot": "Watch for a short slam and the ring that follows it away from center.",
+      "avoid": "Be off the slam itself, then keep clear of the expanding ring."
     },
     "harbinger-destruction-massive-slam": {
-      "spot": "The enemy strikes the floor in a wide area.",
-      "avoid": "Step aside unless your defenses are already very sturdy."
+      "spot": "This is the big version of his ground strike.",
+      "avoid": "Stand beyond the wide impact, not inside it."
     },
     "harbinger-destruction-echo-slam": {
-      "spot": "Look for the enemy and five Echoes strike the same place in quick succession.",
-      "avoid": "Do not stand in the middle of it.",
+      "spot": "The echoes and the boss strike one spot, and each sends a line away.",
+      "avoid": "Leave the overlap. A line comes off every echo.",
       "danger": true
     },
     "harbinger-destruction-void-combo-strike": {
-      "spot": "Look for three slashes, then a floor strike.",
-      "avoid": "Step aside unless your defenses are already very sturdy.",
+      "spot": "The combo ends in a floor strike after three swings.",
+      "avoid": "Treat the first swings as the warning and exit for the final slam.",
       "danger": true
     },
     "harbinger-destruction-void-orbs": {
-      "spot": "Look for a few spheres on the floor that linger for a short time.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "Look for short-lived orbs resting on the ground.",
+      "avoid": "Step around the orbs instead of through them."
     },
     "harbinger-destruction-void-portal-blast": {
-      "spot": "You will see a gate next to him."
+      "spot": "You will see a portal by his side before the hammer strike.",
+      "avoid": "The thrust is late. Be aside of the portal when it fires."
     },
     "harbinger-destruction-void-rush": {
-      "spot": "The enemy rushes at you and strikes in front."
+      "spot": "He closes the gap and hits forward at the end.",
+      "avoid": "Slide off his approach before that front strike."
     },
     "harbinger-destruction-void-strike": {
-      "spot": "The enemy strikes forward, creating a tight wave."
+      "spot": "Look for a forward strike that becomes a tight wave.",
+      "avoid": "Move to the side of the wave rather than backing along it."
     },
     "harbinger-destruction-void-turrets": {
-      "spot": "Look for spheres placed on the floor that fire in a single direction for a few moments.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "Turret orbs lock a straight beam for a few seconds.",
+      "avoid": "Leave the beam's line until the orb is done."
     },
     "harbinger-destruction-spirit-pools": {
-      "spot": "Look for emperor's Blood Puddles become Spirit Puddles at the arena edges and linger all fight.",
-      "avoid": "Stay away from the edges."
+      "spot": "Pools from the Emperor fight stay on the arena edges for the whole fight. They take a percent of remaining health.",
+      "avoid": "Stay away from the edges. They cannot finish you alone, but they remove large chunks."
     },
     "harbinger-destruction-raise-dead": {
-      "spot": "The enemy summons a wide number of undead.",
-      "avoid": "To stay safe, take them out fast."
+      "spot": "He summons a large pack of undead.",
+      "avoid": "Clear the undead quickly. Each one is a low hit."
     },
     "harbinger-destruction-spirit-breath": {
-      "spot": "Look for wedge-shaped breath, the telegraph is much less obvious.",
-      "avoid": "Do not stay in it. Treat this as a must-leave swing.",
+      "spot": "A cone of necrotic damage over time comes off his front and grows while it lasts. The mark is less obvious than on the Emperor.",
+      "avoid": "Stay off his front. Do not stand in the breath.",
       "danger": true
     },
     "harbinger-fear-portal-spear": {
-      "spot": "Look for two gates, one beside the Enemy and one near you.",
-      "avoid": "The windup is easy to read. Step out of it."
+      "spot": "Two portals open, and the thrust travels from hers into the one by you.",
+      "avoid": "The exit portal is the danger. Be off it when the spear comes through."
     },
     "harbinger-fear-spear-beam": {
-      "spot": "The enemy charges, then fires a Fire beam.",
-      "avoid": "The windup is easy to read, so the extra damage is optional."
+      "spot": "After the charge, the fire shot is not only forward.",
+      "avoid": "Leave the line ahead of her and the line behind her."
     },
     "harbinger-fear-spear-dash": {
-      "spot": "The enemy dashes at you with spear drawn.",
-      "avoid": "It is hard to leave up close. Soak it, or keep your distance."
+      "spot": "The spear dash comes straight at you.",
+      "avoid": "Sidestep when you have room. The damage is the smaller hit."
     },
     "harbinger-fear-spear-thrust": {
-      "spot": "Look for two quick swings while sliding forward.",
-      "avoid": "To stay safe, tank it or stay at range."
+      "spot": "She moves toward you and attacks twice in a row.",
+      "avoid": "Give the forward slide a side step."
     },
     "harbinger-fear-void-blast": {
-      "spot": "Look for a few spheres on the floor that linger briefly.",
-      "avoid": "To stay safe, walk around the spheres."
+      "spot": "Short-lived floor orbs are the whole attack.",
+      "avoid": "Keep your path off those orbs until they expire."
     },
     "harbinger-fear-void-slam": {
-      "spot": "Look for flies up, then strikes a shown early area.",
-      "avoid": "Leave the shown early area."
+      "spot": "The landing spot is shown while she is in the air.",
+      "avoid": "Be outside that mark when she lands."
     },
     "harbinger-fear-void-slash": {
-      "spot": "The enemy spins and slashes, creating a blast wave.",
-      "avoid": "To stay safe, tank it or stay at range."
+      "spot": "Both the slash and the blast wave that leaves her are hits.",
+      "avoid": "Step off her and off the path the wave takes."
     },
     "harbinger-fear-void-spears": {
-      "spot": "Look for two Void spears on the floor explode into shots after a few moments.",
-      "avoid": "Leave it, like Gate Spear."
+      "spot": "The ground spears explode into projectiles after a few seconds.",
+      "avoid": "Leave them before the pop, or you take frailty and armor shred."
     },
     "harbinger-fear-spark-discharge": {
-      "spot": "Look for mines on the floor explode a short time after being walked.",
-      "avoid": "Run through them periodically to clear them."
+      "spot": "Stepping on a ground mine starts a short fuse, and the blast follows.",
+      "avoid": "Run through them on purpose to clear them, and keep moving so the blast misses."
     },
     "harbinger-fear-tri-beam": {
-      "spot": "Look for a turret in the middle fires three rotating beams, one per element.",
-      "avoid": "To stay safe, walk clockwise or pass through.",
+      "spot": "A center turret fires three rotating beams, one each of fire, cold, and lightning. She keeps attacking during it.",
+      "avoid": "This page says to walk clockwise, or cross a beam with a movement skill that has an invulnerability frame.",
       "danger": true
     },
     "harbinger-tyranny-slam": {
-      "spot": "Look for tight strike with a follow-up ring going away from the middle.",
-      "avoid": "Step aside unless your defenses are already very sturdy."
+      "spot": "A tight floor strike lands, then a ring travels away from him.",
+      "avoid": "Step off the impact, and do not linger where the ring is spreading."
     },
     "harbinger-tyranny-massive-slam": {
-      "spot": "The enemy strikes the floor in a wide area.",
-      "avoid": "Step aside unless your defenses are already very sturdy."
+      "spot": "He strikes a wide area of the floor.",
+      "avoid": "Get outside the wide patch before the slam connects."
     },
     "harbinger-tyranny-echo-slam": {
-      "spot": "Look for the enemy and five Echoes strike the same place in quick succession.",
-      "avoid": "Do not stand in the middle of it.",
+      "spot": "He and five echoes hit the same place in a row. Lines travel out from each echo.",
+      "avoid": "Do not stand where those slams overlap. The lines leave each echo.",
       "danger": true
     },
     "harbinger-tyranny-void-combo-strike": {
-      "spot": "Look for three slashes, then a floor strike.",
-      "avoid": "Step aside unless your defenses are already very sturdy.",
+      "spot": "Three cuts come first. The ground slam after them is the heavy part.",
+      "avoid": "You can meet a cut. Be clear before the closing slam.",
       "danger": true
     },
     "harbinger-tyranny-void-orbs": {
-      "spot": "Look for a few spheres on the floor that linger for a short time.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "Several orbs sit on the floor for a short time.",
+      "avoid": "They hit only if you walk on them. Path around the patches."
     },
     "harbinger-tyranny-void-portal-blast": {
-      "spot": "You will see a gate next to him."
+      "spot": "A gate opens beside him. After a short timer he thrusts the hammer through it.",
+      "avoid": "Leave the space in front of that gate before the delayed thrust."
     },
     "harbinger-tyranny-void-rush": {
-      "spot": "The enemy rushes at you and strikes in front."
+      "spot": "He rushes toward you and strikes the space in front of him.",
+      "avoid": "Sidestep the path of the rush so the front hit misses."
     },
     "harbinger-tyranny-void-strike": {
-      "spot": "The enemy strikes forward, creating a tight wave."
+      "spot": "He swings forward and sends a short wave.",
+      "avoid": "A side step takes you off that narrow wave."
     },
     "harbinger-tyranny-void-turrets": {
-      "spot": "Look for spheres placed on the floor that fire in a single direction for a few moments.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "Orbs on the floor shoot one direction for several seconds.",
+      "avoid": "Stand off the line each orb is firing."
     },
     "harbinger-tyranny-frost-beam": {
-      "spot": "The enemy fires a beam.",
-      "avoid": "Leave it, the Freeze is a hard CC."
+      "spot": "He fires a cold beam that also freezes.",
+      "avoid": "Leave the beam. Freeze stops you acting, which is the dangerous part."
     },
     "harbinger-tyranny-blizzard": {
-      "spot": "Look for wide swirling Blizzard around him.",
-      "avoid": "Do not stand in it.",
+      "spot": "A large swirl forms around him and gets worse each second. He does not walk out of it.",
+      "avoid": "Only the space near him is safe. His slams are harder to avoid that close.",
       "danger": true
     },
     "harbinger-ash-slam": {
-      "spot": "Look for tight strike with a follow-up ring going away from the middle.",
-      "avoid": "Step aside unless your defenses are already very sturdy."
+      "spot": "The first hit is small. A follow-up ring moves outward from the boss.",
+      "avoid": "Leave that small patch before the outward ring reaches you."
     },
     "harbinger-ash-massive-slam": {
-      "spot": "The enemy strikes the floor in a wide area.",
-      "avoid": "Step aside unless your defenses are already very sturdy."
+      "spot": "The marked area for this slam is large.",
+      "avoid": "Give the broad floor hit a full step of room."
     },
     "harbinger-ash-echo-slam": {
-      "spot": "Look for the enemy and five Echoes strike the same place in quick succession.",
-      "avoid": "Do not stand in the middle of it.",
+      "spot": "Five echoes join his slam on one shared point, then damage runs outward.",
+      "avoid": "The shared middle is where several hits stack. Stand off that point.",
       "danger": true
     },
     "harbinger-ash-void-combo-strike": {
-      "spot": "Look for three slashes, then a floor strike.",
-      "avoid": "Step aside unless your defenses are already very sturdy.",
+      "spot": "He slashes three times, then brings the weapon down.",
+      "avoid": "The last slam is the hard hit. Step out before it lands.",
       "danger": true
     },
     "harbinger-ash-void-orbs": {
-      "spot": "Look for a few spheres on the floor that linger for a short time.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "Orbs appear underfoot and linger briefly.",
+      "avoid": "Route past each orb until it fades."
     },
     "harbinger-ash-void-portal-blast": {
-      "spot": "You will see a gate next to him."
+      "spot": "The portal shows up next to him, then the hammer comes through.",
+      "avoid": "Use the pause after the gate appears to step off its line."
     },
     "harbinger-ash-void-rush": {
-      "spot": "The enemy rushes at you and strikes in front."
+      "spot": "The charge ends in a swing ahead of his body.",
+      "avoid": "Be beside the rush, not on the line he is running."
     },
     "harbinger-ash-void-strike": {
-      "spot": "The enemy strikes forward, creating a tight wave."
+      "spot": "The wave is small and travels straight out from him.",
+      "avoid": "Do not stand on the short wave he sends ahead."
     },
     "harbinger-ash-void-turrets": {
-      "spot": "Look for spheres placed on the floor that fire in a single direction for a few moments.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "Each placed orb fires a single way until it stops.",
+      "avoid": "Step to either side of that shot."
     },
     "harbinger-ash-necrotic-pool": {
-      "spot": "Look for a wide puddle on the floor.",
-      "avoid": "To stay safe, especially wide areas leave little room.",
+      "spot": "A large necrotic pool covers a lot of floor.",
+      "avoid": "The pools leave little room. Plan a path before he stacks more skills on them.",
       "danger": true
     },
     "harbinger-ash-necrotic-blast": {
-      "spot": "Look for medium Necrotic ring appears, then a Necrotic ball hits its middle.",
-      "avoid": "Leave the ring before the ball lands.",
+      "spot": "A medium circle appears, then a ball hits its center.",
+      "avoid": "Leave the circle before the ball lands.",
       "danger": true
     },
     "harbinger-ash-circling-fireballs": {
-      "spot": "Look for tight fireball spirals away from the middle around him and grows over time.",
-      "avoid": "Keep room to move.",
+      "spot": "One fireball circles him and gets larger the farther it travels.",
+      "avoid": "Keep room to outrun it. If you wait, it is at full size when it reaches you.",
       "danger": true
     },
     "abomination-invulnerability": {
-      "spot": "Look for during phase one, the Abomination is invulnerable.",
-      "avoid": "To stay safe, go in a clockwise or counter clockwise."
+      "spot": "He cannot be damaged until four soul vessels in the corners are destroyed. The vessels also drop necrotic pools.",
+      "avoid": "Kill the vessels in a circle, clockwise or the other way, so the pools are easier to leave."
     },
     "abomination-tail-flair": {
-      "spot": "This shows up when you see the red ring from Tail Flair.",
-      "avoid": "Keep circling until the swing has passed."
+      "spot": "A red circle shows on the tail, then two lines, one in front of him and one behind. The front line aims at you.",
+      "avoid": "Move away and to one side so you clear the circle and both lines."
     },
     "abomination-necrotic-wave": {
-      "spot": "The enemy fires out three blue waves in a wedge shape in front of the enemy.",
-      "avoid": "To stay safe, either stand in between two."
+      "spot": "Three blue waves fire in a cone, then return. The return hits harder and can overlap.",
+      "avoid": "Stand between two waves at range, or get behind him before they come back."
     },
     "abomination-earthquake": {
-      "spot": "The enemy fires out a tremor in a line at you.",
-      "avoid": "Keep moving to make it easier to leave Earthquake."
+      "spot": "A tremor runs to where you were standing, then a small quake erupts there. Below 90 percent health it also casts Spirit Decay.",
+      "avoid": "Keep moving so the eruption is not under you."
     },
     "abomination-spirit-decay": {
-      "spot": "Look for once the enemy reaches 90%, be on the lookout.",
-      "avoid": "To stay safe, these slowly chase you and ramp up."
+      "spot": "From 90 percent health, four necrotic circles slowly chase you and grow stronger the longer they live.",
+      "avoid": "Do not let the chasing circles sit on you."
     },
     "abomination-soul-reave": {
-      "spot": "He swings across the space in front of him.",
-      "avoid": "You can soak this swing. It is a light hit when your defenses are in order."
+      "spot": "He cleaves the space in front of him for a low necrotic hit.",
+      "avoid": "The cleave is a light hit if your defenses are in place."
     },
     "volcanic-shaman-lava-plume": {
-      "spot": "Look for a series of three explosions that deal.",
-      "avoid": "To stay safe, prioritize avoiding Torch Flame, Magma Balls."
+      "spot": "Three fire blasts step outward from the shaman. Each one farther out is larger.",
+      "avoid": "The third and farthest blast is the one to leave. It is the heavy hit in the set."
     },
     "volcanic-shaman-torch-flame": {
-      "spot": "Look for the Shaman burns an area.",
-      "avoid": "To stay safe, prioritize avoiding Torch Flame, Magma Balls.",
+      "spot": "He channels fire on an area for several seconds, and the hit rises over that channel.",
+      "avoid": "Get off the channeled patch. It is one of the three heavy attacks.",
       "danger": true
     },
     "volcanic-shaman-eruption": {
-      "spot": "Look for the area underneath the Shaman explodes in a X pattern, and lands moderate Fire Damage."
+      "spot": "The ground under him explodes in an X.",
+      "avoid": "Step off the X under his feet."
     },
     "volcanic-shaman-magma-ball": {
-      "spot": "Look for the Shaman fires a ball of magma.",
-      "avoid": "To stay safe, prioritize avoiding Torch Flame, Magma Balls.",
+      "spot": "A magma ball travels forward and explodes on contact.",
+      "avoid": "Do not stand in the ball's path. It is one of the heavy fire hits.",
       "danger": true
     },
     "volcanic-shaman-dragon-strike": {
-      "spot": "Look for the Shaman strikes directly in front."
+      "spot": "A dragon head strikes the space directly in front of him.",
+      "avoid": "The front strike is a low hit. A side step still keeps you off it."
     },
     "volcanic-shaman-spirit-form": {
-      "spot": "Look for upon death, the Shaman becomes a spirit.",
-      "avoid": "To stay safe, try to kill them all.",
+      "spot": "When a shaman dies he turns into a spirit, keeps a wide necrotic ring until the last shaman falls, and shoots necrotic bolts.",
+      "avoid": "Try to kill the shamans together so the spirit circles do not stack.",
       "danger": true
     },
     "emperor-of-corpses-soul-bomb": {
-      "spot": "Look for right away leave the area as soon as Emperor.",
-      "avoid": "To stay safe, make sure you're far enough away.",
+      "spot": "He rears onto his hind legs, then a very large circle explodes. Afterward the outside of the circle is a growing damage over time.",
+      "avoid": "Leave the circle before it explodes, far enough not to clip the edge, then run back in. Keep him near the center so you have room.",
       "danger": true
     },
     "emperor-of-corpses-roar": {
-      "spot": "Look for emperor roars, slowing you and summoning 5 Slaughtered Thralls which deal.",
-      "avoid": "To stay safe, it's not a dangerous swing on its own, but if he uses."
+      "spot": "At 70 percent health he roars, slows you, and summons five slaughtered thralls.",
+      "avoid": "The roar is a light hit by itself. A roar just before Soul Bomb makes the explosion much harder to leave."
     },
     "emperor-of-corpses-flesh-impact": {
-      "spot": "Look for emperor shakes and fires out pieces.",
-      "avoid": "To stay safe, try to leave getting hit by a few in a short period of time."
+      "spot": "He shakes and fires body pieces that explode and spawn a thrall.",
+      "avoid": "Avoid taking several of the exploding pieces in a short time."
     },
     "emperor-of-corpses-spirit-breath": {
-      "spot": "Look for look for Emperor to raise his head.",
-      "avoid": "To stay safe, when he does, move to his side.",
+      "spot": "He raises his head, then breathes a necrotic cone that grows stronger. More than a second in it is a heavy hit.",
+      "avoid": "When the head goes up, move to his side or his back.",
       "danger": true
     },
     "emperor-of-corpses-blood-pools": {
-      "spot": "Look for throughout the fight Blood Puddles calls in on the edges of the arena.",
-      "avoid": "To stay safe, try to stay in the middle of the arena and escape Soul Bomb."
+      "spot": "Pools form on the arena edges and take a large percent of current health each second. They have no damage type and cannot finish you alone.",
+      "avoid": "Stay central. When Soul Bomb fires, run to the bottom edge, where pools do not form."
     },
     "emperor-of-corpses-melee-attack": {
-      "spot": "Look for emperor swipes with his front leg and lands low Physical Damage to you in Melee Range.",
-      "avoid": "To stay safe, this ability can be tanked."
+      "spot": "A front-leg swipe hits players in melee range.",
+      "avoid": "The swipe is a low hit and can be taken if you are in melee."
     },
     "frost-lich-formosus-teleport": {
-      "spot": "Look for formosus teleports to a new location.",
-      "avoid": "To stay safe, when Formosus Teleports he often moves off."
+      "spot": "He teleports anywhere in the arena, often off screen. The teleport itself does no damage.",
+      "avoid": "Be ready to look for him after he vanishes."
     },
     "frost-lich-formosus-ice-patch": {
-      "spot": "Look for formosus places a wide patch of ice on the floor that Slows."
+      "spot": "A large ice patch on the ground slows you. It does no damage.",
+      "avoid": "Do not fight the beam while you are stuck on the ice if you can step off it first."
     },
     "frost-lich-formosus-undead-wengari": {
-      "spot": "Look for formosus is accompanied by three Undead Wengari.",
-      "avoid": "To stay safe, killing the Axe Throwers and the Matriarch.",
+      "spot": "Three axe throwers use a low physical shot. The matriarch's leap quake is mostly lightning and is the dangerous add.",
+      "avoid": "Kill the axe throwers and the matriarch so he can resurrect only one of them.",
       "danger": true
     },
     "frost-lich-formosus-resurrect-wengari": {
-      "spot": "Look for formosus resurrects one Undead Wengari that has."
+      "spot": "He brings back one slain wengari.",
+      "avoid": "Expect one add to return. Killing both kinds still limits which one comes back."
     },
     "frost-lich-formosus-spirit-beam": {
-      "spot": "Look for formosus channels a wide beam in front of him for a few moments that lands high Necrotic Damage and gets.",
-      "avoid": "To stay safe, spirit Beam lands a lot of damage but is easy.",
+      "spot": "He channels a large beam in front that grows over several seconds.",
+      "avoid": "The beam is easy to leave unless an ice patch is slowing you. A movement skill helps when they overlap.",
       "danger": true
     },
     "frost-lich-formosus-frost-spirit": {
-      "spot": "Look for formosus fires a few shots that seek out you and deal low Cold and Necrotic Damage.",
-      "avoid": "To stay safe, frost Spirit does low damage and can."
+      "spot": "Seeking shots deal a low cold and necrotic hit.",
+      "avoid": "They are hard to dodge because they home. Take the light hit and watch the other mechanics."
     },
     "frost-lich-formosus-ice-vortex": {
-      "spot": "Look for formosus places a few tornado-like DoTs on the floor that slowly move in unpredictable directions and deal Cold Damage.",
-      "avoid": "To stay safe, make sure to account for where these.",
+      "spot": "Cold tornadoes drift slowly and grow stronger the longer they last.",
+      "avoid": "Track where they are and stay out. A fresh one on you is still weak for a moment, so move.",
       "danger": true
     },
     "god-hunter-argentus-turrets": {
-      "spot": "They aim where you stand, then lock onto that spot.",
-      "avoid": "Leave Turret shots by strafing when the telegraph starts."
+      "spot": "Three turrets outside the arena follow you briefly, then lock a location. No damage type is stated.",
+      "avoid": "Strafe from the moment the telegraph starts until they lock."
     },
     "god-hunter-argentus-melee": {
-      "spot": "Look for argentus uses a basic Melee Swing that does low Physical Damage that can.",
-      "avoid": "To stay safe, can be tanked."
+      "spot": "A basic melee swing.",
+      "avoid": "It is a low physical hit and can be taken."
     },
     "god-hunter-argentus-ice-stab": {
-      "spot": "Look for stabs with his spear in a line.",
-      "avoid": "To stay safe, try to leave Ice Stab by strafing as soon."
+      "spot": "He stabs a line in front of him and can apply frostbite.",
+      "avoid": "Strafe as soon as the line shows. It is fast, so cold resistance still matters."
     },
     "god-hunter-argentus-fire-bomb": {
-      "spot": "The enemy puts down a spiral of AoE rings that originate on him and explode away from the middle.",
-      "avoid": "To stay safe, you can easily sidestep Fire Bomb by moving right on top."
+      "spot": "Circles spiral out from him and explode as they go.",
+      "avoid": "Step onto him when the spiral starts. The blasts travel outward."
     },
     "god-hunter-argentus-ice-nova": {
-      "spot": "Look for argentus channels a circular AoE around him.",
-      "avoid": "To stay safe, move out of Ice Nova as soon.",
+      "spot": "He channels a circle around himself that chills and applies frostbite.",
+      "avoid": "Leave the circle as soon as it shows. You have a short gap before the channel.",
       "danger": true
     },
     "god-hunter-argentus-flame-dash": {
-      "spot": "Look for argentus charges you, doing low Fire and Physical Damage to you caught in his path.",
-      "avoid": "To stay safe, this swing is easily tanked."
+      "spot": "He charges through your position.",
+      "avoid": "The charge is a low hit and can be taken."
     },
     "god-hunter-argentus-flame-leap": {
-      "spot": "Look for argentus leaps into the air and then.",
-      "avoid": "To stay safe, can be avoided by running outside."
+      "spot": "In phase 3 he leaps and crashes down in a circle, plus three flares going out. The flares hit harder than the circle.",
+      "avoid": "Run outside the circle and stand between the flares."
     },
     "god-hunter-argentus-minions": {
-      "spot": "Look for (rings of light on the floor).",
-      "avoid": "Do not stay in it. Treat this as a must-leave swing.",
+      "spot": "In phase 2, lightmages drop fire meteors marked by circles of light, and overlapping meteors are the danger while vanguards and raiders are not.",
+      "avoid": "Kill lightmages first and leave every circle of light.",
       "danger": true
     },
     "hartons-husk-oblivion-spike": {
-      "spot": "Look for harton fires out two lines in front.",
-      "avoid": "Don't stand in Oblivion Spike It lands more damage over the skill's duration."
+      "spot": "Two lines fire out in front of him and deal void damage over time that rises each second.",
+      "avoid": "Move out of the lines early. Waiting makes them painful."
     },
     "hartons-husk-abyssal-sundering": {
-      "spot": "Look for when Harton reaches 65% HP he uses."
+      "spot": "From 65 percent health, extra spikes join Oblivion Spike. They start low and grow.",
+      "avoid": "Treat the added spikes like the main lines and leave them before they ramp."
     },
     "hartons-husk-idols-of-ruin": {
-      "spot": "Look for these are two wide worms that are similar to the Idol.",
-      "avoid": "Leave Barrage of Ruin from the Idols."
+      "spot": "Two worms last the fight with nearly Harton's health. Bite is light physical, Death Seeker is a void line, and Barrage of Ruin is ramping void damage.",
+      "avoid": "Leave Barrage of Ruin as it ramps. Do not spend the fight killing the idols."
     },
     "hartons-husk-claw-slam": {
-      "spot": "Look for harton strikes the floor in front of him, doing moderate Physical."
+      "spot": "He slams the ground in front of him.",
+      "avoid": "Step off the front slam. It is a moderate physical hit."
     },
     "hartons-husk-corrupted-slash": {
-      "spot": "Look for harton swings in Melee Range in front."
+      "spot": "A melee swing covers the space in front of him.",
+      "avoid": "The swing is a low hit. Sidestep if you are in front of him."
     },
     "hartons-husk-void-stab": {
-      "spot": "Look for harton stabs in front of him."
+      "spot": "A stab in front of him with a circular hit.",
+      "avoid": "Leave the circle on the stab. It is a moderate void hit."
     },
     "heorot-monolith-frost-beam": {
-      "spot": "Look for heorot fires a beam that lands low Cold Damage and Freezes."
+      "spot": "A cold beam also freezes, and the damage rises while it fires.",
+      "avoid": "Leave the beam. Freeze stops your actions."
     },
     "heorot-monolith-frosted-eruption-frozen-orb": {
-      "spot": "Look for this is a combo skill.",
-      "avoid": "To stay safe, for the first quarter of the fight."
+      "spot": "He places pillars, and above 75 percent health a frozen orb then fires shrapnel.",
+      "avoid": "Hide behind a pillar for the opening quarter so the shrapnel is blocked, and below 75 percent health he drops the orb."
     },
     "heorot-monolith-ice-stab": {
-      "spot": "Look for heorot fast stabs in front of him, doing moderate."
+      "spot": "A fast stab in front of him.",
+      "avoid": "The stab is a moderate cold and physical hit. A quick side step clears the front."
     },
     "heorot-monolith-ice-spear": {
-      "spot": "Look for heorot fires a spear at you that lands low Cold Damage."
+      "spot": "A spear shot at you, only when you are outside melee range.",
+      "avoid": "The spear is a low cold hit. Closing to melee stops him using it."
     },
     "heorot-monolith-ice-circle": {
-      "spot": "Look for heorot explodes the floor around him three times in quick succession."
+      "spot": "Three explosions ring him in a row. Each is larger, farther out, and harder.",
+      "avoid": "The outer ring is the one to clear. The blasts step away from him."
     },
     "heorot-monolith-charge": {
-      "spot": "Look for heorot charges away from you.",
-      "avoid": "To stay safe, there are two strategies to deal.",
+      "spot": "He charges away from you and can leave the screen if he does not hit a wall. The charge itself does no damage.",
+      "avoid": "Try to aim him at a nearby wall, and keep a movement skill ready if the charge plus blizzard carries him off.",
       "danger": true
     },
     "heorot-monolith-blizzard": {
-      "spot": "Look for aT 75% HP Heorot casts Blizzard.",
-      "avoid": "To stay safe, while Blizzard is active only the space.",
+      "spot": "From 75 percent health a swirl surrounds him, shreds cold resistance, and worsens each second.",
+      "avoid": "Only the space near him is safe while the swirl is up.",
       "danger": true
     },
     "heorot-monolith-jump-back": {
-      "spot": "Look for heorot jumps back a short distance.",
+      "spot": "He hops back a short distance. No damage is listed.",
+      "avoid": "The hop is dangerous mainly with blizzard, because it can put the safe pocket somewhere else.",
       "danger": true
     },
     "heorot-monolith-ice-guard": {
-      "spot": "Look for heorot entombs himself in ice, becoming invulnerable.",
-      "avoid": "To stay safe, the first time he summons Grael."
+      "spot": "He seals himself at 55 percent and at 35. The first seal ends once Grael and the Spirit of Jormun die, and ice wolves keep spawning through the second seal.",
+      "avoid": "Break the first guard by killing those two. On the second guard, deal with the wolves as they keep coming."
     },
     "lagon-monolith-moon-beam": {
-      "spot": "Look for lagon starts the swing by rising up and then repositions.",
-      "avoid": "To stay safe, the best way to leave this swing is to wait for Lagon's eye.",
+      "spot": "He rises and shifts to one side of you. His eye glows red while he rises.",
+      "avoid": "Once that eye is red, cross to the opposite side.",
       "danger": true
     },
     "lagon-monolith-moon-shot": {
-      "spot": "Look for lagon lowers his head and then fires."
+      "spot": "Below 65 percent health he lowers his head and fires a quick beam forward.",
+      "avoid": "The beam is only in front of the lowered head. Step off that line."
     },
     "lagon-monolith-moon-blast": {
-      "spot": "Look for lagon rises up and places a wide ring on the floor below him.",
-      "avoid": "The windup is easy to read. Step out of it.",
+      "spot": "He rises and puts a large circle on the ground under himself, then blasts it. The blast also slows.",
+      "avoid": "Leave the big circle before the blast. It is clearly marked.",
       "danger": true,
       "oneShot": true
     },
     "lagon-monolith-lightning-strikes": {
-      "spot": "Look for a circular telegraph appears on the floor moments before the swing occurs."
+      "spot": "Random lightning hits the arena. A circle shows a moment before each one.",
+      "avoid": "Step off each circle. The hit itself is low."
     },
     "lagon-monolith-melee-attacks": {
-      "spot": "Look for lagon strikes the floor in front of him with either.",
-      "avoid": "Leave his Melee Swings, especially the left one (your right)."
+      "spot": "Either claw hits the ground in front of him. The left claw, on your right, always stuns for 2 seconds.",
+      "avoid": "Avoid the claws, especially the one on your right, so the stun does not ruin a later dodge."
     },
     "lagon-monolith-tentacles": {
-      "spot": "Look for during phase 2, Lagon's tentacles appear.",
-      "avoid": "To stay safe, they must be killed in order."
+      "spot": "In phase 2 his tentacles use low physical attacks with a high stun chance.",
+      "avoid": "Kill the tentacles. Phase 3 does not start until they are dead."
     },
     "lagon-monolith-adds": {
-      "spot": "Look for during Phase 2 Flayer Sharks and Crabs calls in throughout the phase.",
-      "avoid": "To stay safe, not and lands with the Flayer Sharks causes them."
+      "spot": "Flayer sharks and crabs spawn through phase 2.",
+      "avoid": "Neither is a major threat alone. Do not let the sharks pile up."
     },
     "lagon-monolith-cold-waves": {
-      "spot": "Look for starting at Phase 2 and persisting.",
-      "avoid": "To stay safe, they can be avoided in Phase 3."
+      "spot": "From phase 2, cold waves come often enough that dodging all of them is hard. In phase 3 they can be avoided near his end of the platform.",
+      "avoid": "Stand close to his end of the platform and slightly off center. Dead center is still in the waves, and too far off center is in Moon Beam range."
     },
     "rahyeh-the-black-sun-dive-bomb": {
-      "spot": "Look for rahyeh launches into the air and crashes.",
-      "avoid": "It is easy to leave. Stay off the marked patch.",
+      "spot": "He launches, then crashes down after a short delay.",
+      "avoid": "Run toward him. The edge of the crash is closest in that direction.",
       "danger": true
     },
     "rahyeh-the-black-sun-void-blast": {
-      "spot": "He pauses briefly before the blast leaves him.",
-      "avoid": "It is easy to leave. Stay off the marked patch.",
+      "spot": "He marks a large area in front, then hits it after a short delay. He needs melee range to use it.",
+      "avoid": "Run toward him to reach the edge fastest. Stepping out of melee stops repeat casts until he uses something else.",
       "danger": true
     },
     "rahyeh-the-black-sun-void-flares": {
-      "spot": "Look for rahyeh moves to the middle of the arena and begins charging.",
-      "avoid": "To stay safe, every swing can be dodged by either shifting.",
+      "spot": "From the center he charges cones in a pie pattern.",
+      "avoid": "Shift clockwise or the other way, or move back and forth between two cones.",
       "danger": true
     },
     "rahyeh-the-black-sun-wave-dash": {
-      "spot": "Look for rahyeh flies to just outside.",
-      "avoid": "Do not stand in the middle of it.",
+      "spot": "He flies just outside the arena, then dashes through and leaves a high void trail for several seconds.",
+      "avoid": "Stand still until he dashes at you, then step to either side. Stay off the trail until it fades.",
       "danger": true
     },
     "rahyeh-the-black-sun-void-skyfall": {
-      "spot": "Look for rahyeh casts a series of meteor-like shots over a few moments.",
-      "avoid": "To stay safe, getting hit by repeated is costly and they can overlap."
+      "spot": "Meteors fall over several seconds. Each one is a moderate void hit, and they can overlap.",
+      "avoid": "Do not get stunned inside a meteor. Overlaps are the costly part."
     },
     "rahyeh-the-black-sun-summon-adds": {
-      "spot": "Look for rahyeh fires a series of shots that turn into Voidform minions when they.",
-      "avoid": "These adds fall quickly. Deal with them when you have a moment."
+      "spot": "Projectiles become voidform minions on the ground.",
+      "avoid": "The minions are low health and a low hit. Kill them quickly."
     },
     "husk-of-elder-gaspar-tri-beam-fire": {
-      "spot": "Look for whenever Gaspar teleports to the middle of the arena, get ready.",
-      "avoid": "To stay safe, he always channels it in a counterclockwise.",
+      "spot": "When he teleports to the center, three beams rotate counterclockwise, one each of fire, cold, and lightning, and they rise while active.",
+      "avoid": "Run counterclockwise with the beams. Boot movement speed is enough because the spin is slow.",
       "danger": true
     },
     "husk-of-elder-gaspar-frozen-ice-storm": {
-      "spot": "Look for he always uses this skill directly after.",
-      "avoid": "To stay safe, a build with adequate defenses and sustain."
+      "spot": "Right after the beams, cold tornadoes spiral out in an alternating pattern.",
+      "avoid": "A sturdy build can take it. You can also shuffle side to side as he rotates the pattern."
     },
     "husk-of-elder-gaspar-teleport-with-void-explosion": {
-      "spot": "Look for gaspar teleports to another location."
+      "spot": "He teleports, then a small void explosion pops at the destination.",
+      "avoid": "The arrival blast is a low hit. Do not be standing on the landing spot."
     },
     "husk-of-elder-gaspar-summon-flaming-void-totem": {
-      "spot": "Look for gaspar summons a totem that mimics.",
-      "avoid": "To stay safe, totems should be killed whenever possible to leave accumulating too many."
+      "spot": "Totems copy his high fire circle, drop in pairs from 60 percent health, and have little life.",
+      "avoid": "Kill totems as they appear so they do not pile up. That matters more after 60 percent."
     },
     "husk-of-elder-gaspar-spark-discharge": {
-      "spot": "Look for gaspar summons a few balls of lightning that explode when touched, and lands moderate Lightning Damage.",
-      "avoid": "Wait out the pause, then leave the second burst."
+      "spot": "Lightning balls explode when touched, after a short delay.",
+      "avoid": "Touch them when nothing else is happening, then move. Speed or a movement skill clears the blast."
     },
     "husk-of-elder-gaspar-doom-blast-with-voidic-whirlwind": {
-      "spot": "Look for a few wide explosions around the arena. The marks come early.",
-      "avoid": "Do not stay in it. Treat this as a must-leave swing.",
+      "spot": "Large marked explosions hit around the arena, then a whirlwind forms on the outskirts and grows.",
+      "avoid": "Leave the marked blasts. Stand near the center until the edge whirlwind fades.",
       "danger": true
     },
     "lagon-campaign-moon-beam": {
-      "spot": "Look for lagon rises up and moves to either.",
-      "avoid": "To stay safe, wait for the red eye while he.",
+      "spot": "He lifts off toward one side, and the eye turns red.",
+      "avoid": "Hold until that eye is red, then cross to the opposite side.",
       "danger": true,
       "oneShot": true
     },
     "lagon-campaign-moon-shot": {
-      "spot": "Look for lowers his head, then a quick beam."
+      "spot": "Below 65 percent health he lowers his head and fires a quick beam forward.",
+      "avoid": "Step off the line in front of the lowered head."
     },
     "lagon-campaign-moon-blast": {
-      "spot": "Look for rises and places a wide ring under himself.",
-      "avoid": "Leave the ring before the blast.",
+      "spot": "He lifts up, marks a wide ring beneath his body, and the blast also slows.",
+      "avoid": "Leave the circle before the blast.",
       "danger": true,
       "oneShot": true
     },
     "lagon-campaign-lightning-strikes": {
-      "spot": "Look for circular telegraph moments before the strike."
+      "spot": "Random strikes show a circle a moment beforehand.",
+      "avoid": "Step off the circle. Each strike is a low hit."
     },
     "lagon-campaign-melee-attacks": {
-      "spot": "Look for lagon strikes the floor in front of him with either.",
-      "avoid": "Leave his melee, especially the left claw."
+      "spot": "A claw hits in front of him. The left claw, on your right, always stuns for 2 seconds.",
+      "avoid": "Avoid the melee, especially the claw on your right."
     },
     "lagon-campaign-tentacles-phase": {
-      "spot": "Look for during phase 2, Lagon's tentacles appear.",
+      "spot": "Phase 2 tentacles use low physical attacks, and the stun is a high chance rather than a sure thing.",
+      "avoid": "Kill them to reach phase 3.",
       "danger": true
     },
     "lagon-campaign-adds": {
-      "spot": "Look for during Phase 2 Flayer Sharks and Crabs calls in throughout the phase."
+      "spot": "Flayer sharks and crabs spawn in phase 2. No damage type is stated.",
+      "avoid": "They are minor unless the sharks are allowed to accumulate."
     },
     "lagon-campaign-cold-waves": {
-      "spot": "Look for starting at Phase 2, these waves do.",
-      "avoid": "It is hard to leave up close. Soak it, or keep your distance."
+      "spot": "Cold waves from phase 2 come so often that dodging every one is unrealistic.",
+      "avoid": "Cap cold resistance, because you will have to take some of them."
     },
     "lagons-tentacle-tentacle-attack": {
-      "spot": "Look for during phase 2, Lagon's tentacles appear.",
-      "avoid": "To stay safe, they must be killed to progress.",
+      "spot": "Phase 2 tentacles deal low physical hits and have a high stun chance.",
+      "avoid": "They have to die before phase 3 starts.",
       "danger": true
     },
     "majasa-phase-1-stone-stare": {
-      "spot": "Look for majasa periodically stares at you in both.",
-      "avoid": "Do not stay in it. Treat this as a must-leave swing."
+      "spot": "Both phases stack Stone Stare, and the fourth stack turns you to stone so you cannot act.",
+      "avoid": "Avoid the stare, and cleanse stacks you already have."
     },
     "majasa-phase-1-siege-bolt": {
-      "spot": "Look for giant red AoE.",
-      "avoid": "Do not stay in it. Treat this as a must-leave swing.",
+      "spot": "A giant red area in phase 1 is called out as able to fell most builds on a critical hit, and no damage type is stated.",
+      "avoid": "Leave the red area.",
       "danger": true,
       "oneShot": true
     },
     "majasa-phase-1-fire-and-poison-bolt": {
-      "spot": "This shows up when cast when you are too far.",
-      "avoid": "Step sideways, stay close so she does."
+      "spot": "Poison or fire bolts are cast when you stand too far from her.",
+      "avoid": "Step sideways. Staying close stops the ranged bolts."
     },
     "majasa-phase-1-stalactite-falling": {
-      "spot": "Look for stalactites leave a Poison puddle.",
-      "avoid": "To stay safe, stand at the top or bottom."
+      "spot": "Falling stalactites leave a poison pool. The hit element is not stated.",
+      "avoid": "Stand at the top or the bottom of the arena, where the pools cannot spawn."
     },
     "majasa-phase-1-stomp": {
-      "spot": "Look for big ice block with lightning sparks appears.",
-      "avoid": "Keep circling until the swing has passed.",
+      "spot": "A big block with lightning sparks appears over your head, then lightning spikes launch at you.",
+      "avoid": "Move in a circle so both the landing and the spikes miss.",
       "danger": true
     },
     "majasa-phase-1-adds": {
-      "spot": "Look for during Phase 1 at 66% and 33%.",
-      "avoid": "To stay safe, focus the Fire Essence first."
+      "spot": "At 66 and 33 percent health she goes underground and summons three essences, each with its own element.",
+      "avoid": "Focus the fire essence first."
     },
     "majasa-phase-2-melee-attacks": {
-      "spot": "Look for she hunts you down.",
-      "avoid": "It is hard to leave up close. Soak it, or keep your distance."
+      "spot": "She chases and her melee applies armor shred. This phase is physical only.",
+      "avoid": "The swings are hard to dodge. Bring armor and recovery instead of chasing every swing."
     },
     "majasa-phase-2-tail-attack": {
-      "spot": "Look for during Phase 2, Majasa swings with her tail.",
-      "avoid": "Do not bother dodging."
+      "spot": "The tail swipe also applies armor shred.",
+      "avoid": "Do not spend effort dodging the tail. It is the same shred problem as her melee."
     },
     "majasa-phase-2-corrupting-bomb": {
-      "spot": "Look for she spits Blood Puddles, then calls them back.",
-      "avoid": "Do not stand in the middle of it."
+      "spot": "Blood pools appear first, and she pulls them in to make the bomb. Those pools stack a lot of armor shred.",
+      "avoid": "Never stand in the blood pools. Move away when she calls them back."
     },
     "majasa-phase-2-regen": {
-      "spot": "Look for at 50% she rushes to a closed.",
-      "avoid": "To stay safe, damage her freely during the heal."
+      "spot": "At 50 percent health she runs to a closed sarcophagus and heals to full. She does this twice.",
+      "avoid": "Hit her during the heal. After both sarcophagi are open, the heal stops."
     },
     "aberroth-timeshattering-slam": {
-      "spot": "Look for aberroth casts Absorbing Chaos to charge up.",
-      "avoid": "To stay safe, get in as much as damage."
+      "spot": "He casts Absorbing Chaos and charges 4.5 seconds, or 3 seconds in phase 5, then a growing circle of void and physical.",
+      "avoid": "Deal damage during the charge, and move out before the circle goes off."
     },
     "aberroth-persisting-void": {
-      "spot": "Look for spheres that move from side to side.",
-      "avoid": "To stay safe, the puddles have infinite duration but can be cleared."
+      "spot": "Orbs travel side to side. A hit leaves a pool that lasts until cleared.",
+      "avoid": "Dodge the orbs. A superheated black hole removes the pools."
     },
     "aberroth-void-beam": {
-      "spot": "Look for void Beams target you for 2.",
-      "avoid": "To stay safe, they linger between phases, so the longer the fight."
+      "spot": "Beams aim at you for 2.5 seconds, then fire and apply Frailty of Aberroth. They stay between phases.",
+      "avoid": "Lay the beams next to one another along the north and south so the last phase still has space."
     },
     "aberroth-superheated-black-hole": {
-      "spot": "The enemy cast at your location after 1.",
-      "avoid": "To stay safe, use it to clear puddles of Persisting Void from the floor."
+      "spot": "After 1.5 seconds a small fire hit lands on you and applies ignite.",
+      "avoid": "Step off your spot, and use the black hole to clear Persisting Void pools."
     },
     "aberroth-superchilled-black-hole": {
-      "spot": "Look for superchilled Black Hole is cast at your."
+      "spot": "It lands on you for a moderate cold hit and pulls in cold shots that apply chill.",
+      "avoid": "Leave the landing spot so the hole and the pulled shots are not on you."
     },
     "aberroth-triple-flail-slam": {
-      "spot": "Look for aberroth puts down three triangles and then strikes them one by one.",
-      "avoid": "Do not stand in the middle of it."
+      "spot": "Three triangles slam one by one. He hits the middle first, then his right and his left.",
+      "avoid": "The safe spot is behind him. Or stand left or right, then step into the middle after the first slam."
     },
     "aberroth-slam-ground-of-destruction": {
-      "spot": "Look for aberroth strikes the floor, and lands high Physical and Void damage."
+      "spot": "A slam of physical and void leaves Ground of Destruction in the same direction, a high void damage over time.",
+      "avoid": "Leave the slam and do not stand on the ground effect it leaves along that line."
     },
     "aberroth-called-meteors": {
-      "spot": "Look for aberroth stays in place, calling repeated meteors at him for 3 moments.",
-      "avoid": "To stay safe, when the channeling begins, move."
+      "spot": "He stands still and calls meteors toward himself for 3 seconds. They are high fire and apply ignite.",
+      "avoid": "When the channel starts, move to his side or behind him."
     },
     "aberroth-lobbed-meteors": {
-      "spot": "Look for medium-range lobbed meteor swing that lands high Cold damage and applies Frostbite."
+      "spot": "Medium-range meteors deal high cold damage and apply frostbite.",
+      "avoid": "Step off the meteor marks before they land."
     },
     "aberroth-roots": {
-      "spot": "Look for roots lock you in place.",
-      "avoid": "To stay safe, use movement abilities or a Cleanse."
+      "spot": "Roots hold you in place for a short time.",
+      "avoid": "Use a movement skill or a cleanse to get out."
     },
     "aberroth-blade-of-chaos": {
-      "spot": "Look for aberroth casts Blade of Chaos."
+      "spot": "A blade travels in a wide arc from him, hitting with physical, lightning, and void.",
+      "avoid": "Sidestep the arc."
     },
     "aberroth-cursing-scythe": {
-      "spot": "Look for aberroth releases a total of 4 Necrotic.",
-      "avoid": "Do not stay in it. Treat this as a must-leave swing."
+      "spot": "Four necrotic bolts apply Curse of Aberroth, which cuts all resistances and cannot be cleansed.",
+      "avoid": "Do not get hit by the bolts."
     },
     "aberroth-cosmic-absorption-lazer-of-death": {
-      "spot": "Look for aberroth charges up Cosmic Absorption for 2.",
-      "avoid": "To stay safe, move out of the charging area, then."
+      "spot": "Cosmic Absorption charges for 2.5 seconds, then Lazer of Death is a massive void hit.",
+      "avoid": "Leave the charge zone, then step off the Lazer of Death."
     },
     "aberroth-phase-3-quadrant-ground-effects-quicksand-lightning-winds-fiery-ground": {
-      "spot": "The enemy puts down four quadrants, each with detrimental floor effects: Quicksand, Lightning, Winds and Fiery Floor.",
-      "avoid": "To stay safe, the safest one to stand on is."
+      "spot": "Four quadrants: quicksand applies Frailty of Aberroth, lightning applies Shock of Aberroth, winds apply Chill of Aberroth, and fiery ground is a small fire hit.",
+      "avoid": "Fiery ground is usually the safer quadrant if your recovery can handle the small fire hit."
     },
     "aberroth-regular-attacks-melee-attack-charge-flail-dash-backward-hop": {
-      "spot": "Look for regular swings: Melee Swing, Charge, Flail Dash, Backward Hop."
+      "spot": "His regular kit is a melee swing, a charge, a flail dash, and a backward hop.",
+      "avoid": "Treat these as his basic swings and step off the one that is aimed at you."
     },
     "herald-of-oblivion-timeshattering-slam": {
-      "spot": "Look for aberroth casts Absorbing Chaos to charge up.",
-      "avoid": "To stay safe, get in as much as damage."
+      "spot": "Absorbing Chaos charges for 4.5 seconds, or 3 in phase 5, before a growing void and physical circle.",
+      "avoid": "Use the charge to deal damage, then leave before the slam releases."
     },
     "herald-of-oblivion-persisting-void": {
-      "spot": "Look for spheres that move from side to side.",
-      "avoid": "To stay safe, the puddles have infinite duration but can be cleared."
+      "spot": "Side-to-side orbs leave a lasting void pool on hit.",
+      "avoid": "Miss the orbs. Superheated Black Hole is what deletes the pools."
     },
     "herald-of-oblivion-void-beam": {
-      "spot": "Look for void Beams target you for 2.",
-      "avoid": "To stay safe, they linger between phases, so the longer the fight."
+      "spot": "A beam tracks you for 2.5 seconds, fires, and applies Frailty of Aberroth. Beams persist across phases.",
+      "avoid": "Set beams beside each other on the north and south edges."
     },
     "herald-of-oblivion-superheated-black-hole": {
-      "spot": "The enemy cast at your location after 1.",
-      "avoid": "To stay safe, use it to clear puddles of Persisting Void from the floor."
+      "spot": "A small fire hit with ignite drops on your location after 1.5 seconds.",
+      "avoid": "Move, and drop it on Persisting Void when you want those pools gone."
     },
     "herald-of-oblivion-superchilled-black-hole": {
-      "spot": "Look for superchilled Black Hole is cast at your."
+      "spot": "A moderate cold hole on you also pulls chill projectiles.",
+      "avoid": "Do not stand on the hole or in the shots it gathers."
     },
     "herald-of-oblivion-triple-flail-slam": {
-      "spot": "Look for aberroth puts down three triangles and then strikes them one by one.",
-      "avoid": "Do not stand in the middle of it."
+      "spot": "Triangles slam middle first, then the boss's right and left, for void and lightning.",
+      "avoid": "Stand behind him. The other dodge is left or right, then into the middle after the first slam."
     },
     "herald-of-oblivion-slam-ground-of-destruction": {
-      "spot": "Look for aberroth strikes the floor, and lands high Physical and Void damage."
+      "spot": "The slam leaves a void damage-over-time strip in the same direction.",
+      "avoid": "Exit the slam and stay off the strip it paints."
     },
     "herald-of-oblivion-called-meteors": {
-      "spot": "Look for aberroth stays in place, calling repeated meteors at him for 3 moments.",
-      "avoid": "To stay safe, when the channeling begins, move."
+      "spot": "He channels in place for 3 seconds while fire meteors come toward him and apply ignite.",
+      "avoid": "Move beside or behind him once the channel begins."
     },
     "herald-of-oblivion-lobbed-meteors": {
-      "spot": "Look for medium-range lobbed meteor swing that lands high Cold damage and applies Frostbite."
+      "spot": "Lobbed cold meteors apply frostbite at medium range.",
+      "avoid": "Leave the landing spots."
     },
     "herald-of-oblivion-roots": {
-      "spot": "Look for roots lock you in place.",
-      "avoid": "To stay safe, use movement abilities or a Cleanse."
+      "spot": "You are locked in place briefly.",
+      "avoid": "A movement skill or a cleanse breaks the lock."
     },
     "herald-of-oblivion-blade-of-chaos": {
-      "spot": "Look for aberroth casts Blade of Chaos."
+      "spot": "A wide arc of physical, lightning, and void comes off his position.",
+      "avoid": "Step out of the arc as it travels."
     },
     "herald-of-oblivion-cursing-scythe": {
-      "spot": "Look for aberroth releases a total of 4 Necrotic.",
-      "avoid": "Do not stay in it. Treat this as a must-leave swing."
+      "spot": "Four necrotic bolts apply a curse that lowers every resistance and cannot be cleansed.",
+      "avoid": "Avoid the bolts entirely."
     },
     "herald-of-oblivion-cosmic-absorption-lazer-of-death": {
-      "spot": "Look for aberroth charges up Cosmic Absorption for 2.",
-      "avoid": "To stay safe, move out of the charging area, then."
+      "spot": "A 2.5 second charge becomes a massive void lazer.",
+      "avoid": "Clear the charge zone, then sidestep the beam."
     },
     "herald-of-oblivion-phase-3-quadrant-ground-effects-quicksand-lightning-winds-fiery-ground": {
-      "spot": "The enemy puts down four quadrants, each with detrimental floor effects: Quicksand, Lightning, Winds and Fiery Floor.",
-      "avoid": "To stay safe, the safest one to stand on is."
+      "spot": "Quicksand, lightning, winds, and fiery ground split the floor. They apply frailty, shock, and chill of Aberroth, except fiery ground which is a small fire hit.",
+      "avoid": "Prefer fiery ground when your recovery covers that small hit."
     },
     "herald-of-oblivion-regular-attacks-melee-attack-charge-flail-dash-backward-hop": {
-      "spot": "Look for regular swings: Melee Swing, Charge, Flail Dash, Backward Hop."
+      "spot": "Melee, charge, flail dash, and a backward hop are the basic attacks.",
+      "avoid": "Sidestep whichever of those four is coming at you."
     },
     "vision-of-the-observer-void-rift": {
-      "spot": "Look for the segments are always created."
+      "spot": "Segments appear one after another and always in a clockwise pattern, for a very high void hit.",
+      "avoid": "Move with the clockwise order so you are not on the next segment."
     },
     "vision-of-the-observer-persisting-void": {
-      "spot": "Look for spheres that move at you, creating a damaging puddle on hit.",
-      "avoid": "To stay safe, stack the puddles on top of each other to leave filling the enemy arena with them."
+      "spot": "Orbs move toward you and leave a pool. The damage type follows the active omen.",
+      "avoid": "Overlap the pools so the floor does not fill up."
     },
     "vision-of-the-observer-void-meteor": {
-      "spot": "Look for the meteors are shown early with a shadowy line before they appear."
+      "spot": "A shadowy line shows before each meteor. Three of them sweep for high void and physical.",
+      "avoid": "Leave the shadowy line before the meteor arrives."
     },
     "vision-of-the-observer-void-reform": {
-      "spot": "Look for vision of the Observer teleports.",
-      "avoid": "To stay safe, move out of this skill's area."
+      "spot": "It teleports onto you and deals a moderate void hit.",
+      "avoid": "Move out of the area at the end of the cast."
     },
     "vision-of-the-observer-teleport": {
-      "spot": "Look for vision of the Observer teleports around."
+      "spot": "It teleports around the arena several times. No hit is stated for the blinks themselves.",
+      "avoid": "Track where it reappears rather than swinging at the old spot."
     },
     "vision-of-the-observer-void-beam": {
-      "spot": "Look for vision of the Observer casts three beams."
+      "spot": "Three beams from its body deal moderate void damage over time.",
+      "avoid": "Step out of the three beams."
     },
     "vision-of-the-observer-frozen-ice-storm": {
-      "spot": "Look for slowly moving and expanding Cold area shot."
+      "spot": "A cold projectile moves slowly and expands.",
+      "avoid": "Walk off its path. It is slow, so you have time."
     },
     "vision-of-the-observer-orbiting-comet": {
-      "spot": "Look for shots orbit the outer edge of the arena, and lands high Cold damage."
+      "spot": "Projectiles orbit the outer edge for a high cold hit.",
+      "avoid": "Do not stand on the outer ring while the comets are circling."
     },
     "vision-of-the-observer-flamethrower": {
-      "spot": "Look for vision of the Observer puts down a wedge of moderate Fire damage from its location."
+      "spot": "A cone of moderate fire comes off its location.",
+      "avoid": "Step out of the cone."
     },
     "vision-of-the-observer-starburst": {
-      "spot": "Look for ring that explodes after a duration."
+      "spot": "A circle sits, then explodes for high fire damage.",
+      "avoid": "Leave the circle before the duration ends."
     },
     "vision-of-the-observer-falling-meteor": {
-      "spot": "Look for three meteors stay on the floor for a short duration, and lands extremely high Physical and Void damage.",
-      "avoid": "Do not stand in the middle of it."
+      "spot": "Three meteors rest on the ground in the final phase and deal extremely high physical and void damage.",
+      "avoid": "Do not stand near them."
     },
     "vision-of-the-observer-ground-of-destruction": {
-      "spot": "Look for lines on the floor that deal low Void damage over time."
+      "spot": "Final phase only, floor lines deal a small void damage over time and linger.",
+      "avoid": "Stay off the lines until they disappear."
     },
     "vision-of-the-observer-absorbing-meteors": {
-      "spot": "Look for three meteors fall from the sky, repeating repeated times in a sequence."
+      "spot": "Three meteors fall in a repeating sequence for a low void hit, final phase only.",
+      "avoid": "Keep moving between the falling marks so the repeats do not land on you."
     },
     "julra-catastrophic-implosion": {
-      "spot": "Look for julra sets a wide clock in motion that, when it reaches.",
-      "avoid": "To stay safe, this swing can be avoided by switching Eras before.",
+      "spot": "A huge clock runs. At 12 o'clock the whole screen takes void damage and 4 Doom stacks.",
+      "avoid": "Use Temporal Shift before 12 o'clock. If you are caught, cleanse the Doom stacks.",
       "danger": true,
       "oneShot": true
     },
     "julra-dimension-tear": {
-      "spot": "Look for she always uses this ability a few moments after teleporting to a new Timeline.",
-      "avoid": "To stay safe, it takes a short."
+      "spot": "A few seconds after she changes timeline, a circle forms at your feet, follows you while it forms, then sits and deals high void damage over time.",
+      "avoid": "Walk the forming puddle to the edge of the room, then run out. A timed Temporal Shift can also skip it into the implosion window."
     },
     "julra-summon-pillars-lightning-bolt": {
-      "spot": "Look for in the Ruined Era, they become invulnerable.",
-      "avoid": "To stay safe, if Julra uses Summon Pillars."
+      "spot": "Three pillars exist in both eras. Divine ones can be broken and never shoot, while Ruined ones are immune and fire a marked lightning bolt that shocks.",
+      "avoid": "Kill them in the Divine era. In the Ruined era, dodge the bolts until you shift eras."
     },
     "julra-summon-healing-fountain": {
-      "spot": "Look for julra puts down a fountain that heals her with shots that have a high rate of fire.",
-      "avoid": "Do not stand in the middle of it."
+      "spot": "A fountain heals her with fast projectiles and can be destroyed.",
+      "avoid": "Break fountains quickly, but do not stand in another attack to do it."
     },
     "julra-frigid-tide": {
-      "spot": "Look for julra casts a wedge-shaped swing at you that does moderate Hit Cold Damage."
+      "spot": "A cone toward you deals a moderate cold hit and chills.",
+      "avoid": "Step off the cone."
     },
     "julra-unraveling-decay": {
-      "spot": "Look for four beams fire away from the middle from the middle of the arena that rotate clockwise.",
-      "avoid": "To stay safe, there is a sizable gap in each."
+      "spot": "Four beams spin clockwise from the middle, a gap stays open near the middle, and the hits are high void plus void resistance shred.",
+      "avoid": "Stand in a gap near the center. Save potions if you are melee and she stands in her own beams, because leech stops."
     },
     "julra-temporal-shot": {
-      "spot": "Look for julra fires a single, high speed shot at you that does moderate Void Damage.",
-      "avoid": "To stay safe, generally the best strategy is to keep."
+      "spot": "A single fast projectile.",
+      "avoid": "Keep moving. This shot and the pillar bolts come too fast to time one by one."
     },
     "julra-chilled-seeker": {
-      "spot": "Look for julra fires a group of three shots at you that will follow you."
+      "spot": "Three cold projectiles follow you.",
+      "avoid": "The seekers follow, so use a movement skill to break their line rather than backing up in a straight path."
     },
     "julra-shocking-impact": {
-      "spot": "Look for julra fires a mortar-like swing that explodes in a ring on the floor."
+      "spot": "A mortar explodes in a circle, with a small version and a larger harder one, and both are lightning.",
+      "avoid": "Leave the circle on the ground. The bigger mark is the harder hit."
     },
     "mountain-beneath-burn-kindling-pyres": {
-      "spot": "Look for once they finish burning The Mountain Beneath.",
-      "avoid": "To stay safe, pyres on the left and right."
+      "spot": "Root walls block the left and right pyres, Burning Amber lights a pyre, and both must burn before phase 2.",
+      "avoid": "Light the far right pyre first, then recall to the left one the moment that right pyre catches."
     },
     "mountain-beneath-rock-fall": {
-      "spot": "Look for a wide number of rocks fall from the sky.",
-      "avoid": "To stay safe, try to leave Rockfall."
+      "spot": "Many rocks fall, each a moderate physical circle at the impact.",
+      "avoid": "Step off the rock circles."
     },
     "mountain-beneath-rock-fall-with-summons": {
-      "spot": "Look for a single rock falls from the sky.",
-      "avoid": "To stay safe, kill any Titanspawn and Mountain's Roots."
+      "spot": "One rock falls, deals a moderate physical circle, and summons a titanspawn or three mountain roots.",
+      "avoid": "Kill the titanspawn and roots while you wait for the first shockwave."
     },
     "mountain-beneath-shockwave": {
-      "spot": "Look for he always strikes the left side of the arena first.",
-      "avoid": "It is easy to leave. Stay off the marked patch.",
+      "spot": "He slams twice for a very high physical hit. The left side of the arena is always first.",
+      "avoid": "Start center-right so the first slam misses, then move to the left side for the second.",
       "danger": true,
       "oneShot": true
     },
     "mountain-beneath-entangling-roots-mountain-beneath": {
-      "spot": "Look for a root wall travels from the right."
+      "spot": "A wall of roots crosses from the right toward the left and briefly holds you with a low physical hit.",
+      "avoid": "Do not stand in the wall as it crosses. It holds you if it connects."
     },
     "stone-titans-heart-rockfall-stone-titan-s-heart": {
-      "spot": "Look for a number of rocks fall."
+      "spot": "Rocks fall in moderate physical circles.",
+      "avoid": "Leave each impact circle."
     },
     "stone-titans-heart-summon-titanflesh": {
-      "spot": "Look for four Titanflesh are spawned.",
-      "avoid": "To stay safe, titanflesh in this phase aren't especially threatening but should be dealt."
+      "spot": "Four titanflesh use a low physical melee.",
+      "avoid": "They are not very threatening. Clear them when you can so the hits do not stack."
     },
     "stone-titans-heart-spore-beam": {
-      "spot": "A beam leaves the heart, splits, and travels both ways.",
-      "avoid": "To stay safe, spore Beam is the most dangerous mechanic."
+      "spot": "A beam splits and the halves move opposite ways. It reaches farther on higher tiers, for very high physical and poison.",
+      "avoid": "As soon as you see the beam, go to the opposite side. It does not cover the whole arena, but higher tiers cover most of it."
     },
     "stone-titans-heart-energy-stone": {
-      "spot": "Look for a wide stone rings the Stone Titan's Heart, starting close."
+      "spot": "A large stone circles the heart, starting close and moving outward.",
+      "avoid": "The stone is a low physical hit. Step off its circle as it expands."
     },
     "stone-titans-heart-energy-wave": {
-      "spot": "Look for stone Titan's Heart targets one quadrant.",
-      "avoid": "To stay safe, energy Wave does a lot of Poison."
+      "spot": "One quadrant is targeted. The wave there is low physical and applies 4 poison stacks.",
+      "avoid": "Cleanse the poison or leave the quadrant. Sometimes that safe side overlaps the spore beam, and only a movement skill or high move speed clears both."
     },
     "stone-titans-heart-entangling-roots-stone-titan-s-heart": {
-      "spot": "Look for stone Titan's Heart engulfs the arena.",
-      "avoid": "To stay safe, leaving only the area closest."
+      "spot": "Roots cover the arena and immobilize, a low physical hit.",
+      "avoid": "The safe place is the area closest to the heart."
     },
     "stone-titans-heart-frenzied-thorns": {
-      "spot": "Look for stone Titan's Heart fires a few thorns in the general direction of you."
+      "spot": "Several thorns fire toward you. Each applies multiple poison stacks.",
+      "avoid": "Sidestep the thorns, or cleanse the poison if a thorn connects."
     },
     "stone-titans-heart-oblivion": {
-      "spot": "Look for a few mines are placed on the floor that have an area of effect."
+      "spot": "Mines sit on the ground and their area grows until they explode.",
+      "avoid": "Leave a mine before its growing area reaches you."
     },
     "fire-lich-cremorus-fire-necrotic-floor": {
-      "spot": "Look for he activates more sections as you deal.",
-      "avoid": "To stay safe, once the entire floor is covered.",
+      "spot": "Floor sections turn on as you deal damage, high necrotic damage over time, until the whole floor is active. Then it switches between necrotic and fire.",
+      "avoid": "Once the whole floor is covered, be ready to switch immunities quickly.",
       "danger": true
     },
     "fire-lich-cremorus-flaming-necrotic-orbiter": {
-      "spot": "Look for two types of skulls orbit Cremorus."
+      "spot": "Two kinds of skulls orbit him, one moderate necrotic and one moderate fire.",
+      "avoid": "Do not stand in the orbit path of either skull."
     },
     "fire-lich-cremorus-chaotic-soul": {
-      "spot": "Look for a wide skull is cast by Cremorus and chases you, and lands low Fire and Necrotic damage."
+      "spot": "A large skull chases you for a low fire and necrotic hit.",
+      "avoid": "Kite the chasing skull so it is not on you during a floor swap."
     },
     "fire-lich-cremorus-incendiary-torrent": {
-      "spot": "Look for cremorus channels a line of Fire.",
-      "avoid": "Step out of the torrent. Standing in it still stacks ignite."
+      "spot": "He channels a fire line at where you stood when the channel started. It rises every second and applies ignite often.",
+      "avoid": "Leave that line. Even if you are fire immune, the ignites can kill you during a ground transition."
     },
     "fire-lich-cremorus-wall-of-fire": {
-      "spot": "Look for a wall of Fire travels across.",
-      "avoid": "To stay safe, wall of Fire and Collapsing Decay can."
+      "spot": "A fire wall crosses the arena for a moderate fire hit.",
+      "avoid": "A movement skill with an invulnerability frame crosses the wall. Teleport, Shift with Shadowslip, Transplant, or Lunge with Unstoppable and Paranoia are the examples given."
     },
     "fire-lich-cremorus-raging-vengeful-soul": {
-      "spot": "Look for cremorus casts a series of skull shots that alternate between Fire and Necrotic."
+      "spot": "Skulls alternate fire and necrotic, fire ones apply ignite, necrotic ones apply Marked for Death, and both are moderate to high.",
+      "avoid": "Dodge the skull stream. Marked for Death from the necrotic skulls raises later hits."
     },
     "fire-lich-cremorus-summon-thrall-golem-burst": {
-      "spot": "Look for cremorus summons a Thrall that chases you and eventually puts down a wide burst that lands high Necrotic Damage.",
-      "avoid": "To stay safe, when Cremorus summons a Thrall run."
+      "spot": "A thrall chases you, then bursts for high necrotic damage and Marked for Death.",
+      "avoid": "Run from the thrall until it explodes behind you."
     },
     "fire-lich-cremorus-disintegration": {
-      "spot": "Look for cremorus fires two shots that deal high Necrotic Damage in a wide ring and apply Marked for Death.",
-      "avoid": "Leave Disintegration, It does a lot of damage."
+      "spot": "A pair of shots each cover a wide necrotic circle and also apply Marked for Death.",
+      "avoid": "Leave both circles. Marked for Death raises the damage of everything else."
     },
     "fire-lich-cremorus-collapsing-decay": {
-      "spot": "Look for a Necrotic ring collapses into Cremorus that lands moderate Necrotic Damage.",
-      "avoid": "To stay safe, this swing cannot be dodged."
+      "spot": "A necrotic circle collapses into him for a moderate hit. It cannot be dodged by walking.",
+      "avoid": "Cross it with a movement skill that has an invulnerability frame, the same list as the fire wall."
     },
     "fire-lich-cremorus-summon-skeletons": {
-      "spot": "Look for 8 Imperial Guards are summoned that use."
+      "spot": "Eight imperial guards use melee for a low physical hit.",
+      "avoid": "The guards are a low hit. Clear them when the floor lets you."
     },
     "shade-of-orobyss-flamethrower": {
-      "spot": "Look for shade puts down a ball of fire in front.",
-      "avoid": "To stay safe, flame Thrower can be tanked."
+      "spot": "A ball of fire forms in front of him, then a cone fires the way he was facing.",
+      "avoid": "The cone is a moderate hit and can be taken."
     },
     "shade-of-orobyss-starburst": {
-      "spot": "Look for these balls have a dark ring around them and after a period.",
-      "avoid": "Keep circling until the swing has passed."
+      "spot": "Three fire balls sit in random spots with a dark circle, then burst for high fire inside the circle.",
+      "avoid": "The circles are hard to see and can overlap. Find them and move away until they explode."
     },
     "shade-of-orobyss-lightning-bolt": {
-      "spot": "Look for shade channels for a short period.",
-      "avoid": "To stay safe, lightning Bolt can be tanked."
+      "spot": "He channels briefly, then fires one bolt forward.",
+      "avoid": "The bolt is a moderate lightning hit and can be taken."
     },
     "shade-of-orobyss-spark": {
-      "spot": "Look for shade channels and then after a short.",
-      "avoid": "To stay safe, spark can also be tanked at first."
+      "spot": "After a channel, four lightning balls travel at random, shred lightning resistance, and grow stronger. Several can hit in a row.",
+      "avoid": "When the sparks appear, find a spot away from them. They are only light at the start."
     },
     "shade-of-orobyss-orbiting-comet": {
-      "spot": "Look for a wide number of shots ring Shade from repeated distances away, and lands high Cold Damage that increases over.",
-      "avoid": "To stay safe, for Orbiting Comet you need to stand."
+      "spot": "Cold projectiles circle him at several distances and grow stronger. They do not enter melee range.",
+      "avoid": "Stand in melee range. If you leave to dodge something else, get back in quickly."
     },
     "shade-of-orobyss-frozen-ice-storm": {
-      "spot": "Look for shade fires a slow moving, high Cold.",
-      "avoid": "To stay safe, frozen Ice Storm is easy to leave since it moves in a straight line."
+      "spot": "A slow cold projectile moves in a straight line, grows, and hits harder over its life.",
+      "avoid": "Move off its line as soon as he fires it."
     },
     "shade-of-orobyss-blood-effigy": {
-      "spot": "Look for shade puts down a copy of himself in the middle of the ring.",
-      "avoid": "To stay safe, blood Effigy has unavoidable damage that ramps."
+      "spot": "A copy stands in the center of the ring, does not move, and deals rising physical damage until killed.",
+      "avoid": "The damage cannot be dodged and ramps. Kill the effigy immediately."
     },
     "shade-of-orobyss-blood-orb": {
-      "spot": "Look for shade calls in three spheres that seek out you and explode on impact, and lands high Physical Damage.",
-      "avoid": "To stay safe, they can be dealt with either."
+      "spot": "Three orbs chase and explode for a high physical hit. They despawn if they never reach you.",
+      "avoid": "Dodge them until they expire, or break one at a time so the hits stay small."
     },
     "shade-of-orobyss-poison-puke": {
-      "spot": "Look for shade rears back and then fires a wedge-shaped shot.",
-      "avoid": "To stay safe, the best strategy for and lands with a Poison Shade is to continuously."
+      "spot": "He rears back and fires a cone of high poison that grows and applies poison.",
+      "avoid": "Strafe around a poison shade the whole fight so this cone is not dropped on you."
     },
     "shade-of-orobyss-toxic-spread": {
-      "spot": "Look for shade puts down a few Poison puddles in front of him in a line.",
-      "avoid": "To stay safe, the best strategy for and lands with a Poison Shade is to continuously."
+      "spot": "Poison pools appear in a line in front of him and grow over the skill.",
+      "avoid": "Keep strafing so the line of pools is not placed on you."
     },
     "shade-of-orobyss-concentrated-burst": {
-      "spot": "Look for shade puts down a few wedge-shaped AoEs originating from his body.",
-      "avoid": "To stay safe, concentrated Burst is a dangerous skill."
+      "spot": "Cones from his body explode after a short wait for very high void, and they shrink the usable arena.",
+      "avoid": "Leave the cones. Keep a patch of floor that is also safe from his other skills."
     },
     "shade-of-orobyss-circle-of-death": {
-      "spot": "Look for the ring farthest from Shade is created first."
+      "spot": "Large circles explode in quick succession for moderate void. The farthest from him appears first and the closest last.",
+      "avoid": "Start moving off the far circle, then keep moving as the closer ones appear."
     },
     "shade-of-orobyss-bursting-void": {
-      "spot": "Look for shade puts down a wide ring at the player's feet that fast explodes, and lands moderate Void Damage."
+      "spot": "A large circle at your feet explodes quickly for moderate void.",
+      "avoid": "Step off your feet as soon as the circle shows."
     },
     "shade-of-orobyss-crystal-crush": {
-      "spot": "Look for shade puts down a wide crystal over his head and fast strikes it down in front of him."
+      "spot": "A large crystal appears over his head and slams down in front of him.",
+      "avoid": "The slam is in front of him. Step aside of that drop."
     },
     "shade-of-orobyss-black-hole-decay": {
-      "spot": "Look for shade puts down three lines of Black Holes that project away from the middle from his body.",
-      "avoid": "To stay safe, black Hole Decay is a quick killer."
+      "spot": "Three lines of black holes project outward and grow stronger over their duration.",
+      "avoid": "It is a fast kill if you stand in a hole, and the lines are easy to leave."
     },
     "shade-of-orobyss-absorbing-meteors": {
-      "spot": "Look for shade becomes a black hole that pulls.",
-      "avoid": "To stay safe, the risk of being hit is higher."
+      "spot": "He turns into a black hole and drags meteors in from off screen, each a moderate void hit, and standing closer is riskier.",
+      "avoid": "Stop attacking and give yourself room to move around the meteors."
     },
     "shade-of-orobyss-mini-black-holes": {
-      "spot": "Look for a wide number of tight Black Holes appear from off screen.",
-      "avoid": "To stay safe, the best way to deal with them."
+      "spot": "Small black holes drift in and explode a moment after they touch you, for moderate void.",
+      "avoid": "Run through a few without stopping so they explode behind you. Repeat until they are gone."
     },
     "shade-of-orobyss-melee-attack": {
-      "spot": "Look for shade swipes at you in Melee Range, and lands low Physical and Void Damage."
+      "spot": "A melee swipe of low physical and void. He always has this, whatever else he rolled.",
+      "avoid": "The swipe is a low hit in melee range."
     },
     "shade-of-orobyss-falling-meteor": {
-      "spot": "Look for shade puts down a especially wide meteor in front of him that slowly.",
-      "avoid": "To stay safe, falling Meteor is deadly to anyone who."
+      "spot": "A very large meteor forms in front of him and falls slowly. The void hit rises over the fall.",
+      "avoid": "Move out of it and stay out until it expires."
     },
     "shade-of-orobyss-exploding-black-hole": {
-      "spot": "Look for three black holes are created at unpredictable places in the arena that deal high.",
-      "avoid": "To stay safe, exploding Black Hole has two components."
+      "spot": "Three black holes grow in random spots for high void. When one expires it explodes into a star of low void shots.",
+      "avoid": "Only the black hole is dangerous, and the star shots that follow are a very small hit."
     },
     "shade-of-orobyss-void-rift": {
-      "spot": "Look for shade forms a ball of Void.",
-      "avoid": "To stay safe, when he fires the shot look for the rift in the arena."
+      "spot": "A void ball fires at you, then a rift sends it back into the arena for a second pass.",
+      "avoid": "When he fires, find the rift and strafe around it at a distance so the return shot misses."
     },
     "shade-of-orobyss-void-meteor": {
-      "spot": "Look for shade shouts 'The end comes!' signaling.",
-      "avoid": "To stay safe, in order to reliably leave the meteor, listen to what Shade says.",
+      "spot": "He shouts The end comes, then a very large meteor crosses the arena on a shown path, and the direction is random.",
+      "avoid": "On The end comes, leave the telegraph. Use a movement skill if you need the distance.",
       "danger": true,
       "oneShot": true
     },
     "shade-of-orobyss-summon-tentacles": {
-      "spot": "Look for shade summons three Tentacles which have.",
-      "avoid": "These adds are the easier part, but they pile up with other attacks."
+      "spot": "Three tentacles use a line melee of moderate physical and void with a high stun chance. They can be killed.",
+      "avoid": "Kill the tentacles so they do not stack with his other skills."
     },
     "shade-of-orobyss-summon-eyes": {
-      "spot": "Look for shade will summon five Eyes that will.",
-      "avoid": "The eyes are a lighter add. Clear them when you can."
+      "spot": "Five eyes fire a moderate void beam at you at the same time. They can be killed.",
+      "avoid": "Kill the eyes before the beams stack with everything else."
     },
     "shade-of-orobyss-piercing-void": {
-      "spot": "Look for shade fast fires a shot at you that does low Void Damage."
+      "spot": "A fast projectile for a low void hit.",
+      "avoid": "The shot is low. A side step still takes you off it."
     },
     "shade-of-orobyss-dark-warp": {
-      "spot": "Look for shade warps from his current position."
+      "spot": "He warps from where he is to a spot near you. No hit is stated for the warp.",
+      "avoid": "Expect him to appear beside you and be ready for the next swing."
     },
     "shade-of-orobyss-oblivion-leap": {
-      "spot": "Look for shade leaps at the player's current position.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "He leaps to where you are and slams for moderate physical and void. A telegraph shows it.",
+      "avoid": "Leave the landing mark. The telegraph is readable."
     },
     "shade-of-orobyss-oblivion-dash": {
-      "spot": "Look for shade runs at a high speed at you, and lands low Void Damage if he collides with you."
+      "spot": "He runs at you at high speed. A collision is a low void hit.",
+      "avoid": "Step off his run."
     },
     "shade-of-orobyss-void-reform": {
-      "spot": "Look for shade explodes his body at his current.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "He bursts where he stands and reforms on you with a second burst, both moderate void, and a telegraph shows the spots.",
+      "avoid": "Leave both the start and your own spot before the explosions."
     },
     "shade-of-orobyss-void-rush": {
-      "spot": "Look for shade slowly moves at the player's position with a wide Void Barrier in front of him.",
-      "avoid": "It is easy to leave. Stay off the marked patch."
+      "spot": "He walks toward you behind a large void barrier that deals moderate void. A telegraph shows it.",
+      "avoid": "Move off the barrier's path."
     }
   }
 }

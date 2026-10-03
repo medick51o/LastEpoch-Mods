@@ -51,7 +51,7 @@ namespace medick_DeathCounter.UI
             var number = Theme.Label(Mathf.RoundToInt(20 * sc), FontStyle.Bold, TextAnchor.MiddleCenter);
             var label = Theme.Label(Mathf.RoundToInt(14 * sc), FontStyle.Bold);
             var small = Theme.Label(Mathf.RoundToInt(14 * sc));
-            string count = DeathTracker.CharacterDeaths.ToString();
+            string count = DeathTracker.CounterText;
             float handleW = 40f * sc;
             float idleW = Mathf.Max(34f * sc, Theme.Width(count, number) + 18f * sc);
             float expandedW = handleW + Theme.Width("Death counter", label) + Theme.Width(count, number) + 36f * sc;
@@ -93,7 +93,8 @@ namespace medick_DeathCounter.UI
             if (Moving || _dragging) Theme.DrawBorder(rect, Theme.Accent, 2f);
             if (active)
             {
-                string help = Moving ? "Drag the counter to position it." : $"Drag MOVE to reposition. Click for the log. +{DeathTracker.SessionDeaths} this session.";
+                string baseline = count == CounterResets.Unavailable ? " Counter baselines unavailable. Repair counter-resets.json." : "";
+                string help = Moving ? "Drag the counter to position it." : $"Drag MOVE to reposition. Click for the log. +{DeathTracker.SessionDeaths} this session.{baseline}";
                 float helpW = Mathf.Min(Screen.width - 16f, Theme.Width(help, small) + 24f * sc + (Moving ? 82f * sc : 0f));
                 float textW = helpW - (Moving ? 102f * sc : 24f * sc);
                 float hintH = Theme.Wrap(help, small, textW).Count * (Theme.LineHeight(small) + 4f) + 14f * sc;

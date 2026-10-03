@@ -16,6 +16,12 @@ namespace medick_DeathCounter.Core
         public bool?   Crit;
         public float   HealthBefore = -1f;
         public float   MaxHealth    = -1f;
+        // Health lost on this hit when both health reads existed. Negative means unknown.
+        public float   HealthLost   = -1f;
+        // Ward present at the hit when it could be read. Negative means unknown.
+        public float   WardAtHit    = -1f;
+        // Ward lost when both ward reads existed. Negative means unknown.
+        public float   WardLost     = -1f;
 
         // The element that did most of this hit, falling back to the ailment's
         // own element, then null.

@@ -74,8 +74,8 @@ namespace medick_DeathCounter.Core
 
             // Aberroth ailments are their own effects. They must not match Shock, Frailty, or Chill.
             Setup("Curse of Aberroth", null, "Lowers every resistance by 10 points per stack. There is no stack limit, and it cannot be cleansed.", "curseofaberroth", "curse of aberroth"),
-            Setup("Shock of Aberroth", null, "You take 5% more damage per stack. It does not lower lightning resistance.", "shockofaberroth", "shock of aberroth"),
-            Setup("Frailty of Aberroth", null, "A separate Aberroth frailty. It is not Frailty, which lowers the damage you deal.", "frailtyofaberroth", "frailty of aberroth"),
+            Setup("Shock of Aberroth", null, "5% increased damage taken per stack. It does not lower lightning resistance.", "shockofaberroth", "shock of aberroth"),
+            Setup("Frailty of Aberroth", null, "5% less damage per stack. 10% less health leech, ward retention, and health regen per stack. 50% reduced healing effectiveness per stack. Unlimited stacks, duration 4 seconds. Inflicted by multiple abilities, but Void Beams and Quicksand apply most of it.", "frailtyofaberroth", "frailty of aberroth"),
             Setup("Chill of Aberroth", null, "Slows your movement, attacks and casts. It is not Chill, and cold resistance does not stop it.", "chillofaberroth", "chill of aberroth"),
 
             Setup("Freeze",          Element.Cold,      "You cannot act while frozen. More max health and current ward make you harder to freeze. Cold resistance does not stop freeze.", "freeze", "frozen"),
@@ -203,6 +203,15 @@ namespace medick_DeathCounter.Core
             foreach (var a in All)
                 if (string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase)) return a;
             return null;
+        }
+
+        // Name plus the effect line, for the death card.
+        public static string CardLine(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return "";
+            var info = ByName(name) ?? Find(name);
+            if (info == null) return name.Trim();
+            return string.IsNullOrWhiteSpace(info.Effect) ? info.Name : info.Name + ": " + info.Effect;
         }
     }
 }

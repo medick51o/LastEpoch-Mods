@@ -14,6 +14,7 @@ namespace medick_DeathCounter.UI
     internal static class InputBlocker
     {
         static readonly MenuInputGate Gate = new();
+        static readonly CounterPressLatch Press = new();
         static readonly HashSet<string> Installed = new();
         static HarmonyLib.Harmony _harmony;
         static float _nextInstall;
@@ -77,7 +78,10 @@ namespace medick_DeathCounter.UI
                 Dbg.Log("menu focus hook unavailable: " + key + ": " + ex.Message);
             }
         }
-        static bool MouseHeld() => Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Mouse1) || Input.GetKey(KeyCode.Mouse2);
+        static bool MouseDown(int button) => Input.GetKeyDown(button == 0 ? KeyCode.Mouse0 : button == 1 ? KeyCode.Mouse1 : KeyCode.Mouse2);
+        static bool MouseButton(int button) => Input.GetKey(button == 0 ? KeyCode.Mouse0 : button == 1 ? KeyCode.Mouse1 : KeyCode.Mouse2);
+        static bool CounterPress() => Press.Update(CounterHud.PointerOver(),
+            MouseDown(0), MouseDown(1), MouseDown(2), MouseButton(0), MouseButton(1), MouseButton(2));
         static bool AllowNativeInput()
         {
             // Native Update/Process may run before Melon's OnUpdate. Protect
@@ -86,17 +90,18 @@ namespace medick_DeathCounter.UI
             bool opening = PlayerProbe.HasPlayer && Input.GetKeyDown(Prefs.PanelKeyCode)
                 && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift)
                 && !DeathPanel.Open;
-            return !MenuInputPolicy.BlockGameplay(Gate.Blocked, DeathPanel.Open, CounterHud.Dragging, opening, CounterHud.PointerOver(), MouseHeld());
+            bool press = CounterPress();
+            return !MenuInputPolicy.BlockGameplay(Gate.Blocked, DeathPanel.Open, CounterHud.Dragging, opening, press, press);
         }
         public static void Update()
         {
             if ((!GameplayReady || !NativeUiReady) && Time.unscaledTime >= _nextInstall) TryInstall();
-            bool mouse = MouseHeld();
+            bool press = CounterPress();
             CursorFocus(DeathPanel.Open || CounterHud.Moving);
-            Gate.Update(DeathPanel.Open || CounterHud.Dragging || (CounterHud.PointerOver() && mouse),
-                mouse || Input.GetKey(Prefs.PanelKeyCode) || Input.GetKey(KeyCode.Escape));
+            Gate.Update(DeathPanel.Open || CounterHud.Dragging || press,
+                press || Input.GetKey(Prefs.PanelKeyCode) || Input.GetKey(KeyCode.Escape));
         }
         public static void TakeFocus() { Gate.Update(true, false); CursorFocus(true); }
-        public static void Restore() { Gate.Clear(); CursorFocus(false); }
+        public static void Restore() { Gate.Clear(); Press.Clear(); CursorFocus(false); }
     }
 }

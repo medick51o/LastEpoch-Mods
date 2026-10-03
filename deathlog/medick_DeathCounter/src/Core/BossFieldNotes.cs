@@ -115,7 +115,9 @@ namespace medick_DeathCounter.Core
                 lines.Add($"For this fight, cap {Join(priority)} resistance first.");
             if (found != null)
                 lines.AddRange(MaxrollPlayerNotes.MoveLines(found.Id));
-            string resists = MaxrollPlayerNotes.Resists(boss.Id);
+            // One attribution header on the card. Resist text still shows, without a second header.
+            bool attributed = lines.Any(l => l == MaxrollPlayerNotes.Attribution || (l != null && l.StartsWith(MaxrollPlayerNotes.Attribution + ":", StringComparison.Ordinal)));
+            string resists = attributed ? MaxrollPlayerNotes.ResistBody(boss.Id) : MaxrollPlayerNotes.Resists(boss.Id);
             if (resists != null) lines.Add(resists);
             return Array.AsReadOnly(lines.Distinct(StringComparer.Ordinal).ToArray());
         }
