@@ -1,3 +1,21 @@
+# Experimental v0.1.13 (team review round 1)
+
+- The next step card shows the exact-hit survival sentence, including the assumption that the reported damage was the whole hit after your defenses, including ward.
+- If the game report is missing a damage type, the on-screen text supplies the type only. Damage and names stay as the formatter read them.
+- Hovering the counter no longer freezes game input. Input pauses for an open log, a drag, or a held click on the counter.
+- Endurance advice uses the recorded hit when the threshold is known. If raising endurance to 60% would still have killed you, it says so and stays off the death toast.
+- Hit size includes ward lost. A hit that only broke ward is kept. A big report number does not reclassify a string of small hits.
+- Curse, Shock, Frailty, and Chill of Aberroth are their own ailments. Curse of Aberroth is called out on the resistance card: 10 points per stack, no limit, and it cannot be cleansed. Shock of Aberroth is extra damage taken, not lightning shred.
+- A torn counter reset file is left alone until a later read succeeds, so one new name cannot wipe the other characters.
+- If you are alive again when a pending death would be saved, that death is dropped and its counter credit is removed. A late game-counter death is still saved.
+- History shows about six deaths per page.
+- When your resistance is already capped and the area level is known, the note says how much enemy penetration still lets through.
+- Browse boss notes opens the encounter list in the panel.
+- Boss attack cards and expanded boss notes show a short reworded Maxroll (community guide) line for how to spot a move and how to avoid it, plus a danger or one-shot flag and the guide's recommended resists.
+- Majasa phase 1 lists physical resistance first, because the guide treats it as the highest priority for the whole fight.
+
+Not installed or published. Native testing pending.
+
 # Experimental v0.1.12 (team review polish)
 
 - Assess my current gear no longer replays the original hit against your current resistance. Your gear has changed in more ways than one resistance, so it shows only the resistance comparison again, as v0.1.9 did. The v0.1.11 max health warning went with it. The exact-hit preview stays on the original death's resistance card.

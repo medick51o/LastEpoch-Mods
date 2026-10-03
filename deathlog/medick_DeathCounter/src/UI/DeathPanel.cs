@@ -22,6 +22,11 @@ namespace medick_DeathCounter.UI
         static int _knownCount = -1;
         static string _knownScope;
         static readonly Dictionary<DeathRecord, (int Signature, List<Advice> Tips)> AdviceCache = new();
+        static readonly ViewMemo _stepMemo = new();
+        static List<(string Text, GUIStyle Style, Color Color)> _stepLines;
+        static float _stepMeasure;
+        static bool _stepGap;
+        static int _historyPage;
         static int _patternSignature;
         static PatternReport _patternReport;
         internal static int Signature(DeathRecord d) => HashCode.Combine(d.Killer, d.KillerAbility, d.KillingElement, d.SecondaryKillingElement,
@@ -30,7 +35,9 @@ namespace medick_DeathCounter.UI
         {
             int signature = HashCode.Combine(Signature(d), _records.Count);
             if (AdviceCache.TryGetValue(d, out var cached) && cached.Signature == signature) return cached.Tips;
-            var tips = Advisor.Show(d, _records); AdviceCache[d] = (signature, tips); return tips;
+            var tips = Advisor.Show(d, _records);
+            BoundedCache.Put(AdviceCache, d, (signature, tips), BoundedCache.AdviceCap);
+            return tips;
         }
         static bool _checking, _showAbout;
         static string ViewCharacter => Selection.Character ?? DeathTracker.Character;
@@ -455,6 +462,7 @@ namespace medick_DeathCounter.UI
         static void Refresh()
         {
             int count = DeathTracker.Log?.All.Count ?? 0;
+            if (_knownScope != ViewCharacter) _historyPage = 0;
             if (_knownCount == count && _knownScope == ViewCharacter) return;
             _knownCount = count; _knownScope = ViewCharacter;
             _records = DeathTracker.Log?.For(ViewCharacter).ToList() ?? new();
@@ -529,6 +537,11 @@ namespace medick_DeathCounter.UI
                 _bossIndex = BossCatalog.All.ToList().IndexOf(boss);
                 _bossGroup = "all"; _bossPage = Math.Max(0, _bossIndex) / 6;
             }
+            else
+            {
+                _showBossBrowser = BossNotesFocus.ShowBrowser(false);
+                _bossPage = 0;
+            }
             _tab = 3; _scroll = new Vector2(0, 0);
         }
         static float DrawCause(DeathRecord d, float x, float y, float w, float sc)
@@ -551,28 +564,42 @@ namespace medick_DeathCounter.UI
         static float DrawNextSteps(DeathRecord d, List<Advice> tips, Disclosure state, float x, float y, float w, float sc)
         {
             float start = y, inset = 18f * sc, ix = x + inset, iw = w - 2 * inset;
-            // Measure and draw using the same wrapping primitives. Background
-            // height is cached per actual recommendation, never a fixed clip.
-            var lines = new List<(string Text, GUIStyle Style, Color Color)>();
-            lines.Add(("NEXT STEP", Small(sc), Theme.Accent));
-            bool gapShown = false;
-            if (tips.Count == 0) lines.Add(("No specific gear change is supported by this record.", Body(sc), Theme.TextHi));
+            int bodyHash = 0;
+            foreach (var tip in tips) bodyHash = HashCode.Combine(bodyHash, tip.Key, tip.Title, tip.Body);
+            int memoA = Signature(d), memoB = bodyHash, memoC = HashCode.Combine(Mathf.RoundToInt(w), Mathf.RoundToInt(sc * 1000f));
+            List<(string Text, GUIStyle Style, Color Color)> lines;
+            bool gapShown;
+            float total;
+            if (_stepMemo.Matches(memoA, memoB, memoC) && _stepLines != null)
+            {
+                lines = _stepLines; gapShown = _stepGap; total = _stepMeasure;
+            }
             else
             {
-                var first = tips[0];
-                var gap = ResistanceReview.Build(d.Defenses, d).FirstOrDefault(r => first.Key == "res_" + Elements.Name(r.Element) && r.Gap > 0
-                    && AdviceRules.FreshDefense(d, "Res." + Elements.Name(r.Element), out _));
-                lines.Add((gap != null ? "Close the " + Elements.Name(gap.Element) + " resistance gap" : first.Title,
-                    Theme.Label(Mathf.RoundToInt(20f * sc), FontStyle.Bold), Theme.TextHi));
-                gapShown = gap != null;
-                if (gap != null)
+                lines = new List<(string Text, GUIStyle Style, Color Color)>();
+                lines.Add(("NEXT STEP", Small(sc), Theme.Accent));
+                gapShown = false;
+                if (tips.Count == 0) lines.Add(("No specific gear change is supported by this record.", Body(sc), Theme.TextHi));
+                else
                 {
-                    lines.Add(($"{gap.Effective:0.#}% → 75% · {gap.Gap:0.#} points below cap", Body(sc), Theme.Text));
-                    lines.Add(($"{Elements.Name(gap.Element)} was recorded in this death. Closing this gap may help; it does not guarantee surviving the attack.", Body(sc), Theme.TextMut));
+                    var first = tips[0];
+                    var gap = ResistanceReview.Build(d.Defenses, d).FirstOrDefault(r => first.Key == "res_" + Elements.Name(r.Element) && r.Gap > 0
+                        && AdviceRules.FreshDefense(d, "Res." + Elements.Name(r.Element), out _));
+                    lines.Add((gap != null ? "Close the " + Elements.Name(gap.Element) + " resistance gap" : first.Title,
+                        Theme.Label(Mathf.RoundToInt(20f * sc), FontStyle.Bold), Theme.TextHi));
+                    gapShown = gap != null;
+                    if (gap != null)
+                    {
+                        lines.Add(($"{gap.Effective:0.#}% → 75% · {gap.Gap:0.#} points below cap", Body(sc), Theme.Text));
+                        string exact = AdviceRules.ExactHitCardLine(first.Body);
+                        lines.Add((exact ?? $"{Elements.Name(gap.Element)} was recorded in this death. Closing this gap may help; it does not guarantee surviving the attack.", Body(sc), Theme.TextMut));
+                    }
+                    else lines.Add((first.Body, Body(sc), Theme.Text));
                 }
-                else lines.Add((first.Body, Body(sc), Theme.Text));
+                total = 2 * inset + lines.Sum(l => Theme.Wrap(l.Text, l.Style, iw).Count * (Theme.LineHeight(l.Style) + 4f) + 10f * sc);
+                _stepLines = lines; _stepGap = gapShown; _stepMeasure = total;
+                _stepMemo.Remember(memoA, memoB, memoC);
             }
-            float total = 2 * inset + lines.Sum(l => Theme.Wrap(l.Text, l.Style, iw).Count * (Theme.LineHeight(l.Style) + 4f) + 10f * sc);
             float disclosureH = gapShown ? 48f * sc : 0f;
             Theme.Box(new Rect(x, y, w, total + disclosureH), Theme.Card);
             Theme.Fill(new Rect(x, y, 3f, total + disclosureH), Theme.Accent);
@@ -630,7 +657,7 @@ namespace medick_DeathCounter.UI
             if (d.Hits > 0)
             {
                 y = Heading(x, y, w, $"Recorded health loss ({d.WindowSeconds:0}s)", sc);
-                y = Paragraph(x, y, w, $"{d.WindowDamage:N0} health lost across {d.Hits} recorded events. Ward-only damage is not captured in this timeline.", sc);
+                y = Paragraph(x, y, w, $"{d.WindowDamage:N0} health lost across {d.Hits} recorded events. Recorded loss is health plus ward when both could be read. A hit that only broke ward is kept.", sc);
                 // An old or hand-edited record can carry a short array.
                 float total = d.DamageByElement?.Length == Elements.Count ? d.DamageByElement.Sum() : 0f;
                 if (total > 0)
@@ -651,13 +678,23 @@ namespace medick_DeathCounter.UI
             int saved = DeathTracker.Log?.SavedCountFor(ViewCharacter) ?? 0;
             y = Paragraph(x, y, w, $"{ViewCharacter} · {saved} saved deaths. Resetting the displayed counter keeps this history.", sc, true);
             if (_records.Count == 0) return Paragraph(x, y, w, "No deaths recorded yet. Deaths will appear here automatically while you play.", sc);
-            for (int i = _records.Count - 1; i >= 0; i--)
+            _historyPage = HistoryPages.Clamp(_historyPage, _records.Count);
+            int pages = HistoryPages.Count(_records.Count);
+            if (pages > 1) y = Paragraph(x, y, w, $"Page {_historyPage + 1} of {pages}", sc, true);
+            foreach (int i in HistoryPages.NewestFirst(_records.Count, _historyPage))
             {
                 var death = _records[i];
                 string cause = death.CauseTitle();
                 string detail = string.Join(" · ", new[] { death.Killer, death.KillingElement }.Where(t => !string.IsNullOrWhiteSpace(t)));
                 string label = $"#{death.Number} · {death.UtcTime.ToLocalTime():MMM d, yyyy · h:mm tt}\n{cause}" + (detail.Length > 0 ? "\n" + detail : "");
                 if (ActionButton(x, ref y, w, label, sc)) { SelectDeath(death); _tab = 0; }
+            }
+            if (pages > 1)
+            {
+                float half = (w - 12f * sc) / 2f, ly = y, ry = y;
+                if (ActionButton(x, ref ly, half, "Previous", sc, _historyPage > 0)) _historyPage--;
+                if (ActionButton(x + half + 12f * sc, ref ry, half, "Next", sc, _historyPage < pages - 1)) _historyPage++;
+                y = Mathf.Max(ly, ry);
             }
             return y;
         }
@@ -749,13 +786,15 @@ namespace medick_DeathCounter.UI
             if (BossContextLabels.Label(boss) is string bossContext) y = Paragraph(x, y, w, "(" + bossContext + ")", sc, true);
             y = Heading(x, y, w, boss.Id == "shade-of-orobyss" ? "Possible variant damage" : "Damage to prepare for", sc);
             var priority = BossFieldNotes.PriorityResistances(boss);
-            bool ranked = priority.Count > 0 && priority.Count < boss.DamageTypes.Count;
+            bool ranked = priority.Count > 0 && (priority.Count < boss.DamageTypes.Count || boss.Id == "majasa-phase-1");
             for (int i = 0; i < boss.DamageTypes.Count; i++)
             {
                 var element = boss.DamageTypes[i];
                 Theme.Write(new Rect(x + (i % 3) * (w / 3), y, w / 3, 32f * sc), Elements.Name(element) + (ranked && priority.Contains(element) ? " (main)" : ""), Theme.ElementColor(element), Body(sc));
                 if (i % 3 == 2 || i == boss.DamageTypes.Count - 1) y += 38f * sc;
             }
+            string guideResists = MaxrollPlayerNotes.Resists(boss.Id);
+            if (!string.IsNullOrEmpty(guideResists)) y = Paragraph(x, y, w, guideResists, sc);
             y = Heading(x, y, w, "Before you pull", sc);
             foreach (var note in _bossPreparation) y = Paragraph(x, y, w, note, sc);
             y = Heading(x, y, w, "Quick fight plan", sc);
@@ -790,6 +829,8 @@ namespace medick_DeathCounter.UI
                         if (move.Elements.Count == 0) y = Paragraph(x, y, w, "Damage type not mapped.", sc, true);
                         if (move.Ailments.Count > 0) y = Paragraph(x, y, w, "Reported ailments: " + string.Join(", ", move.Ailments), sc, true);
                         if (move.Delivery != "unknown") y = Paragraph(x, y, w, "Reported delivery: " + (move.Delivery == "dot" ? "damage over time" : move.Delivery), sc, true);
+                        foreach (string line in MaxrollPlayerNotes.MoveLines(move.Id))
+                            y = Paragraph(x, y, w, line, sc);
                     }
                 }
             }

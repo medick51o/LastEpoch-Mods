@@ -75,10 +75,13 @@ namespace medick_DeathCounter.Core
                 string n = Elements.Name(element), el = n.ToLowerInvariant();
                 string group = "res:" + n;
                 bool known = Def("Res." + n, out float have);
-                string shred = Has("Marked for Death") ? "Marked for Death lowered all resistances by 25 points. "
+                string curse = Has("Curse of Aberroth")
+                    ? "Curse of Aberroth lowers every resistance by 10 points per stack. There is no stack limit, and it cannot be cleansed. "
+                    : "";
+                string shred = curse + (Has("Marked for Death") ? "Marked for Death lowered all resistances by 25 points. "
                     : element == Element.Lightning && Has("Shock") ? "Shock lowered lightning resistance and raised stun chance. "
                     : element == Element.Poison && Has("Poison") ? "Poison also lowers poison resistance: 2 points per stack on players, for the first 30 stacks. "
-                    : Has(n + " Resistance Shred") ? $"{n} Resistance Shred was recorded; it lowers this resistance by 2 points per stack on players, up to 10 stacks. " : "";
+                    : Has(n + " Resistance Shred") ? $"{n} Resistance Shred was recorded; it lowers this resistance by 2 points per stack on players, up to 10 stacks. " : "");
                 bool killingType = Elements.TryParse(d.KillingElement, out var reportedPrimary) && reportedPrimary == element
                     || Elements.TryParse(d.SecondaryKillingElement, out var reportedSecondary) && reportedSecondary == element || lethal?.Element == element;
                 string why = killingType
@@ -113,8 +116,20 @@ namespace medick_DeathCounter.Core
                         shred + snapshot + headroom + "Check the character sheet while the debuff is active. Extra uncapped resistance can absorb resistance loss; it does not offset area-level penetration. Stack counts and exact lost resistance were not captured.");
                 }
                 else if (known)
-                    Add("res_" + n, group, 20, $"{Cap(el)} resistance was already capped",
-                        why + $"The snapshot had {have:0}% {el} resistance. No matching resistance-loss debuff was recorded.", true);
+                {
+                    string capped = why + $"The snapshot had {have:0}% {el} resistance. No matching resistance-loss debuff was recorded.";
+                    if (Def("AreaLevel", out float cappedArea) && cappedArea > 0)
+                    {
+                        float pen = MitigationMath.EnemyPenetration(cappedArea);
+                        float effective = MitigationMath.EffectiveResistance(have, 0, pen);
+                        if (float.IsFinite(pen) && float.IsFinite(effective))
+                        {
+                            int through = (int)Math.Round(MitigationMath.ResistanceTakenFraction(effective) * 100f);
+                            capped += $" At area level {cappedArea:0}, enemy penetration is {pen:0}%. After that, this layer is about {effective:0}% effective, so about {through}% of {el} damage still gets through.";
+                        }
+                    }
+                    Add("res_" + n, group, 20, $"{Cap(el)} resistance was already capped", capped, true);
+                }
                 else
                     Add("res_" + n, group, 55, $"Check {el} resistance",
                         why + $"Your {el} resistance was not captured. Check the character sheet; bring it to 75% if low. If capped, this record does not establish a resistance gap.");
@@ -200,10 +215,27 @@ namespace medick_DeathCounter.Core
                 Add("avoid", "avoidance", 71, "Consider one additional hit layer",
                     "Dodge rating and block chance were both zero in the snapshot. Consider a supported dodge or block layer to reduce repeated hits; block also needs effectiveness. Neither protects against damage-over-time ticks, and chance defenses do not guarantee survival.");
             if ((d.WindowDamage > 0 || d.Kind == DeathKind.OneShot || dotKill) && Def("Endurance", out float endurance) && endurance < 59.5f)
-                Add("endurance", "endurance", 65, $"Raise endurance: you had {endurance:0}%",
-                    $"Endurance was {endurance:0}%; the reduction caps at 60%. "
+            {
+                string enduranceBody = $"Endurance was {endurance:0}%; the reduction caps at 60%. "
                     + (Def("EnduranceThreshold", out float threshold) ? $"Your endurance threshold was {threshold:N0}. " : "Check the threshold as well as the percent. ")
-                    + "It reduces only damage reaching health below that threshold, including damage over time. It does not protect ward or the portion above the threshold.");
+                    + "It reduces only damage reaching health below that threshold, including damage over time. It does not protect ward or the portion above the threshold.";
+                float enduranceWeight = 65;
+                // Only a reported hit with a known threshold can say whether 60%
+                // endurance would have changed the outcome. A miss stays under
+                // the toast threshold so it does not outrank an unknown resistance.
+                if (!current && Def("EnduranceThreshold", out float knownThreshold) && d.KillingBlow > 0 && d.OverkillDamage > 0
+                    && d.OverkillDamage < d.KillingBlow && !string.IsNullOrWhiteSpace(d.DetailSource))
+                {
+                    var preview = MitigationMath.PreviewEndurance(d.KillingBlow, d.OverkillDamage, knownThreshold, endurance, 60,
+                        DamageMeaning.PostMitigationWithWard, $"raising endurance from {endurance:0}% to 60%");
+                    if (float.IsFinite(preview.Ratio))
+                    {
+                        enduranceBody += " " + preview.Sentence();
+                        if (preview.Survived == false) enduranceWeight = 40;
+                    }
+                }
+                Add("endurance", "endurance", enduranceWeight, $"Raise endurance: you had {endurance:0}%", enduranceBody);
+            }
 
             if (Has("Freeze"))
                 Add("cc_freeze", "control", 80, "Reduce freeze vulnerability",
@@ -270,6 +302,18 @@ namespace medick_DeathCounter.Core
         // structured report sets it, and the default 0 must never be read as
         // "you had exactly the whole hit left". Mixed-type hits cannot be split, so no
         // single-resistance exact-hit preview is made for them.
+        // The next-step card shows this sentence on its own. The assumption
+        // stays in the same sentence, through the following period.
+        internal static string ExactHitCardLine(string body)
+        {
+            const string marker = "For this exact reported hit: ";
+            if (string.IsNullOrEmpty(body)) return null;
+            int at = body.IndexOf(marker, StringComparison.Ordinal);
+            if (at < 0) return null;
+            int end = body.IndexOf('.', at);
+            if (end < 0) return body.Substring(at).Trim();
+            return body.Substring(at, end - at + 1).Trim();
+        }
         internal static bool ReportedSingleTypeHit(DeathRecord d, Element element)
         {
             if (d == null || string.IsNullOrWhiteSpace(d.DetailSource) || !float.IsFinite(d.KillingBlow) || d.KillingBlow <= 0

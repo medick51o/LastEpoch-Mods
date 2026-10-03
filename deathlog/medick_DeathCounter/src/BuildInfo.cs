@@ -9,7 +9,7 @@ namespace medick_DeathCounter
         public const string DisplayName  = "Terrible Death Log, Assessment and Counter";
         public const string OfficialName = "MedicK's Terrible Death Log, Assessment and Counter";
         public const string Tagline      = "a death counter that tells you why";
-        public const string Version      = "0.1.12";
+        public const string Version      = "0.1.13";
         public const string Author       = "medick";
     }
 }

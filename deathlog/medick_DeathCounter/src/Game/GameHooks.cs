@@ -213,7 +213,7 @@ namespace medick_DeathCounter.Game
         // postfix turns "health before - health after" into the real damage
         // taken. Nested hooked calls (ReceiveDamage → Damage) merge into one
         // HitEvent instead of counting twice.
-        internal sealed class HitScratch { public float Before; public bool Kill; }
+        internal sealed class HitScratch { public float Before; public float WardBefore; public bool Kill; }
 
         // True while a player hit is being processed (between the outermost
         // prefix and postfix). A death that fires inside it waits for the
@@ -239,7 +239,7 @@ namespace medick_DeathCounter.Game
                 if (_depth > 0 && frame != _depthFrame) { _depth = 0; _pending = null; }   // a throwing original never ran our postfix
                 _depthFrame = frame;
 
-                __state = new HitScratch { Before = PlayerProbe.CurrentHealth };
+                __state = new HitScratch { Before = PlayerProbe.CurrentHealth, WardBefore = PlayerProbe.CurrentWard };
                 if (_depth++ == 0) _pending = new HitEvent();
                 ArgReader.Read(__args, __originalMethod, _pending);
 
@@ -291,13 +291,9 @@ namespace medick_DeathCounter.Game
 
                 float before = __state.Before, after = PlayerProbe.CurrentHealth;
                 bool known = !float.IsNaN(before) && !float.IsNaN(after);
-                if (known)
-                {
-                    float lost = before - after;
-                    if (lost <= 0f) return;            // dodged, blocked, or ward ate it
-                    h.Amount = lost;
-                }
-                if (h.Amount <= 0f) return;
+                float? lost = HitLoss.Amount(before, after, __state.WardBefore, PlayerProbe.CurrentWard, h.Amount);
+                if (lost == null) return;
+                h.Amount = lost.Value;
 
                 float max = PlayerProbe.MaxHealth;
                 h.Time         = Time.time;

@@ -46,6 +46,7 @@ namespace medick_DeathCounter.Game
         static bool _unknownNameWarned;
         static bool _unreadableHealthNoted;
         static string _pendingDetection;
+        static bool _pendingCredited;
         static float _pendingAt;
         static DateTime _pendingUtc;
         static bool _committing;
@@ -93,10 +94,22 @@ namespace medick_DeathCounter.Game
             FlushDeferredDeath();
             if (_pendingDetection != null && now - _pendingAt >= 0.75f)
             {
-                string detection = _pendingDetection;
-                _committing = true;
-                try { if (_pendingCapture != null) OnDeath(detection); }
-                finally { _committing = false; _pendingDetection = null; _pendingCapture = null; _pendingPlayContext = null; }
+                float commitHp = PlayerProbe.CurrentHealth;
+                if (DeathCommitGate.CancelBecauseAlive(_pendingDetection, commitHp))
+                {
+                    if (_pendingCredited) _ledger.RetractLatest();
+                    _pendingCredited = false;
+                    _pendingDetection = null;
+                    _pendingCapture = null;
+                    _pendingPlayContext = null;
+                }
+                else
+                {
+                    string detection = _pendingDetection;
+                    _committing = true;
+                    try { if (_pendingCapture != null) OnDeath(detection); }
+                    finally { _committing = false; _pendingDetection = null; _pendingCapture = null; _pendingPlayContext = null; _pendingCredited = false; }
+                }
             }
             if (now >= _nextCountCheck)
             {
@@ -289,34 +302,13 @@ namespace medick_DeathCounter.Game
                 if (_pendingDetection == null)
                 {
                     _pendingDetection = detection;
-                    _pendingAt = now;
-                    _pendingUtc = DateTime.UtcNow;
-                    // Freeze the last living realm before the delayed commit:
-                    // a hardcore death may transfer the character immediately.
-                    bool lateCounter = detection == "game" && (!float.IsFinite(hp) || hp > 0);
-                    bool living = !lateCounter && _livingPlayCharacter == name && now >= _livingPlayAt && now - _livingPlayAt <= 2f;
-                    _pendingPlayContext = lateCounter ? null : living && _livingPlayContext != null
-                        ? _livingPlayContext.Copy() : PlayerProbe.PlayContext(name);
-                    float max = lateCounter ? -1 : _defenses != null && now >= _defensesAt && now - _defensesAt <= 2f && _defenses.TryGetValue("MaxHealth", out float livingMax)
-                        ? livingMax : PlayerProbe.MaxHealth;
-                    var context = new DeathContext
-                    {
-                        Character = name, CharacterClass = living ? _livingClass : PlayerProbe.CharacterClass(), Level = living ? _livingLevel : PlayerProbe.Level(),
-                        Zone = lateCounter ? "" : living ? _livingZone : PlayerProbe.Zone(),
-                        RawSceneId = lateCounter ? null : living ? _livingScene : PlayerProbe.RawSceneId(),
-                        ZoneLevel = lateCounter ? null : living ? _livingZoneLevel : PlayerProbe.ZoneLevel(),
-                        Hardcore = !lateCounter && (living ? _livingHardcore : PlayerProbe.Hardcore()), PlayContext = _pendingPlayContext,
-                        MaxHealth = float.IsFinite(max) ? max : -1,
-                        Detection = detection, ModVersion = BuildInfo.Version, UtcNow = _pendingUtc,
-                    };
-                    _pendingCapture = new PendingDeath(lateCounter ? null : _hits.Since(now - 12), now, context,
-                        lateCounter ? null : _ailments.Where(kv => now >= kv.Value && now - kv.Value <= AilmentMemory).Select(kv => kv.Key), lateCounter ? null : _defenses, _defensesAt, !lateCounter);
-                    // Credit the game counter at detection, not at the delayed
-                    // commit: CharacterData.Deaths often rises inside the 0.75 s
-                    // commit window. A credit added after that increase was
-                    // already consumed would linger and swallow the next death
-                    // only the counter sees.
-                    if (detection != "game" && Character == name) _ledger.Recorded(now);
+                    FreezePending(name, hp, now, true);
+                }
+                else
+                {
+                    var merged = DeathSignalMerge.Combine(_pendingDetection, detection);
+                    _pendingDetection = merged.Source;
+                    if (merged.Rebuild) FreezePending(name, hp, now, false);
                 }
                 return;
             }
@@ -360,6 +352,42 @@ namespace medick_DeathCounter.Game
                 _details = null;
                 _pendingPlayContext = null;
                 _pendingCapture = null;
+            }
+        }
+
+        // First signal freezes the death time. A later signal in the same
+        // window can refresh the hit list without moving that time, and it
+        // does not add a second counter credit.
+        static void FreezePending(string name, float hp, float now, bool fresh)
+        {
+            if (fresh)
+            {
+                _pendingAt = now;
+                _pendingUtc = DateTime.UtcNow;
+            }
+            string detection = _pendingDetection;
+            bool lateCounter = detection == "game" && (!float.IsFinite(hp) || hp > 0);
+            bool living = !lateCounter && _livingPlayCharacter == name && now >= _livingPlayAt && now - _livingPlayAt <= 2f;
+            _pendingPlayContext = lateCounter ? null : living && _livingPlayContext != null
+                ? _livingPlayContext.Copy() : PlayerProbe.PlayContext(name);
+            float max = lateCounter ? -1 : _defenses != null && now >= _defensesAt && now - _defensesAt <= 2f && _defenses.TryGetValue("MaxHealth", out float livingMax)
+                ? livingMax : PlayerProbe.MaxHealth;
+            var context = new DeathContext
+            {
+                Character = name, CharacterClass = living ? _livingClass : PlayerProbe.CharacterClass(), Level = living ? _livingLevel : PlayerProbe.Level(),
+                Zone = lateCounter ? "" : living ? _livingZone : PlayerProbe.Zone(),
+                RawSceneId = lateCounter ? null : living ? _livingScene : PlayerProbe.RawSceneId(),
+                ZoneLevel = lateCounter ? null : living ? _livingZoneLevel : PlayerProbe.ZoneLevel(),
+                Hardcore = !lateCounter && (living ? _livingHardcore : PlayerProbe.Hardcore()), PlayContext = _pendingPlayContext,
+                MaxHealth = float.IsFinite(max) ? max : -1,
+                Detection = detection, ModVersion = BuildInfo.Version, UtcNow = _pendingUtc,
+            };
+            _pendingCapture = new PendingDeath(lateCounter ? null : _hits.Since(now - 12), fresh ? now : _pendingAt, context,
+                lateCounter ? null : _ailments.Where(kv => now >= kv.Value && now - kv.Value <= AilmentMemory).Select(kv => kv.Key), lateCounter ? null : _defenses, _defensesAt, !lateCounter);
+            if (fresh && detection != "game" && Character == name)
+            {
+                _ledger.Recorded(now);
+                _pendingCredited = true;
             }
         }
 

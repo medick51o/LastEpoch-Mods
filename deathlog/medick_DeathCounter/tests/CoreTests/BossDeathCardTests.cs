@@ -47,7 +47,7 @@ static partial class Program
         True(BossFieldNotes.Preparation(rahyeh)[0].StartsWith("Fix gaps", StringComparison.Ordinal), "single-type fight keeps the normal note");
         foreach (var boss in BossCatalog.All)
         {
-            True(BossFieldNotes.PriorityResistances(boss).All(e => boss.DamageTypes.Contains(e)), boss.Id + " priority stays inside coverage");
+            True(BossFieldNotes.PriorityResistances(boss).All(e => boss.DamageTypes.Contains(e) || (boss.Id == "majasa-phase-1" && e == Element.Physical)), boss.Id + " priority stays inside coverage");
             True(BossFieldNotes.Preparation(boss).Count <= 3, boss.Id);
         }
         Eq(0, BossFieldNotes.PriorityResistances(BossCatalog.All.Single(p => p.Id == "morditas")).Count);
@@ -59,7 +59,11 @@ static partial class Program
             {
                 var death = new DeathRecord { Killer = boss.Aliases.FirstOrDefault(), KillerAbility = move.Name, IsBossFight = true };
                 foreach (string line in BossFieldNotes.ForDeath(death, out _, out _))
-                    True(!line.Contains("--") && !line.Contains("Maxroll") && !line.Contains("survive") && !line.Contains("guarantee"), boss.Id + ": " + line);
+                {
+                    True(!line.Contains("--") && !line.Contains("survive") && !line.Contains("guarantee"), boss.Id + ": " + line);
+                    if (line.Contains("Maxroll"))
+                        True(line.StartsWith("Maxroll (community guide)", StringComparison.Ordinal), "attribution is the Maxroll wording: " + line);
+                }
             }
     }
 }

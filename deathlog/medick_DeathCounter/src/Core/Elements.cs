@@ -72,6 +72,12 @@ namespace medick_DeathCounter.Core
             Dot("Plague", Element.Poison, "Poison damage over time.", "plague"),
             Dot("Spreading Flames", Element.Fire, "Fire damage over time.", "spreadingflames", "spreading flames"),
 
+            // Aberroth ailments are their own effects. They must not match Shock, Frailty, or Chill.
+            Setup("Curse of Aberroth", null, "Lowers every resistance by 10 points per stack. There is no stack limit, and it cannot be cleansed.", "curseofaberroth", "curse of aberroth"),
+            Setup("Shock of Aberroth", null, "You take 5% more damage per stack. It does not lower lightning resistance.", "shockofaberroth", "shock of aberroth"),
+            Setup("Frailty of Aberroth", null, "A separate Aberroth frailty. It is not Frailty, which lowers the damage you deal.", "frailtyofaberroth", "frailty of aberroth"),
+            Setup("Chill of Aberroth", null, "Slows your movement, attacks and casts. It is not Chill, and cold resistance does not stop it.", "chillofaberroth", "chill of aberroth"),
+
             Setup("Freeze",          Element.Cold,      "You cannot act while frozen. More max health and current ward make you harder to freeze. Cold resistance does not stop freeze.", "freeze", "frozen"),
             Setup("Chill",           Element.Cold,      "Slows your attacks, casts and movement. Cold resistance does not prevent chill.", "chill"),
             Setup("Shock",           Element.Lightning, "Lowers your lightning resistance and makes you easier to stun.", "shock"),

@@ -124,6 +124,7 @@ namespace medick_DeathCounter.Game
             string ready = Inbox.Observe(character, text, Time.time, window, newBatch);
             if (ready == null) return;
             if (!newBatch) report = DeathMessageParser.Parse(ready);
+            else DeathFormatterCapture.FillMissingElement(report, text ?? ready);
             _emitted = Capture.Generation;
             DeathTracker.OnDeathDetails(report);
             Dbg.Log($"game death message: attacker={report.Killer ?? "unavailable"}, ability={report.Ability ?? "none"}, damage={report.Damage:0}, type={report.PrimaryElement ?? "unavailable"}, source={report.Source ?? (newBatch ? "formatter" : "text")}");

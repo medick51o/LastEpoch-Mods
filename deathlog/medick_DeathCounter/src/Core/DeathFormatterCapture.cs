@@ -85,5 +85,17 @@ namespace medick_DeathCounter.Core
         }
 
         public static string Plain(string text) => string.IsNullOrWhiteSpace(text) ? null : Tags.Replace(text, "").Trim();
+
+        // A formatter batch can carry damage and names with no damage type.
+        // Copy only the type from the on-screen text parser. Leave damage and names.
+        public static void FillMissingElement(DeathDetails report, string text)
+        {
+            if (report == null || !string.IsNullOrWhiteSpace(report.PrimaryElement) || string.IsNullOrWhiteSpace(text)) return;
+            var parsed = DeathMessageParser.Parse(text);
+            if (string.IsNullOrWhiteSpace(parsed?.PrimaryElement)) return;
+            report.PrimaryElement = parsed.PrimaryElement;
+            if (string.IsNullOrWhiteSpace(report.SecondaryElement) && !string.IsNullOrWhiteSpace(parsed.SecondaryElement))
+                report.SecondaryElement = parsed.SecondaryElement;
+        }
     }
 }

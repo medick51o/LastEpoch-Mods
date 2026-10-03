@@ -77,22 +77,24 @@ namespace medick_DeathCounter.UI
                 Dbg.Log("menu focus hook unavailable: " + key + ": " + ex.Message);
             }
         }
+        static bool MouseHeld() => Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Mouse1) || Input.GetKey(KeyCode.Mouse2);
         static bool AllowNativeInput()
         {
             // Native Update/Process may run before Melon's OnUpdate. Protect
-            // the opening frame as well as the steady open state.
+            // the opening frame as well as the steady open state. Hovering
+            // the counter does not pause gameplay.
             bool opening = PlayerProbe.HasPlayer && Input.GetKeyDown(Prefs.PanelKeyCode)
                 && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift)
                 && !DeathPanel.Open;
-            return !(Gate.Blocked || DeathPanel.Open || CounterHud.Moving || opening || CounterHud.PointerOver());
+            return !MenuInputPolicy.BlockGameplay(Gate.Blocked, DeathPanel.Open, CounterHud.Dragging, opening, CounterHud.PointerOver(), MouseHeld());
         }
         public static void Update()
         {
             if ((!GameplayReady || !NativeUiReady) && Time.unscaledTime >= _nextInstall) TryInstall();
+            bool mouse = MouseHeld();
             CursorFocus(DeathPanel.Open || CounterHud.Moving);
-            Gate.Update(DeathPanel.Open || CounterHud.Moving || CounterHud.PointerOver(),
-                Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Mouse1) || Input.GetKey(KeyCode.Mouse2)
-                || Input.GetKey(Prefs.PanelKeyCode) || Input.GetKey(KeyCode.Escape));
+            Gate.Update(DeathPanel.Open || CounterHud.Dragging || (CounterHud.PointerOver() && mouse),
+                mouse || Input.GetKey(Prefs.PanelKeyCode) || Input.GetKey(KeyCode.Escape));
         }
         public static void TakeFocus() { Gate.Update(true, false); CursorFocus(true); }
         public static void Restore() { Gate.Clear(); CursorFocus(false); }

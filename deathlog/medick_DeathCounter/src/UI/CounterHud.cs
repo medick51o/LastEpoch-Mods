@@ -9,6 +9,7 @@ namespace medick_DeathCounter.UI
     {
         public static bool MouseOver { get; private set; }
         public static bool Moving { get; private set; }
+        public static bool Dragging => _dragging;
         static bool _dragging, _hovered;
         static Vector2 _grab;
         static Rect _hint, _lastRect;

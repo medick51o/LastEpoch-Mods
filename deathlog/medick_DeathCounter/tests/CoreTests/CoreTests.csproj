@@ -31,10 +31,13 @@
     <Compile Include="PatternCopyTests.cs" />
     <Compile Include="R1ReviewTests.cs" />
     <Compile Include="R2ReviewTests.cs" />
+    <Compile Include="TeamRound1Tests.cs" />
     <Compile Include="..\..\src\Core\*.cs" Link="Core\%(Filename)%(Extension)" />
     <None Include="..\..\src\Core\Data\boss-harbinger.proposed.json" Link="Fixtures\boss-harbinger.proposed.json" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="..\..\src\Core\Data\boss-harbinger.runtime.json" LogicalName="medick_DeathCounter.BossResearchCatalog.json" />
     <EmbeddedResource Include="..\..\src\Core\Data\boss-guide-moves.runtime.json" LogicalName="medick_DeathCounter.BossGuideMoves.json" />
+    <EmbeddedResource Include="..\..\src\Core\Data\boss-maxroll-player.runtime.json" LogicalName="medick_DeathCounter.MaxrollPlayerNotes.json" />
+    <None Include="Fixtures\maxroll-merged-normalized.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

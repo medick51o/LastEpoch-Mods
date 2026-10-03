@@ -1,4 +1,4 @@
-> v0.1.12 experimental candidate (team review of v0.1.9): clearer death headlines, an exact-hit preview on the resistance card, a Boss attack card with sources, and a next step in the death toast. See CHANGELOG.md. Built and tested on Linux without the game, not installed.
+> v0.1.13 experimental candidate: exact-hit survival on the next step card, ward included in hit size, Aberroth ailments, paged history, and short Maxroll (community guide) lines on boss attacks. See CHANGELOG.md. Built and tested on Linux without the game, not installed.
 
 > Experimental v0.1.8 Field journal candidate. Built and checked, not installed or published. See [the review](docs/CODEX-DEATH-v0.1.8-REVIEW.md) for required in-game tests. Insert opens the journal; Shift+Insert changes counter visibility only. Logging stays automatic. The views are Last death, History, Patterns, Boss notes and Settings. Boss notes remain experimental.
 

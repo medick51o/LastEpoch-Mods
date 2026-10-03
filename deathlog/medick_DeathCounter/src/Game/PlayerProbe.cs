@@ -204,6 +204,22 @@ namespace medick_DeathCounter.Game
         // Never -1: health really does go negative on a killing blow.
         public static float CurrentHealth => Refl.GetFloat(Health, float.NaN, CurrentHealthNames);
         public static float MaxHealth     => Refl.GetFloat(Health, float.NaN, MaxHealthNames);
+        // NaN when ward cannot be read. A ward-only hit still counts.
+        public static float CurrentWard
+        {
+            get
+            {
+                try
+                {
+                    object holder = Refl.Static("Il2Cpp.PlayerFinder", "getLocalPlayerWardHolder");
+                    if (Refl.TryFloat(Refl.Get(holder, "CurrentWard", "currentWard"), out float ward)) return ward;
+                    object prot = Refl.Static("Il2Cpp.PlayerFinder", "getLocalPlayerPrecalculatedStatsHolder") ?? Refl.Get(Actor, "protection");
+                    if (Refl.TryFloat(Refl.Get(prot, "CurrentWard", "currentWard"), out ward)) return ward;
+                }
+                catch { }
+                return float.NaN;
+            }
+        }
 
         public static bool IsPlayerObject(GameObject go) => go != null && Refl.Ptr(go) == ObjectPtr && ObjectPtr != IntPtr.Zero;
 

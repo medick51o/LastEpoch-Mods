@@ -207,12 +207,22 @@ namespace medick_DeathCounter.Core
             stream.Write(bytes, 0, bytes.Length);
             stream.Flush(true);
         }
+        internal static string TryMerge(string raw, string before, string after) => MergeChanges(raw, before, after);
         static string MergeChanges(string raw, string before, string after)
         {
             if (before == after) return raw;
-            var target = JsonNode.Parse(raw).AsObject();
-            ApplyChanges(target, JsonNode.Parse(before).AsObject(), JsonNode.Parse(after).AsObject());
-            return target.ToJsonString();
+            try
+            {
+                if (JsonNode.Parse(raw) is not JsonObject target) return raw;
+                ApplyChanges(target, JsonNode.Parse(before).AsObject(), JsonNode.Parse(after).AsObject());
+                return target.ToJsonString();
+            }
+            catch (Exception ex) when (ex is JsonException || ex is ArgumentException)
+            {
+                // A duplicate key or other broken line stays as stored text.
+                // One bad line must not block the rest of the save.
+                return raw;
+            }
         }
         static void ApplyChanges(JsonObject target, JsonObject before, JsonObject after)
         {

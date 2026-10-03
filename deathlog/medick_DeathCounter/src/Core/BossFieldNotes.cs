@@ -15,7 +15,9 @@ namespace medick_DeathCounter.Core
 
             var notes = new List<string>();
             var priority = PriorityResistances(boss);
-            notes.Add(boss.Id == "shade-of-orobyss"
+            notes.Add(boss.Id == "majasa-phase-1"
+                ? "Cap physical resistance first for the whole fight, then fire, lightning, and poison. This phase's mapped hits are the last three. Physical is highest because the next phase is physical only."
+                : boss.Id == "shade-of-orobyss"
                 ? "Check Void resistance first, then the variant's other element. The list covers possible variants, not every attack in one fight."
                 : priority.Count > 0 && priority.Count < boss.DamageTypes.Count
                 ? $"Cap {Join(priority)} resistance first. Community guides report most of this fight's damage as {(priority.Count == 1 ? "that type" : "those types")}; then close gaps below {DefenseSnapshot.ResCap:0}% in the other listed types."
@@ -45,8 +47,9 @@ namespace medick_DeathCounter.Core
         }
 
         // Resistances community boss guides name as the main damage of a fight.
-        // Only types already in the encounter's coverage are returned, so this
-        // can order preparation but never add an unmapped damage type.
+        // Returned types stay inside coverage, except Majasa phase 1: the guide
+        // puts physical first for the whole fight, while this phase's mapped
+        // hits are fire, lightning, and poison.
         static readonly Dictionary<string, Element[]> GuidePriority = new(StringComparer.Ordinal)
         {
             ["volcanic-shaman"] = new[] { Element.Fire, Element.Necrotic },
@@ -59,7 +62,7 @@ namespace medick_DeathCounter.Core
             ["rahyeh-the-black-sun"] = new[] { Element.Void },
             ["husk-of-elder-gaspar"] = new[] { Element.Void, Element.Fire, Element.Cold, Element.Lightning },
             ["lagon-campaign"] = new[] { Element.Cold, Element.Lightning, Element.Physical },
-            ["majasa-phase-1"] = new[] { Element.Fire, Element.Lightning, Element.Poison },
+            ["majasa-phase-1"] = new[] { Element.Physical, Element.Fire, Element.Lightning, Element.Poison },
             ["majasa-phase-2"] = new[] { Element.Physical },
             ["aberroth"] = new[] { Element.Void, Element.Physical },
             ["herald-of-oblivion"] = new[] { Element.Void, Element.Physical },
@@ -67,10 +70,15 @@ namespace medick_DeathCounter.Core
             ["shade-of-orobyss"] = new[] { Element.Void },
         };
 
-        public static IReadOnlyList<Element> PriorityResistances(BossProfile boss) =>
-            boss != null && GuidePriority.TryGetValue(boss.Id, out var list)
-                ? Array.AsReadOnly(list.Where(e => boss.DamageTypes.Contains(e)).ToArray())
-                : Array.AsReadOnly(Array.Empty<Element>());
+        public static IReadOnlyList<Element> PriorityResistances(BossProfile boss)
+        {
+            if (boss == null || !GuidePriority.TryGetValue(boss.Id, out var list))
+                return Array.AsReadOnly(Array.Empty<Element>());
+            var kept = list.Where(e => boss.DamageTypes.Contains(e)).ToList();
+            if (boss.Id == "majasa-phase-1" && list.Contains(Element.Physical) && !kept.Contains(Element.Physical))
+                kept.Insert(0, Element.Physical);
+            return Array.AsReadOnly(kept.ToArray());
+        }
 
         // Shown on the death card itself, so the matching boss note appears
         // when the player is reading why they died, not only in Boss notes.
@@ -105,6 +113,10 @@ namespace medick_DeathCounter.Core
             var priority = PriorityResistances(boss);
             if (priority.Count > 0 && priority.Count < boss.DamageTypes.Count)
                 lines.Add($"For this fight, cap {Join(priority)} resistance first.");
+            if (found != null)
+                lines.AddRange(MaxrollPlayerNotes.MoveLines(found.Id));
+            string resists = MaxrollPlayerNotes.Resists(boss.Id);
+            if (resists != null) lines.Add(resists);
             return Array.AsReadOnly(lines.Distinct(StringComparer.Ordinal).ToArray());
         }
 

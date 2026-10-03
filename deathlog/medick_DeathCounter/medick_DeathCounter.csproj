@@ -5,7 +5,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>medick_DeathCounter</AssemblyName>
     <RootNamespace>medick_DeathCounter</RootNamespace>
-    <Version>0.1.12</Version>
+    <Version>0.1.13</Version>
     <Nullable>disable</Nullable>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
@@ -91,6 +91,7 @@
   <ItemGroup>
     <EmbeddedResource Include="src\Core\Data\boss-harbinger.runtime.json" LogicalName="medick_DeathCounter.BossResearchCatalog.json" />
     <EmbeddedResource Include="src\Core\Data\boss-guide-moves.runtime.json" LogicalName="medick_DeathCounter.BossGuideMoves.json" />
+    <EmbeddedResource Include="src\Core\Data\boss-maxroll-player.runtime.json" LogicalName="medick_DeathCounter.MaxrollPlayerNotes.json" />
     <Compile Include="..\tools\TerribleInteropRepair\CoreModuleRepair.cs" Link="Compatibility\CoreModuleRepair.cs" />
     <Compile Include="..\tools\TerribleInteropRepair\EmbeddedRepairBootstrap.cs" Link="Compatibility\EmbeddedRepairBootstrap.cs" />
   </ItemGroup>

@@ -27,6 +27,20 @@ namespace medick_DeathCounter.Core
         // A death this mod recorded itself.
         public void Recorded(double now) => _credits.Enqueue(now);
 
+        // Drop the newest credit when a pending death is cancelled because
+        // health recovered. Older credits stay, so a real earlier death is
+        // not forgotten.
+        public bool RetractLatest()
+        {
+            if (_credits.Count == 0) return false;
+            var kept = new Queue<double>();
+            int leave = _credits.Count - 1;
+            for (int i = 0; i < leave; i++) kept.Enqueue(_credits.Dequeue());
+            _credits.Clear();
+            while (kept.Count > 0) _credits.Enqueue(kept.Dequeue());
+            return true;
+        }
+
         // Feed the counter's current value. Returns how many deaths it shows
         // that the mod has not recorded (0 on the first read: baseline only).
         public int Observe(int count, double now)
