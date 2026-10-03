@@ -1,0 +1,25 @@
+using MedicK.TerribleInteropRepair;
+using System.Security.Cryptography;
+static string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));
+string original = Path.GetFullPath(args[0]);
+string folder = Path.GetFullPath(args[1]);
+Directory.CreateDirectory(folder);
+string target = Path.Combine(folder, "UnityEngine.CoreModule.dll");
+File.Copy(original, target, true);
+string originalHash = Hash(target);
+Console.WriteLine(CoreModuleRepair.Repair(target));
+string repairedHash = Hash(target);
+if(originalHash == repairedHash) throw new Exception("Original fixture did not change.");
+var backups = Directory.GetFiles(folder, "*.bak");
+if(backups.Length != 1 || Hash(backups[0]) != originalHash) throw new Exception("Backup mismatch.");
+Console.WriteLine(CoreModuleRepair.Repair(target));
+if(Hash(target) != repairedHash || Directory.GetFiles(folder, "*.bak").Length != 1) throw new Exception("Idempotence failed.");
+File.Copy(original, target, true);
+Console.WriteLine(CoreModuleRepair.Repair(target));
+if(Hash(target) != repairedHash) throw new Exception("Regeneration repair failed.");
+File.WriteAllText(target, "invalid assembly");
+try { CoreModuleRepair.Repair(target); throw new Exception("Invalid assembly accepted."); } catch(BadImageFormatException) { }
+if(File.ReadAllText(target) != "invalid assembly") throw new Exception("Invalid file was changed.");
+File.Copy(original, target, true);
+CoreModuleRepair.Repair(target);
+Console.WriteLine("PASS: backup, idempotence, regenerated-file repair, invalid-file preservation.");

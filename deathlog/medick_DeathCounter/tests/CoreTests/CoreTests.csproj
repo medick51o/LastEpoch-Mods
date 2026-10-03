@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Game-free tests for src/Core. Runs anywhere the .NET SDK does:
+       dotnet run, from tests/CoreTests -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="JournalInteractionTests.cs" />
+    <Compile Include="HistorySafetyTests.cs" />
+    <Compile Include="ReviewRegressionTests.cs" />
+    <Compile Include="AdviceRulesTests.cs" />
+    <Compile Include="PlayContextTests.cs" />
+    <Compile Include="CurrentAssessmentTests.cs" />
+    <Compile Include="ReassessmentLogTests.cs" />
+    <Compile Include="PendingDeathTests.cs" />
+    <Compile Include="BossContextTests.cs" />
+    <Compile Include="BossCatalogSchemaTests.cs" />
+    <Compile Include="BossFactcheckRegressionTests.cs" />
+    <Compile Include="BossCatalogPortTests.cs" />
+    <Compile Include="BossFieldNotesTests.cs" />
+    <Compile Include="DeathFormatterTests.cs" />
+    <Compile Include="ResistanceCaptureTests.cs" />
+    <Compile Include="BossDeathCardTests.cs" />
+    <Compile Include="PatternCopyTests.cs" />
+    <Compile Include="R1ReviewTests.cs" />
+    <Compile Include="R2ReviewTests.cs" />
+    <Compile Include="..\..\src\Core\*.cs" Link="Core\%(Filename)%(Extension)" />
+    <None Include="..\..\src\Core\Data\boss-harbinger.proposed.json" Link="Fixtures\boss-harbinger.proposed.json" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="..\..\src\Core\Data\boss-harbinger.runtime.json" LogicalName="medick_DeathCounter.BossResearchCatalog.json" />
+    <EmbeddedResource Include="..\..\src\Core\Data\boss-guide-moves.runtime.json" LogicalName="medick_DeathCounter.BossGuideMoves.json" />
+  </ItemGroup>
+
+</Project>
+
+

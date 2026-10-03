@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net6.0</TargetFramework><PlatformTarget>x64</PlatformTarget><ImplicitUsings>enable</ImplicitUsings><ML Condition="'$(ML)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\net6\</ML></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TerribleInteropRepair.csproj" />
+    <Reference Include="Mono.Cecil"><HintPath>$(ML)Mono.Cecil.dll</HintPath></Reference>
+    <Reference Include="MelonLoader"><HintPath>$(ML)MelonLoader.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

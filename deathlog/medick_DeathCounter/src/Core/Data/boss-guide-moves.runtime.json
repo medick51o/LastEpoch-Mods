@@ -1,0 +1,4359 @@
+[
+  {
+    "encounterId": "harbinger-defilement",
+    "id": "harbinger-defilement-slam",
+    "name": "Slam",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-defilement-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-defilement",
+    "id": "harbinger-defilement-massive-slam",
+    "name": "Massive Slam",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-defilement-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-defilement",
+    "id": "harbinger-defilement-echo-slam",
+    "name": "Echo Slam",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-defilement-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-defilement",
+    "id": "harbinger-defilement-void-combo-strike",
+    "name": "Void Combo Strike",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-defilement-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-defilement",
+    "id": "harbinger-defilement-void-orbs",
+    "name": "Void Orbs",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-defilement-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-defilement",
+    "id": "harbinger-defilement-void-portal-blast",
+    "name": "Void Portal Blast",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-defilement-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-defilement",
+    "id": "harbinger-defilement-void-rush",
+    "name": "Void Rush",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-defilement-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-defilement",
+    "id": "harbinger-defilement-void-strike",
+    "name": "Void Strike",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-defilement-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-defilement",
+    "id": "harbinger-defilement-void-turrets",
+    "name": "Void Turrets",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-defilement-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-defilement",
+    "id": "harbinger-defilement-spirit-decay",
+    "name": "Spirit Decay",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "abomination",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-defilement-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-defilement",
+    "id": "harbinger-defilement-tail-flare",
+    "name": "Tail Flare",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "abomination",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-defilement-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-pride",
+    "id": "harbinger-pride-portal-spear",
+    "name": "Portal Spear",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-pride-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-pride",
+    "id": "harbinger-pride-spear-beam",
+    "name": "Spear Beam",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-pride-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-pride",
+    "id": "harbinger-pride-spear-dash",
+    "name": "Spear Dash",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-pride-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-pride",
+    "id": "harbinger-pride-spear-thrust",
+    "name": "Spear Thrust",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-pride-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-pride",
+    "id": "harbinger-pride-void-blast",
+    "name": "Void Blast",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-pride-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-pride",
+    "id": "harbinger-pride-void-slam",
+    "name": "Void Slam",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-pride-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-pride",
+    "id": "harbinger-pride-void-slash",
+    "name": "Void Slash",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-pride-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-pride",
+    "id": "harbinger-pride-void-spears",
+    "name": "Void Spears",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Frailty",
+      "Shred Armour"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-pride-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-pride",
+    "id": "harbinger-pride-turrets",
+    "name": "Turrets",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "god-hunter-argentus",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-pride-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-pride",
+    "id": "harbinger-pride-fire-bomb",
+    "name": "Fire Bomb",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "god-hunter-argentus",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-pride-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-hatred",
+    "id": "harbinger-hatred-slam",
+    "name": "Slam",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-hatred-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-hatred",
+    "id": "harbinger-hatred-massive-slam",
+    "name": "Massive Slam",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-hatred-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-hatred",
+    "id": "harbinger-hatred-echo-slam",
+    "name": "Echo Slam",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-hatred-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-hatred",
+    "id": "harbinger-hatred-void-combo-strike",
+    "name": "Void Combo Strike",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-hatred-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-hatred",
+    "id": "harbinger-hatred-void-orbs",
+    "name": "Void Orbs",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-hatred-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-hatred",
+    "id": "harbinger-hatred-void-portal-blast",
+    "name": "Void Portal Blast",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-hatred-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-hatred",
+    "id": "harbinger-hatred-void-rush",
+    "name": "Void Rush",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-hatred-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-hatred",
+    "id": "harbinger-hatred-void-strike",
+    "name": "Void Strike",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-hatred-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-hatred",
+    "id": "harbinger-hatred-void-turrets",
+    "name": "Void Turrets",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-hatred-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-hatred",
+    "id": "harbinger-hatred-void-slam",
+    "name": "Void Slam",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "rahyeh-the-black-sun",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-hatred-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-hatred",
+    "id": "harbinger-hatred-void-skyfall",
+    "name": "Void Skyfall",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "rahyeh-the-black-sun",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-hatred-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-hatred",
+    "id": "harbinger-hatred-void-flares",
+    "name": "Void Flares",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "rahyeh-the-black-sun",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-hatred-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-war",
+    "id": "harbinger-war-portal-spear",
+    "name": "Portal Spear",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-war-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-war",
+    "id": "harbinger-war-spear-beam",
+    "name": "Spear Beam",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-war-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-war",
+    "id": "harbinger-war-spear-dash",
+    "name": "Spear Dash",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-war-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-war",
+    "id": "harbinger-war-spear-thrust",
+    "name": "Spear Thrust",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-war-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-war",
+    "id": "harbinger-war-void-blast",
+    "name": "Void Blast",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-war-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-war",
+    "id": "harbinger-war-void-slam",
+    "name": "Void Slam",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-war-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-war",
+    "id": "harbinger-war-void-slash",
+    "name": "Void Slash",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-war-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-war",
+    "id": "harbinger-war-void-spears",
+    "name": "Void Spears",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Frailty",
+      "Shred Armour"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-war-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-war",
+    "id": "harbinger-war-ice-vortex",
+    "name": "Ice Vortex",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "dot",
+    "ailments": [],
+    "inheritedFromEncounterId": "frost-lich-formosus",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-war-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-war",
+    "id": "harbinger-war-spirit-beam",
+    "name": "Spirit Beam",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "frost-lich-formosus",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-war-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-chaos",
+    "id": "harbinger-chaos-portal-spear",
+    "name": "Portal Spear",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-chaos-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-chaos",
+    "id": "harbinger-chaos-spear-beam",
+    "name": "Spear Beam",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-chaos-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-chaos",
+    "id": "harbinger-chaos-spear-dash",
+    "name": "Spear Dash",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-chaos-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-chaos",
+    "id": "harbinger-chaos-spear-thrust",
+    "name": "Spear Thrust",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-chaos-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-chaos",
+    "id": "harbinger-chaos-void-blast",
+    "name": "Void Blast",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-chaos-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-chaos",
+    "id": "harbinger-chaos-void-slam",
+    "name": "Void Slam",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-chaos-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-chaos",
+    "id": "harbinger-chaos-void-slash",
+    "name": "Void Slash",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-chaos-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-chaos",
+    "id": "harbinger-chaos-void-spears",
+    "name": "Void Spears",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Frailty",
+      "Shred Armour"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-chaos-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-chaos",
+    "id": "harbinger-chaos-lagonian-waves",
+    "name": "Lagonian Waves",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "lagon-monolith",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-chaos-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-chaos",
+    "id": "harbinger-chaos-lagonian-beam",
+    "name": "Lagonian Beam",
+    "elements": [
+      "Cold",
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "lagon-monolith",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-chaos-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-treason",
+    "id": "harbinger-treason-portal-spear",
+    "name": "Portal Spear",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-treason-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-treason",
+    "id": "harbinger-treason-spear-beam",
+    "name": "Spear Beam",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-treason-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-treason",
+    "id": "harbinger-treason-spear-dash",
+    "name": "Spear Dash",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-treason-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-treason",
+    "id": "harbinger-treason-spear-thrust",
+    "name": "Spear Thrust",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-treason-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-treason",
+    "id": "harbinger-treason-void-blast",
+    "name": "Void Blast",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-treason-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-treason",
+    "id": "harbinger-treason-void-slam",
+    "name": "Void Slam",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-treason-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-treason",
+    "id": "harbinger-treason-void-slash",
+    "name": "Void Slash",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-treason-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-treason",
+    "id": "harbinger-treason-void-spears",
+    "name": "Void Spears",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Frailty",
+      "Shred Armour"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-treason-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-treason",
+    "id": "harbinger-treason-idols-of-ruin",
+    "name": "Idols of Ruin",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "hartons-husk",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-treason-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-treason",
+    "id": "harbinger-treason-void-worms",
+    "name": "Void Worms",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "hartons-husk",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-treason-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-treason",
+    "id": "harbinger-treason-void-anomaly",
+    "name": "Void Anomaly",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "hartons-husk",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-treason-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-treason",
+    "id": "harbinger-treason-void-starfire",
+    "name": "Void Starfire",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "hartons-husk",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-treason-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-destruction",
+    "id": "harbinger-destruction-slam",
+    "name": "Slam",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-destruction-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-destruction",
+    "id": "harbinger-destruction-massive-slam",
+    "name": "Massive Slam",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-destruction-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-destruction",
+    "id": "harbinger-destruction-echo-slam",
+    "name": "Echo Slam",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-destruction-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-destruction",
+    "id": "harbinger-destruction-void-combo-strike",
+    "name": "Void Combo Strike",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-destruction-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-destruction",
+    "id": "harbinger-destruction-void-orbs",
+    "name": "Void Orbs",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-destruction-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-destruction",
+    "id": "harbinger-destruction-void-portal-blast",
+    "name": "Void Portal Blast",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-destruction-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-destruction",
+    "id": "harbinger-destruction-void-rush",
+    "name": "Void Rush",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-destruction-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-destruction",
+    "id": "harbinger-destruction-void-strike",
+    "name": "Void Strike",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-destruction-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-destruction",
+    "id": "harbinger-destruction-void-turrets",
+    "name": "Void Turrets",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-destruction-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-destruction",
+    "id": "harbinger-destruction-spirit-pools",
+    "name": "Spirit Pools",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "emperor-of-corpses",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-destruction-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-destruction",
+    "id": "harbinger-destruction-raise-dead",
+    "name": "Raise Dead",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "emperor-of-corpses",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-destruction-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-destruction",
+    "id": "harbinger-destruction-spirit-breath",
+    "name": "Spirit Breath",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "dot",
+    "ailments": [],
+    "inheritedFromEncounterId": "emperor-of-corpses",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-destruction-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-fear",
+    "id": "harbinger-fear-portal-spear",
+    "name": "Portal Spear",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-fear-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-fear",
+    "id": "harbinger-fear-spear-beam",
+    "name": "Spear Beam",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-fear-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-fear",
+    "id": "harbinger-fear-spear-dash",
+    "name": "Spear Dash",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-fear-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-fear",
+    "id": "harbinger-fear-spear-thrust",
+    "name": "Spear Thrust",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-fear-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-fear",
+    "id": "harbinger-fear-void-blast",
+    "name": "Void Blast",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-fear-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-fear",
+    "id": "harbinger-fear-void-slam",
+    "name": "Void Slam",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-fear-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-fear",
+    "id": "harbinger-fear-void-slash",
+    "name": "Void Slash",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-fear-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-fear",
+    "id": "harbinger-fear-void-spears",
+    "name": "Void Spears",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Frailty",
+      "Shred Armour"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-fear-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-fear",
+    "id": "harbinger-fear-spark-discharge",
+    "name": "Spark Discharge",
+    "elements": [
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "husk-of-elder-gaspar",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-fear-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-fear",
+    "id": "harbinger-fear-tri-beam",
+    "name": "Tri Beam",
+    "elements": [
+      "Fire",
+      "Cold",
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "husk-of-elder-gaspar",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-fear-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-tyranny",
+    "id": "harbinger-tyranny-slam",
+    "name": "Slam",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-tyranny-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-tyranny",
+    "id": "harbinger-tyranny-massive-slam",
+    "name": "Massive Slam",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-tyranny-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-tyranny",
+    "id": "harbinger-tyranny-echo-slam",
+    "name": "Echo Slam",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-tyranny-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-tyranny",
+    "id": "harbinger-tyranny-void-combo-strike",
+    "name": "Void Combo Strike",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-tyranny-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-tyranny",
+    "id": "harbinger-tyranny-void-orbs",
+    "name": "Void Orbs",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-tyranny-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-tyranny",
+    "id": "harbinger-tyranny-void-portal-blast",
+    "name": "Void Portal Blast",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-tyranny-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-tyranny",
+    "id": "harbinger-tyranny-void-rush",
+    "name": "Void Rush",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-tyranny-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-tyranny",
+    "id": "harbinger-tyranny-void-strike",
+    "name": "Void Strike",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-tyranny-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-tyranny",
+    "id": "harbinger-tyranny-void-turrets",
+    "name": "Void Turrets",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-tyranny-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-tyranny",
+    "id": "harbinger-tyranny-frost-beam",
+    "name": "Frost Beam",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Freeze"
+    ],
+    "inheritedFromEncounterId": "heorot-monolith",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-tyranny-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-tyranny",
+    "id": "harbinger-tyranny-blizzard",
+    "name": "Blizzard",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "heorot-monolith",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-tyranny-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-ash",
+    "id": "harbinger-ash-slam",
+    "name": "Slam",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-ash-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-ash",
+    "id": "harbinger-ash-massive-slam",
+    "name": "Massive Slam",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-ash-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-ash",
+    "id": "harbinger-ash-echo-slam",
+    "name": "Echo Slam",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-ash-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-ash",
+    "id": "harbinger-ash-void-combo-strike",
+    "name": "Void Combo Strike",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-ash-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-ash",
+    "id": "harbinger-ash-void-orbs",
+    "name": "Void Orbs",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-ash-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-ash",
+    "id": "harbinger-ash-void-portal-blast",
+    "name": "Void Portal Blast",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-ash-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-ash",
+    "id": "harbinger-ash-void-rush",
+    "name": "Void Rush",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-ash-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-ash",
+    "id": "harbinger-ash-void-strike",
+    "name": "Void Strike",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-ash-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-ash",
+    "id": "harbinger-ash-void-turrets",
+    "name": "Void Turrets",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-ash-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-ash",
+    "id": "harbinger-ash-necrotic-pool",
+    "name": "Necrotic Pool",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "volcanic-shaman",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-ash-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-ash",
+    "id": "harbinger-ash-necrotic-blast",
+    "name": "Necrotic Blast",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "volcanic-shaman",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-ash-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "harbinger-ash",
+    "id": "harbinger-ash-circling-fireballs",
+    "name": "Circling Fireballs",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": "volcanic-shaman",
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/harbinger-of-ash-boss-guide",
+    "updated": "2026-09-25",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "abomination",
+    "id": "abomination-invulnerability",
+    "name": "Invulnerability",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/abomination-fall-of-the-outcasts-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "abomination",
+    "id": "abomination-tail-flair",
+    "name": "Tail Flair",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "hit",
+    "ailments": [
+      "Ignite"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/abomination-fall-of-the-outcasts-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "abomination",
+    "id": "abomination-necrotic-wave",
+    "name": "Necrotic Wave",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Damned"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/abomination-fall-of-the-outcasts-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "abomination",
+    "id": "abomination-earthquake",
+    "name": "Earthquake",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/abomination-fall-of-the-outcasts-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "abomination",
+    "id": "abomination-spirit-decay",
+    "name": "Spirit Decay",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "dot",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/abomination-fall-of-the-outcasts-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "abomination",
+    "id": "abomination-soul-reave",
+    "name": "Soul Reave",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/abomination-fall-of-the-outcasts-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "volcanic-shaman",
+    "id": "volcanic-shaman-lava-plume",
+    "name": "Lava Plume",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/bhuldar-herkir-logi-spirits-of-fire-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "volcanic-shaman",
+    "id": "volcanic-shaman-torch-flame",
+    "name": "Torch Flame",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/bhuldar-herkir-logi-spirits-of-fire-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "volcanic-shaman",
+    "id": "volcanic-shaman-eruption",
+    "name": "Eruption",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/bhuldar-herkir-logi-spirits-of-fire-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "volcanic-shaman",
+    "id": "volcanic-shaman-magma-ball",
+    "name": "Magma Ball",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/bhuldar-herkir-logi-spirits-of-fire-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "volcanic-shaman",
+    "id": "volcanic-shaman-dragon-strike",
+    "name": "Dragon Strike",
+    "elements": [
+      "Physical",
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/bhuldar-herkir-logi-spirits-of-fire-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "volcanic-shaman",
+    "id": "volcanic-shaman-spirit-form",
+    "name": "Spirit Form",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/bhuldar-herkir-logi-spirits-of-fire-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "emperor-of-corpses",
+    "id": "emperor-of-corpses-soul-bomb",
+    "name": "Soul Bomb",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/emperor-of-corpses-reign-of-dragons-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "emperor-of-corpses",
+    "id": "emperor-of-corpses-roar",
+    "name": "Roar",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [
+      "Slow"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/emperor-of-corpses-reign-of-dragons-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "emperor-of-corpses",
+    "id": "emperor-of-corpses-flesh-impact",
+    "name": "Flesh Impact",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/emperor-of-corpses-reign-of-dragons-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "emperor-of-corpses",
+    "id": "emperor-of-corpses-spirit-breath",
+    "name": "Spirit Breath",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "dot",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/emperor-of-corpses-reign-of-dragons-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "emperor-of-corpses",
+    "id": "emperor-of-corpses-blood-pools",
+    "name": "Blood Pools",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/emperor-of-corpses-reign-of-dragons-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "emperor-of-corpses",
+    "id": "emperor-of-corpses-melee-attack",
+    "name": "Melee Attack",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/emperor-of-corpses-reign-of-dragons-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "frost-lich-formosus",
+    "id": "frost-lich-formosus-teleport",
+    "name": "Teleport",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/formosus-the-undying-blood-frost-and-death-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "frost-lich-formosus",
+    "id": "frost-lich-formosus-ice-patch",
+    "name": "Ice Patch",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [
+      "Slow"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/formosus-the-undying-blood-frost-and-death-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "frost-lich-formosus",
+    "id": "frost-lich-formosus-undead-wengari",
+    "name": "Undead Wengari",
+    "elements": [
+      "Physical",
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/formosus-the-undying-blood-frost-and-death-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "frost-lich-formosus",
+    "id": "frost-lich-formosus-resurrect-wengari",
+    "name": "Resurrect Wengari",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/formosus-the-undying-blood-frost-and-death-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "frost-lich-formosus",
+    "id": "frost-lich-formosus-spirit-beam",
+    "name": "Spirit Beam",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/formosus-the-undying-blood-frost-and-death-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "frost-lich-formosus",
+    "id": "frost-lich-formosus-frost-spirit",
+    "name": "Frost Spirit",
+    "elements": [
+      "Cold",
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/formosus-the-undying-blood-frost-and-death-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "frost-lich-formosus",
+    "id": "frost-lich-formosus-ice-vortex",
+    "name": "Ice Vortex",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "dot",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/formosus-the-undying-blood-frost-and-death-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "god-hunter-argentus",
+    "id": "god-hunter-argentus-turrets",
+    "name": "Turrets",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/god-hunter-argentus-the-stolen-lance-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "god-hunter-argentus",
+    "id": "god-hunter-argentus-melee",
+    "name": "Melee",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/god-hunter-argentus-the-stolen-lance-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "god-hunter-argentus",
+    "id": "god-hunter-argentus-ice-stab",
+    "name": "Ice Stab",
+    "elements": [
+      "Cold",
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Frostbite"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/god-hunter-argentus-the-stolen-lance-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "god-hunter-argentus",
+    "id": "god-hunter-argentus-fire-bomb",
+    "name": "Fire Bomb",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/god-hunter-argentus-the-stolen-lance-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "god-hunter-argentus",
+    "id": "god-hunter-argentus-ice-nova",
+    "name": "Ice Nova",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Chill",
+      "Frostbite"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/god-hunter-argentus-the-stolen-lance-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "god-hunter-argentus",
+    "id": "god-hunter-argentus-flame-dash",
+    "name": "Flame Dash",
+    "elements": [
+      "Fire",
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/god-hunter-argentus-the-stolen-lance-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "god-hunter-argentus",
+    "id": "god-hunter-argentus-flame-leap",
+    "name": "Flame Leap",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/god-hunter-argentus-the-stolen-lance-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "god-hunter-argentus",
+    "id": "god-hunter-argentus-minions",
+    "name": "Minions",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/god-hunter-argentus-the-stolen-lance-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "hartons-husk",
+    "id": "hartons-husk-oblivion-spike",
+    "name": "Oblivion Spike",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "dot",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/harton-husk-fall-of-the-empire-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "hartons-husk",
+    "id": "hartons-husk-abyssal-sundering",
+    "name": "Abyssal Sundering",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "mixed",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/harton-husk-fall-of-the-empire-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "hartons-husk",
+    "id": "hartons-husk-idols-of-ruin",
+    "name": "Idols of Ruin",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/harton-husk-fall-of-the-empire-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "hartons-husk",
+    "id": "hartons-husk-claw-slam",
+    "name": "Claw Slam",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/harton-husk-fall-of-the-empire-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "hartons-husk",
+    "id": "hartons-husk-corrupted-slash",
+    "name": "Corrupted Slash",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/harton-husk-fall-of-the-empire-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "hartons-husk",
+    "id": "hartons-husk-void-stab",
+    "name": "Void Stab",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "hit",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/harton-husk-fall-of-the-empire-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "heorot-monolith",
+    "id": "heorot-monolith-frost-beam",
+    "name": "Frost Beam",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Freeze"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/heorot-the-age-of-winter-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "heorot-monolith",
+    "id": "heorot-monolith-frosted-eruption-frozen-orb",
+    "name": "Frosted Eruption/Frozen Orb",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/heorot-the-age-of-winter-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "heorot-monolith",
+    "id": "heorot-monolith-ice-stab",
+    "name": "Ice Stab",
+    "elements": [
+      "Cold",
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/heorot-the-age-of-winter-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "heorot-monolith",
+    "id": "heorot-monolith-ice-spear",
+    "name": "Ice Spear",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/heorot-the-age-of-winter-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "heorot-monolith",
+    "id": "heorot-monolith-ice-circle",
+    "name": "Ice Circle",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/heorot-the-age-of-winter-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "heorot-monolith",
+    "id": "heorot-monolith-charge",
+    "name": "Charge",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/heorot-the-age-of-winter-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "heorot-monolith",
+    "id": "heorot-monolith-blizzard",
+    "name": "Blizzard",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Shred Cold Resistance"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/heorot-the-age-of-winter-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "heorot-monolith",
+    "id": "heorot-monolith-jump-back",
+    "name": "Jump Back",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/heorot-the-age-of-winter-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "heorot-monolith",
+    "id": "heorot-monolith-ice-guard",
+    "name": "Ice Guard",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/heorot-the-age-of-winter-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-monolith",
+    "id": "lagon-monolith-moon-beam",
+    "name": "Moon Beam",
+    "elements": [
+      "Cold",
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Chill"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/lagon-ending-the-storm-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-monolith",
+    "id": "lagon-monolith-moon-shot",
+    "name": "Moon Shot",
+    "elements": [
+      "Cold",
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/lagon-ending-the-storm-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-monolith",
+    "id": "lagon-monolith-moon-blast",
+    "name": "Moon Blast",
+    "elements": [
+      "Cold",
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Slow"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/lagon-ending-the-storm-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-monolith",
+    "id": "lagon-monolith-lightning-strikes",
+    "name": "Lightning Strikes",
+    "elements": [
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/lagon-ending-the-storm-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-monolith",
+    "id": "lagon-monolith-melee-attacks",
+    "name": "Melee Attacks",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Stun"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/lagon-ending-the-storm-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-monolith",
+    "id": "lagon-monolith-tentacles",
+    "name": "Tentacles",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Stun"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/lagon-ending-the-storm-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-monolith",
+    "id": "lagon-monolith-adds",
+    "name": "Adds",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/lagon-ending-the-storm-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-monolith",
+    "id": "lagon-monolith-cold-waves",
+    "name": "Cold Waves",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/lagon-ending-the-storm-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "rahyeh-the-black-sun",
+    "id": "rahyeh-the-black-sun-dive-bomb",
+    "name": "Dive Bomb",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/rahyeh-the-black-sun-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "rahyeh-the-black-sun",
+    "id": "rahyeh-the-black-sun-void-blast",
+    "name": "Void Blast",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/rahyeh-the-black-sun-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "rahyeh-the-black-sun",
+    "id": "rahyeh-the-black-sun-void-flares",
+    "name": "Void Flares",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/rahyeh-the-black-sun-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "rahyeh-the-black-sun",
+    "id": "rahyeh-the-black-sun-wave-dash",
+    "name": "Wave Dash",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "dot",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/rahyeh-the-black-sun-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "rahyeh-the-black-sun",
+    "id": "rahyeh-the-black-sun-void-skyfall",
+    "name": "Void Skyfall",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/rahyeh-the-black-sun-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "rahyeh-the-black-sun",
+    "id": "rahyeh-the-black-sun-summon-adds",
+    "name": "Summon Adds",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/rahyeh-the-black-sun-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "husk-of-elder-gaspar",
+    "id": "husk-of-elder-gaspar-tri-beam-fire",
+    "name": "Tri-Beam Fire",
+    "elements": [
+      "Fire",
+      "Cold",
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/the-husk-of-elder-gaspar-the-last-ruin-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "husk-of-elder-gaspar",
+    "id": "husk-of-elder-gaspar-frozen-ice-storm",
+    "name": "Frozen Ice Storm",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/the-husk-of-elder-gaspar-the-last-ruin-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "husk-of-elder-gaspar",
+    "id": "husk-of-elder-gaspar-teleport-with-void-explosion",
+    "name": "Teleport With Void Explosion",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/the-husk-of-elder-gaspar-the-last-ruin-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "husk-of-elder-gaspar",
+    "id": "husk-of-elder-gaspar-summon-flaming-void-totem",
+    "name": "Summon Flaming Void Totem",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/the-husk-of-elder-gaspar-the-last-ruin-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "husk-of-elder-gaspar",
+    "id": "husk-of-elder-gaspar-spark-discharge",
+    "name": "Spark Discharge",
+    "elements": [
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/the-husk-of-elder-gaspar-the-last-ruin-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "husk-of-elder-gaspar",
+    "id": "husk-of-elder-gaspar-doom-blast-with-voidic-whirlwind",
+    "name": "Doom Blast With Voidic Whirlwind",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/the-husk-of-elder-gaspar-the-last-ruin-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-campaign",
+    "id": "lagon-campaign-moon-beam",
+    "name": "Moon Beam",
+    "elements": [
+      "Cold",
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Chill"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/lagon-chapter-8-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-campaign",
+    "id": "lagon-campaign-moon-shot",
+    "name": "Moon Shot",
+    "elements": [
+      "Cold",
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/lagon-chapter-8-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-campaign",
+    "id": "lagon-campaign-moon-blast",
+    "name": "Moon Blast",
+    "elements": [
+      "Cold",
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Slow"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/lagon-chapter-8-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-campaign",
+    "id": "lagon-campaign-lightning-strikes",
+    "name": "Lightning Strikes",
+    "elements": [
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/lagon-chapter-8-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-campaign",
+    "id": "lagon-campaign-melee-attacks",
+    "name": "Melee Attacks",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Stun"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/lagon-chapter-8-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-campaign",
+    "id": "lagon-campaign-tentacles-phase",
+    "name": "Tentacles Phase",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/lagon-chapter-8-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-campaign",
+    "id": "lagon-campaign-adds",
+    "name": "Adds",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/lagon-chapter-8-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagon-campaign",
+    "id": "lagon-campaign-cold-waves",
+    "name": "Cold Waves",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/lagon-chapter-8-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "lagons-tentacle",
+    "id": "lagons-tentacle-tentacle-attack",
+    "name": "Tentacle attack",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/lagon-ending-the-storm-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "majasa-phase-1",
+    "id": "majasa-phase-1-stone-stare",
+    "name": "Stone Stare",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [
+      "Stone Stare"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/majasa-chapter-9-boss-guide",
+    "updated": "2026-04-30",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "majasa-phase-1",
+    "id": "majasa-phase-1-siege-bolt",
+    "name": "Siege Bolt",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/majasa-chapter-9-boss-guide",
+    "updated": "2026-04-30",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "majasa-phase-1",
+    "id": "majasa-phase-1-fire-and-poison-bolt",
+    "name": "Fire and Poison Bolt",
+    "elements": [
+      "Fire",
+      "Poison"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/majasa-chapter-9-boss-guide",
+    "updated": "2026-04-30",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "majasa-phase-1",
+    "id": "majasa-phase-1-stalactite-falling",
+    "name": "Stalactite Falling",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/majasa-chapter-9-boss-guide",
+    "updated": "2026-04-30",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "majasa-phase-1",
+    "id": "majasa-phase-1-stomp",
+    "name": "Stomp",
+    "elements": [
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/majasa-chapter-9-boss-guide",
+    "updated": "2026-04-30",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "majasa-phase-1",
+    "id": "majasa-phase-1-adds",
+    "name": "Adds",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/majasa-chapter-9-boss-guide",
+    "updated": "2026-04-30",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "majasa-phase-2",
+    "id": "majasa-phase-2-melee-attacks",
+    "name": "Melee attacks",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Shred Armour"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/majasa-chapter-9-boss-guide",
+    "updated": "2026-04-30",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "majasa-phase-2",
+    "id": "majasa-phase-2-tail-attack",
+    "name": "Tail Attack",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Shred Armour"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/majasa-chapter-9-boss-guide",
+    "updated": "2026-04-30",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "majasa-phase-2",
+    "id": "majasa-phase-2-corrupting-bomb",
+    "name": "Corrupting Bomb",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Shred Armour"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/majasa-chapter-9-boss-guide",
+    "updated": "2026-04-30",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "majasa-phase-2",
+    "id": "majasa-phase-2-regen",
+    "name": "Regen",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/resources/majasa-chapter-9-boss-guide",
+    "updated": "2026-04-30",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-timeshattering-slam",
+    "name": "Timeshattering Slam",
+    "elements": [
+      "Void",
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-persisting-void",
+    "name": "Persisting Void",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-void-beam",
+    "name": "Void Beam",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "dot",
+    "ailments": [
+      "Frailty of Aberroth"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-superheated-black-hole",
+    "name": "Superheated Black Hole",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Ignite"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-superchilled-black-hole",
+    "name": "Superchilled Black Hole",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Chill"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-triple-flail-slam",
+    "name": "Triple Flail Slam",
+    "elements": [
+      "Void",
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-slam-ground-of-destruction",
+    "name": "Slam + Ground of Destruction",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "mixed",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-called-meteors",
+    "name": "Called Meteors",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Ignite"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-lobbed-meteors",
+    "name": "Lobbed Meteors",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Frostbite"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-roots",
+    "name": "Roots",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [
+      "Root"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-blade-of-chaos",
+    "name": "Blade of Chaos",
+    "elements": [
+      "Physical",
+      "Lightning",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-cursing-scythe",
+    "name": "Cursing Scythe",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Curse of Aberroth"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-cosmic-absorption-lazer-of-death",
+    "name": "Cosmic Absorption / Lazer of Death",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-phase-3-quadrant-ground-effects-quicksand-lightning-winds-fiery-ground",
+    "name": "Phase 3 quadrant ground effects (Quicksand / Lightning / Winds / Fiery Ground)",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Frailty of Aberroth",
+      "Shock of Aberroth",
+      "Chill of Aberroth"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "aberroth",
+    "id": "aberroth-regular-attacks-melee-attack-charge-flail-dash-backward-hop",
+    "name": "Regular attacks (Melee Attack, Charge, Flail Dash, Backward Hop)",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-timeshattering-slam",
+    "name": "Timeshattering Slam",
+    "elements": [
+      "Void",
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-persisting-void",
+    "name": "Persisting Void",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-void-beam",
+    "name": "Void Beam",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "dot",
+    "ailments": [
+      "Frailty of Aberroth"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-superheated-black-hole",
+    "name": "Superheated Black Hole",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Ignite"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-superchilled-black-hole",
+    "name": "Superchilled Black Hole",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Chill"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-triple-flail-slam",
+    "name": "Triple Flail Slam",
+    "elements": [
+      "Void",
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-slam-ground-of-destruction",
+    "name": "Slam + Ground of Destruction",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "mixed",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-called-meteors",
+    "name": "Called Meteors",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Ignite"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-lobbed-meteors",
+    "name": "Lobbed Meteors",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Frostbite"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-roots",
+    "name": "Roots",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [
+      "Root"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-blade-of-chaos",
+    "name": "Blade of Chaos",
+    "elements": [
+      "Physical",
+      "Lightning",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-cursing-scythe",
+    "name": "Cursing Scythe",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Curse of Aberroth"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-cosmic-absorption-lazer-of-death",
+    "name": "Cosmic Absorption / Lazer of Death",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-phase-3-quadrant-ground-effects-quicksand-lightning-winds-fiery-ground",
+    "name": "Phase 3 quadrant ground effects (Quicksand / Lightning / Winds / Fiery Ground)",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Frailty of Aberroth",
+      "Shock of Aberroth",
+      "Chill of Aberroth"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "herald-of-oblivion",
+    "id": "herald-of-oblivion-regular-attacks-melee-attack-charge-flail-dash-backward-hop",
+    "name": "Regular attacks (Melee Attack, Charge, Flail Dash, Backward Hop)",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/aberroth-boss-guide",
+    "updated": "2026-05-01",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-void-rift",
+    "name": "Void Rift",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-persisting-void",
+    "name": "Persisting Void",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-void-meteor",
+    "name": "Void Meteor",
+    "elements": [
+      "Void",
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-void-reform",
+    "name": "Void Reform",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-teleport",
+    "name": "Teleport",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-void-beam",
+    "name": "Void Beam",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "dot",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-frozen-ice-storm",
+    "name": "Frozen Ice Storm",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-orbiting-comet",
+    "name": "Orbiting Comet",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-flamethrower",
+    "name": "Flamethrower",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-starburst",
+    "name": "Starburst",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-falling-meteor",
+    "name": "Falling Meteor",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-ground-of-destruction",
+    "name": "Ground of Destruction",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "dot",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "vision-of-the-observer",
+    "id": "vision-of-the-observer-absorbing-meteors",
+    "name": "Absorbing Meteors",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/vision-of-the-observer-boss-guide",
+    "updated": "2026-05-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "julra",
+    "id": "julra-catastrophic-implosion",
+    "name": "Catastrophic Implosion",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Doom"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/temporal-sanctum-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "julra",
+    "id": "julra-dimension-tear",
+    "name": "Dimension Tear",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "dot",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/temporal-sanctum-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "julra",
+    "id": "julra-summon-pillars-lightning-bolt",
+    "name": "Summon Pillars (Lightning Bolt)",
+    "elements": [
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Shock"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/temporal-sanctum-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "julra",
+    "id": "julra-summon-healing-fountain",
+    "name": "Summon Healing Fountain",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/temporal-sanctum-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "julra",
+    "id": "julra-frigid-tide",
+    "name": "Frigid Tide",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Chill"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/temporal-sanctum-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "julra",
+    "id": "julra-unraveling-decay",
+    "name": "Unraveling Decay",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Shred Void Resistance"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/temporal-sanctum-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "julra",
+    "id": "julra-temporal-shot",
+    "name": "Temporal Shot",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/temporal-sanctum-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "julra",
+    "id": "julra-chilled-seeker",
+    "name": "Chilled Seeker",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/temporal-sanctum-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "julra",
+    "id": "julra-shocking-impact",
+    "name": "Shocking Impact",
+    "elements": [
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/temporal-sanctum-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "mountain-beneath",
+    "id": "mountain-beneath-burn-kindling-pyres",
+    "name": "Burn Kindling (Pyres)",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "mountain-beneath",
+    "id": "mountain-beneath-rock-fall",
+    "name": "Rock Fall",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "mountain-beneath",
+    "id": "mountain-beneath-rock-fall-with-summons",
+    "name": "Rock Fall with Summons",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "mountain-beneath",
+    "id": "mountain-beneath-shockwave",
+    "name": "Shockwave",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "mountain-beneath",
+    "id": "mountain-beneath-entangling-roots-mountain-beneath",
+    "name": "Entangling Roots (Mountain Beneath)",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Immobilize"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "stone-titans-heart",
+    "id": "stone-titans-heart-rockfall-stone-titan-s-heart",
+    "name": "Rockfall (Stone Titan's Heart)",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "stone-titans-heart",
+    "id": "stone-titans-heart-summon-titanflesh",
+    "name": "Summon Titanflesh",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "stone-titans-heart",
+    "id": "stone-titans-heart-spore-beam",
+    "name": "Spore Beam",
+    "elements": [
+      "Physical",
+      "Poison"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "stone-titans-heart",
+    "id": "stone-titans-heart-energy-stone",
+    "name": "Energy Stone",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "stone-titans-heart",
+    "id": "stone-titans-heart-energy-wave",
+    "name": "Energy Wave",
+    "elements": [
+      "Physical",
+      "Poison"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Poison"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "stone-titans-heart",
+    "id": "stone-titans-heart-entangling-roots-stone-titan-s-heart",
+    "name": "Entangling Roots (Stone Titan's Heart)",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Immobilize"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "stone-titans-heart",
+    "id": "stone-titans-heart-frenzied-thorns",
+    "name": "Frenzied Thorns",
+    "elements": [
+      "Poison"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Poison"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "stone-titans-heart",
+    "id": "stone-titans-heart-oblivion",
+    "name": "Oblivion",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/lightless-arbor-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "fire-lich-cremorus",
+    "id": "fire-lich-cremorus-fire-necrotic-floor",
+    "name": "Fire & Necrotic Floor",
+    "elements": [
+      "Necrotic",
+      "Fire"
+    ],
+    "delivery": "dot",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/soulfire-bastion-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "fire-lich-cremorus",
+    "id": "fire-lich-cremorus-flaming-necrotic-orbiter",
+    "name": "Flaming & Necrotic Orbiter",
+    "elements": [
+      "Necrotic",
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/soulfire-bastion-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "fire-lich-cremorus",
+    "id": "fire-lich-cremorus-chaotic-soul",
+    "name": "Chaotic Soul",
+    "elements": [
+      "Fire",
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/soulfire-bastion-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "fire-lich-cremorus",
+    "id": "fire-lich-cremorus-incendiary-torrent",
+    "name": "Incendiary Torrent",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Ignite"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/soulfire-bastion-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "fire-lich-cremorus",
+    "id": "fire-lich-cremorus-wall-of-fire",
+    "name": "Wall of Fire",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/soulfire-bastion-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "fire-lich-cremorus",
+    "id": "fire-lich-cremorus-raging-vengeful-soul",
+    "name": "Raging & Vengeful Soul",
+    "elements": [
+      "Fire",
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Ignite",
+      "Marked for Death"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/soulfire-bastion-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "fire-lich-cremorus",
+    "id": "fire-lich-cremorus-summon-thrall-golem-burst",
+    "name": "Summon Thrall & Golem Burst",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Marked for Death"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/soulfire-bastion-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "fire-lich-cremorus",
+    "id": "fire-lich-cremorus-disintegration",
+    "name": "Disintegration",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Marked for Death"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/soulfire-bastion-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "fire-lich-cremorus",
+    "id": "fire-lich-cremorus-collapsing-decay",
+    "name": "Collapsing Decay",
+    "elements": [
+      "Necrotic"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/soulfire-bastion-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "fire-lich-cremorus",
+    "id": "fire-lich-cremorus-summon-skeletons",
+    "name": "Summon Skeletons",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/dungeons/soulfire-bastion-dungeon-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-flamethrower",
+    "name": "Flamethrower",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-starburst",
+    "name": "Starburst",
+    "elements": [
+      "Fire"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-lightning-bolt",
+    "name": "Lightning Bolt",
+    "elements": [
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-spark",
+    "name": "Spark",
+    "elements": [
+      "Lightning"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Shred Lightning Resistance"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-orbiting-comet",
+    "name": "Orbiting Comet",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-frozen-ice-storm",
+    "name": "Frozen Ice Storm",
+    "elements": [
+      "Cold"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-blood-effigy",
+    "name": "Blood Effigy",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-blood-orb",
+    "name": "Blood Orb",
+    "elements": [
+      "Physical"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-poison-puke",
+    "name": "Poison Puke",
+    "elements": [
+      "Poison"
+    ],
+    "delivery": "unknown",
+    "ailments": [
+      "Poison"
+    ],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-toxic-spread",
+    "name": "Toxic Spread",
+    "elements": [
+      "Poison"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-concentrated-burst",
+    "name": "Concentrated Burst",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-circle-of-death",
+    "name": "Circle of Death",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-bursting-void",
+    "name": "Bursting Void",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-crystal-crush",
+    "name": "Crystal Crush",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-black-hole-decay",
+    "name": "Black Hole Decay",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-absorbing-meteors",
+    "name": "Absorbing Meteors",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-mini-black-holes",
+    "name": "Mini Black Holes",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-melee-attack",
+    "name": "Melee Attack",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-falling-meteor",
+    "name": "Falling Meteor",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-exploding-black-hole",
+    "name": "Exploding Black Hole",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-void-rift",
+    "name": "Void Rift",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-void-meteor",
+    "name": "Void Meteor",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-summon-tentacles",
+    "name": "Summon Tentacles",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-summon-eyes",
+    "name": "Summon Eyes",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-piercing-void",
+    "name": "Piercing Void",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-dark-warp",
+    "name": "Dark Warp",
+    "elements": [],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-oblivion-leap",
+    "name": "Oblivion Leap",
+    "elements": [
+      "Physical",
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-oblivion-dash",
+    "name": "Oblivion Dash",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-void-reform",
+    "name": "Void Reform",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  },
+  {
+    "encounterId": "shade-of-orobyss",
+    "id": "shade-of-orobyss-void-rush",
+    "name": "Void Rush",
+    "elements": [
+      "Void"
+    ],
+    "delivery": "unknown",
+    "ailments": [],
+    "inheritedFromEncounterId": null,
+    "sourceUrl": "https://maxroll.gg/last-epoch/monolith/shade-of-orobyss-boss-guide",
+    "updated": "2026-04-02",
+    "evidenceClass": "community-guide"
+  }
+]
