@@ -1,5 +1,14 @@
 # Changelog — MedicK's Terrible Tooltips
 
+## v3.1.2 - Season 5 compatibility
+
+- Season 5 compatibility update with the CoreModule startup repair embedded in the mod DLL.
+- Updated dropped-item label patch for the game method that no longer takes a boolean parameter.
+- Updated item identity handling for the new 32-bit individualID, fixing the old missing-method error on hover.
+- Updated multi-stat affix lookup to the Season 5 master affix list API.
+- One-DLL installation: replace medick_Terrible_Tooltips.dll in Mods. No extra plugin or repair tool is required.
+- Retains the v3.1.1 performance fixes and existing settings.
+
 ## v3.1.1 - the performance release
 
 Bug report from Trunks1981: hovering Affix Shards dropped his framerate to 17 FPS. His debug log

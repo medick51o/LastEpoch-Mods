@@ -34,7 +34,7 @@ public static class FilterRuleTooltip
     private static GameObject s_target;
     private static int s_targetType;
     private static byte[] s_itemId;
-    private static (byte type, ushort subtype, byte rarity, ushort unique, ushort individual) s_fallbackId;
+    private static (byte type, ushort subtype, byte rarity, ushort unique, uint individual) s_fallbackId;
     private static float s_deadline;
     private static int s_lastAttemptFrame = -1;
     private static bool s_ruleResolved;
