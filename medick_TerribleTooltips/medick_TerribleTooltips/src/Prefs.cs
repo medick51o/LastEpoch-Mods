@@ -13,7 +13,8 @@ public enum FilterRuleDisplay
 {
     Off,           // nothing shown
     NumberOnly,    // "Rule#69"
-    NumberAndName  // "Rule #69: Maxroll told me to pick this up blah blah"
+    NumberAndName, // "Rule #69: Maxroll told me to pick this up blah blah"
+    NameOnly      // matched rule name without its display number
 }
 
 public enum RuleNumberPosition

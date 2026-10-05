@@ -42,7 +42,7 @@
 
 namespace medick_Terrible_Tooltips;
 
-public static class TooltipRecolor
+public static partial class TooltipRecolor
 {
     private const string Dim = "#8a8478";   // separator/dim ink (family palette)
 
@@ -164,6 +164,7 @@ public static class TooltipRecolor
     // ── Called from TerribleTooltipsMod.OnLateUpdate() ────────────────
     public static void OnLateUpdate()
     {
+        PruneLayouts();
         DriveNativeRangeSwitch();
 
         // GLM BLOCKER 2026-09-10: master-off must restore marked text and release caches.
@@ -196,11 +197,10 @@ public static class TooltipRecolor
         // when a static inventory tooltip receives no more UpdateLayout calls.
         try
         {
-            if (Prefs.EnableTooltips.Value &&
-                s_lastTooltip != null && s_lastTooltip.tooltipActive)
+            if (Prefs.EnableTooltips.Value && AnyLiveTooltip())
             {
                 if (ShouldScan())
-                    RunScan(s_lastTooltip, s_lastArgs);
+                    RunScan();
             }
         }
         catch { }
@@ -242,6 +242,7 @@ public static class TooltipRecolor
     private static void RestoreVanillaOnMasterOff()
     {
         int restored = 0;
+        var affected = new Dictionary<int, (UITooltipItem Ui, long Epoch)>();
         foreach (var kv in s_originals)
         {
             var (tmp, original) = kv.Value;
@@ -249,6 +250,7 @@ public static class TooltipRecolor
             {
                 if (tmp != null && (tmp.text ?? "").Contains(Marker))
                 {
+                    AddOriginalOwner(kv.Key, affected);
                     tmp.text = original;
                     restored++;
                 }
@@ -257,66 +259,45 @@ public static class TooltipRecolor
         }
 
         s_originals.Clear();
+        s_originalOwners.Clear();
         s_suppressedRanges.Clear();
         s_tierColorCache.Clear();
 
-        bool active = false;
-        try { active = s_lastTooltip != null && s_lastTooltip.tooltipActive; } catch { }
-        if (active) RequestRelayout(s_lastTooltip, s_lastArgs);
+        ReplayOwners(affected);
         Dbg.Log($"master off — restored {restored} TMPs");
     }
 
     private static void ReRenderFromOriginals()
     {
-        bool changed = false;
+        var affected = new Dictionary<int, (UITooltipItem Ui, long Epoch)>();
 
         var dead = new List<int>();
         foreach (var kv in s_originals)
         {
             var (tmp, original) = kv.Value;
-            if (tmp == null || !tmp.gameObject.activeInHierarchy) { dead.Add(kv.Key); continue; }
+            if (tmp == null) { dead.Add(kv.Key); continue; }
+            if (OriginalMaySurviveHidden(kv.Key)) continue; // tooltipActive can be false while TMP stays active.
+            if (!tmp.gameObject.activeInHierarchy)
+            {
+                if (!OriginalMaySurviveHidden(kv.Key)) dead.Add(kv.Key);
+                continue; // Retain only; never write hidden content.
+            }
             // Only re-render TMPs still showing OUR composed output. A
             // pooled TMP repurposed for another item (vanilla text, or the
             // master toggled off and back) has no marker — drop it instead
             // of stamping a stale item's lines over it.
             try
             {
-                if (!(tmp.text ?? "").Contains(Marker)) { dead.Add(kv.Key); continue; }
+                if (!(tmp.text ?? "").Contains(Marker) || !OriginalIsCurrent(kv.Key, tmp)) { dead.Add(kv.Key); continue; }
                 tmp.text = HasBracket(original) ? Compose(original) : ComposeUnbracketed(original);
-                changed = true;
+                AddOriginalOwner(kv.Key, affected);
             }
             catch { }
         }
-        foreach (int k in dead) s_originals.Remove(k);
+        foreach (int k in dead) { s_originals.Remove(k); s_originalOwners.Remove(k); }
 
         // Line counts changed → let the game re-measure (lean law)
-        if (changed)
-        {
-            bool active = false;
-            try { active = s_lastTooltip != null && s_lastTooltip.tooltipActive; } catch { }
-            if (active) RequestRelayout(s_lastTooltip, s_lastArgs);
-        }
-    }
-
-    // UpdateLayout needs its original positioning arguments — the postfix
-    // captures them (typed object[] via Harmony __args) and we replay them
-    // verbatim for the re-measure.
-    private static UITooltipItem s_lastTooltip;
-    private static object[]      s_lastArgs;
-
-    private static void RequestRelayout(UITooltipItem ui, object[] args)
-    {
-        try
-        {
-            if (ui == null || args == null || args.Length < 3) return;
-            s_relayouting = true;
-            try
-            {
-                ui.UpdateLayout((Vector3)args[0], (Vector2)args[1], args[2] as RectTransform);
-            }
-            finally { s_relayouting = false; }
-        }
-        catch { s_relayouting = false; }
+        ReplayOwners(affected);
     }
 
     private static bool HasBracket(string text)
@@ -370,20 +351,28 @@ public static class TooltipRecolor
     [HarmonyPatch(typeof(UITooltipItem), "UpdateLayout")]
     internal static class Patch_UpdateLayout
     {
-        private static void Postfix(UITooltipItem __instance, object[] __args)
+        private static void Prefix(UITooltipItem __instance, out long __state)
         {
-            if (s_relayouting) return;                  // our own re-measure call
-            if (!Prefs.EnableTooltips.Value) return;
-            s_lastTooltip = __instance;                 // for the Alt-path re-measure
-            s_lastArgs    = __args;
-            if (!ShouldScan()) return;                  // positioning-only frame — free
-            RunScan(__instance, __args);
+            __state = 0;
+            if (s_relayouting) return;
+            try { __state = CaptureEpoch(__instance); } catch { }
+        }
+        private static void Postfix(UITooltipItem __instance, object[] __args, long __state)
+        {
+            if (s_relayouting || __state == 0) return;
+            try
+            {
+                // Capture OFF too, and fence a late completion across rebind.
+                if (!CaptureLayout(__instance, __state, __args)) return;
+                if (!Prefs.EnableTooltips.Value || !ShouldScan()) return;
+                RunScan();
+            }
+            catch { }
         }
     }
-
     // The scan + compose pass. Runs from the UpdateLayout postfix (gated)
     // and from the LateUpdate dirty catch-up.
-    private static void RunScan(UITooltipItem __instance, object[] __args)
+    private static void RunScan()
     {
         s_lastScanFrame = Time.frameCount;
         s_lastScanTime = Time.unscaledTime;
@@ -399,6 +388,7 @@ public static class TooltipRecolor
             PruneOriginals();
 
             int composed = 0;
+            var affected = new Dictionary<int, (UITooltipItem Ui, long Epoch)>();
 
             // ── Pass 1: collect grade colour per parent instance ID so
             //    standalone Range-only TMPs (set/unique siblings) can
@@ -439,7 +429,7 @@ public static class TooltipRecolor
                     // FilterRuleTooltip's lane — a user-named filter
                     // rule containing "Tier:"/"Range:" must not drag
                     // the 'requires' TMP into the composer.
-                    try { if (tmp.gameObject.name == "requires") continue; } catch { }
+                    try { if (tmp.gameObject.name == "requires" || tmp.gameObject.name == FilterRuleTooltip.RowName) continue; } catch { }
 
                     bool hasTier  = text.Contains("Tier:");
                     bool hasRange = text.Contains("Range:");
@@ -466,7 +456,7 @@ public static class TooltipRecolor
                     // standalone widgets and tinted whole-block blue.)
                     if (!hasKgGrade && multiLine)
                     {
-                        s_originals[tmp.GetInstanceID()] = (tmp, text);
+                        RecordOriginal(tmp, text, affected);
                         tmp.text = ComposeUnbracketed(text);
                         composed++;
                         continue;
@@ -502,7 +492,7 @@ public static class TooltipRecolor
                     // widget all it wants, there's nothing in it.
                     if (hasRange && !hasKgGrade && !hasTier)
                     {
-                        s_originals[tmp.GetInstanceID()] = (tmp, text);
+                        RecordOriginal(tmp, text, affected);
 
                         if (!DeepRange)
                         {
@@ -534,7 +524,7 @@ public static class TooltipRecolor
 
                     // Fresh EHG-written text (bracket present, no
                     // marker) = the original. Store it, then compose.
-                    s_originals[tmp.GetInstanceID()] = (tmp, text);
+                    RecordOriginal(tmp, text, affected);
                     tmp.text = Compose(text);
                     composed++;
                 }
@@ -544,7 +534,7 @@ public static class TooltipRecolor
             // ── Lean law: we shrank texts AFTER the game measured the
             //    essay — re-measure once so the blank rows collapse.
             if (composed > 0)
-                RequestRelayout(__instance, __args);
+                ReplayOwners(affected);
         }
         catch (Exception ex)
         {
@@ -568,7 +558,7 @@ public static class TooltipRecolor
     private static void TrackFormatterHealth(TextMeshProUGUI[] allTMPs)
     {
         bool active = false;
-        try { active = s_lastTooltip != null && s_lastTooltip.tooltipActive; } catch { }
+        try { active = AnyLiveTooltip(); } catch { }
         if (!Prefs.EnableTooltips.Value || !active || allTMPs.Length == 0) return;
 
         bool found = false;
@@ -604,9 +594,10 @@ public static class TooltipRecolor
         if (s_originals.Count == 0) return;
         var dead = new List<int>();
         foreach (var kv in s_originals)
-            if (kv.Value.tmp == null || !kv.Value.tmp.gameObject.activeInHierarchy)
+            if (kv.Value.tmp == null ||
+                (!kv.Value.tmp.gameObject.activeInHierarchy && !OriginalMaySurviveHidden(kv.Key)))
                 dead.Add(kv.Key);
-        foreach (int k in dead) s_originals.Remove(k);
+        foreach (int k in dead) { s_originals.Remove(k); s_originalOwners.Remove(k); }
     }
 
     // ── The composer (bracketed affix TMPs) ───────────────────────────
