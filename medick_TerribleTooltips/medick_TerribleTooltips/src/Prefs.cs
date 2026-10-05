@@ -80,6 +80,8 @@ internal static class Prefs
     public static MelonPreferences_Entry<bool> TooltipTierColors;
     public static MelonPreferences_Entry<bool> TooltipRankColors;
 
+    public static MelonPreferences_Entry<bool> ShowAffixRarity;
+
     // v3 clean line
     public static MelonPreferences_Entry<TooltipLayout>       Layout;
     public static MelonPreferences_Entry<SignalStyle>         Style;
@@ -130,6 +132,8 @@ internal static class Prefs
             "Affix Name Color", "GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier color; GameDefault = game's own text color");
         ShowGradeLetters = Category.CreateEntry("ShowGradeLetters", true,
             "Show Grade Letters", "The S/A/B/C/F roll grade on each affix line");
+        ShowAffixRarity = Category.CreateEntry("ShowAffixRarity", false,
+            "Show Affix Rarity", "Optional affix rarity letter before the roll grade. Off by default; independent of Show Grade Letters.");
         AlwaysShowRanges = Category.CreateEntry("AlwaysShowRanges", false,
             "Always Show Ranges", "Pin EHG's 'Range: X to Y' lines permanently (default: hidden, hold Alt to peek)");
         AlwaysShowTierDetails = Category.CreateEntry("AlwaysShowTierDetails", false,
@@ -203,7 +207,7 @@ internal static class Prefs
             var registered = new HashSet<string>(StringComparer.Ordinal)
             {
                 "EnableTooltips", "TooltipTierColors", "TooltipRankColors",
-                "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowGradeLetters",
+                "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowGradeLetters", "ShowAffixRarity",
                 "AlwaysShowRanges", "AlwaysShowTierDetails", "GroundLabelStyle",
                 "GroundLabelFilterOnly", "GroundLabelAltKey", "ShowFilterRuleNumber",
                 "LabelRulePosition", "DebugLog",

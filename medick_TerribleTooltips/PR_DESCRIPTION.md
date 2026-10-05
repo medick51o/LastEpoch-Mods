@@ -11,6 +11,8 @@ Depends on PR #3 (17d84cd); its API compatibility fixes and original commit are 
 
 Settings remain in the original GAMEPLAY category. No MODS/SOCIAL experiments, diagnostic probes, audit files, test scaffolding, binaries or unrelated mods are included.
 
+- Add Show Affix Rarity (default OFF), independent of Show Grade Letters. Optional tier/rarity/roll signals such as 8SS use native affix weighting. Common or unknown affixes omit rarity; unique macros and ground labels are unchanged.
+
 ## Verification
 Release build against installed generated game assemblies: zero warnings/errors, with deployment disabled. External checks against the final source passed: 106 roll-quality checks, 77 display/template checks and 663 label-format assertions. Test SDK reports the .NET 6 end-of-support warning. The test harness is intentionally not part of this change.
 

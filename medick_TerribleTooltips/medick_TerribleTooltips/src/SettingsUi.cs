@@ -84,10 +84,15 @@ internal static class SettingsUi
 
         NativeSettings.CreateToggle(settings, Cat, "TT - Grade Letters",
             "<color=#FF44FF>Show Grade Letters</color>",
-            "The S/A/B/C/F roll grade on each affix line (coloured by 'Tooltip: Rank Colors' above). Turn this off if you only want tiers — the letters are gone, no hard feelings.",
+            "The S/A/B/C/F roll grade on each affix line (coloured by 'Tooltip: Rank Colors' above). Turn this off to hide roll quality; affix rarity has its own switch. Leave both off if you only want tiers — the letters are gone, no hard feelings.",
             Prefs.ShowGradeLetters.Value,
             v => { Prefs.ShowGradeLetters.Value = v; SaveAndRefresh(reRender: true); });
 
+        NativeSettings.CreateToggle(settings, Cat, "TT - Affix Rarity",
+            "<color=#FF44FF>Show Affix Rarity</color>",
+            "How rare is the affix, not how well did it roll? Default OFF. Adds a rarity letter before the roll grade: C uncommon, B rare, A very rare, S extremely rare. Common affixes get no extra letter. With both switches on, 8SS means tier 8, extremely rare affix, perfect roll. Uses the game affix weight, not item rarity or an exact drop chance. Independent of Show Grade Letters; layout and colour options still apply.",
+            Prefs.ShowAffixRarity.Value,
+            v => { Prefs.ShowAffixRarity.Value = v; SaveAndRefresh(reRender: true); });
         NativeSettings.CreateToggle(settings, Cat, "TT - Pin Ranges",
             "<color=#FF44FF>Always Show Ranges</color>",
             "Pin the 'Range: X to Y' lines permanently. Default OFF — they're clutter; hold Alt while hovering to peek instead.",

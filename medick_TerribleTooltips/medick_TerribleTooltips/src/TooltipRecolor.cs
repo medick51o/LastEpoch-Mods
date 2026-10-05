@@ -871,11 +871,14 @@ public static partial class TooltipRecolor
         }
 
         string gradePart = null;
-        if (Prefs.ShowGradeLetters.Value && grades.Count > 0)
+        if (grades.Count > 0)
         {
             var letters = new List<string>(grades.Count);
-            foreach (var (color, letter) in grades)
+            for (int i = 0; i < grades.Count; i++)
             {
+                bool rarity = i < grades.Count - 1;
+                if (rarity ? !Prefs.ShowAffixRarity.Value : !Prefs.ShowGradeLetters.Value) continue;
+                var (color, letter) = grades[i];
                 if (tintRank)
                     letters.Add(badges
                         ? $"<mark={color}66><color={Ink}>{letter}</color></mark>"

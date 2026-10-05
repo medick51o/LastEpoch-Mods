@@ -17,6 +17,14 @@ Affix names are coloured by **crafting tier** (T1 gray → T7 mythic pink) and a
 
 **Since v2.0.0 this works correctly on legendaries.** v1 graded legendary affixes off reconstructed display values, which broke on Legendary Potential items (a max-rolled 12% Mana could grade C). v2+ reads the game's own stored roll bytes — the grade you see is the roll the game actually gave you.
 
+### Affix Rarity (optional)
+How rare is the affix? How well did it roll? Two different questions, two different letters.
+
+**Show Affix Rarity** is OFF by default. Turn it on in the Terrible Tooltips GAMEPLAY settings to add a rarity letter before the roll grade: **C** uncommon, **B** rare, **A** very rare, **S** extremely rare. Common affixes get no extra letter. The signal reads **tier / affix rarity / roll quality**: **8SS** means tier 8, extremely rare affix, maximum-quality grade. The chosen layout may display this as Tier 8 with separated S letters or badges.
+
+Rarity comes from the game affix weighting, not the rarity of the item and not a guaranteed drop probability. It does not change roll grading. Weight >= 1 has no rarity letter; >= 0.5 is C, >= 0.3 is B, >= 0.1 is A, and below 0.1 is S. Missing metadata produces no extra letter.
+
+The switches are independent: Show Grade Letters controls roll quality; Show Affix Rarity controls rarity. Leave both off for tiers only. Rank Colors controls letter colouring; the existing layout and badge options still apply. The setting affects tooltip affixes, not ground labels or unique description macros.
 ### Ground Labels
 Items on the ground show `[5A 3C 7S]` style brackets — tier number, grade letter, or both — so you can evaluate drops without hovering over everything. Uniques, sets and legendaries are deliberately left alone (Fallen Star's Improved Tooltips owns those, and does it better).
 
@@ -33,6 +41,7 @@ closed, then relaunch.
 
 | Cfg key | Default | What it does |
 |---|---|---|
+| ShowAffixRarity | false | Add the affix rarity letter before roll quality; independent of ShowGradeLetters. |
 | EnableTooltips | true | Master switch — enables all tooltip colouring |
 | TooltipTierColors | true | Colours affix names by crafting tier |
 | TooltipRankColors | true | Colours grade letters by roll quality |

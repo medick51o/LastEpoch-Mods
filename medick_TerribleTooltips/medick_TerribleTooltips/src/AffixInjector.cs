@@ -46,7 +46,7 @@ public static class AffixInjector
     }
 
     private static string InjectBracket(string affixStr, float rollFloat, int tier,
-                                        double min = double.NaN, double max = double.NaN, double shown = double.NaN, int precision = 0)
+                                        double min = double.NaN, double max = double.NaN, double shown = double.NaN, int precision = 0, char rarity = RollQuality.NoLetter)
     {
         if (string.IsNullOrEmpty(affixStr) || affixStr.StartsWith("[<color=")) return affixStr;
         double roll        = Math.Round(rollFloat * 100.0, 1);
@@ -80,6 +80,16 @@ public static class AffixInjector
             ? $"[<color={Colors.TierColor(tier)}>{tier}</color><color={gradeColor}>{gradeLetter}</color>] "
             : $"[<color={gradeColor}>{gradeLetter}</color>] ";
 
+        // Keep rarity metadata in the source so settings can re-render cached text.
+        // The first letter is affix rarity; the last is always roll quality.
+        if (rarity != RollQuality.NoLetter)
+        {
+            int index = RollQuality.Ladder.IndexOf(rarity);
+            string rarityColor = Colors.GradeLetterColor(new double[] { 0, 30, 60, 90, 100 }[index]);
+            string tierText = tier > 0 ? "<color=" + Colors.TierColor(tier) + ">" + tier + "</color>" : "";
+            bracket = "[" + tierText + "<color=" + rarityColor + ">" + rarity + "</color>] "
+                + "[<color=" + gradeColor + ">" + gradeLetter + "</color>] ";
+        }
         // Prepending keeps the bracket on the first line of multi-line
         // strings. (v1 had a dead Insert(lastNewLine, "") branch here —
         // a no-op since forever; the fleet finally retired it.)
@@ -121,7 +131,8 @@ public static class AffixInjector
                     resolved = ResolveByProperty(item, modProperty);
                 if (resolved == null) return;
 
-                var range = RollRanges.ForAffix(resolved).Range;
+                var info = RollRanges.ForAffix(resolved);
+                var range = info.Range;
                 double min = range.Valid ? range.Min : double.NaN, max = range.Valid ? range.Max : double.NaN;
                 bool idol = item.isIdol();
                 if (idol)
@@ -135,7 +146,7 @@ public static class AffixInjector
                     }
                 }
                 int tier = idol && resolved.DisplayTier == 1 ? 0 : resolved.DisplayTier;
-                __result = InjectBracket(__result, resolved.getRollFloat(), tier, min, max, precision: range.Digits);
+                __result = InjectBracket(__result, resolved.getRollFloat(), tier, min, max, precision: range.Digits, rarity: info.Rarity);
                 TooltipRecolor.MarkDirty();
             }
             catch (Exception ex) { Dbg.Log("multi-stat affix lookup failed: " + ex.Message); }
