@@ -137,7 +137,7 @@ internal static class Prefs
         NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.GreaterAffix,
             "Affix Name Color", "GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier color; GameDefault = game's own text color");
         ColorAffixesByTier = Category.CreateEntry("ColorAffixesByTier", false,
-            "Color Affixes by Tier", "OFF: affix text follows roll quality. ON: affix text follows tier; untiered properties keep roll colour. Affix rarity never controls text colour.");
+            "Color Affixes by Tier", "OFF: use visible roll colour. ON: use visible tier colour. Respects existing name colour modes and source switches; hidden or disabled sources preserve game colour. Rarity is never used.");
         ShowGradeLetters = Category.CreateEntry("ShowGradeLetters", true,
             "Show Grade Letters", "The S/A/B/C/F roll grade on each affix line");
         ShowAffixRarity = Category.CreateEntry("ShowAffixRarity", false,

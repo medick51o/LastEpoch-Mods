@@ -75,9 +75,14 @@ internal static class SettingsUi
             Prefs.Style,
             i => { Prefs.Style.Value = (SignalStyle)i; SaveAndRefresh(reRender: true); });
 
+        NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Name Colour",
+            "<color=#FF44FF>Affix Name Color</color>",
+            "GameDefault leaves the game colours untouched. TierColor colours all eligible affix text using the source below. GreaterAffix limits text colouring to tiers 6 and 7; tier mode uses the existing greater-affix tint. Hidden or disabled source signals never colour text.",
+            Prefs.NameColorMode,
+            i => { Prefs.NameColorMode.Value = (AffixNameColorMode)i; SaveAndRefresh(reRender: true); });
         NativeSettings.CreateToggle(settings, Cat, "TT - Affix Text Colour",
             "<color=#FF44FF>Color Affixes by Tier</color>",
-            "How good is the roll? Default OFF: affix text wears its roll-quality colour. Turn ON to colour text by tier instead. Properties without a tier keep their roll colour. Affix rarity never decides this colour. Letter visibility and badge colours have their own switches.",
+            "Default OFF: use visible roll-quality colours. ON: use visible tier colours. Respects Affix Name Color, Tier Colors, Rank Colors and Show Grade Letters. A hidden or disabled source leaves the game colour unchanged; no fallback to rarity or another source.",
             Prefs.ColorAffixesByTier.Value,
             v => { Prefs.ColorAffixesByTier.Value = v; SaveAndRefresh(reRender: true); });
         NativeSettings.CreateToggle(settings, Cat, "TT - Grade Letters",

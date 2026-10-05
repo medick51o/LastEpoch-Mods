@@ -18,9 +18,9 @@ Affix names are coloured by **crafting tier** (T1 gray → T7 mythic pink) and a
 v2 fixed legendary grading by reading stored roll bytes. This update grades displayed values against their ranges, accounting for display precision and short ranges. Valid stored rolls remain a fallback when the displayed value cannot be resolved.
 
 ### Affix Text Colour
-**Color Affixes by Tier** is OFF by default: affix text follows roll quality. Turn it ON to use tier colour instead. Properties without a tier keep their roll colour; without a known roll colour, OFF leaves text uncoloured. This applies to multiline affix text as well. Affix rarity never participates. Letter visibility and badge colours are independent; ALT ranges still show roll quality.
+The existing Affix Name Color modes remain active: GameDefault preserves native colours, TierColor applies the selected source to eligible text, and GreaterAffix limits it to tiers 6 and 7. Color Affixes by Tier is OFF by default (roll quality), ON for tier colour.
 
-The older AffixNameColor cfg key is retained for compatibility but no longer selects text colour. Use ColorAffixesByTier instead.
+A source must be visible and enabled: roll colour requires Show Grade Letters and Rank Colors; tier colour requires a displayed tier and Tier Colors. Otherwise native colour is retained. There is no fallback from a missing tier to roll or rarity. In GreaterAffix mode the existing greater-affix tint is retained when tier colour is selected. Affix rarity never controls text colour.
 
 ### Affix Rarity (optional)
 How rare is the affix? How well did it roll? Two different questions, two different letters.
@@ -54,7 +54,7 @@ closed, then relaunch.
 | TooltipRankColors | true | Colours grade letters by roll quality |
 | TooltipLayout | BadgeLeft | Where the Tier·Grade signal sits: BadgeLeft / SignalRight / Trailing |
 | SignalStyle | PlainText | PlainText = coloured text only (default); Badge = Tier/Grade as coloured chips |
-| ColorAffixesByTier | false | OFF: colour affix text by roll quality. ON: tier colour, falling back to roll colour for untiered properties. Rarity is not used. |
+| ColorAffixesByTier | false | Select visible roll quality (OFF) or visible tier (ON), respecting existing name-colour modes and source visibility. |
 | ShowGradeLetters | true | Show roll-quality letters. Affix rarity has its own switch; turn both off for tiers only. |
 | AlwaysShowRanges | false | Pin EHG's "Range: X to Y" lines permanently (default hidden, hold Alt to peek) |
 | AlwaysShowTierDetails | false | Pin EHG's full "Tier: N (max craftable)" line (default folded in, hold Alt to peek) |
