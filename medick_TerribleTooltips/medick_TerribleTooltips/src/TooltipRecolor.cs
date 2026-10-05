@@ -398,11 +398,8 @@ public static partial class TooltipRecolor
             {
                 string t = tmp?.text;
                 if (string.IsNullOrEmpty(t)) continue;
-                Match gm = s_kgGradeRegex.Match(t);
-                bool  itg = gm.Success;
-                if (!itg) gm = s_kgGradeOnlyRegex.Match(t);
-                if (!gm.Success) continue;
-                string gc = itg ? gm.Groups[2].Value : gm.Groups[1].Value;
+                string gc = RollGradeColor(t);
+                if (gc == null) continue;
                 if (tmp.transform.parent != null)
                     parentGradeColor[tmp.transform.parent.GetInstanceID()] = gc;
             }
@@ -609,14 +606,7 @@ public static partial class TooltipRecolor
         bool deepTier  = DeepTier;
         bool deepRange = DeepRange;
 
-        // TMP-level first grade colour — Range lines in deep view wear it
-        // (v2 semantics).
-        Match firstG = s_kgGradeRegex.Match(original);
-        bool  firstTiered = firstG.Success;
-        if (!firstTiered) firstG = s_kgGradeOnlyRegex.Match(original);
-        string tmpGradeColor = firstG.Success
-            ? firstG.Groups[firstTiered ? 2 : 1].Value
-            : "#FFFFFF";
+        string tmpGradeColor = RollGradeColor(original) ?? "#FFFFFF";
 
         string[] lines = original.Split('\n');
         var outLines = new List<string>(lines.Length);
@@ -834,6 +824,16 @@ public static partial class TooltipRecolor
 
     // One affix, one line. Layout per Prefs.Layout; every part honors its
     // own kill-switch (TierColors / RankColors / ShowGradeLetters / name mode).
+    // Rarity precedes quality in a bracket group. Never let hidden rarity tint a roll.
+    private static string RollGradeColor(string text)
+    {
+        foreach (string line in text.Split((char)10))
+        {
+            var matches = s_kgAnyBracketRegex.Matches(line);
+            if (matches.Count > 0) return matches[matches.Count - 1].Groups[2].Value;
+        }
+        return null;
+    }
     private static string ComposeCleanLine(string cleanName, int tier,
         string tierHex, List<(string color, string letter)> grades, bool sealedAffix)
     {
@@ -886,7 +886,7 @@ public static partial class TooltipRecolor
                 else
                     letters.Add(letter);
             }
-            gradePart = string.Join(
+            gradePart = letters.Count == 0 ? null : string.Join(
                 badges && tintRank ? " " : $"<color={Dim}>·</color>", letters);
         }
 
@@ -895,7 +895,7 @@ public static partial class TooltipRecolor
         string name = cleanName;
         if (Prefs.NameColorMode.Value == AffixNameColorMode.TierColor && tintTier)
         {
-            string nameHex = tierHex ?? (grades.Count > 0 ? grades[0].color : null);
+            string nameHex = tierHex ?? (grades.Count > 0 ? grades[grades.Count - 1].color : null);
             if (nameHex != null)
                 name = $"<color={nameHex}>{cleanName}</color>";
         }

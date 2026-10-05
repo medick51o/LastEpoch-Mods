@@ -67,6 +67,7 @@ public static class AffixInjector
             double fraction = rollFloat;
             if (double.IsFinite(shown) && shown >= min - 1e-6 && shown <= max + 1e-6)
                 fraction = RollQuality.FractionFor(min, max, shown);
+            if (max != min && (!double.IsFinite(fraction) || fraction < 0 || fraction > 1)) return affixStr;
             char grade = RollQuality.LetterForRange(min, max, digits, fraction);
             if (grade == RollQuality.NoGrade) return affixStr;
             gradeLetter = grade.ToString();
@@ -74,7 +75,7 @@ public static class AffixInjector
             gradeColor = Colors.GradeLetterColor(new double[] { 0, 30, 60, 90, 100 }[index]);
         }
         if ((!double.IsFinite(min) || !double.IsFinite(max) || max < min) &&
-            RollQuality.LegacyLetter(rollFloat) == RollQuality.NoGrade) return affixStr;
+            (!float.IsFinite(rollFloat) || rollFloat < 0 || rollFloat > 1)) return affixStr;
 
         string bracket = tier > 0
             ? $"[<color={Colors.TierColor(tier)}>{tier}</color><color={gradeColor}>{gradeLetter}</color>] "
@@ -310,7 +311,8 @@ public static class AffixInjector
             {
                 if (!DisplayValuePick.TryTemplateRoll(tempString, __result,
                     out double min, out double max, out double value, out int digits)) return;
-                char grade = RollQuality.LetterForRange(min, max, digits,
+
+            char grade = RollQuality.LetterForRange(min, max, digits,
                     RollQuality.FractionFor(min, max, value));
                 if (grade == RollQuality.NoGrade) return;
                 int index = RollQuality.Ladder.IndexOf(grade);
@@ -319,6 +321,41 @@ public static class AffixInjector
                 TooltipRecolor.MarkDirty();
             }
             catch (Exception ex) { Dbg.Log("description grade: " + ex.Message); }
+        }
+    }
+    [HarmonyPatch(typeof(TooltipItemManager), nameof(TooltipItemManager.GetUniqueDescription))]
+    internal static class Patch_FixedDescriptions
+    {
+        private static void Postfix(ItemDataUnpacked item, Il2CppSystem.Collections.Generic.List<string> __result)
+        {
+            if (!Prefs.EnableTooltips.Value || item == null || __result == null) return;
+            try
+            {
+                var entries = UniqueList.instance?.uniques;
+                if (entries == null || item.uniqueID >= entries.Count) return;
+                var mods = entries[item.uniqueID]?.mods;
+                if (mods == null) return;
+                for (int i = 0; i < __result.Count; i++)
+                {
+                    string text = __result[i];
+                    string stat = DisplayValuePick.StatWithoutRangeDetails(text);
+                    if (DisplayValuePick.HasGradeBracket(text) || !DisplayValuePick.IsSignedSingleValueStat(stat)) continue;
+                    UniqueItemMod match = null;
+                    int hits = 0;
+                    foreach (UniqueItemMod mod in mods)
+                    {
+                        if (mod == null || !mod.hideInTooltip) continue;
+                        var range = RollRanges.ForUnique(mod);
+                        if (!range.Valid || !DisplayValuePick.TryPick(stat, range.Min, range.Max, out _)) continue;
+                        match = mod; hits++;
+                    }
+                    if (hits != 1 || match == null || match.canRoll) continue;
+                    var fixedRange = RollRanges.ForUnique(match);
+                    if (fixedRange.Valid && fixedRange.Min == fixedRange.Max)
+                        __result[i] = InjectBracket(text, 1, 0, fixedRange.Min, fixedRange.Max);
+                }
+            }
+            catch (Exception ex) { Dbg.Log("fixed description grade: " + ex.Message); }
         }
     }
 }

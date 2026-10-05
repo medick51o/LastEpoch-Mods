@@ -66,6 +66,7 @@ public class TerribleTooltipsMod : MelonMod
 
         ok += TryPatch(typeof(AffixInjector.Patch_DescriptionFormatter), "unique description grades");
 
+        ok += TryPatch(typeof(AffixInjector.Patch_FixedDescriptions), "fixed description grades");
         // Tooltip text pipeline (stage 2: recolor)
         ok += TryPatch(typeof(TooltipRecolor.Patch_UpdateLayout),     "tooltip recolor");
 

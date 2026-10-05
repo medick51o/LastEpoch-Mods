@@ -19,6 +19,7 @@ Release build against installed generated game assemblies: zero warnings/errors,
 Build using the existing project and override ML and GM with local generated-assembly paths; always pass -p:DeployToMods=false for review builds.
 
 ## Runtime scope
-The source implementation was exercised in a separate 3.3.17 installation. This cleaned branch was not installed; native layout and Harmony behaviour still need maintainer review in game. Compilation and pure checks do not establish complete runtime parity. Reverse macro ranges and unknown range-detail localizations fail closed. Plain descriptions without a numeric macro are not inferred from prose.
+The source implementation was exercised in a separate 3.3.17 installation. The b27c7fc candidate was installed and accepted by the user. The subsequent expert-review fixes require another manual pass; this is not exhaustive native layout or Harmony coverage. Compilation and pure checks do not establish complete runtime parity. Reverse macro ranges and unknown range-detail localizations fail closed. Signed single-value fixed descriptions are graded only when exactly one hidden typed modifier matches; arbitrary prose is not graded.
 
 Suggested checks: Evolution End fixed minion resistance with/without ALT; Lethal Concentration 116% poison in 80-120%; idol resistance near maximum; composed unique descriptions; rule labels across ALT, comparison tooltips, re-hover and filter edits. Confirm original settings tabs remain unchanged.
+Expert-review fixes isolate roll colours from hidden rarity, omit empty signals, reject unknown rolls, restore typed fixed descriptions, avoid caching unavailable definitions and cap normalized rule-name input at 1024 UTF-16 units without splitting surrogate pairs.

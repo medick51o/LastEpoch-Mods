@@ -12,8 +12,8 @@ public enum GroundLabelStyle
 public enum FilterRuleDisplay
 {
     Off,           // nothing shown
-    NumberOnly,    // "Rule#69"
-    NumberAndName, // "Rule #69: Maxroll told me to pick this up blah blah"
+    NumberOnly,    // [69]
+    NumberAndName, // [69] matched rule name
     NameOnly      // matched rule name without its display number
 }
 

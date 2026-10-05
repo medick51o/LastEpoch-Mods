@@ -15,21 +15,23 @@ One line per affix: the affix text plus a **`Tier 5·A`** signal — tier spelle
 ### Tooltip Colours
 Affix names are coloured by **crafting tier** (T1 gray → T7 mythic pink) and a **grade letter** shows how well the affix actually rolled within that tier (F = bottom of the range, S = near-perfect). Same tier, very different power — now you can see it at a glance.
 
-**Since v2.0.0 this works correctly on legendaries.** v1 graded legendary affixes off reconstructed display values, which broke on Legendary Potential items (a max-rolled 12% Mana could grade C). v2+ reads the game's own stored roll bytes — the grade you see is the roll the game actually gave you.
+v2 fixed legendary grading by reading stored roll bytes. This update grades displayed values against their ranges, accounting for display precision and short ranges. Valid stored rolls remain a fallback when the displayed value cannot be resolved.
 
 ### Affix Rarity (optional)
 How rare is the affix? How well did it roll? Two different questions, two different letters.
 
-**Show Affix Rarity** is OFF by default. Turn it on in the Terrible Tooltips GAMEPLAY settings to add a rarity letter before the roll grade: **C** uncommon, **B** rare, **A** very rare, **S** extremely rare. Common affixes get no extra letter. The signal reads **tier / affix rarity / roll quality**: **8SS** means tier 8, extremely rare affix, maximum-quality grade. The chosen layout may display this as Tier 8 with separated S letters or badges.
+**Show Affix Rarity** is OFF by default. Turn it on in the Terrible Tooltips GAMEPLAY settings (or set ShowAffixRarity=true in the cfg if the panel is unavailable) to add a rarity letter before the roll grade: **C** uncommon, **B** rare, **A** very rare, **S** extremely rare. Common affixes get no extra letter. The signal reads **tier / affix rarity / roll quality**: **8SS** means tier 8, extremely rare affix, S-grade roll. S is the top grade, not necessarily the exact maximum. The chosen layout may display this as Tier 8 with separated S letters or badges.
 
 Rarity comes from the game affix weighting, not the rarity of the item and not a guaranteed drop probability. It does not change roll grading. Weight >= 1 has no rarity letter; >= 0.5 is C, >= 0.3 is B, >= 0.1 is A, and below 0.1 is S. Missing metadata produces no extra letter.
 
 The switches are independent: Show Grade Letters controls roll quality; Show Affix Rarity controls rarity. Leave both off for tiers only. Rank Colors controls letter colouring; the existing layout and badge options still apply. The setting affects tooltip affixes, not ground labels or unique description macros.
+Select individual rarity letters with ShowAffixRarityC/B/A/S (each defaults to true). Enable ShowAffixRarity first, then choose S alone, C and S, or any subset. This never hides affixes or roll grades.
+
 ### Ground Labels
 Items on the ground show `[5A 3C 7S]` style brackets — tier number, grade letter, or both — so you can evaluate drops without hovering over everything. Uniques, sets and legendaries are deliberately left alone (Fallen Star's Improved Tooltips owns those, and does it better).
 
 ### Filter Rule Number
-Hover any item and the tooltip shows **which loot filter rule matched it** — in orange-gold (T6's shade), e.g. `Rule#69`. Switch it to NumberAndName mode and you get the rule's name too ("Rule #69: Maxroll told me to pick this up blah blah"). You can also reposition EHG's native rule number on ground labels (start / end / default).
+Shows the first enabled matching loot-filter rule: NumberOnly shows [69], NumberAndName shows [69] followed by its name, and NameOnly shows just the name. Uses rule colour and emphasis, with gold as fallback. A matching HIDE rule shows no label. Ground-label placement remains unchanged.
 
 ---
 
@@ -48,13 +50,13 @@ closed, then relaunch.
 | TooltipLayout | BadgeLeft | Where the Tier·Grade signal sits: BadgeLeft / SignalRight / Trailing |
 | SignalStyle | PlainText | PlainText = coloured text only (default); Badge = Tier/Grade as coloured chips |
 | AffixNameColor | GreaterAffix | GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier colour; GameDefault = the game's own text colour |
-| ShowGradeLetters | true | The S/A/B/C/F grades — set false if you only want tiers |
+| ShowGradeLetters | true | Show roll-quality letters. Affix rarity has its own switch; turn both off for tiers only. |
 | AlwaysShowRanges | false | Pin EHG's "Range: X to Y" lines permanently (default hidden, hold Alt to peek) |
 | AlwaysShowTierDetails | false | Pin EHG's full "Tier: N (max craftable)" line (default folded in, hold Alt to peek) |
 | GroundLabelStyle | TierAndRank | None / TierAndRank / TierOnly / RankOnly |
 | GroundLabelFilterOnly | false | Only show ground labels on loot-filter highlighted items |
 | GroundLabelAltKey | false | Hide ground brackets until you hold Alt (KG-style) |
-| ShowFilterRuleNumber | NumberOnly | Off / NumberOnly / NumberAndName |
+| ShowFilterRuleNumber | NumberOnly | Off, NumberOnly, NumberAndName, or NameOnly. Match rule colour and emphasis, gold as fallback. |
 | LabelRulePosition | EHGDefault | Where EHG's filter rule number sits on the ground label: Start / End / EHGDefault |
 | DebugLog | false | Verbose log output — turn on for a formatter trace when filing a bug report |
 | GreaterAffixTint | `#C990FF` | The greater-affix tint colour applied to Tier 6/7 affix sentences |
@@ -135,5 +137,3 @@ Fine. It teleports you to the Bazaar. *Shocking.* Revolutionary, even. A button,
 Drop `medick_Terrible_Tooltips.dll` into your `Last Epoch/Mods/` folder.
 
 Requires **MelonLoader 0.7.2+**.
-
-Select individual rarity letters with ShowAffixRarityC/B/A/S (each defaults to true). Enable ShowAffixRarity first, then choose any subset, such as S alone or C and S. This filters only rarity letters, never affixes or roll grades.

@@ -55,7 +55,7 @@ internal static class RollRanges
             if (def == null)
             {
                 AffixInfo missing = new(default, RollQuality.NoLetter, false);
-                s_affixCache[key] = missing;
+                // Missing definitions can become available after database initialization.
                 return missing;
             }
 

@@ -1,3 +1,7 @@
+## Unreleased
+- Range-aware grades and native description macros; owned matched-rule labels and optional rarity selection.
+- Expert-review fixes for colour precedence, empty signals and unknown roll values. Version unchanged.
+
 # Changelog — MedicK's Terrible Tooltips
 
 ## v3.1.0 — the clean-signal release
