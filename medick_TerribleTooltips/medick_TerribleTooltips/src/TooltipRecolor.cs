@@ -877,7 +877,7 @@ public static partial class TooltipRecolor
             for (int i = 0; i < grades.Count; i++)
             {
                 bool rarity = i < grades.Count - 1;
-                if (rarity ? !Prefs.ShowAffixRarity.Value : !Prefs.ShowGradeLetters.Value) continue;
+                if (rarity ? !Prefs.IsAffixRarityVisible(grades[i].letter) : !Prefs.ShowGradeLetters.Value) continue;
                 var (color, letter) = grades[i];
                 if (tintRank)
                     letters.Add(badges

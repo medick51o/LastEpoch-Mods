@@ -93,6 +93,30 @@ internal static class SettingsUi
             "How rare is the affix, not how well did it roll? Default OFF. Adds a rarity letter before the roll grade: C uncommon, B rare, A very rare, S extremely rare. Common affixes get no extra letter. With both switches on, 8SS means tier 8, extremely rare affix, perfect roll. Uses the game affix weight, not item rarity or an exact drop chance. Independent of Show Grade Letters; layout and colour options still apply.",
             Prefs.ShowAffixRarity.Value,
             v => { Prefs.ShowAffixRarity.Value = v; SaveAndRefresh(reRender: true); });
+        NativeSettings.CreateToggle(settings, Cat, "TT - Affix Rarity C",
+            "<color=#FF44FF>Affix Rarity: C - Uncommon</color>",
+            "Include C rarity letters. Pick any combination: S alone, C and S, or all four. Requires Show Affix Rarity. Hides only the rarity letter, never the affix or its roll grade. Default ON.",
+            Prefs.ShowAffixRarityC.Value,
+            v => { Prefs.ShowAffixRarityC.Value = v; SaveAndRefresh(reRender: true); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Affix Rarity B",
+            "<color=#FF44FF>Affix Rarity: B - Rare</color>",
+            "Include B rarity letters. Pick any combination: S alone, C and S, or all four. Requires Show Affix Rarity. Hides only the rarity letter, never the affix or its roll grade. Default ON.",
+            Prefs.ShowAffixRarityB.Value,
+            v => { Prefs.ShowAffixRarityB.Value = v; SaveAndRefresh(reRender: true); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Affix Rarity A",
+            "<color=#FF44FF>Affix Rarity: A - Very Rare</color>",
+            "Include A rarity letters. Pick any combination: S alone, C and S, or all four. Requires Show Affix Rarity. Hides only the rarity letter, never the affix or its roll grade. Default ON.",
+            Prefs.ShowAffixRarityA.Value,
+            v => { Prefs.ShowAffixRarityA.Value = v; SaveAndRefresh(reRender: true); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Affix Rarity S",
+            "<color=#FF44FF>Affix Rarity: S - Extremely Rare</color>",
+            "Include S rarity letters. Pick any combination: S alone, C and S, or all four. Requires Show Affix Rarity. Hides only the rarity letter, never the affix or its roll grade. Default ON.",
+            Prefs.ShowAffixRarityS.Value,
+            v => { Prefs.ShowAffixRarityS.Value = v; SaveAndRefresh(reRender: true); });
+
         NativeSettings.CreateToggle(settings, Cat, "TT - Pin Ranges",
             "<color=#FF44FF>Always Show Ranges</color>",
             "Pin the 'Range: X to Y' lines permanently. Default OFF — they're clutter; hold Alt while hovering to peek instead.",

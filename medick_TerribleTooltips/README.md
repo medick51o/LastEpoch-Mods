@@ -135,3 +135,5 @@ Fine. It teleports you to the Bazaar. *Shocking.* Revolutionary, even. A button,
 Drop `medick_Terrible_Tooltips.dll` into your `Last Epoch/Mods/` folder.
 
 Requires **MelonLoader 0.7.2+**.
+
+Select individual rarity letters with ShowAffixRarityC/B/A/S (each defaults to true). Enable ShowAffixRarity first, then choose any subset, such as S alone or C and S. This filters only rarity letters, never affixes or roll grades.

@@ -81,6 +81,11 @@ internal static class Prefs
     public static MelonPreferences_Entry<bool> TooltipRankColors;
 
     public static MelonPreferences_Entry<bool> ShowAffixRarity;
+    public static MelonPreferences_Entry<bool> ShowAffixRarityC;
+    public static MelonPreferences_Entry<bool> ShowAffixRarityB;
+    public static MelonPreferences_Entry<bool> ShowAffixRarityA;
+    public static MelonPreferences_Entry<bool> ShowAffixRarityS;
+
 
     // v3 clean line
     public static MelonPreferences_Entry<TooltipLayout>       Layout;
@@ -134,6 +139,14 @@ internal static class Prefs
             "Show Grade Letters", "The S/A/B/C/F roll grade on each affix line");
         ShowAffixRarity = Category.CreateEntry("ShowAffixRarity", false,
             "Show Affix Rarity", "Optional affix rarity letter before the roll grade. Off by default; independent of Show Grade Letters.");
+        ShowAffixRarityC = Category.CreateEntry("ShowAffixRarityC", true,
+            "Affix Rarity: C - Uncommon", "Include C in the optional affix rarity signal. Requires Show Affix Rarity; roll quality is unchanged.");
+        ShowAffixRarityB = Category.CreateEntry("ShowAffixRarityB", true,
+            "Affix Rarity: B - Rare", "Include B in the optional affix rarity signal. Requires Show Affix Rarity; roll quality is unchanged.");
+        ShowAffixRarityA = Category.CreateEntry("ShowAffixRarityA", true,
+            "Affix Rarity: A - Very Rare", "Include A in the optional affix rarity signal. Requires Show Affix Rarity; roll quality is unchanged.");
+        ShowAffixRarityS = Category.CreateEntry("ShowAffixRarityS", true,
+            "Affix Rarity: S - Extremely Rare", "Include S in the optional affix rarity signal. Requires Show Affix Rarity; roll quality is unchanged.");
         AlwaysShowRanges = Category.CreateEntry("AlwaysShowRanges", false,
             "Always Show Ranges", "Pin EHG's 'Range: X to Y' lines permanently (default: hidden, hold Alt to peek)");
         AlwaysShowTierDetails = Category.CreateEntry("AlwaysShowTierDetails", false,
@@ -179,6 +192,16 @@ internal static class Prefs
         WarnOrphanedKeys();
     }
 
+    // Selection affects rarity only; roll-quality visibility has its own switch.
+    internal static bool IsAffixRarityVisible(string letter)
+        => ShowAffixRarity.Value && (letter switch
+        {
+            "C" => ShowAffixRarityC.Value,
+            "B" => ShowAffixRarityB.Value,
+            "A" => ShowAffixRarityA.Value,
+            "S" => ShowAffixRarityS.Value,
+            _ => false,
+        });
     public static void Save()
     {
         // printmsg: false — settings clicks must not spam the console;
@@ -207,7 +230,7 @@ internal static class Prefs
             var registered = new HashSet<string>(StringComparer.Ordinal)
             {
                 "EnableTooltips", "TooltipTierColors", "TooltipRankColors",
-                "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowGradeLetters", "ShowAffixRarity",
+                "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowGradeLetters", "ShowAffixRarity", "ShowAffixRarityC", "ShowAffixRarityB", "ShowAffixRarityA", "ShowAffixRarityS",
                 "AlwaysShowRanges", "AlwaysShowTierDetails", "GroundLabelStyle",
                 "GroundLabelFilterOnly", "GroundLabelAltKey", "ShowFilterRuleNumber",
                 "LabelRulePosition", "DebugLog",
