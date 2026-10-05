@@ -45,6 +45,33 @@ public static class AffixInjector
         catch { }
     }
 
+    // One grade for one roll, wherever it is shown. Ground labels have no
+    // display text, so the stored roll is graded against the affix's own
+    // range (idol-scaled like the tooltip) with the same range-aware ladder.
+    internal static (string letter, string color) GradeForAffix(ItemAffix affix, ItemDataUnpacked item)
+    {
+        float rollFloat = affix.getRollFloat();
+        double roll = Math.Round(rollFloat * 100.0, 1);
+        string letter = Colors.GradeLetter(roll), color = Colors.GradeLetterColor(roll);
+        try
+        {
+            var range = RollRanges.ForAffix(affix).Range;
+            if (!range.Valid || !float.IsFinite(rollFloat) || rollFloat < 0 || rollFloat > 1) return (letter, color);
+            double min = range.Min, max = range.Max;
+            if (item != null && item.isIdol())
+            {
+                double factor = 1.0 + ItemList.get().getAffixEffectModifier(item);
+                if (double.IsFinite(factor) && factor >= 0.05 && factor <= 4) { min *= factor; max *= factor; }
+            }
+            if (!double.IsFinite(min) || !double.IsFinite(max) || max < min) return (letter, color);
+            char grade = RollQuality.LetterForRange(min, max, range.Digits, rollFloat);
+            if (grade == RollQuality.NoGrade) return (letter, color);
+            int index = RollQuality.Ladder.IndexOf(grade);
+            return (grade.ToString(), Colors.GradeLetterColor(new double[] { 0, 30, 60, 90, 100 }[index]));
+        }
+        catch { return (letter, color); }
+    }
+
     private static string InjectBracket(string affixStr, float rollFloat, int tier,
                                         double min = double.NaN, double max = double.NaN, double shown = double.NaN, int precision = 0, char rarity = RollQuality.NoLetter)
     {
