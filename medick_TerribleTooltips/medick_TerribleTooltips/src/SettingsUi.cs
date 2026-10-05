@@ -77,7 +77,7 @@ internal static class SettingsUi
 
         NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Name Colour",
             "<color=#FF44FF>Affix Name Color</color>",
-            "GameDefault leaves the game colours untouched. TierColor colours all eligible affix text using the source below. GreaterAffix limits text colouring to tiers 6 and 7; tier mode uses the existing greater-affix tint. Hidden or disabled source signals never colour text.",
+            "GameDefault leaves the game colours untouched (default). TierColor colours all eligible affix text using the source below. GreaterAffix limits text colouring to tiers 6 and 7; tier mode uses the existing greater-affix tint. Hidden or disabled source signals never colour text.",
             Prefs.NameColorMode,
             i => { Prefs.NameColorMode.Value = (AffixNameColorMode)i; SaveAndRefresh(reRender: true); });
         NativeSettings.CreateToggle(settings, Cat, "TT - Affix Text Colour",
@@ -98,7 +98,7 @@ internal static class SettingsUi
             v => { Prefs.ShowAffixRarity.Value = v; SaveAndRefresh(reRender: true); });
         NativeSettings.CreateToggle(settings, Cat, "TT - Affix Rarity C",
             "<color=#FF44FF>Affix Rarity: C - Uncommon</color>",
-            "Include C rarity letters. Default ON; requires Show Affix Rarity. Roll grades stay unchanged.",
+            "Include C rarity letters. Default OFF; requires Show Affix Rarity. Roll grades stay unchanged.",
             Prefs.ShowAffixRarityC.Value,
             v => { Prefs.ShowAffixRarityC.Value = v; SaveAndRefresh(reRender: true); });
 

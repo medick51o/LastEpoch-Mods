@@ -36,7 +36,7 @@ public enum AffixNameColorMode
 {
     TierColor,   // affix text wears its tier color (the WoW retina read)
     GameDefault, // the game's own text color; only the Tier·Grade signal is colored
-    GreaterAffix // only Tier 6/7 affix text wears the ruled greater-affix tint ← default
+    GreaterAffix // limit text colouring to tiers 6 and 7
 }
 
 public enum SignalStyle
@@ -134,15 +134,15 @@ internal static class Prefs
             "Tooltip Layout", "Where the Tier·Grade signal sits on each affix line (BadgeLeft / SignalRight / Trailing)");
         Style = Category.CreateEntry("SignalStyle", SignalStyle.PlainText,
             "Signal Style", "PlainText = colored text only (default); Badge = Tier/Grade as colored chips");
-        NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.GreaterAffix,
-            "Affix Name Color", "GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier color; GameDefault = game's own text color");
+        NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.GameDefault,
+            "Affix Name Color", "GameDefault preserves game colours (default); TierColor uses the selected source; GreaterAffix limits it to tiers 6 and 7.");
         ColorAffixesByTier = Category.CreateEntry("ColorAffixesByTier", false,
             "Color Affixes by Tier", "OFF: use visible roll colour. ON: use visible tier colour. Respects existing name colour modes and source switches; hidden or disabled sources preserve game colour. Rarity is never used.");
         ShowGradeLetters = Category.CreateEntry("ShowGradeLetters", true,
             "Show Grade Letters", "The S/A/B/C/F roll grade on each affix line");
         ShowAffixRarity = Category.CreateEntry("ShowAffixRarity", false,
             "Show Affix Rarity", "Optional affix rarity letter before the roll grade. Off by default; independent of Show Grade Letters.");
-        ShowAffixRarityC = Category.CreateEntry("ShowAffixRarityC", true,
+        ShowAffixRarityC = Category.CreateEntry("ShowAffixRarityC", false,
             "Affix Rarity: C - Uncommon", "Include C in the optional affix rarity signal. Requires Show Affix Rarity; roll quality is unchanged.");
         ShowAffixRarityB = Category.CreateEntry("ShowAffixRarityB", true,
             "Affix Rarity: B - Rare", "Include B in the optional affix rarity signal. Requires Show Affix Rarity; roll quality is unchanged.");

@@ -18,7 +18,7 @@ Affix names are coloured by **crafting tier** (T1 gray → T7 mythic pink) and a
 v2 fixed legendary grading by reading stored roll bytes. This update grades displayed values against their ranges, accounting for display precision and short ranges. Valid stored rolls remain a fallback when the displayed value cannot be resolved.
 
 ### Affix Text Colour
-The existing Affix Name Color modes remain active: GameDefault preserves native colours, TierColor applies the selected source to eligible text, and GreaterAffix limits it to tiers 6 and 7. Color Affixes by Tier is OFF by default (roll quality), ON for tier colour.
+The existing Affix Name Color modes remain active: GameDefault preserves native colours (default), TierColor applies the selected source to eligible text, and GreaterAffix limits it to tiers 6 and 7. Color Affixes by Tier is OFF by default (roll quality), ON for tier colour.
 
 A source must be visible and enabled: roll colour requires Show Grade Letters and Rank Colors; tier colour requires a displayed tier and Tier Colors. Otherwise native colour is retained. There is no fallback from a missing tier to roll or rarity. In GreaterAffix mode the existing greater-affix tint is retained when tier colour is selected. Affix rarity never controls text colour.
 
@@ -30,7 +30,7 @@ How rare is the affix? How well did it roll? Two different questions, two differ
 Rarity comes from the game affix weighting, not the rarity of the item and not a guaranteed drop probability. It does not change roll grading. Weight >= 1 has no rarity letter; >= 0.5 is C, >= 0.3 is B, >= 0.1 is A, and below 0.1 is S. Missing metadata produces no extra letter.
 
 The switches are independent: Show Grade Letters controls roll quality; Show Affix Rarity controls rarity. Leave both off for tiers only. Rank Colors controls letter colouring; the existing layout and badge options still apply. The setting affects tooltip affixes, not ground labels or unique description macros.
-Select individual rarity letters with ShowAffixRarityC/B/A/S (each defaults to true). Enable ShowAffixRarity first, then choose S alone, C and S, or any subset. This never hides affixes or roll grades.
+Select individual rarity letters with ShowAffixRarityC/B/A/S (C defaults to false; B, A and S default to true). Enable ShowAffixRarity first, then choose S alone, C and S, or any subset. This never hides affixes or roll grades.
 
 ### Ground Labels
 Items on the ground show `[5A 3C 7S]` style brackets — tier number, grade letter, or both — so you can evaluate drops without hovering over everything. Uniques, sets and legendaries are deliberately left alone (Fallen Star's Improved Tooltips owns those, and does it better).
@@ -142,3 +142,5 @@ Fine. It teleports you to the Bazaar. *Shocking.* Revolutionary, even. A button,
 Drop `medick_Terrible_Tooltips.dll` into your `Last Epoch/Mods/` folder.
 
 Requires **MelonLoader 0.7.2+**.
+
+Defaults apply to new or missing cfg entries. Existing saved choices are preserved: select GameDefault and disable C in the settings to apply these choices to an existing profile.

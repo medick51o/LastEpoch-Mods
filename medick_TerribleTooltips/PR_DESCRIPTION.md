@@ -25,3 +25,5 @@ Suggested checks: Evolution End fixed minion resistance with/without ALT; Lethal
 Expert-review fixes isolate roll colours from hidden rarity, omit empty signals, reject unknown rolls, restore typed fixed descriptions, avoid caching unavailable definitions and cap normalized rule-name input at 1024 UTF-16 units without splitting surrogate pairs.
 
 ColorAffixesByTier defaults OFF and chooses roll quality rather than tier. Existing AffixNameColor modes remain active. Hidden or disabled source signals leave the game colour untouched; rarity never controls text colour.
+
+Final review defaults: AffixNameColor=GameDefault, ShowAffixRarity=false, ShowAffixRarityC=false; B/A/S remain selected. Existing saved preferences are not overwritten.
