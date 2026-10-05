@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>medick_CameraZoom</AssemblyName>
     <RootNamespace>medick_CameraZoom</RootNamespace>
     <Nullable>disable</Nullable>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <!-- ── Reference paths ── adjust if your game is elsewhere ── -->
@@ -58,4 +59,9 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\tools\TerribleInteropRepair\CoreModuleRepair.cs" Link="Compatibility\CoreModuleRepair.cs" />
+    <Compile Include="..\tools\TerribleInteropRepair\EmbeddedRepairBootstrap.cs" Link="Compatibility\EmbeddedRepairBootstrap.cs" />
+    <Reference Include="Mono.Cecil"><HintPath>$(ML)Mono.Cecil.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
 </Project>

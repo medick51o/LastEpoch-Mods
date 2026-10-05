@@ -1,3 +1,13 @@
+# MedicK's Terrible Zoom v1.0.2 — Season 5 compatibility
+
+- Season 5 compatibility update, rebuilt against the current game assemblies.
+- Fixes the CoreModule startup failure automatically from inside the mod DLL, without removing types.
+- One-DLL installation: replace medick_CameraZoom.dll in Mods. No extra plugin or repair tool is required.
+- Keeps an original CoreModule backup and repairs regenerated files when needed.
+- Existing zoom settings are preserved.
+
+Installation: close the game, then replace medick_CameraZoom.dll in Last Epoch/Mods/. This ZIP contains exactly one DLL. No separate plugin, script, or library download is needed. Requires MelonLoader 0.7.3.
+
 # Changelog — MedicK's Terrible Zoom
 
 ## v1.0.1 — council pass (2026-09-11)
