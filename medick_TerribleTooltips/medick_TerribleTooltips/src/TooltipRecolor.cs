@@ -611,6 +611,7 @@ public static partial class TooltipRecolor
         string[] lines = original.Split('\n');
         var outLines = new List<string>(lines.Length);
         bool sealedPending = false;
+        string lastRollHex = null;
         string lastTierHex = null;   // continuation lines of a multi-stat affix wear its first-line colour
         int lastTier = 0;
 
@@ -639,6 +640,7 @@ public static partial class TooltipRecolor
 
                 outLines.Add(ComposeCleanLine(clean, tier, tierHex, grades, sealedPending));
                 sealedPending = false;
+                lastRollHex = grades[grades.Count - 1].color;
                 lastTierHex   = tierHex;
                 lastTier      = tier;
                 continue;
@@ -686,23 +688,12 @@ public static partial class TooltipRecolor
             // affix reads as ONE thing. Flavor text on non-affix TMPs has
             // no bracket above it, so lastTierHex is null and it passes
             // through untouched, as before.
-            if (lastTierHex != null && line.Trim().Length > 0 &&
-                Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix)
+            string continuationHex = AffixTextColor(lastTierHex, lastRollHex);
+            if (continuationHex != null && line.Trim().Length > 0)
             {
-                string continuation = s_colorTagRegex.Replace(line, "").Trim();
-                if (Prefs.TooltipTierColors.Value && (lastTier == 6 || lastTier == 7))
-                    continuation = $"<color={GreaterAffixHex()}>{continuation}</color>";
-                outLines.Add(continuation);
+                outLines.Add("<color=" + continuationHex + ">" + s_colorTagRegex.Replace(line, "").Trim() + "</color>");
                 continue;
             }
-            if (lastTierHex != null && line.Trim().Length > 0 &&
-                Prefs.NameColorMode.Value == AffixNameColorMode.TierColor &&
-                Prefs.TooltipTierColors.Value)
-            {
-                outLines.Add($"<color={lastTierHex}>{s_colorTagRegex.Replace(line, "").Trim()}</color>");
-                continue;
-            }
-
             // Everything else (flavor text) — untouched
             outLines.Add(line);
         }
@@ -776,12 +767,8 @@ public static partial class TooltipRecolor
             else
             {
                 string name = nameLines[i];
-                if (Prefs.NameColorMode.Value == AffixNameColorMode.TierColor &&
-                    Prefs.TooltipTierColors.Value && tierHex != null)
-                    name = $"<color={tierHex}>{name}</color>";
-                else if (Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix &&
-                         Prefs.TooltipTierColors.Value && (tier == 6 || tier == 7))
-                    name = $"<color={GreaterAffixHex()}>{name}</color>";
+                string hex = AffixTextColor(tierHex, null);
+                if (hex != null) name = "<color=" + hex + ">" + name + "</color>";
                 outLines.Add(name);
             }
         }
@@ -825,6 +812,9 @@ public static partial class TooltipRecolor
     // One affix, one line. Layout per Prefs.Layout; every part honors its
     // own kill-switch (TierColors / RankColors / ShowGradeLetters / name mode).
     // Rarity precedes quality in a bracket group. Never let hidden rarity tint a roll.
+    private static string AffixTextColor(string tierHex, string rollHex)
+        => Prefs.ColorAffixesByTier.Value ? tierHex ?? rollHex : rollHex;
+
     private static string RollGradeColor(string text)
     {
         foreach (string line in text.Split((char)10))
@@ -890,21 +880,10 @@ public static partial class TooltipRecolor
                 badges && tintRank ? " " : $"<color={Dim}>·</color>", letters);
         }
 
-        // Name colour: tier colour by default (the WoW retina read);
-        // untiered (unique/set/implicit) names borrow the grade colour, as in v2.
+        // Text colour is independent of rarity and of letter visibility.
         string name = cleanName;
-        if (Prefs.NameColorMode.Value == AffixNameColorMode.TierColor && tintTier)
-        {
-            string nameHex = tierHex ?? (grades.Count > 0 ? grades[grades.Count - 1].color : null);
-            if (nameHex != null)
-                name = $"<color={nameHex}>{cleanName}</color>";
-        }
-        else if (Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix &&
-                 tintTier && (tier == 6 || tier == 7))
-        {
-            name = $"<color={GreaterAffixHex()}>{cleanName}</color>";
-        }
-
+        string nameHex = AffixTextColor(tierHex, grades.Count > 0 ? grades[grades.Count - 1].color : null);
+        if (nameHex != null) name = "<color=" + nameHex + ">" + cleanName + "</color>";
         // Chips separate themselves visually; plain text uses the configured divider.
         string signal;
         if (badges)

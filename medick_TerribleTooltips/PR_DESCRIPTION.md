@@ -23,3 +23,5 @@ The source implementation was exercised in a separate 3.3.17 installation. The b
 
 Suggested checks: Evolution End fixed minion resistance with/without ALT; Lethal Concentration 116% poison in 80-120%; idol resistance near maximum; composed unique descriptions; rule labels across ALT, comparison tooltips, re-hover and filter edits. Confirm original settings tabs remain unchanged.
 Expert-review fixes isolate roll colours from hidden rarity, omit empty signals, reject unknown rolls, restore typed fixed descriptions, avoid caching unavailable definitions and cap normalized rule-name input at 1024 UTF-16 units without splitting surrogate pairs.
+
+Affix text now uses roll quality by default. ColorAffixesByTier (default false) switches text to tier colour; untiered properties retain roll colour. Rarity and letter-visibility settings cannot change this colour choice. The previous AffixNameColor selector is replaced in the UI; its cfg key is retained without controlling text colour.

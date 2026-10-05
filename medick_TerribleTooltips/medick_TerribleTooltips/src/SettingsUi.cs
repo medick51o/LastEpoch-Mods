@@ -75,13 +75,11 @@ internal static class SettingsUi
             Prefs.Style,
             i => { Prefs.Style.Value = (SignalStyle)i; SaveAndRefresh(reRender: true); });
 
-        NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Name Color",
-            "<color=#FF44FF>Affix Name Color</color>",
-            "TierColor = the affix text itself wears its tier color, so you identify it instantly. " +
-            "GameDefault = the game's own text color — only the Tier·Grade signal is colored.",
-            Prefs.NameColorMode,
-            i => { Prefs.NameColorMode.Value = (AffixNameColorMode)i; SaveAndRefresh(reRender: true); });
-
+        NativeSettings.CreateToggle(settings, Cat, "TT - Affix Text Colour",
+            "<color=#FF44FF>Color Affixes by Tier</color>",
+            "How good is the roll? Default OFF: affix text wears its roll-quality colour. Turn ON to colour text by tier instead. Properties without a tier keep their roll colour. Affix rarity never decides this colour. Letter visibility and badge colours have their own switches.",
+            Prefs.ColorAffixesByTier.Value,
+            v => { Prefs.ColorAffixesByTier.Value = v; SaveAndRefresh(reRender: true); });
         NativeSettings.CreateToggle(settings, Cat, "TT - Grade Letters",
             "<color=#FF44FF>Show Grade Letters</color>",
             "The S/A/B/C/F roll grade on each affix line (coloured by 'Tooltip: Rank Colors' above). Turn this off to hide roll quality; affix rarity has its own switch. Leave both off if you only want tiers — the letters are gone, no hard feelings.",

@@ -80,6 +80,7 @@ internal static class Prefs
     public static MelonPreferences_Entry<bool> TooltipTierColors;
     public static MelonPreferences_Entry<bool> TooltipRankColors;
 
+    public static MelonPreferences_Entry<bool> ColorAffixesByTier;
     public static MelonPreferences_Entry<bool> ShowAffixRarity;
     public static MelonPreferences_Entry<bool> ShowAffixRarityC;
     public static MelonPreferences_Entry<bool> ShowAffixRarityB;
@@ -135,6 +136,8 @@ internal static class Prefs
             "Signal Style", "PlainText = colored text only (default); Badge = Tier/Grade as colored chips");
         NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.GreaterAffix,
             "Affix Name Color", "GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier color; GameDefault = game's own text color");
+        ColorAffixesByTier = Category.CreateEntry("ColorAffixesByTier", false,
+            "Color Affixes by Tier", "OFF: affix text follows roll quality. ON: affix text follows tier; untiered properties keep roll colour. Affix rarity never controls text colour.");
         ShowGradeLetters = Category.CreateEntry("ShowGradeLetters", true,
             "Show Grade Letters", "The S/A/B/C/F roll grade on each affix line");
         ShowAffixRarity = Category.CreateEntry("ShowAffixRarity", false,
@@ -230,7 +233,7 @@ internal static class Prefs
             var registered = new HashSet<string>(StringComparer.Ordinal)
             {
                 "EnableTooltips", "TooltipTierColors", "TooltipRankColors",
-                "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowGradeLetters", "ShowAffixRarity", "ShowAffixRarityC", "ShowAffixRarityB", "ShowAffixRarityA", "ShowAffixRarityS",
+                "TooltipLayout", "SignalStyle", "ColorAffixesByTier", "AffixNameColor", "ShowGradeLetters", "ShowAffixRarity", "ShowAffixRarityC", "ShowAffixRarityB", "ShowAffixRarityA", "ShowAffixRarityS",
                 "AlwaysShowRanges", "AlwaysShowTierDetails", "GroundLabelStyle",
                 "GroundLabelFilterOnly", "GroundLabelAltKey", "ShowFilterRuleNumber",
                 "LabelRulePosition", "DebugLog",

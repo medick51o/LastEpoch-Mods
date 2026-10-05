@@ -17,6 +17,11 @@ Affix names are coloured by **crafting tier** (T1 gray → T7 mythic pink) and a
 
 v2 fixed legendary grading by reading stored roll bytes. This update grades displayed values against their ranges, accounting for display precision and short ranges. Valid stored rolls remain a fallback when the displayed value cannot be resolved.
 
+### Affix Text Colour
+**Color Affixes by Tier** is OFF by default: affix text follows roll quality. Turn it ON to use tier colour instead. Properties without a tier keep their roll colour; without a known roll colour, OFF leaves text uncoloured. This applies to multiline affix text as well. Affix rarity never participates. Letter visibility and badge colours are independent; ALT ranges still show roll quality.
+
+The older AffixNameColor cfg key is retained for compatibility but no longer selects text colour. Use ColorAffixesByTier instead.
+
 ### Affix Rarity (optional)
 How rare is the affix? How well did it roll? Two different questions, two different letters.
 
@@ -49,7 +54,7 @@ closed, then relaunch.
 | TooltipRankColors | true | Colours grade letters by roll quality |
 | TooltipLayout | BadgeLeft | Where the Tier·Grade signal sits: BadgeLeft / SignalRight / Trailing |
 | SignalStyle | PlainText | PlainText = coloured text only (default); Badge = Tier/Grade as coloured chips |
-| AffixNameColor | GreaterAffix | GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier colour; GameDefault = the game's own text colour |
+| ColorAffixesByTier | false | OFF: colour affix text by roll quality. ON: tier colour, falling back to roll colour for untiered properties. Rarity is not used. |
 | ShowGradeLetters | true | Show roll-quality letters. Affix rarity has its own switch; turn both off for tiers only. |
 | AlwaysShowRanges | false | Pin EHG's "Range: X to Y" lines permanently (default hidden, hold Alt to peek) |
 | AlwaysShowTierDetails | false | Pin EHG's full "Tier: N (max craftable)" line (default folded in, hold Alt to peek) |
