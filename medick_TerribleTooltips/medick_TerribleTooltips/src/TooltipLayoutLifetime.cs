@@ -108,7 +108,7 @@ public static partial class TooltipRecolor
         s_originals[id] = (tmp, text);
         s_originalOwners.Remove(id);
         // Closest actual tooltip ancestor; ordinary recolor-only owners count too.
-        var ui = tmp.GetComponentInParent<UITooltipItem>();
+        var ui = OwnerOf(tmp);
         if (ui == null) return;
         long epoch = CaptureEpoch(ui);
         s_originalOwners[id] = (ui, epoch);
@@ -133,7 +133,31 @@ public static partial class TooltipRecolor
     {
         if (!s_originalOwners.TryGetValue(id, out var owner) || !IsCurrentBinding(owner.Ui, owner.Epoch))
             return false;
-        return LiveUi(owner.Ui) && SameUi(owner.Ui, tmp.GetComponentInParent<UITooltipItem>());
+        return LiveUi(owner.Ui) && SameUi(owner.Ui, OwnerOf(tmp));
+    }
+    // Closest tooltip ancestor, else the live binding whose referenced panels
+    // hold the TMP (comparison/blessing panels need not be its descendants).
+    private static UITooltipItem OwnerOf(TextMeshProUGUI tmp)
+    {
+        var ui = tmp.GetComponentInParent<UITooltipItem>();
+        if (ui != null) return ui;
+        Transform t = tmp.transform;
+        foreach (var candidate in s_layoutUis.Values)
+        {
+            try
+            {
+                if (!LiveUi(candidate)) continue;
+                if (Under(t, candidate.content?.transform) || Under(t, candidate.compareContent?.transform) ||
+                    Under(t, candidate.blessingContent?.transform) || Under(t, candidate.blessingCompareContent?.transform) ||
+                    Under(t, candidate.resonanceContent?.transform))
+                    return candidate;
+            }
+            catch { }
+        }
+        return null;
+
+        static bool Under(Transform t, Transform panel)
+            => panel != null && t.IsChildOf(panel);
     }
     private static bool AnyLiveTooltip()
     {

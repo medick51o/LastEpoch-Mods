@@ -111,6 +111,9 @@ internal static class RollQuality
             case 1:  return 0.1;
             case 2:  return 0.01;
             case 3:  return 0.001;
+            case 4:  return 0.0001;
+            case 5:  return 0.00001;
+            case 6:  return 0.000001;
             default: return 1.0;
         }
     }

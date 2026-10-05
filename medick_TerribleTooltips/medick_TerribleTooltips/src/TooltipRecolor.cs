@@ -980,7 +980,9 @@ public static partial class TooltipRecolor
         if (Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix && tier != 6 && tier != 7) return null;
         if (Prefs.ColorAffixesByTier.Value)
         {
-            if (tier <= 0 || !Prefs.TooltipTierColors.Value) return null;
+            if (!Prefs.TooltipTierColors.Value) return null;
+            // v3.1.2 TierColor: untiered lines (implicits, uniques) wore their roll colour.
+            if (tier <= 0) return Prefs.NameColorMode.Value == AffixNameColorMode.TierColor ? rollHex : null;
             return Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix ? GreaterAffixHex() : tierHex;
         }
         return Prefs.ShowGradeLetters.Value && Prefs.TooltipRankColors.Value ? rollHex : null;

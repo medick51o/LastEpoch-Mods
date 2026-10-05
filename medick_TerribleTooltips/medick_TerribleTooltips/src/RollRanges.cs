@@ -50,7 +50,7 @@ internal static class RollRanges
             long key = ((long)itemAffix.affixId << 16) | (uint)(tier & 0xFFFF);
             if (s_affixCache.TryGetValue(key, out AffixInfo cached)) return cached;
 
-            AffixList list = AffixList.get();
+            AffixList list = MasterAffixes();
             AffixList.Affix def = list?.GetAffix(itemAffix.affixId);
             if (def == null)
             {
@@ -155,6 +155,16 @@ internal static class RollRanges
             return default;
         }
     }
+    // Season 5 moved the master list to GlobalAssets; keep the older accessor
+    // as a fallback so either game build resolves definitions.
+    internal static AffixList MasterAffixes()
+    {
+        AffixList list = null;
+        try { list = Il2CppLE.AssetManagement.GlobalAssets.MasterAffixesList; } catch { }
+        if (list != null) return list;
+        try { return AffixList.get(); } catch { return null; }
+    }
+
     private static Span FromTier(AffixList.Affix def, int tier)
     {
         var tiers = def.tiers;

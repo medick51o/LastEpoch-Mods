@@ -252,7 +252,7 @@ public static class FilterRuleTooltip
         group.SetItemOrder(sectionGo, order);
         // Registered element order is not a hierarchy sibling index.
         var boundary = group.Elements[order + 1].RectTransformReference;
-        sectionGo.transform.SetSiblingIndex(boundary.transform.GetSiblingIndex());
+        if (boundary != null) sectionGo.transform.SetSiblingIndex(boundary.transform.GetSiblingIndex());
         sectionGo.SetActive(true);
         owner.Width = owner.Height = owner.MeasureRetryAt = 0;
         return true;
@@ -373,6 +373,8 @@ public static class FilterRuleTooltip
     });
     private static void RemoveRow(Owner owner)
     {
+        // Unmatched/unhostable items call this every frame; nothing to tear down.
+        if (owner.Section == null && owner.Group == null && owner.Element == null && owner.Row == null) return;
         try
         {
             Cleanup(() => { if (owner.Section != null) owner.Section.gameObject.SetActive(false); });
