@@ -1,0 +1,22 @@
+# Fix displayed roll grades and matched filter-rule labels
+
+Depends on PR #3 (17d84cd); its API compatibility fixes and original commit are retained.
+
+## Changes
+- Grade displayed values against their own ranges using F/C/B/A/S bands (30/60/90/97%), display precision and the short-range near-maximum ladder. Fixed properties are S.
+- Read original implicit bounds, use the widest affix component, and apply the native idol multiplier. Hide only the mod-provided tier-1 idol badge, not native ALT details.
+- Handle native range macros in unique/legendary descriptions without confusing durations and cooldowns with rolls; preserve native range text.
+- Resolve the first enabled matching filter rule with the actual player level. Respect HIDE and native colour/emphasis, while retaining the explanation when ALT temporarily suppresses ground filtering.
+- Give the rule label an owned layout row. Restore it after native rebuilds, fence pooled/rebound tooltips and release owned objects on shutdown/unload.
+
+Settings remain in the original GAMEPLAY category. No MODS/SOCIAL experiments, diagnostic probes, audit files, test scaffolding, binaries or unrelated mods are included.
+
+## Verification
+Release build against installed generated game assemblies: zero warnings/errors, with deployment disabled. External checks against the final source passed: 106 roll-quality checks, 77 display/template checks and 663 label-format assertions. Test SDK reports the .NET 6 end-of-support warning. The test harness is intentionally not part of this change.
+
+Build using the existing project and override ML and GM with local generated-assembly paths; always pass -p:DeployToMods=false for review builds.
+
+## Runtime scope
+The source implementation was exercised in a separate 3.3.17 installation. This cleaned branch was not installed; native layout and Harmony behaviour still need maintainer review in game. Compilation and pure checks do not establish complete runtime parity. Reverse macro ranges and unknown range-detail localizations fail closed. Plain descriptions without a numeric macro are not inferred from prose.
+
+Suggested checks: Evolution End fixed minion resistance with/without ALT; Lethal Concentration 116% poison in 80-120%; idol resistance near maximum; composed unique descriptions; rule labels across ALT, comparison tooltips, re-hover and filter edits. Confirm original settings tabs remain unchanged.
