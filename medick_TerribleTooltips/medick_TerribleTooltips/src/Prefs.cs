@@ -92,6 +92,7 @@ internal static class Prefs
     public static MelonPreferences_Entry<TooltipLayout>       Layout;
     public static MelonPreferences_Entry<SignalStyle>         Style;
     public static MelonPreferences_Entry<AffixNameColorMode>  NameColorMode;
+    public static MelonPreferences_Entry<bool>                ShowSignal;
     public static MelonPreferences_Entry<bool>                ShowGradeLetters;
     public static MelonPreferences_Entry<bool>                AlwaysShowRanges;
     public static MelonPreferences_Entry<bool>                AlwaysShowTierDetails;
@@ -134,10 +135,12 @@ internal static class Prefs
             "Tooltip Layout", "Where the Tier·Grade signal sits on each affix line (BadgeLeft / SignalRight / Trailing)");
         Style = Category.CreateEntry("SignalStyle", SignalStyle.PlainText,
             "Signal Style", "PlainText = colored text only (default); Badge = Tier/Grade as colored chips");
-        NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.GameDefault,
-            "Affix Name Color", "GameDefault preserves game colours (default); TierColor uses the selected source; GreaterAffix limits it to tiers 6 and 7.");
-        ColorAffixesByTier = Category.CreateEntry("ColorAffixesByTier", false,
-            "Color Affixes by Tier", "OFF: use visible roll colour. ON: use visible tier colour. Respects existing name colour modes and source switches; hidden or disabled sources preserve game colour. Rarity is never used.");
+        NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.GreaterAffix,
+            "Affix Name Color", "GreaterAffix = only Tier 6/7 text is coloured (default); TierColor = all eligible affix text is coloured; GameDefault = game's own text color");
+        ColorAffixesByTier = Category.CreateEntry("ColorAffixesByTier", true,
+            "Color Affixes by Tier", "ON (default): affix text uses the tier colour (GreaterAffix mode uses the greater-affix tint). OFF: use visible roll-quality colour instead. Hidden or disabled sources preserve game colour. Rarity is never used.");
+        ShowSignal = Category.CreateEntry("ShowSignal", true,
+            "Show Tier and Grade", "Show the tier/grade signal and its border on each affix line");
         ShowGradeLetters = Category.CreateEntry("ShowGradeLetters", true,
             "Show Grade Letters", "The S/A/B/C/F roll grade on each affix line");
         ShowAffixRarity = Category.CreateEntry("ShowAffixRarity", false,
@@ -233,7 +236,7 @@ internal static class Prefs
             var registered = new HashSet<string>(StringComparer.Ordinal)
             {
                 "EnableTooltips", "TooltipTierColors", "TooltipRankColors",
-                "TooltipLayout", "SignalStyle", "ColorAffixesByTier", "AffixNameColor", "ShowGradeLetters", "ShowAffixRarity", "ShowAffixRarityC", "ShowAffixRarityB", "ShowAffixRarityA", "ShowAffixRarityS",
+                "TooltipLayout", "SignalStyle", "ColorAffixesByTier", "AffixNameColor", "ShowSignal", "ShowGradeLetters", "ShowAffixRarity", "ShowAffixRarityC", "ShowAffixRarityB", "ShowAffixRarityA", "ShowAffixRarityS",
                 "AlwaysShowRanges", "AlwaysShowTierDetails", "GroundLabelStyle",
                 "GroundLabelFilterOnly", "GroundLabelAltKey", "ShowFilterRuleNumber",
                 "LabelRulePosition", "DebugLog",

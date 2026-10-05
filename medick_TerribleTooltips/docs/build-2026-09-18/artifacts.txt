@@ -1,0 +1,6 @@
+Output: C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\medick_TerribleTooltips\bin\Release\net6.0\medick_Terrible_Tooltips.dll
+Bytes: 99840
+MD5: 776A3036ED7A45B0F025C451EEC34D06
+Mods: C:/Program Files (x86)/Steam/steamapps/common/Last Epoch/Mods/medick_Terrible_Tooltips.dll
+Mods MD5 before/after: CDE6ED796A5AEABB93EA9347B5A0C164 / CDE6ED796A5AEABB93EA9347B5A0C164
+PASS live Mods DLL unchanged

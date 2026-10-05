@@ -1,0 +1,33 @@
+
+Algorithm : SHA256
+Hash      : 4B179AB28258CBB92DEAD88B291C11801D1BB694845D3846D9C8B819F022B2FD
+Path      : C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\medick_TerribleTooltips\src\TooltipRecolor.cs
+
+Algorithm : SHA256
+Hash      : FBF0ECC3DFA7640888DA29F69451A4130C5CCD01F885D7F8F7DE3B1581370EB2
+Path      : C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\medick_TerribleTooltips\src\FilterRuleTooltip.cs
+
+Algorithm : SHA256
+Hash      : AD6333D5450479537C8C6EA667A58AF3B78BE29D8B24D4A0FE327B0E6038D743
+Path      : C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\medick_TerribleTooltips\src\BuildInfo.cs
+
+Algorithm : SHA256
+Hash      : F6A0B33EA5377FCBDDE51D59F8812FEB637D036FEF5ADC787A67069F734BD687
+Path      : C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\CHANGELOG.md
+
+Algorithm : SHA256
+Hash      : 005C3D9264879177F604DD630FD5025C52057CA7219206F2F2D426D3C6A7AF95
+Path      : C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\docs\build-2026-09-18\RegressionHarness.cs
+
+Algorithm : SHA256
+Hash      : 0010893871861814A205E7DF47FCDC1B896882014A2CF4BAECD9F4231ADDE6A7
+Path      : C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\docs\build-2026-09-18\ScopedRegression.cs
+
+Algorithm : SHA256
+Hash      : 97508DA4E6A3CD956D311DA414E741E1E34F3DA955BCECF707A6F2C697657173
+Path      : C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\docs\build-2026-09-18\Run-Regression.ps1
+
+Algorithm : SHA256
+Hash      : 57CFADB0DE5C7BEDC208F5EC29565341C120FD60B420BEC9F4AB40AB8ADB209E
+Path      : C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\docs\build-2026-09-18\Run-Mutations.ps1
+

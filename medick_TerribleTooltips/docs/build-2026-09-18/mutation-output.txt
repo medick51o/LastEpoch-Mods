@@ -1,0 +1,2 @@
+KILLED WholeScene (exit -532462766): Unhandled exception. System.Exception: scoped scan composes main but never unrelated HUD or inactive pooled rows
+KILLED MissingComparison (exit -532462766): Unhandled exception. System.Exception: detached item and blessing comparison TMPs compose, including a second instance's panel

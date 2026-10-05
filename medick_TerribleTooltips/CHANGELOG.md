@@ -1,8 +1,63 @@
-## Unreleased
-- Range-aware grades and native description macros; owned matched-rule labels and optional rarity selection.
-- Expert-review fixes for colour precedence, empty signals and unknown roll values. Version unchanged.
-
 # Changelog — MedicK's Terrible Tooltips
+
+## Unreleased
+- Range-aware grades and native description macros; owned matched-rule labels and optional rarity selection (contributed by spoter, PR #12).
+- Expert-review fixes for colour precedence, empty signals and unknown roll values.
+- Merged onto v3.1.2: keeps the v3.1.1 scoped tooltip scan and [perf] telemetry; the rule-label row retries creation at most four times a second; new Color Affixes by Tier setting defaults ON so existing colouring is unchanged.
+
+## v3.1.2 - Season 5 compatibility
+
+- Season 5 compatibility update with the CoreModule startup repair embedded in the mod DLL.
+- Updated dropped-item label patch for the game method that no longer takes a boolean parameter.
+- Updated item identity handling for the new 32-bit individualID, fixing the old missing-method error on hover.
+- Updated multi-stat affix lookup to the Season 5 master affix list API.
+- One-DLL installation: replace medick_Terrible_Tooltips.dll in Mods. No extra plugin or repair tool is required.
+- Retains the v3.1.1 performance fixes and existing settings.
+
+## v3.1.1 - the performance release
+
+Bug report from Trunks1981: hovering Affix Shards dropped his framerate to 17 FPS. His debug log
+found three separate problems, all the same shape - work that should have happened once was
+happening every frame.
+
+### Fixed
+- **Stale tooltip text kept demanding full scans.** When the game recycles a tooltip text field for
+  plain crafting text, the mod lost track of it and re-requested a scan every frame, indefinitely.
+  Gear text recovered on its own; shard text never did. Those entries are now retired after a
+  completed pass, with marked originals kept so Alt ranges and master-off restore still work.
+- **The loot filter rule number searched forever.** A matched rule needs somewhere to write itself,
+  which on gear is the requirements line. Crafting shards have none, so the search re-ran filter
+  matching plus two descendant passes every frame. Discovery is now bounded by a 0.5 second
+  wall clock and completes as not-applicable; a requirements row that activates late still gets
+  its Rule#.
+- **Every scan searched the entire UI.** Scans now collect from the tooltip's own panels, including
+  comparison, blessing and resonance content and the implicit/unique/prefix/suffix/sealed families,
+  verified field by field against the game's own tooltip types. A whole-scene fallback remains for
+  out-of-scope siblings, throttled to once per 0.5 seconds and counted separately so it cannot hide.
+- **The "affix formatter hook may be dead" warning no longer false-fires** on tooltips that simply
+  have nothing to format.
+
+Measured on the reporter's machine between versions: from roughly 20 whole-scene scans inside a
+single second, never settling while hovering, down to a handful per five seconds with long
+stretches at zero.
+
+### Added
+- Three settings rows for the 3.1.0 look, which shipped with no way to adjust it in game:
+  **Show Tier and Grade** (master switch for the whole signal), **Compact Tier Word (T7)**
+  (T7 instead of Tier 7), and **Tier and Grade Border** (the box on or off). All three redraw an
+  open tooltip immediately.
+- With the signal off, affix lines render clean: no tier, no grade, no divider, no box. There is no
+  tier-only-off switch; Show Grade Letters still gives tier without grades.
+- `DebugLog = true` now prints one `[perf]` summary every five seconds counting scans, what
+  triggered them, how many text objects were examined, and rule-lookup activity. It costs nothing
+  when the setting is off, and it turns a vague "it feels slow" report into an answerable one.
+
+### Changed
+- The Affix Name Color description now documents `GreaterAffix`, the current default, and notes
+  that `TierColor` restores the pre-3.1.0 coloured affix text. Nothing was removed in 3.1.0; the
+  old look is one setting away.
+
+Thanks to Trunks1981 for the report, the log, and for testing three betas.
 
 ## v3.1.0 — the clean-signal release
 - Greater-affix tint: Tier 6/7 affix sentences now render in a light purple; Tier 1–5 stay plain white.

@@ -10,7 +10,7 @@ public static class FilterRuleTooltip
         public TextMeshProUGUI Row, Face;
         public SimpleLayoutGroup Group;
         public SimpleLayoutGroup.SimpleLayoutElement Element;
-        public float NextMatch, Width, Height, MeasureRetryAt;
+        public float NextMatch, Width, Height, MeasureRetryAt, CreateRetryAt;
         public SimpleLayoutGroup Section;
         public bool PositionPending, Suspended;
         public float PositionRetryAt;
@@ -116,6 +116,7 @@ public static class FilterRuleTooltip
                     owner.NextMatch = Time.unscaledTime + 0.25f;
                     owner.Mode = mode;
                     owner.Label = ResolveLabel(owner.Item, mode);
+                    if (TooltipPerf.Enabled) TooltipPerf.RuleMatch();
                 }
                 if (owner.Label == null) { RemoveRow(owner); continue; }
                 if (!EnsureOwnedRow(owner)) continue;
@@ -137,8 +138,17 @@ public static class FilterRuleTooltip
         if (!intact)
         {
             RemoveRow(owner);
-
-            return CreateRow(owner);
+            // Items with no footer/flow (crafting shards) cannot host the row.
+            // Bound the hierarchy search like every other retry here (v3.1.1 stutter).
+            if (Time.unscaledTime < owner.CreateRetryAt) return false;
+            if (CreateRow(owner))
+            {
+                if (TooltipPerf.Enabled) TooltipPerf.RuleInjected();
+                return true;
+            }
+            owner.CreateRetryAt = Time.unscaledTime + 0.25f;
+            if (TooltipPerf.Enabled) TooltipPerf.RuleNoTarget();
+            return false;
         }
         // Refresh the owned registration reference if native registration was replaced.
         owner.Element = FindElement(owner.Group, owner.Section.transform.Cast<RectTransform>());

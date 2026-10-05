@@ -1,0 +1,1 @@
+Updated for Season 5. Keep your eyes on the fight with floating skill icons above your character while abilities cool down. Supports keyboard, Xbox, and PS5 layouts with auto-detection, custom labels, and movement lock while settings are open. Press Home to configure. Requires MelonLoader.

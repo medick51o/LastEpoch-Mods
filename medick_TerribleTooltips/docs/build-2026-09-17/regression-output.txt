@@ -1,0 +1,54 @@
+PASS missing target: at most 13 discovery attempts despite repeated equal-content setters
+PASS missing target: rule matching exactly once
+PASS telemetry proves one generation, missing destinations and terminal give-up
+PASS summary includes decisive retry counters
+PASS summary rate limited through next five-second boundary
+PASS idle heartbeat resets counters
+PASS target activated at frame 7 still receives Rule# and original requirements
+PASS late target does not repeat matching
+PASS successful same-content setter rewrite reapplies cached Rule#
+PASS same-content setter does not stack existing tag
+PASS master-off prevents cached Rule# reapplication
+PASS known destination repair survives master-off and resumes after original deadline
+PASS known destination repair survives rule-display off/on without another setter
+PASS persisted-marker reuse resolves rule once when rewritten after discovery deadline
+PASS known-target repairs neither rediscover descendants nor repeat matching
+PASS inactive previously successful row is replaced without rematching
+PASS inactive destination invalidation is visible as one bounded replacement window
+PASS inactive missing replacement remains bounded despite equal-content setters
+PASS detached previously successful row is replaced without rematching
+PASS detached destination invalidation is visible as one bounded replacement window
+PASS detached missing replacement remains bounded despite equal-content setters
+PASS renamed previously successful row is replaced without rematching
+PASS renamed destination invalidation is visible as one bounded replacement window
+PASS repurposed cached row never receives Rule#
+PASS renamed missing replacement remains bounded despite equal-content setters
+PASS ID-less equal-content wrappers retain retry bound
+PASS ID-less changed material subtype starts a fresh generation
+PASS target reuse clears stale pending ownership even with rule display off
+PASS closure releases pending ownership
+PASS low FPS uses wall-clock deadline
+PASS different item content opens a fresh budget
+PASS discovery exceptions are bounded too
+PASS completed scan retires active empty and ineligible originals
+PASS marked and successfully composed originals retain restoration data
+PASS retirement cannot leave range enforcement without restoration data
+PASS retirement counter measures actual retired entries
+PASS retirement ends marker-loss loop next frame
+PASS fallback survives for late text
+PASS five-frame dirty window remains inclusive
+PASS one scan per frame cap retained
+PASS master-off restores retained marked originals
+PASS two-stat clean text retains border links and marker
+PASS Alt restores range from valid original
+PASS master transition restores full original after Alt
+PASS retirement precedes relayout: freshly composed original survives native late rewrite
+PASS next completed pass retires uncomposable native replacement
+PASS failed scan does not retire unknown ownership
+PASS unbracketed sealed two-stat block still composes
+PASS existing ground marker exclusion remains unchanged
+PASS sealed original restores intact
+PASS actual LateUpdate gate counts scans once with exclusive dirty/marker-loss/fallback reasons
+PASS disabled event sites neither count nor start a telemetry window
+PASS disabled telemetry heartbeat: no clock reads, allocations or logging (preference guard only)
+RESULT: 53 assertions passed; controlled stubs, no in-game proof.

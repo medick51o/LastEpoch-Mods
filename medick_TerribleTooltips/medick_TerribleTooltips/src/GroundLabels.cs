@@ -68,7 +68,7 @@ public static class GroundLabels
 
     // ── Patch ─────────────────────────────────────────────────────────
     [HarmonyPatch(typeof(GroundItemLabel),
-        nameof(GroundItemLabel.SetGroundTooltipText))]
+        nameof(GroundItemLabel.SetGroundTooltipText), new System.Type[0])]
     internal static class Patch_GroundLabel
     {
         private static void Postfix(GroundItemLabel __instance)

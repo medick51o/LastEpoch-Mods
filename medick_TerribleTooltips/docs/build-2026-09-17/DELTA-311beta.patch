@@ -1,0 +1,553 @@
+diff --git a/medick_TerribleTooltips/CHANGELOG.md b/medick_TerribleTooltips/CHANGELOG.md
+index 196dcf2..a998228 100644
+--- a/medick_TerribleTooltips/CHANGELOG.md
++++ b/medick_TerribleTooltips/CHANGELOG.md
+@@ -1,5 +1,12 @@
+ # Changelog — MedicK's Terrible Tooltips
+ 
++## v3.1.1-beta1 — shard-stutter diagnostic beta
++- Fixes two confirmed-by-code per-frame loops: active repurposed tooltip text could repeatedly trigger scene scans, and filter-rule injection could retry matching/discovery forever when no active `requires` row existed. The reporter's exact crafting-shard scenario has **not** been reproduced in-hand; this is a feedback beta.
++- Retires markerless originals only after a completed composition pass and before native relayout; marked originals remain available for Alt/master-off restoration. The five-frame dirty window and 0.5-second fallback remain.
++- Caches rule matching and allows target discovery through 12 frames or 0.5 seconds (whichever expires first), then stops for that content. Repeated same-content setters do not restart the budget; late equipment rows within the window still receive Rule#. Invalidation of a previously found requirements row permits one bounded replacement-search window, without repeating matching; repeated setters with no replacement cannot restart it.
++- Existing `DebugLog=true` now emits at most one `[perf]` summary per five seconds (actual elapsed time shown). `scans`/`fullScene` count scan/enumeration attempts; exclusive `dirty`/`markerLoss`/`fallback` triggers retain that gate's priority (dirty, then fallback, then marker loss). `staleRetired` counts active markerless originals released. `ruleStart` counts content generations, `ruleReplacement` invalidated destinations opening a bounded replacement window, `ruleAttempts` discovery attempts, `ruleMatch` resolver calls (each may include native/manual fallback matching), `ruleNoTarget` matched attempts without a destination, `ruleGiveUp` exhausted windows (including discovery failures), `ruleInjected` successful writes, `ruleReuse` ownership clears, and `scanErrors` outer scan failures. Counters reset each summary; zero summaries also print while debug is on. A settled stationary hover should stop rule attempts and settle to fallback scanning unless fresh dirty signals/text rewrites continue.
++- No new config keys. Scene-scan scoping and zero-width marker separation remain queued; this beta retains the existing markers and border/ground-label code. No in-game or FPS improvement claim yet.
++
+ ## v3.1.0 — the clean-signal release
+ - Greater-affix tint: Tier 6/7 affix sentences now render in a light purple; Tier 1–5 stay plain white.
+ - New default look: the Tier·Grade signal is now plain coloured text — "Tier N | Grade" — drawn inside a bordered box with a divider between tier and grade, replacing the old badge/plate chips.
+diff --git a/medick_TerribleTooltips/medick_TerribleTooltips/src/BuildInfo.cs b/medick_TerribleTooltips/medick_TerribleTooltips/src/BuildInfo.cs
+index 5ee8dd6..0d625b4 100644
+--- a/medick_TerribleTooltips/medick_TerribleTooltips/src/BuildInfo.cs
++++ b/medick_TerribleTooltips/medick_TerribleTooltips/src/BuildInfo.cs
+@@ -10,6 +10,6 @@ internal static class BuildInfo
+ {
+     public const string Name         = "Terrible Tooltips";   // MelonInfo name — FROZEN (Fallen Star ABI)
+     public const string OfficialName = "MedicK's Terrible Tooltips";
+-    public const string Version      = "3.1.0";
++    public const string Version      = "3.1.1-beta1";
+     public const string Author       = "medick";
+ }
+diff --git a/medick_TerribleTooltips/medick_TerribleTooltips/src/FilterRuleTooltip.cs b/medick_TerribleTooltips/medick_TerribleTooltips/src/FilterRuleTooltip.cs
+index 5678acc..38f8d0c 100644
+--- a/medick_TerribleTooltips/medick_TerribleTooltips/src/FilterRuleTooltip.cs
++++ b/medick_TerribleTooltips/medick_TerribleTooltips/src/FilterRuleTooltip.cs
+@@ -30,6 +30,96 @@ public static class FilterRuleTooltip
+ 
+     private static ItemDataUnpacked s_pendingItem  = null;
+     private static bool             s_injected     = false;
++    private static UITooltipItem s_owner;
++    private static GameObject s_target;
++    private static int s_targetType;
++    private static byte[] s_itemId;
++    private static (byte type, ushort subtype, byte rarity, ushort unique, ushort individual) s_fallbackId;
++    private static int s_startFrame;
++    private static float s_deadline;
++    private static int s_lastAttemptFrame = -1;
++    private static bool s_ruleResolved;
++    private static Rule s_rule;
++    private static int s_displayNum;
++    private static bool s_repairPending;
++    private static bool s_hadDestination;
++    private const int SettleFrames = 12;
++    private const float SettleSeconds = 0.5f;
++
++    // The serialized ID, not the managed/native wrapper identity, distinguishes
++    // content: callers may unpack the same item anew on every setter call.
++    private static void Capture(UITooltipItem tooltip, ItemDataUnpacked item)
++    {
++        try
++        {
++            if (tooltip == null || item == null) { ClearPending(); return; }
++            var id = item.id;
++            bool same = s_owner == tooltip && s_target == tooltip.target &&
++                        s_targetType == tooltip.targetType && s_pendingItem != null;
++            if (id != null && id.Length > 0)
++            {
++                same &= s_itemId != null && s_itemId.Length == id.Length;
++                if (same)
++                    for (int i = 0; i < id.Length; i++)
++                        if (s_itemId[i] != id[i]) { same = false; break; }
++            }
++            else
++            {
++                // Defensive fallback for ID-less data. Stable fields distinguish
++                // material types without a fresh wrapper restarting every frame.
++                same &= s_itemId == null && s_fallbackId ==
++                    (item.itemType, item.subType, item.rarity, item.uniqueID, item.individualID);
++            }
++
++            if (same)
++            {
++                s_pendingItem = item;
++                // Known destination repair is separate from discovery exhaustion.
++                // Keep it pending across master/display off, including a tag
++                // inherited from a prior hover whose rule was not resolved here.
++                if (s_hadDestination)
++                {
++                    if (!UsableDestination()) BeginReplacement();
++                    else if (!(s_destination.text ?? "").Contains(Marker))
++                        s_repairPending = true;
++                }
++                return;
++            }
++
++            ClearPending();
++            s_owner = tooltip;
++            s_target = tooltip.target;
++            s_targetType = tooltip.targetType;
++            s_pendingItem = item;
++            s_fallbackId = (item.itemType, item.subType, item.rarity, item.uniqueID, item.individualID);
++            if (id != null && id.Length > 0)
++            {
++                s_itemId = new byte[id.Length];
++                for (int i = 0; i < id.Length; i++) s_itemId[i] = id[i];
++            }
++            s_startFrame = Time.frameCount;
++            s_deadline = Time.unscaledTime + SettleSeconds;
++            if (TooltipPerf.Enabled) TooltipPerf.RuleStart();
++        }
++        catch { ClearPending(); }
++    }
++
++    private static TextMeshProUGUI s_destination;
++
++    private static void ClearPending()
++    {
++        s_owner = null;
++        s_target = null;
++        s_pendingItem = null;
++        s_itemId = null;
++        s_rule = null;
++        s_destination = null;
++        s_ruleResolved = false;
++        s_repairPending = false;
++        s_hadDestination = false;
++        s_injected = false;
++        s_lastAttemptFrame = -1;
++    }
+ 
+     // ── Harmony: inventory / stash / equipment hover ──────────────────
+     [HarmonyPatch(typeof(UITooltipItem), "SetAsItemTooltip")]
+@@ -37,12 +127,8 @@ public static class FilterRuleTooltip
+     {
+         private static void Postfix(UITooltipItem __instance, ItemDataUnpacked item)
+         {
+-            if (item != null)
+-            {
+-                s_pendingItem = item;
+-                TooltipRecolor.MarkDirty();   // new tooltip content — the composer must look
+-                s_injected    = false;
+-            }
++            if (item != null) TooltipRecolor.MarkDirty();
++            Capture(__instance, item);
+         }
+     }
+ 
+@@ -53,90 +139,144 @@ public static class FilterRuleTooltip
+     {
+         private static void Postfix(UITooltipItem __instance, ItemDataUnpacked _item)
+         {
+-            if (_item != null)
+-            {
+-                s_pendingItem = _item;
+-                TooltipRecolor.MarkDirty();
+-                s_injected    = false;
+-            }
++            if (_item != null) TooltipRecolor.MarkDirty();
++            Capture(__instance, _item);
+         }
+     }
+ 
+     // ── Called from OnUpdate — injects after tooltip is rendered ──────
+     public static void MonitorUpdate()
+     {
+-        // Master toggle promises "turn this off to restore default item
+-        // tooltips" — that includes the gold Rule #, which defaults ON in v2.
+-        if (!Prefs.EnableTooltips.Value) return;
+-        var mode = Prefs.ShowFilterRuleNumber.Value;
+-        if (mode == FilterRuleDisplay.Off) return;
+-
+         try
+         {
+-            var tooltipUI = UITooltipItem.instance;
+-            if (tooltipUI == null) return;
+-
+-            bool active = false;
+-            try { active = tooltipUI.tooltipActive; } catch { }
+-
+-            if (!active)
++            // Ownership is checked even while the display/master preference is off.
++            // A pooled tooltip must not inherit the previous item's pending rule.
++            if (s_owner == null || !s_owner.tooltipActive ||
++                s_owner != UITooltipItem.instance || s_owner.target != s_target ||
++                s_owner.targetType != s_targetType)
+             {
+-                s_pendingItem = null;
+-                s_injected    = false;
++                if (s_pendingItem != null && TooltipPerf.Enabled) TooltipPerf.RuleReuse();
++                ClearPending();
+                 return;
+             }
+-
+-            if (s_pendingItem == null || s_injected) return;
+-
+-            // Marker already present → re-hover of same item, injection
+-            // persisted. Scan ONLY the 'requires' TMP (the sole element we
+-            // inject into) — a whole-tooltip scan could false-positive on
+-            // another mod's zero-width characters and silently suppress us.
+-            try
++            if (!Prefs.EnableTooltips.Value ||
++                Prefs.ShowFilterRuleNumber.Value == FilterRuleDisplay.Off) return;
++            if (s_repairPending)
+             {
+-                foreach (var tmp in tooltipUI.GetComponentsInChildren<TextMeshProUGUI>())
++                if (!UsableDestination())
+                 {
+-                    if (tmp == null || tmp.gameObject.name != "requires") continue;
+-                    if ((tmp.text ?? "").Contains(Marker))
++                    BeginReplacement();
++                }
++                else
++                {
++                    if (!(s_destination.text ?? "").Contains(Marker))
+                     {
+-                        s_injected = true;
+-                        Dbg.Log("marker already in 'requires' — injection persisted");
+-                        return;
++                        ResolveRuleOnce();
++                        if (s_rule != null) WriteRule(s_destination);
+                     }
++                    s_repairPending = false;
++                    return;
+                 }
+             }
+-            catch { }
+-
+-            if (!TryGetMatchedRule(s_pendingItem, out int displayNum, out Rule rule) || rule == null)
++            if (s_pendingItem == null || s_injected) return;
++            int frame = Time.frameCount;
++            if (frame == s_lastAttemptFrame) return;
++            if (s_lastAttemptFrame >= 0 &&
++                (frame > s_startFrame + SettleFrames || Time.unscaledTime > s_deadline))
+             {
+-                s_injected = true;  // don't retry
++                GiveUp();
+                 return;
+             }
++            s_lastAttemptFrame = frame;
++            if (TooltipPerf.Enabled) TooltipPerf.RuleAttempt();
+ 
+-            string ruleTag;
+-            if (mode == FilterRuleDisplay.NumberOnly)
+-                ruleTag = $"<size=120%><b><color={Gold}>Rule#{displayNum}</color></b></size>";
+-            else
+-                ruleTag = $"<color={Gold}>Rule #{displayNum}: {GetRuleName(rule)}</color>";
+-
+-            // Inject into the 'requires' element (the proven-visible target)
+-            try
++            // One descendant pass per attempt; only matching is cached, so a
++            // requirements row created/activated a few frames late is still found.
++            TextMeshProUGUI destination = null;
++            foreach (var tmp in s_owner.GetComponentsInChildren<TextMeshProUGUI>())
+             {
+-                foreach (var tmp in tooltipUI.GetComponentsInChildren<TextMeshProUGUI>())
++                if (tmp == null || tmp.gameObject.name != "requires" ||
++                    !tmp.gameObject.activeInHierarchy) continue;
++                if ((tmp.text ?? "").Contains(Marker))
+                 {
+-                    if (tmp == null || tmp.gameObject.name != "requires") continue;
+-                    if (!tmp.gameObject.activeInHierarchy) continue;
+-
+-                    string orig = tmp.text ?? "";
+-                    tmp.text = ruleTag + Marker + "\n" + orig;
++                    s_destination = tmp;
++                    s_hadDestination = true;
+                     s_injected = true;
+-                    Dbg.Log($"rule #{displayNum} injected");
++                    Dbg.Log("marker already in 'requires' — injection persisted");
+                     return;
+                 }
++                if (destination == null) destination = tmp;
++            }
++
++            ResolveRuleOnce();
++            if (s_rule == null) { s_injected = true; return; }
++            if (destination != null)
++            {
++                WriteRule(destination);
++                return;
+             }
+-            catch { }
++            if (TooltipPerf.Enabled) TooltipPerf.RuleNoTarget();
++            if (frame >= s_startFrame + SettleFrames || Time.unscaledTime >= s_deadline)
++                GiveUp();
+         }
+-        catch { }
++        catch
++        {
++            // Discovery/native failures share the same deadline, never an endless retry.
++            if (Time.frameCount >= s_startFrame + SettleFrames || Time.unscaledTime >= s_deadline)
++                GiveUp();
++        }
++    }
++
++    private static void GiveUp()
++    {
++        s_injected = true; // terminal for this content, even if SetAs repeats
++        s_repairPending = false;
++        s_hadDestination = false;
++        s_destination = null;
++        if (TooltipPerf.Enabled) TooltipPerf.RuleGiveUp();
++    }
++
++    private static bool UsableDestination()
++        => s_destination != null && s_destination.gameObject.name == "requires" &&
++           s_destination.gameObject.activeInHierarchy &&
++           s_destination.transform.IsChildOf(s_owner.transform);
++
++    private static void BeginReplacement()
++    {
++        // Consume a previously found destination once. Repeated setters with no
++        // replacement cannot reopen this budget; another success is required.
++        s_hadDestination = false;
++        s_destination = null;
++        s_repairPending = false;
++        s_injected = false;
++        s_startFrame = Time.frameCount;
++        s_deadline = Time.unscaledTime + SettleSeconds;
++        s_lastAttemptFrame = -1;
++        if (TooltipPerf.Enabled) TooltipPerf.RuleReplacement();
++    }
++
++    private static void ResolveRuleOnce()
++    {
++        if (s_ruleResolved) return;
++        // Set before native matching: even an exception cannot retry it forever.
++        s_ruleResolved = true;
++        if (TooltipPerf.Enabled) TooltipPerf.RuleMatch();
++        TryGetMatchedRule(s_pendingItem, out s_displayNum, out s_rule);
++    }
++
++    private static void WriteRule(TextMeshProUGUI destination)
++    {
++        if (!Prefs.EnableTooltips.Value || Prefs.ShowFilterRuleNumber.Value == FilterRuleDisplay.Off)
++            return;
++        string ruleTag = Prefs.ShowFilterRuleNumber.Value == FilterRuleDisplay.NumberOnly
++            ? $"<size=120%><b><color={Gold}>Rule#{s_displayNum}</color></b></size>"
++            : $"<color={Gold}>Rule #{s_displayNum}: {GetRuleName(s_rule)}</color>";
++        destination.text = ruleTag + Marker + "\n" + (destination.text ?? "");
++        s_destination = destination;
++        s_hadDestination = true;
++        s_injected = true;
++        if (TooltipPerf.Enabled) TooltipPerf.RuleInjected();
++        Dbg.Log($"rule #{s_displayNum} injected");
+     }
+ 
+     // ── Rule finder ───────────────────────────────────────────────────
+diff --git a/medick_TerribleTooltips/medick_TerribleTooltips/src/TooltipRecolor.cs b/medick_TerribleTooltips/medick_TerribleTooltips/src/TooltipRecolor.cs
+index 2970a14..ce4fdce 100644
+--- a/medick_TerribleTooltips/medick_TerribleTooltips/src/TooltipRecolor.cs
++++ b/medick_TerribleTooltips/medick_TerribleTooltips/src/TooltipRecolor.cs
+@@ -91,13 +91,15 @@ public static class TooltipRecolor
+     internal static void ReRenderNow()
+         => ReRenderFromOriginals();
+ 
+-    private static bool ShouldScan()
++    internal enum ScanTrigger { None, Dirty, MarkerLoss, Fallback }
++
++    private static ScanTrigger ShouldScan()
+     {
+         int frame = Time.frameCount;
+-        if (frame == s_lastScanFrame) return false;     // never scan twice in one frame
+-        if (frame <= s_dirtyUntilFrame) return true;
++        if (frame == s_lastScanFrame) return ScanTrigger.None; // never twice in one frame
++        if (frame <= s_dirtyUntilFrame) return ScanTrigger.Dirty;
+         float now = Time.unscaledTime;
+-        if (s_lastScanTime < 0f || now - s_lastScanTime >= FallbackScanInterval) return true;
++        if (s_lastScanTime < 0f || now - s_lastScanTime >= FallbackScanInterval) return ScanTrigger.Fallback;
+ 
+         // Cheap per-frame check: did the game overwrite something we composed?
+         foreach (var kv in s_originals)
+@@ -106,11 +108,11 @@ public static class TooltipRecolor
+             try
+             {
+                 if (tmp == null || !tmp.gameObject.activeInHierarchy) continue;
+-                if (!(tmp.text ?? "").Contains(Marker)) return true;
++                if (!(tmp.text ?? "").Contains(Marker)) return ScanTrigger.MarkerLoss;
+             }
+             catch { }
+         }
+-        return false;
++        return ScanTrigger.None;
+     }
+ 
+     private static bool DeepTier  => s_altHeld || Prefs.AlwaysShowTierDetails.Value;
+@@ -164,6 +166,7 @@ public static class TooltipRecolor
+     // ── Called from TerribleTooltipsMod.OnLateUpdate() ────────────────
+     public static void OnLateUpdate()
+     {
++        TooltipPerf.Tick();
+         DriveNativeRangeSwitch();
+ 
+         // GLM BLOCKER 2026-09-10: master-off must restore marked text and release caches.
+@@ -199,8 +202,9 @@ public static class TooltipRecolor
+             if (Prefs.EnableTooltips.Value &&
+                 s_lastTooltip != null && s_lastTooltip.tooltipActive)
+             {
+-                if (ShouldScan())
+-                    RunScan(s_lastTooltip, s_lastArgs);
++                ScanTrigger trigger = ShouldScan();
++                if (trigger != ScanTrigger.None)
++                    RunScan(s_lastTooltip, s_lastArgs, trigger);
+             }
+         }
+         catch { }
+@@ -376,19 +380,22 @@ public static class TooltipRecolor
+             if (!Prefs.EnableTooltips.Value) return;
+             s_lastTooltip = __instance;                 // for the Alt-path re-measure
+             s_lastArgs    = __args;
+-            if (!ShouldScan()) return;                  // positioning-only frame — free
+-            RunScan(__instance, __args);
++            ScanTrigger trigger = ShouldScan();
++            if (trigger == ScanTrigger.None) return;
++            RunScan(__instance, __args, trigger);
+         }
+     }
+ 
+     // The scan + compose pass. Runs from the UpdateLayout postfix (gated)
+     // and from the LateUpdate dirty catch-up.
+-    private static void RunScan(UITooltipItem __instance, object[] __args)
++    private static void RunScan(UITooltipItem __instance, object[] __args, ScanTrigger trigger)
+     {
+         s_lastScanFrame = Time.frameCount;
+         s_lastScanTime = Time.unscaledTime;
++        if (TooltipPerf.Enabled) TooltipPerf.Scan(trigger);
+         try
+         {
++            if (TooltipPerf.Enabled) TooltipPerf.FullScene();
+             TextMeshProUGUI[] allTMPs =
+                 UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>();
+             if (allTMPs == null) return;
+@@ -541,6 +548,11 @@ public static class TooltipRecolor
+                 catch { }
+             }
+ 
++            // Only after a completed pass, BEFORE native relayout can rewrite
++            // successfully composed text. Marked text still needs its original
++            // for Alt/master-off; active markerless replacements no longer do.
++            RetireStaleOriginals();
++
+             // ── Lean law: we shrank texts AFTER the game measured the
+             //    essay — re-measure once so the blank rows collapse.
+             if (composed > 0)
+@@ -548,6 +560,7 @@ public static class TooltipRecolor
+         }
+         catch (Exception ex)
+         {
++            if (TooltipPerf.Enabled) TooltipPerf.ScanError();
+             // Latched: UpdateLayout fires on every tooltip layout — an
+             // unlatched warning here would spam a whole farming session.
+             if (!s_recolorWarned)
+@@ -609,6 +622,31 @@ public static class TooltipRecolor
+         foreach (int k in dead) s_originals.Remove(k);
+     }
+ 
++    private static void RetireStaleOriginals()
++    {
++        List<int> stale = null;
++        foreach (var kv in s_originals)
++        {
++            try
++            {
++                TextMeshProUGUI tmp = kv.Value.tmp;
++                if (tmp == null || !tmp.gameObject.activeInHierarchy ||
++                    (tmp.text ?? "").Contains(Marker)) continue;
++                (stale ??= new List<int>()).Add(kv.Key);
++            }
++            catch { } // Unknown ownership: keep restoration data, not a blind delete.
++        }
++        if (stale == null) return;
++        foreach (int id in stale)
++        {
++            s_originals.Remove(id);
++            // Do not let the enforcement pass re-hide a future Range rewrite
++            // after its restoration data was retired. The next scan recaptures it.
++            s_suppressedRanges.Remove(id);
++        }
++        if (TooltipPerf.Enabled) TooltipPerf.StaleRetired(stale.Count);
++    }
++
+     // ── The composer (bracketed affix TMPs) ───────────────────────────
+     // Deterministic: always transforms ORIGINAL EHG text (bracket intact),
+     // never its own output. Deep view = Alt held or per-detail pins.
+@@ -966,3 +1004,70 @@ public static class TooltipRecolor
+         return result;
+     }
+ }
++
++// Beta telemetry stays in this file to avoid widening the source write set.
++// Disabled: preference guards only; no clock reads, counters, formatting or I/O.
++// Callers guard before invoking event methods. The first event starts the window,
++// including events before the first LateUpdate; enabling never loses that sample.
++internal static class TooltipPerf
++{
++    internal static bool Enabled => Prefs.DebugLog != null && Prefs.DebugLog.Value;
++    private static bool s_running;
++    private static float s_started;
++    private static long s_scans, s_fullScene, s_dirty, s_markerLoss, s_fallback;
++    private static long s_ruleStart, s_ruleReplacement, s_ruleAttempts, s_ruleMatch, s_ruleNoTarget;
++    private static long s_ruleGiveUp, s_ruleInjected, s_ruleReuse, s_staleRetired, s_scanErrors;
++
++    private static void Begin()
++    {
++        if (s_running) return;
++        s_running = true;
++        s_started = Time.unscaledTime;
++    }
++
++    internal static void Scan(TooltipRecolor.ScanTrigger trigger)
++    {
++        Begin();
++        s_scans++;
++        if (trigger == TooltipRecolor.ScanTrigger.Dirty) s_dirty++;
++        else if (trigger == TooltipRecolor.ScanTrigger.MarkerLoss) s_markerLoss++;
++        else if (trigger == TooltipRecolor.ScanTrigger.Fallback) s_fallback++;
++    }
++    internal static void FullScene() { Begin(); s_fullScene++; }
++    internal static void ScanError() { Begin(); s_scanErrors++; }
++    internal static void RuleStart() { Begin(); s_ruleStart++; }
++    internal static void RuleReplacement() { Begin(); s_ruleReplacement++; }
++    internal static void RuleAttempt() { Begin(); s_ruleAttempts++; }
++    internal static void RuleMatch() { Begin(); s_ruleMatch++; }
++    internal static void RuleNoTarget() { Begin(); s_ruleNoTarget++; }
++    internal static void RuleGiveUp() { Begin(); s_ruleGiveUp++; }
++    internal static void RuleInjected() { Begin(); s_ruleInjected++; }
++    internal static void RuleReuse() { Begin(); s_ruleReuse++; }
++    internal static void StaleRetired(int count) { Begin(); s_staleRetired += count; }
++
++    internal static void Tick()
++    {
++        if (!Enabled)
++        {
++            if (s_running) { Reset(); s_running = false; }
++            return;
++        }
++        Begin();
++        float now = Time.unscaledTime;
++        float elapsed = now - s_started;
++        if (elapsed < 5f) return;
++        // Advance/reset before logging so a logger failure cannot cause a flood.
++        string summary = FormattableString.Invariant(
++            $"[perf] {elapsed:0.0}s: scans={s_scans} (fullScene={s_fullScene}, trigger: dirty={s_dirty}/markerLoss={s_markerLoss}/fallback={s_fallback}) ruleStart={s_ruleStart} ruleReplacement={s_ruleReplacement} ruleAttempts={s_ruleAttempts} ruleMatch={s_ruleMatch} ruleNoTarget={s_ruleNoTarget} ruleGiveUp={s_ruleGiveUp} ruleInjected={s_ruleInjected} ruleReuse={s_ruleReuse} staleRetired={s_staleRetired} scanErrors={s_scanErrors}");
++        Reset();
++        s_started = now;
++        try { MelonLogger.Msg(summary); } catch { }
++    }
++
++    private static void Reset()
++    {
++        s_scans = s_fullScene = s_dirty = s_markerLoss = s_fallback = 0;
++        s_ruleStart = s_ruleReplacement = s_ruleAttempts = s_ruleMatch = s_ruleNoTarget = 0;
++        s_ruleGiveUp = s_ruleInjected = s_ruleReuse = s_staleRetired = s_scanErrors = 0;
++    }
++}

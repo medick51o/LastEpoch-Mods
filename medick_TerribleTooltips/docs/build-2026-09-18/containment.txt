@@ -1,0 +1,5 @@
+CHANGED C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\medick_TerribleTooltips\src\BuildInfo.cs
+CHANGED C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\medick_TerribleTooltips\src\FilterRuleTooltip.cs
+CHANGED C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\medick_TerribleTooltips\src\TooltipRecolor.cs
+PASS FilterRuleTooltip exact delta: s_startFrame declaration and two writes only
+PASS all remaining source hashes unchanged (including GroundLabels, UnitBorder, AffixInjector, Prefs)

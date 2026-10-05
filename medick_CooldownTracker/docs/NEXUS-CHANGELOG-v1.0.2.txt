@@ -1,0 +1,12 @@
+MedicK's Terrible Cooldowns v1.0.2
+Season 5 compatibility update
+
+- Fixed the CoreModule loading failure that could prevent the mod from starting after the Season 5 update.
+- Built the compatibility repair into the mod DLL. No separate plugin, script, or extra library download is required.
+- The repair preserves an original CoreModule backup and handles regenerated files when needed.
+- Rebuilt against the current Season 5 game assemblies.
+- Existing settings, custom labels, and panel position are preserved.
+
+Installation: Close the game and replace medick_CooldownTracker.dll in Last Epoch/Mods. The ZIP contains exactly one DLL. Requires MelonLoader 0.7.3.
+
+Press Home to open settings.

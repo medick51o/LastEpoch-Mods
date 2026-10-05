@@ -1,0 +1,148 @@
+# Changelog — MedicK's Terrible Tooltips
+
+## v3.1.1-beta2 — shard-stutter diagnostic beta
+- Fixes two confirmed-by-code per-frame loops: active repurposed tooltip text could repeatedly trigger scene scans, and filter-rule injection could retry matching/discovery forever when no active `requires` row existed. The reporter's exact crafting-shard scenario has **not** been reproduced in-hand; this is a feedback beta.
+- Retires markerless originals only after a completed composition pass and before native relayout; marked originals remain available for Alt/master-off restoration. The five-frame dirty window and 0.5-second fallback remain.
+- Caches rule matching and allows target discovery through a 0.5-second wall-clock bound, then stops for that content. Repeated same-content setters do not restart the budget; late equipment rows within the window still receive Rule#. Invalidation of a previously found requirements row permits one bounded replacement-search window, without repeating matching; repeated setters with no replacement cannot restart it.
+- Existing `DebugLog=true` now emits at most one `[perf]` summary per five seconds (actual elapsed time shown). `scans`/`fullScene` count scan/enumeration attempts; exclusive `dirty`/`markerLoss`/`fallback` triggers retain that gate's priority (dirty, then fallback, then marker loss). `staleRetired` counts active markerless originals released. `ruleStart` counts content generations, `ruleReplacement` invalidated destinations opening a bounded replacement window, `ruleAttempts` discovery attempts, `ruleMatch` resolver calls (each may include native/manual fallback matching), `ruleNoTarget` matched attempts without a destination, `ruleGiveUp` exhausted windows (including discovery failures), `ruleInjected` successful writes, `ruleReuse` ownership clears, and `scanErrors` outer scan failures. Counters reset each summary; zero summaries also print while debug is on. A settled stationary hover should stop rule attempts and settle to fallback scanning unless fresh dirty signals/text rewrites continue.
+- No new config keys. Scene-scan scoping and zero-width marker separation remain queued; this beta retains the existing markers and border/ground-label code. No in-game or FPS improvement claim yet.
+
+## v3.1.0 — the clean-signal release
+- Greater-affix tint: Tier 6/7 affix sentences now render in a light purple; Tier 1–5 stay plain white.
+- New default look: the Tier·Grade signal is now plain coloured text — "Tier N | Grade" — drawn inside a bordered box with a divider between tier and grade, replacing the old badge/plate chips.
+- Wrapped affix lines and two-stat affix rows now get the box and divider correctly.
+- The filter rule number now renders at 120% size, bold.
+- New settings: SignalStyle, AffixNameColor, GreaterAffixTint, UnitBorder, TierWord, UnitSeparator, DividerStyle, BorderColorMode, BorderThickness, BorderPadX, BorderPadY, BorderDebug (see README for the full table of defaults).
+
+## v3.0.2 — the Nexus bug-report release
+- Fixed Kaazkulaas's two-stat/weaver affix report by resolving `AffixFormatter`'s null affix from the stat property; each stat line intentionally carries its own bracket (for example, two clean `[1F]` lines).
+- Fixed speedscalzone's mouseover stutter by keeping the content scan behind the five-frame dirty window and active-tooltip catch-up gate.
+- Fixed the Hold-Alt raw-bracket regression by marking formatter injections dirty so the composer catches the game's late text rewrite.
+- Master off now restores marked vanilla tooltip text, releases the native range switch, and stops reapplying tier colours.
+- Tooltip settings now invalidate an open tooltip, with layout/style/name-colour/grade-letter/pin changes re-rendered immediately; dropped ground labels still refresh on re-drop.
+- Guarded the public filter API against negative ordered indexes without changing its ABI.
+- Made preference-save and native-range failures loud, and added the 20-scan dead-affix-hook warning.
+- Added a startup warning that lists orphaned cfg keys without deleting them.
+- Kept the `DebugLog = true` formatter trace for actionable bug reports while removing the two trace-proven dead `FormatAffix` hooks.
+- Builds can still opt out of the Mods-folder copy with `DeployToMods=false`.
+
+## v3.0.1 — Nexus bug-report pass
+Two community reports, both fixed at the root.
+
+### Fixed
+- **Weaver affixes on idols now get their Tier/Grade in the inventory
+  tooltip** (reported by Kaazkulaas on Nexus): the ground label read the
+  affix straight from the item and graded it fine, but the tooltip path
+  for weaver affixes never reached the formatter the bracket was injected
+  into, so the line came through bare. The bracket is now injected one
+  level up, on the game's `FormatAffix` wrapper that every item affix
+  passes through, whenever the lower formatter didn't already do it.
+  Multi-stat affixes ("+17 Health / +2 Health Regen") also read as one
+  thing now: continuation lines wear the affix's tier colour.
+- **Mouseover stutter while moving** (reported by speedscalzone on Nexus):
+  a ground tooltip follows its label, so while the player walks the game
+  re-positions the tooltip every frame — and v3.0.0 answered every one of
+  those calls with a full-scene text scan. The scan now runs only when the
+  tooltip's *content* may have changed (a tooltip opening, Alt/range
+  switch flipping, the game rewriting a line, or a slow fallback tick);
+  positioning-only frames cost nothing.
+
+### Unchanged on purpose
+- Every setting, the cfg path, the colour language, the ecosystem treaties
+  (LeHud truce, Fallen Star) and every crash law.
+
+## v3.0.0 — THE CLEAN LINE
+One line per affix. The essay dies.
+
+### Changed
+- **Affix lines composed clean**: each affix is now ONE line — the affix
+  text plus a `Tier 5·A` signal (tier in its tier colour, grade in its
+  grade colour). EHG's separate "Tier: 5 (max craftable)" and
+  "Range: 40% to 60%" lines are folded away. A 4-affix exalted drops from
+  ~16 lines of tooltip to ~5.
+- **Hold Alt = deep view**: while hovering, hold Alt and the full EHG
+  detail (ranges, craft info) returns live under each affix. Release Alt
+  and it's clean again.
+
+### Added — the layout toy box
+- **Tooltip Layout** (dropdown): `BadgeLeft` — "Tier 5·A  affix text"
+  (default) · `SignalRight` — signal at the right edge · `Trailing` —
+  "affix text — Tier 5 A". Build it how you want.
+- **Signal Style** (dropdown): `Badge` (default) — Tier/Grade render as
+  colored chips: the chip wears the tier colour, the text inside renders
+  in one bright ink that stays readable on every chip, so the signal
+  reads as a *label* while the affix text keeps the color story ·
+  `PlainText` — colored text, no chips.
+- **Affix Name Color** (dropdown): `TierColor` (default — the text wears
+  its tier colour) or `GameDefault` (only the signal is coloured).
+- **Show Grade Letters** (toggle): want the S/A/B/C/F gone? It's gone.
+- **Always Show Ranges / Always Show Tier Details** (toggles): pin the
+  deep-view lines permanently if Alt isn't your style. Both default OFF.
+
+### Fixed — release-night fleet pass (2026-07-01)
+- **Ground labels are truly untouched again**: the clean-line composer
+  could capture a single-affix ground bracket (its wake gate had no
+  ground-label exclusion) and permanently mangle it into chip format.
+  The composer now excludes anything carrying the ground-label marker.
+- **Hold-Alt ground labels**: an item dropped while Alt was already held
+  now shows its brackets immediately (the swap previously fired only on
+  an Alt state *change*).
+
+### Unchanged on purpose
+- Ground labels — the KG bracket is beloved; the bracket format renders
+  exactly as it always has (tonight's fixes only shield the labels from
+  the composer and make Alt-mode brackets appear instantly).
+- Standalone set/unique Tier widgets keep the v2 recolor treatment
+  (they're separate game widgets, not our essay to kill). Standalone
+  Range rows now follow the same ranges-hidden / Hold-Alt rule as the
+  rest of the tooltip — the lean pass superseded the keep-as-is plan.
+- All v1/v2 settings, the cfg path, every ecosystem treaty (LeHud truce,
+  Fallen Star), and every crash law.
+
+## v2.0.0 — the ground-up rebuild
+The whole mod was re-architected from a single 400-line Core.cs into twelve
+focused modules, with every battle-tested behaviour preserved verbatim.
+
+### Fixed
+- **Legendary grading bug** (reported by zoundb on Nexus): affixes on
+  Legendary Potential items could grade absurdly low — a max-rolled 12% Mana
+  graded C instead of S. The grade is now read from the game's own stored
+  roll bytes (`uniqueRolls`) instead of being reconstructed from display
+  values, so legendaries grade exactly as well as they rolled.
+- Off-by-one that could skip the last unique affix when grading.
+
+### Changed
+- **Tooltip: Show Filter Rule # now defaults to NumberOnly** (was Off) —
+  the matched rule number shows in gold on hover out of the box.
+- Colour-legend rows in settings are now honest information rows — the
+  decorative non-functional checkbox is gone (no more "this box is not
+  clickable" apology).
+- One startup log line; everything else behind a new `DebugLog` cfg option.
+  (Aaron's House keeps its ♥ lines. Canon.)
+- Per-feature patching: a game update that breaks one native signature now
+  degrades that one feature with a clear warning instead of taking the mod
+  down with it.
+
+### Unchanged on purpose
+- All v1 settings, names and the cfg file path — existing configs upgrade
+  in place, nothing resets.
+- The colour language (T1 gray → T7 mythic pink, F → S grades).
+- LeHud truce (face-colour preservation) and the Fallen Star treaty
+  (unique/set/legendary ground items stay theirs).
+- The 69. The (PoG)/(RiP). Aaron's House and its map ritual. The jank is
+  part of the homage.
+
+## v1.5.0
+- LeHud compatibility fix (tooltip crash on co-install)
+- Tooltip filter Rule # display rebuilt
+
+## v1.4.0
+- Ground label rule # positioning (Start / End / EHGDefault)
+- Tooltip: Show Filter Rule # display modes
+
+## v1.3.0
+- Ground label styles (TierOnly / RankOnly), Filter Only, Hold-Alt mode
+
+## v1.2.0
+- Initial public release: tier/grade tooltip colouring, ground label
+  brackets, To Aaron's House

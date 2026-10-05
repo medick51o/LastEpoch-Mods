@@ -1,0 +1,105 @@
+using System;
+using System.Runtime.CompilerServices;
+using Il2CppInterop.Common.Attributes;
+using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime.InteropTypes;
+using Il2CppInterop.Runtime.Runtime;
+using Il2CppSystem;
+using Il2CppTMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Il2Cpp;
+
+public class UITooltipItemAffix : MonoBehaviour
+{
+	private static readonly System.IntPtr NativeFieldInfoPtr__text;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__corruptedBorder;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Awake_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Init_Public_Void_ValueTuple_2_String_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr__ctor_Public_Void_0;
+
+	public unsafe TextMeshProUGUI _text
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__text);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<TextMeshProUGUI>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__text)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)textMeshProUGUI));
+		}
+	}
+
+	public unsafe Image _corruptedBorder
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__corruptedBorder);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Image>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__corruptedBorder)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)image));
+		}
+	}
+
+	static UITooltipItemAffix()
+	{
+		Il2CppClassPointerStore<UITooltipItemAffix>.NativeClassPtr = IL2CPP.GetIl2CppClass("LE.dll", "", "UITooltipItemAffix");
+		IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<UITooltipItemAffix>.NativeClassPtr);
+		NativeFieldInfoPtr__text = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<UITooltipItemAffix>.NativeClassPtr, "_text");
+		NativeFieldInfoPtr__corruptedBorder = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<UITooltipItemAffix>.NativeClassPtr, "_corruptedBorder");
+		NativeMethodInfoPtr_Awake_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<UITooltipItemAffix>.NativeClassPtr, 100690959);
+		NativeMethodInfoPtr_Init_Public_Void_ValueTuple_2_String_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<UITooltipItemAffix>.NativeClassPtr, 100690960);
+		NativeMethodInfoPtr__ctor_Public_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<UITooltipItemAffix>.NativeClassPtr, 100690961);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 773588, XrefRangeEnd = 773596, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Awake()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Awake_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(8)]
+	[CachedScanResults(RefRangeStart = 773602, RefRangeEnd = 773610, XrefRangeStart = 773596, XrefRangeEnd = 773602, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Init(Il2CppSystem.ValueTuple<string, bool> data)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)data));
+		Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Init_Public_Void_ValueTuple_2_String_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(1023)]
+	[CachedScanResults(RefRangeStart = 49343, RefRangeEnd = 50366, XrefRangeStart = 49343, XrefRangeEnd = 50366, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe UITooltipItemAffix()
+		: this(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<UITooltipItemAffix>.NativeClassPtr))
+	{
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__ctor_Public_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	public UITooltipItemAffix(System.IntPtr pointer)
+		: base(pointer)
+	{
+	}
+}

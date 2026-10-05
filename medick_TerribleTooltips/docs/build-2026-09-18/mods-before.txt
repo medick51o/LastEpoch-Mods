@@ -1,0 +1,5 @@
+
+Algorithm : MD5
+Hash      : CDE6ED796A5AEABB93EA9347B5A0C164
+Path      : C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\Mods\medick_Terrible_Tooltips.dll
+

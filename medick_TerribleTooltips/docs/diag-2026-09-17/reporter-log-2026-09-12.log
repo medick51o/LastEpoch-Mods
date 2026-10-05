@@ -1,0 +1,460 @@
+[19:21:15.773] [MelonLoader.Bootstrap] Using HostFXR Path: C:\Program Files\dotnet\host\fxr\10.0.12\hostfxr.dll
+[19:21:15.774] [MelonLoader.Bootstrap] Using .NET runtime: 'C:\Program Files\dotnet\host\fxr\10.0.12\hostfxr.dll'
+
+[19:21:16.002] ------------------------------
+[19:21:16.003] MelonLoader v0.7.3 Open-Beta
+[19:21:16.005] OS: Windows 11
+[19:21:16.005] Hash Code: BDD43DC0F3893C208C95389B863AB61C967AE14204DA0DD8051647E754C8709B
+[19:21:16.005] ------------------------------
+[19:21:16.005] Game Type: Il2cpp
+[19:21:16.005] Game Arch: x64
+[19:21:16.005] ------------------------------
+[19:21:16.006] Command-Line: 
+[19:21:16.006] ------------------------------
+[19:21:16.006] Core::BasePath = G:\SteamLibrary\steamapps\common\Last Epoch
+[19:21:16.008] Game::BasePath = G:\SteamLibrary\steamapps\common\Last Epoch
+[19:21:16.008] Game::DataPath = G:\SteamLibrary\steamapps\common\Last Epoch\Last Epoch_Data
+[19:21:16.008] Game::ApplicationPath = G:\SteamLibrary\steamapps\common\Last Epoch\Last Epoch.exe
+[19:21:16.008] Runtime Type: net6
+[19:21:16.327] ------------------------------
+[19:21:16.328] Game Name: Last Epoch
+[19:21:16.328] Game Developer: Eleventh Hour Games
+[19:21:16.329] Unity Version: 6000.0.42f1
+[19:21:16.329] Game Version: 1.4.7
+[19:21:16.329] ------------------------------
+
+[19:21:16.784] Preferences Loaded!
+
+[19:21:16.817] Loading UserLibs...
+[19:21:16.818] 0 UserLibs loaded.
+
+[19:21:16.819] Loading Plugins...
+[19:21:16.822] 0 Plugins loaded.
+
+[19:21:21.308] Loading Il2CppAssemblyGenerator...
+[19:21:21.330] [Il2CppAssemblyGenerator] Contacting RemoteAPI...
+[19:21:21.494] [Il2CppAssemblyGenerator] Game Not Found on RemoteAPI Host (https://api.melonloader.com/api/v1/game/last-epoch)
+[19:21:21.494] [Il2CppAssemblyGenerator] RemoteAPI.DumperVersion = null
+[19:21:21.495] [Il2CppAssemblyGenerator] RemoteAPI.ObfuscationRegex = null
+[19:21:21.495] [Il2CppAssemblyGenerator] RemoteAPI.MappingURL = null
+[19:21:21.495] [Il2CppAssemblyGenerator] RemoteAPI.MappingFileSHA512 = null
+[19:21:21.497] [Il2CppAssemblyGenerator] Using Cpp2IL Version: 2022.1.0-pre-release.21
+[19:21:21.497] [Il2CppAssemblyGenerator] Using Il2CppInterop Version = 1.5.1-ci.845+f03c8f4ae507d47ea814f3d11d1ec6b0391c1576
+[19:21:21.498] [Il2CppAssemblyGenerator] Using Unity Dependencies Version = 6000.0.42
+[19:21:21.498] [Il2CppAssemblyGenerator] Using Deobfuscation Regex = null
+[19:21:21.498] [Il2CppAssemblyGenerator] Downloading Cpp2IL...
+[19:21:21.498] [Il2CppAssemblyGenerator] Downloading https://github.com/SamboyCoding/Cpp2IL/releases/download/2022.1.0-pre-release.21/Cpp2IL-2022.1.0-pre-release.21-Windows.exe to G:\SteamLibrary\steamapps\common\Last Epoch\MelonLoader\Dependencies\Il2CppAssemblyGenerator\Cpp2IL\Cpp2IL.exe
+[19:21:22.260] [Il2CppAssemblyGenerator] Processing Cpp2IL...
+[19:21:22.263] [Il2CppAssemblyGenerator] Downloading Cpp2IL.Plugin.StrippedCodeRegSupport...
+[19:21:22.264] [Il2CppAssemblyGenerator] Downloading https://github.com/SamboyCoding/Cpp2IL/releases/download/2022.1.0-pre-release.21/Cpp2IL.Plugin.StrippedCodeRegSupport.dll to G:\SteamLibrary\steamapps\common\Last Epoch\MelonLoader\Dependencies\Il2CppAssemblyGenerator\Cpp2IL\Plugins\Cpp2IL.Plugin.StrippedCodeRegSupport.dll
+[19:21:22.429] [Il2CppAssemblyGenerator] Processing Cpp2IL.Plugin.StrippedCodeRegSupport...
+[19:21:22.429] [Il2CppAssemblyGenerator] Downloading UnityDependencies...
+[19:21:22.429] [Il2CppAssemblyGenerator] Downloading https://github.com/LavaGang/MelonLoader.UnityDependencies/releases/download/6000.0.42/Managed.zip to G:\SteamLibrary\steamapps\common\Last Epoch\MelonLoader\Dependencies\Il2CppAssemblyGenerator\UnityDependencies_6000.0.42.zip
+[19:21:22.806] [Il2CppAssemblyGenerator] Processing UnityDependencies...
+[19:21:22.806] [Il2CppAssemblyGenerator] Creating Directory G:\SteamLibrary\steamapps\common\Last Epoch\MelonLoader\Dependencies\Il2CppAssemblyGenerator\UnityDependencies
+[19:21:22.809] [Il2CppAssemblyGenerator] Extracting G:\SteamLibrary\steamapps\common\Last Epoch\MelonLoader\Dependencies\Il2CppAssemblyGenerator\UnityDependencies_6000.0.42.zip to G:\SteamLibrary\steamapps\common\Last Epoch\MelonLoader\Dependencies\Il2CppAssemblyGenerator\UnityDependencies
+[19:21:22.952] [Il2CppAssemblyGenerator] Checking GameAssembly...
+[19:21:23.101] [Il2CppAssemblyGenerator] Assembly Generation Needed!
+[19:21:23.120] [Il2CppAssemblyGenerator] Executing Cpp2IL...
+[19:21:23.121] [Il2CppAssemblyGenerator] "G:\SteamLibrary\steamapps\common\Last Epoch\MelonLoader\Dependencies\Il2CppAssemblyGenerator\Cpp2IL\Cpp2IL.exe" --game-path "G:\SteamLibrary\steamapps\common\Last Epoch" --exe-name "Last Epoch" --output-as dummydll --use-processor attributeanalyzer attributeinjector
+[19:21:23.828] [Il2CppAssemblyGenerator] ===Cpp2IL by Samboy063===
+[19:21:23.828] [Il2CppAssemblyGenerator] A Tool to Reverse Unity's "il2cpp" Build Process.
+[19:21:23.829] [Il2CppAssemblyGenerator] Version 2022.1.0-pre-release.21+58fc404ac503f4e512055cafc48c03088fc6e224
+[19:21:23.829] [Il2CppAssemblyGenerator] 
+[19:21:23.833] [Il2CppAssemblyGenerator] [Warn] [Program] NO_COLOR set, disabling ANSI color codes as you requested.
+[19:21:23.838] [Il2CppAssemblyGenerator] [Info] [Program] Running on Win32NT
+[19:21:23.899] [Il2CppAssemblyGenerator] [Info] [Plugins] Loading plugins from G:\SteamLibrary\steamapps\common\Last Epoch\MelonLoader\Dependencies\Il2CppAssemblyGenerator\Cpp2IL\Plugins...
+[19:21:23.956] [Il2CppAssemblyGenerator] [Info] [Plugins] Using Plugin: Cpp2IL Built-In
+[19:21:23.956] [Il2CppAssemblyGenerator] [Info] [Plugins] Using Plugin: Stripped CodeReg Support
+[19:21:24.006] [Il2CppAssemblyGenerator] [Info] [Program] Determined game's unity version to be 6000.0.42f1
+[19:21:24.041] [Il2CppAssemblyGenerator] [Info] [Library] Initializing Metadata...
+[19:21:24.043] [Il2CppAssemblyGenerator] [Info] [Library] 	Using actual IL2CPP Metadata version 31,1
+[19:21:24.431] [Il2CppAssemblyGenerator] [Info] [Library] Initialized Metadata in 388ms
+[19:21:24.431] [Il2CppAssemblyGenerator] [Info] [Library] Using binary type Portable Executable (from LibCpp2IL)
+[19:21:24.431] [Il2CppAssemblyGenerator] [Info] [Library] Searching Binary for Required Data...
+[19:21:24.751] [Il2CppAssemblyGenerator] [Info] [Library] Got Binary codereg: 0x183ED33F0, metareg: 0x1841B3D30 in 320ms.
+[19:21:24.751] [Il2CppAssemblyGenerator] [Info] [Library] Initializing Binary...
+[19:21:24.853] [Il2CppAssemblyGenerator] [Info] [Library] Initialized Binary in 101ms
+[19:21:25.088] [Il2CppAssemblyGenerator] [Info] [Library] Mapping pointers to Il2CppMethodDefinitions...Processed 241672 OK (235ms)
+[19:21:25.102] [Il2CppAssemblyGenerator] [Info] [Program] Creating application model...
+[19:21:26.320] [Il2CppAssemblyGenerator] [Info] [Program] Application model created in 1217,8926ms
+[19:21:26.320] [Il2CppAssemblyGenerator] [Info] [Program] Pre-processing processing layers...
+[19:21:26.320] [Il2CppAssemblyGenerator] [Info] [Program]     CustomAttribute Analyzer...
+[19:21:26.320] [Il2CppAssemblyGenerator] [Info] [Program]     CustomAttribute Analyzer finished in 0,0536ms
+[19:21:26.320] [Il2CppAssemblyGenerator] [Info] [Program]     Attribute Injector...
+[19:21:26.320] [Il2CppAssemblyGenerator] [Info] [Program]     Attribute Injector finished in 0,003ms
+[19:21:26.321] [Il2CppAssemblyGenerator] [Info] [Program] Invoking processing layers...
+[19:21:26.321] [Il2CppAssemblyGenerator] [Info] [Program]     CustomAttribute Analyzer...
+[19:21:26.506] [Il2CppAssemblyGenerator] [Info] [Program]     CustomAttribute Analyzer finished in 185,8594ms
+[19:21:26.506] [Il2CppAssemblyGenerator] [Info] [Program]     Attribute Injector...
+[19:21:27.097] [Il2CppAssemblyGenerator] [Info] [Program]     Attribute Injector finished in 590,7726ms
+[19:21:27.097] [Il2CppAssemblyGenerator] [Info] [Program] Outputting as DLL output format for backwards compatibility. to G:\SteamLibrary\steamapps\common\Last Epoch\MelonLoader\Dependencies\Il2CppAssemblyGenerator\Cpp2IL\cpp2il_out...
+[19:21:34.470] [Il2CppAssemblyGenerator] [Info] [Program] Finished outputting in 7372,74ms
+[19:21:34.470] [Il2CppAssemblyGenerator] [Info] [Program] Done. Total execution time: 10461,3372ms
+[19:21:34.634] [Il2CppAssemblyGenerator] Reading dumped assemblies for interop generation...
+[19:21:35.351] [Il2CppAssemblyGenerator] Generating Interop Assemblies...
+[19:21:35.359] [Il2CppAssemblyGenerator] Reading assemblies...
+[19:21:35.410] [Il2CppAssemblyGenerator] Done in 00:00:00.0507290
+[19:21:35.410] [Il2CppAssemblyGenerator] Reading unity assemblies...
+[19:21:35.427] [Il2CppAssemblyGenerator] Done in 00:00:00.0164755
+[19:21:35.427] [Il2CppAssemblyGenerator] Creating rewrite assemblies...
+[19:21:35.445] [Il2CppAssemblyGenerator] Done in 00:00:00.0176672
+[19:21:35.445] [Il2CppAssemblyGenerator] Computing renames...
+[19:21:35.547] [Il2CppAssemblyGenerator] Done in 00:00:00.1010298
+[19:21:35.547] [Il2CppAssemblyGenerator] Creating typedefs...
+[19:21:35.686] [Il2CppAssemblyGenerator] Done in 00:00:00.1393107
+[19:21:35.687] [Il2CppAssemblyGenerator] Computing struct blittability...
+[19:21:35.800] [Il2CppAssemblyGenerator] Done in 00:00:00.1132675
+[19:21:35.800] [Il2CppAssemblyGenerator] Filling typedefs...
+[19:21:36.031] [Il2CppAssemblyGenerator] Done in 00:00:00.2308279
+[19:21:36.032] [Il2CppAssemblyGenerator] Filling generic constraints...
+[19:21:36.041] [Il2CppAssemblyGenerator] Done in 00:00:00.0087862
+[19:21:36.041] [Il2CppAssemblyGenerator] Creating members...
+[19:21:39.393] [Il2CppAssemblyGenerator] Done in 00:00:03.3520045
+[19:21:39.393] [Il2CppAssemblyGenerator] Scanning method cross-references...
+[19:21:40.646] [Il2CppAssemblyGenerator] Done in 00:00:01.2524586
+[19:21:40.647] [Il2CppAssemblyGenerator] Finalizing method declarations...
+[19:21:46.196] [Il2CppAssemblyGenerator] Done in 00:00:05.5484968
+[19:21:46.196] [Il2CppAssemblyGenerator] 432 total potentially dead methods
+[19:21:46.196] [Il2CppAssemblyGenerator] Filling method parameters...
+[19:21:48.098] [Il2CppAssemblyGenerator] Done in 00:00:01.9016326
+[19:21:48.098] [Il2CppAssemblyGenerator] Creating static constructors...
+[19:21:49.336] [Il2CppAssemblyGenerator] Done in 00:00:01.2377388
+[19:21:49.336] [Il2CppAssemblyGenerator] Creating value type fields...
+[19:21:49.362] [Il2CppAssemblyGenerator] Done in 00:00:00.0250085
+[19:21:49.362] [Il2CppAssemblyGenerator] Creating enums...
+[19:21:49.596] [Il2CppAssemblyGenerator] Done in 00:00:00.2333401
+[19:21:49.596] [Il2CppAssemblyGenerator] Creating IntPtr constructors...
+[19:21:49.688] [Il2CppAssemblyGenerator] Done in 00:00:00.0920036
+[19:21:49.688] [Il2CppAssemblyGenerator] Creating non-blittable struct constructors...
+[19:21:49.695] [Il2CppAssemblyGenerator] Done in 00:00:00.0057057
+[19:21:49.695] [Il2CppAssemblyGenerator] Creating generic method static constructors...
+[19:21:49.848] [Il2CppAssemblyGenerator] Done in 00:00:00.1531797
+[19:21:49.849] [Il2CppAssemblyGenerator] Creating field accessors...
+[19:21:52.316] [Il2CppAssemblyGenerator] Done in 00:00:02.4670762
+[19:21:52.316] [Il2CppAssemblyGenerator] Filling methods...
+[19:21:56.016] [Il2CppAssemblyGenerator] Done in 00:00:03.6987341
+[19:21:56.016] [Il2CppAssemblyGenerator] Generating implicit conversions...
+[19:21:56.063] [Il2CppAssemblyGenerator] Done in 00:00:00.0469062
+[19:21:56.063] [Il2CppAssemblyGenerator] Implementing awaiters...
+[19:21:56.080] [Il2CppAssemblyGenerator] Done in 00:00:00.0160688
+[19:21:56.080] [Il2CppAssemblyGenerator] Creating properties...
+[19:21:56.679] [Il2CppAssemblyGenerator] Done in 00:00:00.5991180
+[19:21:56.679] [Il2CppAssemblyGenerator] Unstripping types...
+[19:21:56.721] [Il2CppAssemblyGenerator] Done in 00:00:00.0412304
+[19:21:56.721] [Il2CppAssemblyGenerator] Unstripping fields...
+[19:21:56.729] [Il2CppAssemblyGenerator] Restored 514 fields
+[19:21:56.729] [Il2CppAssemblyGenerator] Failed to restore 13 fields
+[19:21:56.729] [Il2CppAssemblyGenerator] Done in 00:00:00.0075205
+[19:21:56.729] [Il2CppAssemblyGenerator] Unstripping methods...
+[19:21:57.197] [Il2CppAssemblyGenerator] Restored 15739 methods
+[19:21:57.197] [Il2CppAssemblyGenerator] Failed to restore 934 methods
+[19:21:57.198] [Il2CppAssemblyGenerator] Done in 00:00:00.4686868
+[19:21:57.198] [Il2CppAssemblyGenerator] Unstripping method bodies...
+[19:21:57.500] [Il2CppAssemblyGenerator] IL unstrip statistics: 9704 successful, 1389 failed
+[19:21:57.501] [Il2CppAssemblyGenerator] Done in 00:00:00.3024768
+[19:21:57.501] [Il2CppAssemblyGenerator] Writing xref cache...
+[19:21:58.665] [Il2CppAssemblyGenerator] Done in 00:00:01.1634523
+[19:21:58.665] [Il2CppAssemblyGenerator] Writing assemblies...
+[19:22:07.899] [Il2CppAssemblyGenerator] Done in 00:00:09.2338240
+[19:22:07.899] [Il2CppAssemblyGenerator] Writing method pointer map...
+[19:22:07.961] [Il2CppAssemblyGenerator] Done in 00:00:00.0613230
+[19:22:07.961] [Il2CppAssemblyGenerator] Clearing static data...
+[19:22:07.962] [Il2CppAssemblyGenerator] Done in 00:00:00.0000083
+[19:22:07.962] [Il2CppAssemblyGenerator] Done!
+[19:22:07.963] [Il2CppAssemblyGenerator] Cleaning up...
+[19:22:07.963] [Il2CppAssemblyGenerator] Interop Generation Complete!
+[19:22:07.964] [Il2CppAssemblyGenerator] Moving Il2CppALINE.dll
+[19:22:07.964] [Il2CppAssemblyGenerator] Moving Il2CppAwesomeTechnologies.TouchReactSystemPro.Runtime.dll
+[19:22:07.965] [Il2CppAssemblyGenerator] Moving Il2CppAwesomeTechnologies.VegetationStudioPro.Runtime.dll
+[19:22:07.965] [Il2CppAssemblyGenerator] Moving Il2CppBezierSolution.Runtime.dll
+[19:22:07.966] [Il2CppAssemblyGenerator] Moving Il2CppCinemachine.dll
+[19:22:07.966] [Il2CppAssemblyGenerator] Moving Il2CppCoffee.SoftMaskForUGUI.dll
+[19:22:07.966] [Il2CppAssemblyGenerator] Moving Il2CppCoffee.SoftMaskForUGUI.R.dll
+[19:22:07.967] [Il2CppAssemblyGenerator] Moving Il2CppCommandLine.dll
+[19:22:07.967] [Il2CppAssemblyGenerator] Moving Il2CppCrest.dll
+[19:22:07.967] [Il2CppAssemblyGenerator] Moving Il2Cppcrosstales.dll
+[19:22:07.967] [Il2CppAssemblyGenerator] Moving Il2CppCSharp.OperationResult.dll
+[19:22:07.968] [Il2CppAssemblyGenerator] Moving Il2CppDialogueSystem.dll
+[19:22:07.968] [Il2CppAssemblyGenerator] Moving Il2CppDOTween.dll
+[19:22:07.968] [Il2CppAssemblyGenerator] Moving Il2CppDOTweenPro.dll
+[19:22:07.968] [Il2CppAssemblyGenerator] Moving Il2CppDreamteck.Splines.dll
+[19:22:07.968] [Il2CppAssemblyGenerator] Moving Il2CppDreamteck.Utilities.dll
+[19:22:07.969] [Il2CppAssemblyGenerator] Moving Il2CppDunGen.dll
+[19:22:07.969] [Il2CppAssemblyGenerator] Moving Il2CppEHRGB.dll
+[19:22:07.969] [Il2CppAssemblyGenerator] Moving Il2CppEntroPI.CloudShadows.Runtime.dll
+[19:22:07.969] [Il2CppAssemblyGenerator] Moving Il2CppFacepunch.Steamworks.Win64.dll
+[19:22:07.969] [Il2CppAssemblyGenerator] Moving Il2CppFewClicksDev.Core.Runtime.dll
+[19:22:07.970] [Il2CppAssemblyGenerator] Moving Il2CppFmodShared.dll
+[19:22:07.970] [Il2CppAssemblyGenerator] Moving Il2CppFMODUnity.dll
+[19:22:07.970] [Il2CppAssemblyGenerator] Moving Il2CppFMODUnityResonance.dll
+[19:22:07.970] [Il2CppAssemblyGenerator] Moving Il2CppGenerated.dll
+[19:22:07.970] [Il2CppAssemblyGenerator] Moving Il2CppGradientGenerator.dll
+[19:22:07.971] [Il2CppAssemblyGenerator] Moving Il2CppHeathen.ScreenKeyboard.dll
+[19:22:07.971] [Il2CppAssemblyGenerator] Moving Il2CppHoudiniEngineUnity.dll
+[19:22:07.971] [Il2CppAssemblyGenerator] Moving Il2CppJBooth.MicroSplat.Core.dll
+[19:22:07.971] [Il2CppAssemblyGenerator] Moving Il2CppJBooth.MicroVerseCore.dll
+[19:22:07.971] [Il2CppAssemblyGenerator] Moving Il2CppLE.Core.dll
+[19:22:07.972] [Il2CppAssemblyGenerator] Moving Il2CppLE.dll
+[19:22:07.972] [Il2CppAssemblyGenerator] Moving Il2CppLE.EventSub.Runtime.dll
+[19:22:07.972] [Il2CppAssemblyGenerator] Moving Il2CppLE.Networking.Core.dll
+[19:22:07.972] [Il2CppAssemblyGenerator] Moving Il2CppLE.PCG.dll
+[19:22:07.972] [Il2CppAssemblyGenerator] Moving Il2CppLE.SignalBus.dll
+[19:22:07.973] [Il2CppAssemblyGenerator] Moving Il2CppLE.Telemetry.Client.dll
+[19:22:07.973] [Il2CppAssemblyGenerator] Moving Il2CppLE.Telemetry.dll
+[19:22:07.973] [Il2CppAssemblyGenerator] Moving Il2CppLE.UI.Controls.dll
+[19:22:07.973] [Il2CppAssemblyGenerator] Moving Il2CppLidgren.Network.dll
+[19:22:07.973] [Il2CppAssemblyGenerator] Moving Il2CppLuaInterpreter.dll
+[19:22:07.974] [Il2CppAssemblyGenerator] Moving Il2CppMathNet.Numerics.dll
+[19:22:07.976] [Il2CppAssemblyGenerator] Moving Il2CppMeshCombiner_Assembly.dll
+[19:22:07.976] [Il2CppAssemblyGenerator] Moving Il2CppMeshExtension.dll
+[19:22:07.976] [Il2CppAssemblyGenerator] Moving Il2CppMono.Security.dll
+[19:22:07.976] [Il2CppAssemblyGenerator] Moving Il2Cppmscorlib.dll
+[19:22:07.977] [Il2CppAssemblyGenerator] Moving Il2CppNewAssembly.dll
+[19:22:07.977] [Il2CppAssemblyGenerator] Moving Il2CppNewtonsoft.Json.dll
+[19:22:07.977] [Il2CppAssemblyGenerator] Moving Il2CppNewtonsoft.Json.UnityConverters.dll
+[19:22:07.977] [Il2CppAssemblyGenerator] Moving Il2CppPlayFab.dll
+[19:22:07.978] [Il2CppAssemblyGenerator] Moving Il2CppPolly.dll
+[19:22:07.978] [Il2CppAssemblyGenerator] Moving Il2CppProBuilderCore-Unity5.dll
+[19:22:07.978] [Il2CppAssemblyGenerator] Moving Il2CppProBuilderMeshOps-Unity5.dll
+[19:22:07.978] [Il2CppAssemblyGenerator] Moving Il2CppProceduralTentacleGPU.dll
+[19:22:07.979] [Il2CppAssemblyGenerator] Moving Il2CppRayFireAssembly.dll
+[19:22:07.979] [Il2CppAssemblyGenerator] Moving Il2CppRAyFireTutorial.dll
+[19:22:07.979] [Il2CppAssemblyGenerator] Moving Il2CppRewired_Core.dll
+[19:22:07.979] [Il2CppAssemblyGenerator] Moving Il2CppRewired_Windows.dll
+[19:22:07.980] [Il2CppAssemblyGenerator] Moving Il2CppRewired_Windows_Functions.dll
+[19:22:07.980] [Il2CppAssemblyGenerator] Moving Il2CppRFLib_DotNet_2018.dll
+[19:22:07.980] [Il2CppAssemblyGenerator] Moving Il2CppRG.ImGui.dll
+[19:22:07.980] [Il2CppAssemblyGenerator] Moving Il2CppRG.ImGui.Unity.dll
+[19:22:07.981] [Il2CppAssemblyGenerator] Moving Il2CppSirenix.OdinInspector.Attributes.dll
+[19:22:07.981] [Il2CppAssemblyGenerator] Moving Il2CppSirenix.OdinInspector.Modules.Unity.Addressables.dll
+[19:22:07.981] [Il2CppAssemblyGenerator] Moving Il2CppSirenix.OdinInspector.Modules.UnityLocalization.dll
+[19:22:07.982] [Il2CppAssemblyGenerator] Moving Il2CppSirenix.Serialization.AOTGenerated.dll
+[19:22:07.982] [Il2CppAssemblyGenerator] Moving Il2CppSirenix.Serialization.Config.dll
+[19:22:07.982] [Il2CppAssemblyGenerator] Moving Il2CppSirenix.Serialization.dll
+[19:22:07.982] [Il2CppAssemblyGenerator] Moving Il2CppSirenix.Utilities.dll
+[19:22:07.983] [Il2CppAssemblyGenerator] Moving Il2CppStreamChat.Core.dll
+[19:22:07.983] [Il2CppAssemblyGenerator] Moving Il2CppStreamChat.Libs.dll
+[19:22:07.983] [Il2CppAssemblyGenerator] Moving Il2CppSystem.ComponentModel.DataAnnotations.dll
+[19:22:07.984] [Il2CppAssemblyGenerator] Moving Il2CppSystem.Configuration.dll
+[19:22:07.984] [Il2CppAssemblyGenerator] Moving Il2CppSystem.Core.dll
+[19:22:07.984] [Il2CppAssemblyGenerator] Moving Il2CppSystem.Data.dll
+[19:22:07.984] [Il2CppAssemblyGenerator] Moving Il2CppSystem.dll
+[19:22:07.984] [Il2CppAssemblyGenerator] Moving Il2CppSystem.Drawing.dll
+[19:22:07.985] [Il2CppAssemblyGenerator] Moving Il2CppSystem.IO.Compression.dll
+[19:22:07.985] [Il2CppAssemblyGenerator] Moving Il2CppSystem.IO.Compression.FileSystem.dll
+[19:22:07.985] [Il2CppAssemblyGenerator] Moving Il2CppSystem.Net.Http.dll
+[19:22:07.985] [Il2CppAssemblyGenerator] Moving Il2CppSystem.Numerics.dll
+[19:22:07.986] [Il2CppAssemblyGenerator] Moving Il2CppSystem.Runtime.CompilerServices.Unsafe.dll
+[19:22:07.986] [Il2CppAssemblyGenerator] Moving Il2CppSystem.Runtime.Serialization.dll
+[19:22:07.986] [Il2CppAssemblyGenerator] Moving Il2CppSystem.Xml.dll
+[19:22:07.986] [Il2CppAssemblyGenerator] Moving Il2CppSystem.Xml.Linq.dll
+[19:22:07.986] [Il2CppAssemblyGenerator] Moving Il2CppTriangleNET.dll
+[19:22:07.987] [Il2CppAssemblyGenerator] Moving Il2CppUMA_Content.dll
+[19:22:07.987] [Il2CppAssemblyGenerator] Moving Il2CppUMA_Core.dll
+[19:22:07.987] [Il2CppAssemblyGenerator] Moving Il2CppUMA_Examples.dll
+[19:22:07.987] [Il2CppAssemblyGenerator] Moving Il2CppUniTask.Addressables.dll
+[19:22:07.987] [Il2CppAssemblyGenerator] Moving Il2CppUniTask.dll
+[19:22:07.987] [Il2CppAssemblyGenerator] Moving Il2CppWaveHarmonic.Crest.dll
+[19:22:07.988] [Il2CppAssemblyGenerator] Moving Il2CppWaveHarmonic.Crest.Paint.dll
+[19:22:07.988] [Il2CppAssemblyGenerator] Moving Il2CppWaveHarmonic.Crest.Shared.dll
+[19:22:07.988] [Il2CppAssemblyGenerator] Moving Il2CppWaveHarmonic.Crest.Splines.dll
+[19:22:07.988] [Il2CppAssemblyGenerator] Moving Il2CppWaveHarmonic.Crest.Whirlpool.dll
+[19:22:07.988] [Il2CppAssemblyGenerator] Moving Il2CppXNode.dll
+[19:22:07.989] [Il2CppAssemblyGenerator] Moving Il2Cpp__Generated.dll
+[19:22:07.989] [Il2CppAssemblyGenerator] Moving MethodAddressToToken.db
+[19:22:07.989] [Il2CppAssemblyGenerator] Moving MethodXrefScanCache.db
+[19:22:07.991] [Il2CppAssemblyGenerator] Moving Unity.Addressables.dll
+[19:22:07.991] [Il2CppAssemblyGenerator] Moving Unity.AI.Navigation.dll
+[19:22:07.992] [Il2CppAssemblyGenerator] Moving Unity.Burst.dll
+[19:22:07.992] [Il2CppAssemblyGenerator] Moving Unity.Burst.Unsafe.dll
+[19:22:07.992] [Il2CppAssemblyGenerator] Moving Unity.Collections.dll
+[19:22:07.992] [Il2CppAssemblyGenerator] Moving Unity.Collections.LowLevel.ILSupport.dll
+[19:22:07.992] [Il2CppAssemblyGenerator] Moving Unity.Localization.dll
+[19:22:07.993] [Il2CppAssemblyGenerator] Moving Unity.Mathematics.dll
+[19:22:07.993] [Il2CppAssemblyGenerator] Moving Unity.MemoryProfiler.dll
+[19:22:07.993] [Il2CppAssemblyGenerator] Moving Unity.Postprocessing.Runtime.dll
+[19:22:07.993] [Il2CppAssemblyGenerator] Moving Unity.Profiling.Core.dll
+[19:22:07.993] [Il2CppAssemblyGenerator] Moving Unity.RenderPipelines.Core.Runtime.dll
+[19:22:07.994] [Il2CppAssemblyGenerator] Moving Unity.ResourceManager.dll
+[19:22:07.994] [Il2CppAssemblyGenerator] Moving Unity.Services.Analytics.dll
+[19:22:07.994] [Il2CppAssemblyGenerator] Moving Unity.Services.Core.Configuration.dll
+[19:22:07.994] [Il2CppAssemblyGenerator] Moving Unity.Services.Core.Device.dll
+[19:22:07.994] [Il2CppAssemblyGenerator] Moving Unity.Services.Core.dll
+[19:22:07.995] [Il2CppAssemblyGenerator] Moving Unity.Services.Core.Environments.dll
+[19:22:07.995] [Il2CppAssemblyGenerator] Moving Unity.Services.Core.Environments.Internal.dll
+[19:22:07.995] [Il2CppAssemblyGenerator] Moving Unity.Services.Core.Internal.dll
+[19:22:07.995] [Il2CppAssemblyGenerator] Moving Unity.Services.Core.Registration.dll
+[19:22:07.996] [Il2CppAssemblyGenerator] Moving Unity.Services.Core.Scheduler.dll
+[19:22:07.996] [Il2CppAssemblyGenerator] Moving Unity.Services.Core.Telemetry.dll
+[19:22:07.996] [Il2CppAssemblyGenerator] Moving Unity.Services.Core.Threading.dll
+[19:22:07.996] [Il2CppAssemblyGenerator] Moving Unity.Splines.dll
+[19:22:07.996] [Il2CppAssemblyGenerator] Moving Unity.TextMeshPro.dll
+[19:22:07.997] [Il2CppAssemblyGenerator] Moving Unity.Timeline.dll
+[19:22:07.997] [Il2CppAssemblyGenerator] Moving UnityEngine.AccessibilityModule.dll
+[19:22:07.997] [Il2CppAssemblyGenerator] Moving UnityEngine.AIModule.dll
+[19:22:07.997] [Il2CppAssemblyGenerator] Moving UnityEngine.AndroidJNIModule.dll
+[19:22:07.998] [Il2CppAssemblyGenerator] Moving UnityEngine.AnimationModule.dll
+[19:22:07.998] [Il2CppAssemblyGenerator] Moving UnityEngine.ARModule.dll
+[19:22:07.998] [Il2CppAssemblyGenerator] Moving UnityEngine.AssetBundleModule.dll
+[19:22:07.998] [Il2CppAssemblyGenerator] Moving UnityEngine.AudioModule.dll
+[19:22:07.999] [Il2CppAssemblyGenerator] Moving UnityEngine.ClothModule.dll
+[19:22:07.999] [Il2CppAssemblyGenerator] Moving UnityEngine.ContentLoadModule.dll
+[19:22:07.999] [Il2CppAssemblyGenerator] Moving UnityEngine.CoreModule.dll
+[19:22:07.999] [Il2CppAssemblyGenerator] Moving UnityEngine.CrashReportingModule.dll
+[19:22:07.999] [Il2CppAssemblyGenerator] Moving UnityEngine.DirectorModule.dll
+[19:22:08.000] [Il2CppAssemblyGenerator] Moving UnityEngine.dll
+[19:22:08.000] [Il2CppAssemblyGenerator] Moving UnityEngine.DSPGraphModule.dll
+[19:22:08.000] [Il2CppAssemblyGenerator] Moving UnityEngine.GameCenterModule.dll
+[19:22:08.000] [Il2CppAssemblyGenerator] Moving UnityEngine.GIModule.dll
+[19:22:08.000] [Il2CppAssemblyGenerator] Moving UnityEngine.GraphicsStateCollectionSerializerModule.dll
+[19:22:08.000] [Il2CppAssemblyGenerator] Moving UnityEngine.GridModule.dll
+[19:22:08.001] [Il2CppAssemblyGenerator] Moving UnityEngine.HierarchyCoreModule.dll
+[19:22:08.001] [Il2CppAssemblyGenerator] Moving UnityEngine.HotReloadModule.dll
+[19:22:08.001] [Il2CppAssemblyGenerator] Moving UnityEngine.ImageConversionModule.dll
+[19:22:08.001] [Il2CppAssemblyGenerator] Moving UnityEngine.IMGUIModule.dll
+[19:22:08.002] [Il2CppAssemblyGenerator] Moving UnityEngine.InputForUIModule.dll
+[19:22:08.002] [Il2CppAssemblyGenerator] Moving UnityEngine.InputLegacyModule.dll
+[19:22:08.002] [Il2CppAssemblyGenerator] Moving UnityEngine.InputModule.dll
+[19:22:08.002] [Il2CppAssemblyGenerator] Moving UnityEngine.JSONSerializeModule.dll
+[19:22:08.003] [Il2CppAssemblyGenerator] Moving UnityEngine.LocalizationModule.dll
+[19:22:08.003] [Il2CppAssemblyGenerator] Moving UnityEngine.MarshallingModule.dll
+[19:22:08.003] [Il2CppAssemblyGenerator] Moving UnityEngine.MultiplayerModule.dll
+[19:22:08.003] [Il2CppAssemblyGenerator] Moving UnityEngine.ParticleSystemModule.dll
+[19:22:08.003] [Il2CppAssemblyGenerator] Moving UnityEngine.PerformanceReportingModule.dll
+[19:22:08.004] [Il2CppAssemblyGenerator] Moving UnityEngine.Physics2DModule.dll
+[19:22:08.004] [Il2CppAssemblyGenerator] Moving UnityEngine.PhysicsModule.dll
+[19:22:08.004] [Il2CppAssemblyGenerator] Moving UnityEngine.PropertiesModule.dll
+[19:22:08.004] [Il2CppAssemblyGenerator] Moving UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll
+[19:22:08.004] [Il2CppAssemblyGenerator] Moving UnityEngine.ScreenCaptureModule.dll
+[19:22:08.006] [Il2CppAssemblyGenerator] Moving UnityEngine.ShaderVariantAnalyticsModule.dll
+[19:22:08.006] [Il2CppAssemblyGenerator] Moving UnityEngine.SharedInternalsModule.dll
+[19:22:08.007] [Il2CppAssemblyGenerator] Moving UnityEngine.SpriteMaskModule.dll
+[19:22:08.007] [Il2CppAssemblyGenerator] Moving UnityEngine.SpriteShapeModule.dll
+[19:22:08.007] [Il2CppAssemblyGenerator] Moving UnityEngine.StreamingModule.dll
+[19:22:08.007] [Il2CppAssemblyGenerator] Moving UnityEngine.SubstanceModule.dll
+[19:22:08.007] [Il2CppAssemblyGenerator] Moving UnityEngine.SubsystemsModule.dll
+[19:22:08.008] [Il2CppAssemblyGenerator] Moving UnityEngine.TerrainModule.dll
+[19:22:08.008] [Il2CppAssemblyGenerator] Moving UnityEngine.TerrainPhysicsModule.dll
+[19:22:08.008] [Il2CppAssemblyGenerator] Moving UnityEngine.TextCoreFontEngineModule.dll
+[19:22:08.008] [Il2CppAssemblyGenerator] Moving UnityEngine.TextCoreTextEngineModule.dll
+[19:22:08.009] [Il2CppAssemblyGenerator] Moving UnityEngine.TextRenderingModule.dll
+[19:22:08.009] [Il2CppAssemblyGenerator] Moving UnityEngine.TilemapModule.dll
+[19:22:08.009] [Il2CppAssemblyGenerator] Moving UnityEngine.TLSModule.dll
+[19:22:08.009] [Il2CppAssemblyGenerator] Moving UnityEngine.UI.dll
+[19:22:08.009] [Il2CppAssemblyGenerator] Moving UnityEngine.UIElementsModule.dll
+[19:22:08.010] [Il2CppAssemblyGenerator] Moving UnityEngine.UIModule.dll
+[19:22:08.010] [Il2CppAssemblyGenerator] Moving UnityEngine.UmbraModule.dll
+[19:22:08.010] [Il2CppAssemblyGenerator] Moving UnityEngine.UnityAnalyticsCommonModule.dll
+[19:22:08.010] [Il2CppAssemblyGenerator] Moving UnityEngine.UnityAnalyticsModule.dll
+[19:22:08.010] [Il2CppAssemblyGenerator] Moving UnityEngine.UnityConnectModule.dll
+[19:22:08.011] [Il2CppAssemblyGenerator] Moving UnityEngine.UnityCurlModule.dll
+[19:22:08.011] [Il2CppAssemblyGenerator] Moving UnityEngine.UnityTestProtocolModule.dll
+[19:22:08.011] [Il2CppAssemblyGenerator] Moving UnityEngine.UnityWebRequestAssetBundleModule.dll
+[19:22:08.011] [Il2CppAssemblyGenerator] Moving UnityEngine.UnityWebRequestAudioModule.dll
+[19:22:08.011] [Il2CppAssemblyGenerator] Moving UnityEngine.UnityWebRequestModule.dll
+[19:22:08.012] [Il2CppAssemblyGenerator] Moving UnityEngine.UnityWebRequestTextureModule.dll
+[19:22:08.012] [Il2CppAssemblyGenerator] Moving UnityEngine.UnityWebRequestWWWModule.dll
+[19:22:08.012] [Il2CppAssemblyGenerator] Moving UnityEngine.VehiclesModule.dll
+[19:22:08.012] [Il2CppAssemblyGenerator] Moving UnityEngine.VFXModule.dll
+[19:22:08.012] [Il2CppAssemblyGenerator] Moving UnityEngine.VideoModule.dll
+[19:22:08.013] [Il2CppAssemblyGenerator] Moving UnityEngine.VRModule.dll
+[19:22:08.013] [Il2CppAssemblyGenerator] Moving UnityEngine.WindModule.dll
+[19:22:08.013] [Il2CppAssemblyGenerator] Moving UnityEngine.XRModule.dll
+[19:22:08.015] [Il2CppAssemblyGenerator] Assembly Generation Successful!
+
+[19:22:08.023] Loading Mods...
+[19:22:08.043] ------------------------------
+[19:22:08.046] Melon Assembly loaded: '.\Mods\Fallen_Improved_Tooltips.dll'
+[19:22:08.046] SHA256 Hash: '4987D2C43F0293132C887CDDE272637C6CB03D40DBE953B856C94BAFEF8DEFC1'
+[19:22:08.047] Melon Assembly loaded: '.\Mods\medick_CooldownTracker.dll'
+[19:22:08.048] SHA256 Hash: 'B00BCFA4B79585D34B7C450270B97339E43CBE2E5FB7974C3CE7439E7ECC9A31'
+[19:22:08.049] Melon Assembly loaded: '.\Mods\medick_Terrible_Tooltips.dll'
+[19:22:08.049] SHA256 Hash: '905AD5E60E9C62734A95CDEA36E10A57A6BFBE07E85F9D92D9EC48D0F36DDA73'
+
+[19:22:08.806] ------------------------------
+[19:22:08.807] FallenStar's Improved Tooltips v3.2.1
+[19:22:08.807] by FallenStar
+[19:22:08.807] Assembly: Fallen_Improved_Tooltips.dll
+[19:22:08.807] ------------------------------
+[19:22:08.810] ------------------------------
+[19:22:08.810] Terrible Tooltips v3.0.2
+[19:22:08.810] by medick
+[19:22:08.810] Assembly: medick_Terrible_Tooltips.dll
+[19:22:08.810] ------------------------------
+[19:22:08.812] ------------------------------
+[19:22:08.812] medick_CooldownTracker v1.0.0
+[19:22:08.812] by medick
+[19:22:08.813] Assembly: medick_CooldownTracker.dll
+[19:22:08.813] ------------------------------
+[19:22:08.813] ------------------------------
+[19:22:08.813] 3 Mods loaded.
+
+[19:22:10.051] [Il2CppInterop] Registered mono type MelonLoader.Support.MonoEnumeratorWrapper in il2cpp domain
+[19:22:10.229] Support Module Loaded: G:\SteamLibrary\steamapps\common\Last Epoch\MelonLoader\Dependencies\SupportModules\Il2Cpp.dll
+[19:22:10.351] [FallenStar's Improved Tooltips] MelonPreferences Loaded from UserData/FallenImprovedTooltips.cfg
+[19:22:10.359] [Terrible Tooltips] MelonPreferences Loaded from UserData/medick_Terrible_Tooltips.cfg
+[19:22:10.462] MedicK's Terrible Tooltips v3.0.2 loaded (8/8 patches).
+[19:22:10.467] MedicK's Terrible Cooldowns v1.0.0 ready — Home opens settings
+[19:22:12.886] [Il2CppInterop] Registered mono type MelonLoader.Support.SM_Component in il2cpp domain
+[19:22:12.902] Registered mono icall UnityEngine.Transform::SetAsLastSibling in il2cpp domain
+[19:22:22.544] [Il2CppInterop] Registered mono type Il2CppInterop.Runtime.DelegateSupport+Il2CppToMonoDelegateReference in il2cpp domain
+[19:23:18.479] [ERROR] [Il2CppInterop] During invoking native->managed trampoline
+System.InvalidProgramException: Common Language Runtime detected an invalid program.
+   at Fallen_LE_Mods.Shared.GameReferencesCache.Postfix(LoadingScreen& __instance)
+   at DMD<Il2CppLE.UI.LoadingScreen::Disable>(LoadingScreen this)
+   at (il2cpp -> managed) Disable(IntPtr , Il2CppMethodInfo* )
+[19:23:41.699] [ERROR] [Il2CppInterop] During invoking native->managed trampoline
+System.InvalidProgramException: Common Language Runtime detected an invalid program.
+   at Fallen_LE_Mods.Shared.GameReferencesCache.Postfix(LoadingScreen& __instance)
+   at DMD<Il2CppLE.UI.LoadingScreen::Disable>(LoadingScreen this)
+   at (il2cpp -> managed) Disable(IntPtr , Il2CppMethodInfo* )
+[19:23:47.529] [Terrible Tooltips] [trace] AffixFormatter item=set affix=set: [<color=#E1E1E1>2</color><color=#A807FF>B</color>] <size=100%>+13% Lightning Resistance | 
+[19:23:47.529] [Terrible Tooltips] [trace] AffixFormatter item=set affix=set: [<color=#E1E1E1>2</color><color=#DADADA>F</color>] <size=100%>+32 Dodge Rating | 
+[19:23:47.530] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: <color=#ffffff><size=100%>+4</color> Potion Slots | 
+[19:23:47.531] [Terrible Tooltips] [trace] ImplicitFormatter: [<color=#DADADA>F</color>] <color=#ffffff><size=100%>+4</color> Potion Slots | 
+[19:23:47.543] [Terrible Tooltips] [debug] rule #60 injected
+[19:23:47.607] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: <size=100%>+1 to Physical Skills | 
+[19:23:47.613] [Terrible Tooltips] [trace] UniqueBasicModFormatter: [<color=#FF44FF>S</color>] <size=100%>+1 to Physical Skills | 
+[19:23:47.613] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: 6% increased Movement Speed | 
+[19:23:47.613] [Terrible Tooltips] [trace] UniqueBasicModFormatter: [<color=#FF44FF>S</color>] 6% increased Movement Speed | 
+[19:23:47.614] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: 6% increased Throwing Attack Speed | 
+[19:23:47.614] [Terrible Tooltips] [trace] UniqueBasicModFormatter: [<color=#FF44FF>S</color>] 6% increased Throwing Attack Speed | 
+[19:23:47.614] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: <size=100%>+40% Chance to inflict Bleed on Hit | 
+[19:23:47.616] [Terrible Tooltips] [trace] UniqueBasicModFormatter: [<color=#77ACFF>C</color>] <size=100%>+40% Chance to inflict Bleed on Hit | 
+[19:23:47.616] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: <size=100%>36 Damage Reflected to Attackers | 
+[19:23:47.616] [Terrible Tooltips] [trace] UniqueBasicModFormatter: [<color=#77ACFF>C</color>] <size=100%>36 Damage Reflected to Attackers | 
+[19:23:47.617] [Terrible Tooltips] [trace] AffixFormatter item=set affix=set: [<color=#E1E1E1>2</color><color=#DADADA>F</color>] 15% increased Mana Regeneration | 
+[19:23:47.617] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: <color=#ffffff><size=100%>+4</color> Potion Slots | 
+[19:23:47.617] [Terrible Tooltips] [trace] ImplicitFormatter: [<color=#77ACFF>C</color>] <color=#ffffff><size=100%>+4</color> Potion Slots | 
+[19:24:47.431] [Terrible Tooltips] [trace] AffixFormatter item=set affix=set: [<color=#DADADA>1</color><color=#77ACFF>C</color>] <size=100%>+1 Attunement | 
+[19:24:47.431] [Terrible Tooltips] [trace] AffixFormatter item=set affix=set: [<color=#DADADA>1</color><color=#DADADA>F</color>] <size=100%>+1 Intelligence | 
+[19:24:47.432] [Terrible Tooltips] [trace] AffixFormatter item=set affix=set: [<color=#16FF0E>3</color><color=#FA9E3D>A</color>] <size=100%>12% Increased Cooldown Recov
+[19:24:47.432] [Terrible Tooltips] [trace] AffixFormatter item=set affix=set: [<color=#E1E1E1>2</color><color=#77ACFF>C</color>] 15% increased Armor | 
+[19:24:47.432] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: <color=#ffffff><size=100%>+15</color> Armor | 
+[19:24:47.432] [Terrible Tooltips] [trace] ImplicitFormatter: [<color=#DADADA>F</color>] <color=#ffffff><size=100%>+15</color> Armor | 
+[19:24:47.433] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: <color=#ffffff>9%</color> increased Movement Speed | 
+[19:24:47.433] [Terrible Tooltips] [trace] ImplicitFormatter: [<color=#77ACFF>C</color>] <color=#ffffff>9%</color> increased Movement Speed | 
+[19:24:47.492] [Terrible Tooltips] [debug] rule #61 injected
+[19:25:52.884] [Terrible Tooltips] [trace] AffixFormatter item=set affix=set: [<color=#DADADA>1</color><color=#77ACFF>C</color>] <size=100%>+8% Necrotic Resistance | 
+[19:25:52.884] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: <color=#ffffff><size=100%>+32</color> Armor | 
+[19:25:52.885] [Terrible Tooltips] [trace] ImplicitFormatter: [<color=#77ACFF>C</color>] <color=#ffffff><size=100%>+32</color> Armor | 
+[19:26:40.467] [Terrible Tooltips] [debug] rule #68 injected
+[19:26:41.447] [WARNING] [Terrible Tooltips] no affix brackets seen in 20 tooltip scans — the affix formatter hook may be dead after a game update; tooltips will look vanilla
+[19:26:45.996] [Terrible Tooltips] [trace] AffixFormatter item=set affix=set: [<color=#E1E1E1>2</color><color=#DADADA>F</color>] <size=100%>+10% Void Resistance | 
+[19:26:45.996] [Terrible Tooltips] [trace] AffixFormatter item=set affix=set: [<color=#DADADA>1</color><color=#DADADA>F</color>] <size=100%>+24 Dodge Rating | 
+[19:26:45.996] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: <color=#ffffff><size=100%>+32</color> Armor | 
+[19:26:45.996] [Terrible Tooltips] [trace] ImplicitFormatter: [<color=#DADADA>F</color>] <color=#ffffff><size=100%>+32</color> Armor | 
+[19:26:46.109] [Terrible Tooltips] [debug] rule #62 injected
+[19:26:46.273] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: 14% more Damage to Feared Enemies | 
+[19:26:46.273] [Terrible Tooltips] [trace] UniqueBasicModFormatter: [<color=#A807FF>B</color>] 14% more Damage to Feared Enemies | 
+[19:26:46.274] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: 7% increased Attack Speed | 
+[19:26:46.274] [Terrible Tooltips] [trace] UniqueBasicModFormatter: [<color=#77ACFF>C</color>] 7% increased Attack Speed | 
+[19:26:46.274] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: 5% increased Cast Speed | 
+[19:26:46.274] [Terrible Tooltips] [trace] UniqueBasicModFormatter: [<color=#DADADA>F</color>] 5% increased Cast Speed | 
+[19:26:46.274] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: <size=100%>71% Chance to Slow Attackers | 
+[19:26:46.274] [Terrible Tooltips] [trace] UniqueBasicModFormatter: [<color=#77ACFF>C</color>] <size=100%>71% Chance to Slow Attackers | 
+[19:26:46.275] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: <color=#ffffff><size=100%>+28</color> Armor | 
+[19:26:46.275] [Terrible Tooltips] [trace] ImplicitFormatter: [<color=#77ACFF>C</color>] <color=#ffffff><size=100%>+28</color> Armor | 
+[19:26:46.275] [Terrible Tooltips] [trace] AffixFormatter item=set affix=null: <color=#ffffff>8%</color> increased Mana Regen | 
+[19:26:46.275] [Terrible Tooltips] [trace] ImplicitFormatter: [<color=#DADADA>F</color>] <color=#ffffff>8%</color> increased Mana Regen | 

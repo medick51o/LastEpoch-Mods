@@ -1,0 +1,7 @@
+  medick_Terrible_Tooltips -> C:\Users\andre\Downloads\LastEpoch-Mods\medick_TerribleTooltips\medick_TerribleTooltips\bin\Release\net6.0\medick_Terrible_Tooltips.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.05

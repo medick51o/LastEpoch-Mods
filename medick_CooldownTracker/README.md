@@ -1,3 +1,7 @@
+## Season 5 update: v1.0.2
+
+The release ZIP contains exactly one mod DLL. Replace medick_CooldownTracker.dll in Last Epoch/Mods/. CoreModule compatibility repair is embedded; no separate plugin or extra library is needed. Settings and DLL identity are preserved.
+
 # MedicK's Terrible Cooldowns
 
 *a cooldown tracker* — **Terrible Cooldowns** for short. A [MelonLoader](https://melonwiki.xyz) mod for **Last Epoch** that floats your skill icons above your character while they're on cooldown — glance at your character, not your action bar.
@@ -40,7 +44,7 @@ In keyboard mode the mod reads your actual in-game keybinds off the action bar w
 ## Installation
 
 <!-- council 2026-09-11 #6 -->
-1. Install MelonLoader 0.7.x (tested on 0.7.2 Open-Beta, game 1.4.7) into Last Epoch
+1. Install MelonLoader 0.7.x (Season 5 build targets MelonLoader 0.7.3 and Unity 6000.4.8f1) into Last Epoch
 2. Drop `medick_CooldownTracker.dll` into `Last Epoch/Mods/`
 3. Launch the game and load into a zone
 4. Press `Home` to open the settings panel

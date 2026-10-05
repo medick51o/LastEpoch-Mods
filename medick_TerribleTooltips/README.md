@@ -1,5 +1,9 @@
+## Season 5 update — v3.1.2
+
+Drop medick_Terrible_Tooltips.dll into Last Epoch/Mods/ and replace the old copy. The archive contains one DLL with the CoreModule metadata repair embedded. No separate plugin or extra library is needed. Targets MelonLoader 0.7.3 and Unity 6000.4.8f1. See CHANGELOG.md.
+
 # MedicK's Terrible Tooltips
-**by medick** — v3.1.0
+**by medick** — v3.1.2
 
 WoW / Diablo 4 style tier and grade colouring on item tooltips and ground labels. If your eyes were trained by twenty years of loot games, they already know how to read this mod — zero deciphering required.
 
@@ -42,9 +46,12 @@ Shows the first enabled matching loot-filter rule: NumberOnly shows [69], Number
 
 ## Settings (cfg)
 
-**On Last Epoch 1.4.7 the in-game settings rows for this mod do not build.** Edit the
-cfg keys below directly in `UserData/medick_Terrible_Tooltips.cfg` with the game
-closed, then relaunch.
+**Most settings have an in-game row** in the Terrible Tooltips section of the game's
+settings panel, and changes redraw an open tooltip immediately. The fine-detail keys
+(border thickness and padding, the tint hex, separator and divider style, debug
+logging) are cfg-only by design - edit
+`UserData/medick_Terrible_Tooltips.cfg` with the game **closed**, then relaunch.
+The game rewrites that file when it quits, so edits made while it is running are lost.
 
 | Cfg key | Default | What it does |
 |---|---|---|
@@ -54,7 +61,9 @@ closed, then relaunch.
 | TooltipRankColors | true | Colours grade letters by roll quality |
 | TooltipLayout | BadgeLeft | Where the Tier·Grade signal sits: BadgeLeft / SignalRight / Trailing |
 | SignalStyle | PlainText | PlainText = coloured text only (default); Badge = Tier/Grade as coloured chips |
-| ColorAffixesByTier | false | Select visible roll quality (OFF) or visible tier (ON), respecting existing name-colour modes and source visibility. |
+| AffixNameColor | GreaterAffix | GreaterAffix = only Tier 6/7 text is coloured (default); TierColor = all eligible affix text is coloured; GameDefault = the game's own text colour |
+| ColorAffixesByTier | true | ON = affix text wears its tier colour (the greater-affix tint in GreaterAffix mode). OFF = visible roll-quality colour instead. Respects source visibility. |
+| ShowSignal | true | Master switch for the whole Tier·Grade unit — false gives a clean affix line with no tier, no grade, no divider and no box |
 | ShowGradeLetters | true | Show roll-quality letters. Affix rarity has its own switch; turn both off for tiers only. |
 | AlwaysShowRanges | false | Pin EHG's "Range: X to Y" lines permanently (default hidden, hold Alt to peek) |
 | AlwaysShowTierDetails | false | Pin EHG's full "Tier: N (max craftable)" line (default folded in, hold Alt to peek) |
