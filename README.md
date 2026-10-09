@@ -17,8 +17,8 @@ Released July 1, 2026: the Terrible era. Internal DLL names never change, so upg
 One line per affix: the essay dies. Tier and grade chips in the colour language every ARPG player already speaks, Hold-Alt deep view, ground label brackets, filter rule numbers. The flagship.
 `medick_Terrible_Tooltips.dll` · [Nexus #30](https://www.nexusmods.com/lastepoch/mods/30)
 
-### [Terrible Inventory](./medick_Advanced_Inventory) — v2.0.2
-STASH and STASH ALL buttons plus a collapsible Quick Teleport column, every visual cloned from the game's own UI. Formerly Advanced Inventory. *Known issue (Season 5): Quick Teleport is unreliable; use the world map for now.*
+### [Terrible Inventory](./medick_Advanced_Inventory) — v2.0.3
+STASH and STASH ALL buttons plus a collapsible Quick Teleport column, every visual cloned from the game's own UI. Formerly Advanced Inventory. Season 5 Quick Teleport fixed in 2.0.3.
 `medick_Terrible_Inventory.dll` · [Nexus #29](https://www.nexusmods.com/lastepoch/mods/29)
 
 ### [Terrible Cooldowns](./medick_CooldownTracker) — v1.0.2
@@ -32,6 +32,10 @@ Extended zoom-out, live camera tuning, tilt lock, and a Rescue button that resto
 ### [Terrible fog_OF_war](./medick_FogOfWar) — v1.0.2
 A six-level vision dial living inside the game's own settings screen: BLIND, HARD, LIMITED (69%), NORMAL, SCOUT, ORACLE. Slide left to go in blind. Slide right because we all know why you're really here.
 `medick_The_fogOFwar.dll` · [Nexus #31](https://www.nexusmods.com/lastepoch/mods/31)
+
+### [A Terrible Button: The Nexus Button](./medick_TheNexusButton) — v0.1.0 · NEW
+One beautiful button that opens the game's own Nexus menu, cloned from EHG's THE NEXUS button and sitting right above the ACTIVITIES tab. Optional N hotkey (off by default), hide toggle, live position sliders. The game only opens the Nexus in Traveler's Rest for now.
+`medick_A_Terrible_Button.dll` · Nexus page coming
 
 ---
 
