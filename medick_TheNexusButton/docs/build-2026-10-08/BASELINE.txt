@@ -1,0 +1,9 @@
+baseline 2026-10-08 20:31:44 HEAD 76712f4
+ M medick_Advanced_Inventory/CURRENT-WORK.md
+ M medick_Advanced_Inventory/src/TerribleInventoryMod.cs
+ M medick_Advanced_Inventory/src/TravelService.cs
+?? medick_TheNexusButton/
+--- nexus files md5
+c993eb4b62dc6f51f3362e0d9add576a *medick_TheNexusButton/src/NexusButtonMod.cs
+4cd70521f058cc2b8705557fa9849351 *medick_TheNexusButton/medick_TheNexusButton.csproj
+e72735289a46adbe9b38d971fb3f614e *medick_TheNexusButton/SPEC.md
