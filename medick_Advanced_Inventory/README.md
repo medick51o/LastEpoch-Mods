@@ -1,6 +1,6 @@
-## Season 5 update — v2.0.2
+## Season 5 update — v2.0.3
 
-Drop medick_Terrible_Inventory.dll into Last Epoch/Mods/ and replace the old copy. The archive contains one DLL with the CoreModule metadata repair embedded. No separate plugin or extra library is needed. Targets MelonLoader 0.7.3 and Unity 6000.4.8f1. See CHANGELOG.md.
+Quick Teleport works again: it reads the game's live unlock list, arms the map before a jump, and the minimize button is fixed. Drop medick_Terrible_Inventory.dll into Last Epoch/Mods/ and replace the old copy. One DLL, no separate plugin. Targets MelonLoader 0.7.3. See CHANGELOG.md.
 
 # MedicK's Terrible Inventory
 
