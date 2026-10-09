@@ -1,3 +1,13 @@
+# MedicK's Terrible Inventory v2.0.3 — Quick Teleport works again in Season 5
+
+- Fixed: Quick Teleport said "not unlocked" for waypoints you had already discovered. The season moved the
+  unlock list; the mod now reads the game's live list (locked waypoints are still refused).
+- Fixed: the first teleports after logging in were silently ignored until you opened the world map. The mod now
+  opens the map focused on the destination for a split second before jumping (once per destination per login).
+- Fixed: the teleport menu's minimize button and group headers did nothing — the game now builds two inventory
+  panels and the toggle was acting on the hidden one. All copies now toggle together.
+- Safer: clicks are held until you actually arrive (no timer releasing them mid-load), with a 2-minute safety release.
+
 # MedicK's Terrible Inventory v2.0.2 — Season 5 compatibility
 
 - Season 5 compatibility update, rebuilt against the current game assemblies.

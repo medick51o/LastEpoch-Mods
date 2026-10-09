@@ -22,6 +22,7 @@ namespace medick_Terrible_Inventory
     {
         static bool _travelInProgress;
         static bool _primed;
+        static int _primeGen;
         static bool _primerRunning;
         static bool _unlockUnreadableWarned;
         static readonly HashSet<string> _warnedScenes = new();
@@ -36,7 +37,19 @@ namespace medick_Terrible_Inventory
         // The travel guard spans the whole scene transition (safety rule #3:
         // concurrent travel once summoned EHG's bug reporter) — it is cleared
         // here on scene load, with a timeout failsafe inside TravelCoroutine.
-        public static void NotifySceneLoaded() => _travelInProgress = false;
+        public static void NotifySceneLoaded(string sceneName)
+        {
+            _travelInProgress = false;
+            string l = (sceneName ?? "").ToLower();
+            if (l.Contains("character") || l.Contains("login") || l.Contains("menu"))
+            {
+                _armedScenes.Clear();
+                _primed = false;   // a new character may bring new controllers (review, Codex)
+                _primeGen++;       // a primer still running from the old session must not re-latch
+            }
+        }
+
+        static readonly HashSet<string> _armedScenes = new HashSet<string>();
 
         public static void RequestTravel(string scene)
         {
@@ -45,12 +58,17 @@ namespace medick_Terrible_Inventory
                 Dbg.Log("travel already in progress — click ignored");
                 return;
             }
-            MelonCoroutines.Start(TravelCoroutine(scene));
+            MelonCoroutines.Start(TravelCoroutine(scene, ++_travelOp));
         }
 
         // ── Travel ────────────────────────────────────────────────
 
-        static IEnumerator TravelCoroutine(string scene)
+        // Each request gets an operation id; only the CURRENT operation may release the
+        // guard, so a stale coroutine (its scene already loaded) can never unlock a newer
+        // teleport mid-load (review, Codex 2026-10-08).
+        static int _travelOp;
+
+        static IEnumerator TravelCoroutine(string scene, int op)
         {
             _travelInProgress = true;
             Dbg.Log($"travel requested: '{scene}'");
@@ -72,7 +90,7 @@ namespace medick_Terrible_Inventory
             if (!IsUnlocked(controllers, scene))
             {
                 MelonLogger.Msg($"'{scene}' is not an unlocked waypoint for this character — ignoring");
-                _travelInProgress = false;
+                if (op == _travelOp) _travelInProgress = false;
                 yield break;
             }
 
@@ -100,8 +118,56 @@ namespace medick_Terrible_Inventory
             {
                 if (_warnedScenes.Add(scene))   // once per scene per session
                     MelonLogger.Warning($"waypoint '{scene}' not found after re-priming — travel unavailable here");
-                _travelInProgress = false;
+                if (op == _travelOp) _travelInProgress = false;
                 yield break;
+            }
+
+            // Since the Oct 2026 season a jump is ignored until the real map
+            // has been opened on the target's section (verified in-hand
+            // 2026-10-08: open+close arms it; a one-frame MapPanel enable does
+            // not). Open and close it through the game's own openMap, once
+            // per target per login.
+            if (!_armedScenes.Contains(scene))
+            {
+                bool opened = false;
+                bool viaKey = false;
+                UIBase ui = null;
+                try { ui = UIBase.instance; } catch { }
+                if (ui == null) Dbg.Log("map arm: UIBase.instance is null");
+                else
+                {
+                    // The interop wrapper rejects null for the Nullable<> params
+                    // (Il2CppObjectBaseToPtrNotNull), so pass empty instances.
+                    try
+                    {
+                        // Zoom to the TARGET so the game builds that era's map
+                        // section; arming only the current era left Bazaar/
+                        // Observatory ignored (log 2026-10-08 18:49-18:50).
+                        ui.openMap(false, false, new Il2CppSystem.Nullable<int>(), scene, null,
+                                   new Il2CppSystem.Nullable<TimelineID>(), false);
+                        opened = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Dbg.Log($"map arm: openMap failed ({e.Message}) — trying the map key path");
+                        try { ui.MapKeyDown(); opened = true; viaKey = true; }
+                        catch (Exception e2) { Dbg.Log($"map arm: MapKeyDown failed: {e2.Message}"); }
+                    }
+                }
+                if (opened)
+                {
+                    yield return null;
+                    yield return null;
+                    bool closed = false;
+                    try { if (viaKey) ui.MapKeyDown(); else ui.closeMap(); closed = true; }
+                    catch (Exception e) { Dbg.Log($"map arm: closeMap failed: {e.Message}"); }
+                    yield return null;
+                    // Only a focused open AND a confirmed close counts as armed
+                    // (the key path opens only the current section).
+                    if (!viaKey && closed) _armedScenes.Add(scene);
+                    Dbg.Log($"map arm: real map opened on '{scene}' via {(viaKey ? "MapKeyDown" : "openMap")}, " +
+                            (closed ? "closed" : "CLOSE FAILED — not armed"));
+                }
             }
 
             // Council A2: use the verified waypoint-click path without mutating WaypointManager state.
@@ -110,7 +176,9 @@ namespace medick_Terrible_Inventory
             {
                 wp.LoadWaypointScene();
                 fired = true;
-                Dbg.Log($"travel → '{scene}'");
+                if (Prefs.DebugLog != null && Prefs.DebugLog.Value)
+                    Dbg.Log($"travel → '{scene}' from '{UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}' " +
+                            $"(waypointEnabled={SafeWaypointEnabled()}, wpActive={wp.gameObject.activeInHierarchy}, mapPanelLinked={SafeMapPanelLinked(wp)})");
             }
             catch (Exception e)
             {
@@ -119,19 +187,61 @@ namespace medick_Terrible_Inventory
 
             if (!fired)
             {
-                _travelInProgress = false;
+                if (op == _travelOp) _travelInProgress = false;
                 yield break;
             }
 
-            // Hold the guard across the transition; NotifySceneLoaded clears
-            // it on arrival, the timeout covers a silently failed load.
-            float guard = 0f;
-            while (_travelInProgress && guard < 10f)
+            // Hold the guard across the transition; NotifySceneLoaded clears it
+            // on arrival. Phase 1 (≤20s): wait for arrival or for the game's
+            // transition to start. Phase 2: once a transition is running, hold
+            // until arrival — never release mid-load on a timer (review,
+            // Codex) — with a 120s emergency release so the buttons can never
+            // stay dead. If the transition flag never reads true, phase 1
+            // behaves exactly like the old 20s timeout.
+            float startWait = 0f;
+            bool started = false;
+            while (_travelInProgress && op == _travelOp && startWait < 20f)
             {
-                yield return new WaitForSeconds(0.5f);
-                guard += 0.5f;
+                if (TransitionRunning()) { started = true; break; }
+                yield return new WaitForSeconds(0.25f);
+                startWait += 0.25f;
             }
-            _travelInProgress = false;
+            if (started)
+            {
+                Dbg.Log($"travel to '{scene}': transition started after {startWait:0.00}s — holding until arrival");
+                float held = 0f;
+                while (_travelInProgress && op == _travelOp && held < 120f)
+                {
+                    yield return new WaitForSeconds(0.5f);
+                    held += 0.5f;
+                }
+                if (_travelInProgress && op == _travelOp)
+                    MelonLogger.Warning($"travel to '{scene}': transition running 120s with no arrival — releasing the travel guard");
+            }
+            else if (_travelInProgress && op == _travelOp)
+            {
+                _armedScenes.Remove(scene);   // next click re-opens the map on it
+                Dbg.Log($"travel to '{scene}': no transition and no scene load within 20s — the game ignored the jump; map will be re-armed");
+            }
+            if (op == _travelOp) _travelInProgress = false;
+        }
+
+        static bool TransitionRunning()
+        {
+            try { return TransitionSceneManager.IsActive; }
+            catch { return false; }
+        }
+
+        static string SafeMapPanelLinked(UIWaypointStandard wp)
+        {
+            try { return (wp._mapPanel != null).ToString(); }
+            catch (Exception e) { return "unreadable(" + e.GetType().Name + ")"; }
+        }
+
+        static string SafeWaypointEnabled()
+        {
+            try { return WaypointManager.WaypointIsEnabled().ToString(); }
+            catch (Exception e) { return "unreadable(" + e.GetType().Name + ")"; }
         }
 
         static UIWaypointController[] FindControllers()
@@ -141,38 +251,119 @@ namespace medick_Terrible_Inventory
         }
 
         // ── Unlock gate ───────────────────────────────────────────
-        // True only when an era controller positively lists the scene as unlocked.
+        // True only when a player-side unlock list or an era controller
+        // positively lists the scene as unlocked. Since the Oct 2026 season
+        // the controllers' unlockedScenes stay empty, so the player-side
+        // lists (PlayerUnlockSources) are checked first.
 
         static bool IsUnlocked(UIWaypointController[] all, string scene)
         {
-            bool readAnything = false;
-            if (all != null)
+            // Any interop fault while reading lists refuses travel instead of
+            // faulting the coroutine with the travel guard held (review, Codex).
+            try { return IsUnlockedCore(all, scene); }
+            catch (Exception e)
             {
-                foreach (UIWaypointController ctrl in all)
-                {
-                    try
-                    {
-                        var unlocked = ctrl.unlockedScenes;
-                        if (unlocked == null) continue;
-                        int n = unlocked.Count;
-                        readAnything = true;
-                        for (int i = 0; i < n; i++)
-                            if ((unlocked[i] ?? "") == scene) return true;
-                    }
-                    catch { }
-                }
-            }
-            if (!readAnything)
-            {
-                // Council A1: unreadable unlock data fails closed instead of authorizing travel.
-                if (!_unlockUnreadableWarned)
-                {
-                    _unlockUnreadableWarned = true;
-                    Dbg.Log("unlock data unreadable — travel refused");
-                }
+                Dbg.Log($"unlock check failed: {e.GetType().Name}: {e.Message} — travel refused");
                 return false;
             }
+        }
+
+        static bool IsUnlockedCore(UIWaypointController[] all, string scene)
+        {
+            // The live player list is decisive when readable — a stale cached
+            // list must never authorize a scene the live list excludes.
+            var live = LiveUnlockList();
+            if (live != null)
+            {
+                for (int i = 0; i < live.Count; i++)
+                    if ((live[i] ?? "") == scene) return true;
+                DumpUnlockState(all, scene);
+                return false;
+            }
+
+            // Live list unreadable → travel unavailable. The era controllers'
+            // own lists are no longer populated this season and could carry a
+            // prior character's state, so they never authorize (review, Codex).
+            if (!_unlockUnreadableWarned)
+            {
+                _unlockUnreadableWarned = true;
+                Dbg.Log("live unlock list unreadable — travel refused");
+            }
+            DumpUnlockState(all, scene);
             return false;
+        }
+
+        static Il2CppSystem.Collections.Generic.List<string> LiveUnlockList()
+        {
+            try
+            {
+                LocalPlayerInfoProvider info;
+                return PlayerFinder.TryGetLocalPlayerInfo(out info) ? info?.getUnlockedScenes() : null;
+            }
+            catch { return null; }
+        }
+
+        // Player-side unlock lists for the DebugLog dump only (the gate uses
+        // LiveUnlockList alone), live source first. Each read is isolated
+        // so one moved/renamed field cannot hide the others.
+        static List<(string name, Il2CppSystem.Collections.Generic.List<string> list)> PlayerUnlockSources()
+        {
+            var r = new List<(string, Il2CppSystem.Collections.Generic.List<string>)>();
+            try
+            {
+                LocalPlayerInfoProvider info;
+                r.Add(("LocalPlayerInfo", PlayerFinder.TryGetLocalPlayerInfo(out info) ? info?.getUnlockedScenes() : null));
+            }
+            catch { r.Add(("LocalPlayerInfo(read failed)", null)); }
+            try { r.Add(("CharacterData", PlayerFinder.getPlayerData()?.UnlockedWaypointScenes)); }
+            catch { r.Add(("CharacterData(read failed)", null)); }
+            try { r.Add(("DataTracker.charData", PlayerFinder.getPlayerDataTracker()?.charData?.UnlockedWaypointScenes)); }
+            catch { r.Add(("DataTracker.charData(read failed)", null)); }
+            return r;
+        }
+
+        // Diagnostic (DebugLog only): on a refused unlock, print what every
+        // controller actually lists, so a renamed scene or an empty list
+        // shows up in one click instead of a guess.
+        static void DumpUnlockState(UIWaypointController[] all, string scene)
+        {
+            if (Prefs.DebugLog == null || !Prefs.DebugLog.Value || all == null) return;
+            Dbg.Log($"unlock dump for '{scene}': {all.Length} controllers");
+            foreach (var src in PlayerUnlockSources())
+            {
+                try
+                {
+                    var names = new List<string>();
+                    if (src.list != null)
+                        for (int i = 0; i < src.list.Count; i++) names.Add(src.list[i] ?? "<null>");
+                    Dbg.Log($"  {src.name}[{(src.list == null ? "null" : names.Count.ToString())}]=" + string.Join(",", names));
+                }
+                catch (Exception e) { Dbg.Log($"  {src.name} read failed: {e.GetType().Name}"); }
+            }
+            foreach (UIWaypointController ctrl in all)
+            {
+                try
+                {
+                    var unlocked = ctrl.unlockedScenes;
+                    var names = new List<string>();
+                    if (unlocked != null)
+                        for (int i = 0; i < unlocked.Count; i++) names.Add(unlocked[i] ?? "<null>");
+                    var menu = new List<string>();
+                    int m = ctrl.waypointsInMenu?.Count ?? 0;
+                    for (int i = 0; i < m; i++)
+                    {
+                        UIWaypointStandard w = ctrl.waypointsInMenu[i]?.TryCast<UIWaypointStandard>();
+                        if (w != null) menu.Add(w.sceneName ?? "<null>");
+                    }
+                    Dbg.Log($"  {ctrl.gameObject.name} active={ctrl.gameObject.activeInHierarchy} " +
+                            $"unlocked[{names.Count}]=" + string.Join(",", names) +
+                            $" | menu[{menu.Count}]=" + string.Join(",", menu));
+                }
+                catch (Exception e)
+                {
+                    Dbg.Log($"  controller read failed: {e.GetType().Name}: {e.Message}");
+                }
+            }
         }
 
         // ── Waypoint lookup ───────────────────────────────────────
@@ -208,6 +399,7 @@ namespace medick_Terrible_Inventory
 
         static IEnumerator PrimeCoroutine()
         {
+            int gen = _primeGen;
             float waited = 0f;
             while (waited < 30f)
             {
@@ -272,9 +464,14 @@ namespace medick_Terrible_Inventory
                 foreach (var go in chain) { try { go.SetActive(false); } catch { } }
             }
 
-            _primed = true;
+            // Latch only if no session boundary happened while we ran.
             _primerRunning = false;
-            Dbg.Log("primer: all era controllers primed — teleport ready");
+            if (gen == _primeGen)
+            {
+                _primed = true;
+                Dbg.Log("primer: all era controllers primed — teleport ready");
+            }
+            else Dbg.Log("primer: session changed while priming — not latched, next open re-primes");
         }
     }
 }

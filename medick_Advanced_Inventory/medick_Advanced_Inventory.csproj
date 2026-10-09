@@ -7,7 +7,7 @@
     <RootNamespace>medick_Terrible_Inventory</RootNamespace>
     <Nullable>disable</Nullable>
     <!-- Bump in lockstep with BuildInfo.Version (DLL file metadata) -->
-    <Version>2.0.2</Version>
+    <Version>2.0.3</Version>
   </PropertyGroup>
 
   <PropertyGroup>

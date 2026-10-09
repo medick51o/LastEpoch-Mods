@@ -75,53 +75,76 @@ namespace medick_Terrible_Inventory
         static readonly bool[]       _groupOpen   = { true, true, true };
         static readonly TMP_Text[]   _groupLabels = new TMP_Text[3];
         static readonly List<(GameObject go, int group)> _items = new();
+        // Since the Oct 2026 season the game builds TWO inventory panels, so the menu is
+        // injected twice; the singletons above only held the LAST one and the visible
+        // panel's minimize toggled the hidden copy (Andrew 21:19). Every built copy is
+        // registered here and all toggles act on all live copies.
+        static readonly List<(GameObject master, GameObject column, TMP_Text label)> _menus = new();
+        static readonly List<TMP_Text>[] _allGroupLabels = { new(), new(), new() };
+
+        static void PruneDead()
+        {
+            _menus.RemoveAll(m => m.master == null || m.column == null);
+            _items.RemoveAll(i => i.go == null);
+            foreach (var l in _allGroupLabels) l.RemoveAll(t => t == null);
+        }
 
         public static void Inject(Transform panel, GameObject template)
         {
+            GameObject master = null, column = null;
             try
             {
                 if (panel.Find(GUARD) != null) { ApplyVisibility(); return; }   // this panel already built
 
-                // Fresh panel instance: reset the item registry only.
-                // _columnOpen/_groupOpen deliberately survive rebuilds — the
+                // Fresh panel instance: drop entries of destroyed panels only (other live
+                // copies stay registered). _columnOpen/_groupOpen survive rebuilds — the
                 // player's collapse choices carry across zone changes.
-                _items.Clear();
+                PruneDead();
 
+                // Built into LOCALS: a failed second copy must never clean up the first
+                // copy's objects (review, Codex 2026-10-08). Registered only on success.
                 // ── Master tab (always visible at the panel border) ──
-                _masterTab = NativeClone.Button(template, panel, GUARD, ToggleColumn);
-                NativeClone.HideIcon(_masterTab);
-                NativeClone.SetRect(_masterTab, new Vector2(TAB_X, TOP_Y), new Vector2(TAB_W, TAB_H));
-                StripLayoutElement(_masterTab);
-                NativeClone.SetRichLabel(_masterTab, MasterLabelText());
-                _masterLabel = NativeClone.Label(_masterTab);
+                master = NativeClone.Button(template, panel, GUARD, ToggleColumn);
+                NativeClone.HideIcon(master);
+                NativeClone.SetRect(master, new Vector2(TAB_X, TOP_Y), new Vector2(TAB_W, TAB_H));
+                StripLayoutElement(master);
+                NativeClone.SetRichLabel(master, MasterLabelText());
+                TMP_Text masterLabel = NativeClone.Label(master);
 
                 // ── Column container (VerticalLayoutGroup owns the layout) ──
-                _column = new GameObject("medick_TpColumn");
-                _column.transform.SetParent(panel, false);
-                var crt = _column.AddComponent<RectTransform>();
+                column = new GameObject("medick_TpColumn");
+                column.transform.SetParent(panel, false);
+                var crt = column.AddComponent<RectTransform>();
                 crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(0f, 1f);
                 crt.anchoredPosition = new Vector2(COL_X, TOP_Y);
                 crt.sizeDelta        = new Vector2(COL_W, 0f);
-                var vlg = _column.AddComponent<VerticalLayoutGroup>();
+                var vlg = column.AddComponent<VerticalLayoutGroup>();
                 vlg.spacing = GAP;
                 vlg.childForceExpandWidth  = false;
                 vlg.childForceExpandHeight = false;
                 vlg.childControlWidth      = true;
                 vlg.childControlHeight     = true;
                 vlg.childAlignment         = TextAnchor.UpperLeft;
-                var fitter = _column.AddComponent<ContentSizeFitter>();
+                var fitter = column.AddComponent<ContentSizeFitter>();
                 fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
+                var newItems = new List<(GameObject go, int group)>();
+                var newHeaders = new TMP_Text[Groups.Length];
                 for (int g = 0; g < Groups.Length; g++)
                 {
-                    AddGroupHeader(template, g);
+                    newHeaders[g] = AddGroupHeader(template, column.transform, g);
                     foreach (var d in Groups[g])
-                        AddDestination(template, g, d);
+                        newItems.Add((AddDestination(template, column.transform, d), g));
                 }
 
+                _masterTab = master; _column = column; _masterLabel = masterLabel;
+                _items.AddRange(newItems);
+                for (int g = 0; g < newHeaders.Length; g++)
+                    if (newHeaders[g] != null) { _groupLabels[g] = newHeaders[g]; _allGroupLabels[g].Add(newHeaders[g]); }
+                _menus.Add((master, column, masterLabel));
                 ApplyGroupStates();
                 ApplyVisibility();
-                Dbg.Log("teleport menu injected");
+                Dbg.Log($"teleport menu injected ({_menus.Count} live cop{(_menus.Count == 1 ? "y" : "ies")})");
             }
             catch (Exception e)
             {
@@ -131,35 +154,32 @@ namespace medick_Terrible_Inventory
                 // QUICK TELEPORT tab that toggles nothing.
                 try
                 {
-                    if (_masterTab) UnityEngine.Object.DestroyImmediate(_masterTab);
-                    if (_column)    UnityEngine.Object.DestroyImmediate(_column);
+                    if (master) UnityEngine.Object.DestroyImmediate(master);
+                    if (column) UnityEngine.Object.DestroyImmediate(column);
                 }
                 catch { }
-                _masterTab = null;
-                _column = null;
-                _masterLabel = null;
-                _items.Clear();
+                PruneDead();
             }
         }
 
         // ── Builders ──────────────────────────────────────────────
 
-        static void AddGroupHeader(GameObject template, int group)
+        static TMP_Text AddGroupHeader(GameObject template, Transform parent, int group)
         {
             int g = group;
-            GameObject go = NativeClone.Button(template, _column.transform, $"medick_TpHdr{g}",
+            GameObject go = NativeClone.Button(template, parent, $"medick_TpHdr{g}",
                 () => ToggleGroup(g));
             NativeClone.HideIcon(go);
             NativeClone.SetLayoutSize(go, COL_W, HDR_H);
             NativeClone.SetRichLabel(go, HeaderText(g));
-            _groupLabels[g] = NativeClone.Label(go);
+            return NativeClone.Label(go);
         }
 
-        static void AddDestination(GameObject template, int group,
+        static GameObject AddDestination(GameObject template, Transform parent,
             (string line1, string line2, string scene, Color color) d)
         {
             string scene = d.scene;
-            GameObject go = NativeClone.Button(template, _column.transform, $"medick_Tp_{scene}",
+            GameObject go = NativeClone.Button(template, parent, $"medick_Tp_{scene}",
                 () => TravelService.RequestTravel(scene));
             NativeClone.HideIcon(go);
             NativeClone.SetLayoutSize(go, COL_W, BTN_H);
@@ -171,8 +191,7 @@ namespace medick_Terrible_Inventory
                 $"<b>{d.line1}</b>\n<size=78%><color=#{hex}>{d.line2}</color></size>",
                 baseSize: 11.5f, autoMin: 8.5f, autoMax: 11.5f);
             NativeClone.AddAccentBar(go, d.color);   // faction identity, native art untouched
-
-            _items.Add((go, group));
+            return go;
         }
 
         // ── State ─────────────────────────────────────────────────
@@ -190,14 +209,18 @@ namespace medick_Terrible_Inventory
         static void ToggleColumn()
         {
             _columnOpen = !_columnOpen;
-            if (_masterLabel != null) _masterLabel.text = MasterLabelText();
+            PruneDead();
+            foreach (var m in _menus)
+                try { if (m.label != null) m.label.text = MasterLabelText(); } catch { }
             ApplyVisibility();
         }
 
         static void ToggleGroup(int g)
         {
             _groupOpen[g] = !_groupOpen[g];
-            if (_groupLabels[g] != null) _groupLabels[g].text = HeaderText(g);
+            PruneDead();
+            foreach (var l in _allGroupLabels[g])
+                try { l.text = HeaderText(g); } catch { }
             ApplyGroupStates();
         }
 
@@ -214,9 +237,13 @@ namespace medick_Terrible_Inventory
         public static void ApplyVisibility()
         {
             bool show = Prefs.ShowTeleport.Value;
-            try { if (_masterTab != null && _masterTab.activeSelf != show) _masterTab.SetActive(show); } catch { }
             bool col = show && _columnOpen;
-            try { if (_column != null && _column.activeSelf != col) _column.SetActive(col); } catch { }
+            PruneDead();
+            foreach (var m in _menus)
+            {
+                try { if (m.master.activeSelf != show) m.master.SetActive(show); } catch { }
+                try { if (m.column.activeSelf != col) m.column.SetActive(col); } catch { }
+            }
         }
 
         static void StripLayoutElement(GameObject go)
