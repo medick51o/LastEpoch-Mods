@@ -1,0 +1,22 @@
+DONE_WITH_CONCERNS
+
+Files changed:
+
+- [NexusButtonMod.cs](/C:/Users/andre/le-sync/medick_TheNexusButton/src/NexusButtonMod.cs)
+- [Prefs.cs](/C:/Users/andre/le-sync/medick_TheNexusButton/src/Prefs.cs)
+- [NativeSettings.cs](/C:/Users/andre/le-sync/medick_TheNexusButton/src/NativeSettings.cs)
+- [SettingsUi.cs](/C:/Users/andre/le-sync/medick_TheNexusButton/src/SettingsUi.cs)
+
+Slider strategy: clone the first native row containing a Slider, preferring names containing “Scale”. Strip localization, replace events, pin delegates, and update value text. Reset clears both preferences and knobs. Offsets apply after baseline placement, multiplied by button scale. Missing templates produce one warning and no section.
+
+`dotnet build -c Release -p:DeployToMods=false` succeeded after redirecting process-local `APPDATA` to avoid an inaccessible NuGet config:
+
+```text
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.18
+```
+
+Unverified: in-game appearance, live dragging/reset, resolution scaling, restart persistence, and degradation behavior. External review remains pending. No commit or deployment.
