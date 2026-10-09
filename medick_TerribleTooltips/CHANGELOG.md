@@ -1,5 +1,10 @@
 # Changelog — MedicK's Terrible Tooltips
 
+## Unreleased
+- Range-aware grades and native description macros; owned matched-rule labels and optional rarity selection (contributed by spoter, PR #12).
+- Expert-review fixes for colour precedence, empty signals and unknown roll values.
+- Merged onto v3.1.2: keeps the v3.1.1 scoped tooltip scan and [perf] telemetry; the rule-label row retries creation at most four times a second; new Color Affixes by Tier setting defaults ON so existing colouring is unchanged.
+
 ## v3.1.2 - Season 5 compatibility
 
 - Season 5 compatibility update with the CoreModule startup repair embedded in the mod DLL.

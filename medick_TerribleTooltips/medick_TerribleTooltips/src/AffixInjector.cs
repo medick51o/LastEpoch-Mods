@@ -10,7 +10,7 @@
 //    Tiered affix:   [<color=#A807FF>5</color><color=#FA9E3D>A</color>] text
 //    Untiered affix: [<color=#FA9E3D>A</color>] text
 //
-//  Three hooks cover every stat line:
+//  Hooks cover ordinary stats and native description templates:
 //    • AffixFormatter          — normal craftable affixes (prefix/suffix)
 //    • UniqueBasicModFormatter — unique / legendary fixed mods
 //    • ImplicitFormatter       — implicit stats on the item base
@@ -45,16 +45,79 @@ public static class AffixInjector
         catch { }
     }
 
-    private static string InjectBracket(string affixStr, float rollFloat, int tier)
+    // One grade for one roll, wherever it is shown. Ground labels have no
+    // display text, so the stored roll is graded against the affix's own
+    // range (idol-scaled like the tooltip) with the same range-aware ladder.
+    internal static (string letter, string color) GradeForAffix(ItemAffix affix, ItemDataUnpacked item)
     {
+        float rollFloat = affix.getRollFloat();
+        double roll = Math.Round(rollFloat * 100.0, 1);
+        string letter = Colors.GradeLetter(roll), color = Colors.GradeLetterColor(roll);
+        try
+        {
+            var range = RollRanges.ForAffix(affix).Range;
+            if (!range.Valid || !float.IsFinite(rollFloat) || rollFloat < 0 || rollFloat > 1) return (letter, color);
+            double min = range.Min, max = range.Max;
+            if (item != null && item.isIdol())
+            {
+                double factor = 1.0 + ItemList.get().getAffixEffectModifier(item);
+                if (double.IsFinite(factor) && factor >= 0.05 && factor <= 4) { min *= factor; max *= factor; }
+            }
+            if (!double.IsFinite(min) || !double.IsFinite(max) || max < min) return (letter, color);
+            char grade = RollQuality.LetterForRange(min, max, range.Digits, rollFloat);
+            if (grade == RollQuality.NoGrade) return (letter, color);
+            int index = RollQuality.Ladder.IndexOf(grade);
+            return (grade.ToString(), Colors.GradeLetterColor(new double[] { 0, 30, 60, 90, 100 }[index]));
+        }
+        catch { return (letter, color); }
+    }
+
+    private static string InjectBracket(string affixStr, float rollFloat, int tier,
+                                        double min = double.NaN, double max = double.NaN, double shown = double.NaN, int precision = 0, char rarity = RollQuality.NoLetter)
+    {
+        if (string.IsNullOrEmpty(affixStr) || affixStr.StartsWith("[<color=")) return affixStr;
         double roll        = Math.Round(rollFloat * 100.0, 1);
         string gradeColor  = Colors.GradeLetterColor(roll);
         string gradeLetter = Colors.GradeLetter(roll);
+
+        if (double.IsFinite(min) && double.IsFinite(max) && max >= min)
+        {
+            int digits = precision;
+            if (double.IsNaN(shown))
+            {
+                if (DisplayValuePick.TryPick(affixStr, min, max, out double parsed))
+                {
+                    shown = parsed;
+                    digits = DisplayValuePick.DisplayPrecision(affixStr, shown, digits);
+                }
+            }
+            double fraction = rollFloat;
+            if (double.IsFinite(shown) && shown >= min - 1e-6 && shown <= max + 1e-6)
+                fraction = RollQuality.FractionFor(min, max, shown);
+            if (max != min && (!double.IsFinite(fraction) || fraction < 0 || fraction > 1)) return affixStr;
+            char grade = RollQuality.LetterForRange(min, max, digits, fraction);
+            if (grade == RollQuality.NoGrade) return affixStr;
+            gradeLetter = grade.ToString();
+            int index = RollQuality.Ladder.IndexOf(grade);
+            gradeColor = Colors.GradeLetterColor(new double[] { 0, 30, 60, 90, 100 }[index]);
+        }
+        if ((!double.IsFinite(min) || !double.IsFinite(max) || max < min) &&
+            (!float.IsFinite(rollFloat) || rollFloat < 0 || rollFloat > 1)) return affixStr;
 
         string bracket = tier > 0
             ? $"[<color={Colors.TierColor(tier)}>{tier}</color><color={gradeColor}>{gradeLetter}</color>] "
             : $"[<color={gradeColor}>{gradeLetter}</color>] ";
 
+        // Keep rarity metadata in the source so settings can re-render cached text.
+        // The first letter is affix rarity; the last is always roll quality.
+        if (rarity != RollQuality.NoLetter)
+        {
+            int index = RollQuality.Ladder.IndexOf(rarity);
+            string rarityColor = Colors.GradeLetterColor(new double[] { 0, 30, 60, 90, 100 }[index]);
+            string tierText = tier > 0 ? "<color=" + Colors.TierColor(tier) + ">" + tier + "</color>" : "";
+            bracket = "[" + tierText + "<color=" + rarityColor + ">" + rarity + "</color>] "
+                + "[<color=" + gradeColor + ">" + gradeLetter + "</color>] ";
+        }
         // Prepending keeps the bracket on the first line of multi-line
         // strings. (v1 had a dead Insert(lastNewLine, "") branch here —
         // a no-op since forever; the fleet finally retired it.)
@@ -81,12 +144,37 @@ public static class AffixInjector
                     return;
                 }
 
+                if (affix == null && implicitIndex >= 0)
+                {
+                    Patch_ImplicitFormatter.Postfix(item, implicitIndex, ref __result);
+                    return;
+                }
+                if (affix == null && uniqueModIndex >= 0)
+                {
+                    Patch_UniqueFormatter.Postfix(item, ref __result, uniqueModIndex, float.NaN);
+                    return;
+                }
                 ItemAffix resolved = affix;
                 if (resolved == null && implicitIndex < 0 && uniqueModIndex < 0)
                     resolved = ResolveByProperty(item, modProperty);
                 if (resolved == null) return;
 
-                __result = InjectBracket(__result, resolved.getRollFloat(), resolved.DisplayTier);
+                var info = RollRanges.ForAffix(resolved);
+                var range = info.Range;
+                double min = range.Valid ? range.Min : double.NaN, max = range.Valid ? range.Max : double.NaN;
+                bool idol = item.isIdol();
+                if (idol)
+                {
+                    double factor = 1.0 + ItemList.get().getAffixEffectModifier(item);
+                    if (double.IsFinite(factor) && factor >= 0.05 && factor <= 4)
+                    {
+                        double scaledMin = min * factor, scaledMax = max * factor;
+                        if (DisplayValuePick.TryPick(__result, scaledMin, scaledMax, out _))
+                        { min = scaledMin; max = scaledMax; }
+                    }
+                }
+                int tier = idol && resolved.DisplayTier == 1 ? 0 : resolved.DisplayTier;
+                __result = InjectBracket(__result, resolved.getRollFloat(), tier, min, max, precision: range.Digits, rarity: info.Rarity);
                 TooltipRecolor.MarkDirty();
             }
             catch (Exception ex) { Dbg.Log("multi-stat affix lookup failed: " + ex.Message); }
@@ -104,7 +192,7 @@ public static class AffixInjector
             foreach (ItemAffix ia in item.affixes)
             {
                 if (ia == null) continue;
-                AffixList.Affix def = Il2CppLE.AssetManagement.GlobalAssets.MasterAffixesList?.GetAffix(ia.affixId);
+                AffixList.Affix def = RollRanges.MasterAffixes()?.GetAffix(ia.affixId);
                 if (def != null && def.HasProperty(modProperty))
                 {
                     match = ia;
@@ -152,7 +240,7 @@ public static class AffixInjector
     [HarmonyPatch(typeof(TooltipItemManager), nameof(TooltipItemManager.UniqueBasicModFormatter))]
     internal static class Patch_UniqueFormatter
     {
-        private static void Postfix(ItemDataUnpacked item, ref string __result,
+        internal static void Postfix(ItemDataUnpacked item, ref string __result,
                                     int uniqueModIndex, float modifierValue)
         {
             try
@@ -195,7 +283,9 @@ public static class AffixInjector
                     }
                 }
 
-                __result = InjectBracket(__result, roll, tier: 0);
+                var range = RollRanges.ForUnique(uniqueMod);
+                __result = range.Valid ? InjectBracket(__result, roll, 0, range.Min, range.Max, precision: range.Digits)
+                    : InjectBracket(__result, roll, 0);
                 TooltipRecolor.MarkDirty();
             }
             catch { }
@@ -218,7 +308,7 @@ public static class AffixInjector
     [HarmonyPatch(typeof(TooltipItemManager), nameof(TooltipItemManager.ImplicitFormatter))]
     internal static class Patch_ImplicitFormatter
     {
-        private static void Postfix(ItemDataUnpacked item, int implicitNumber,
+        internal static void Postfix(ItemDataUnpacked item, int implicitNumber,
                                     ref string __result)
         {
             try
@@ -226,11 +316,73 @@ public static class AffixInjector
                 if (!Prefs.EnableTooltips.Value) return;
                 if (item == null) return;
                 float roll = item.getImplictRollFloat((byte)implicitNumber);
-                __result = InjectBracket(__result, roll, tier: 0);
+                var range = RollRanges.ForImplicit(item, implicitNumber);
+                __result = range.Valid ? InjectBracket(__result, roll, 0, range.Min, range.Max, precision: range.Digits)
+                    : InjectBracket(__result, roll, 0);
                 TooltipRecolor.MarkDirty();
             }
             catch { }
             finally { Trace("ImplicitFormatter", __result); }
+        }
+    }
+    // Match native range placeholders to their rendered values, not unrelated
+    // numbers in the description (durations, cooldowns, or proc thresholds).
+    [HarmonyPatch(typeof(TooltipItemManager), nameof(TooltipItemManager.FormatUniqueModAffixString))]
+    internal static class Patch_DescriptionFormatter
+    {
+        private static void Postfix(string tempString, ref string __result)
+        {
+            if (!Prefs.EnableTooltips.Value || string.IsNullOrEmpty(tempString) ||
+                string.IsNullOrEmpty(__result) || __result.StartsWith("[<color=")) return;
+            try
+            {
+                if (!DisplayValuePick.TryTemplateRoll(tempString, __result,
+                    out double min, out double max, out double value, out int digits)) return;
+
+            char grade = RollQuality.LetterForRange(min, max, digits,
+                    RollQuality.FractionFor(min, max, value));
+                if (grade == RollQuality.NoGrade) return;
+                int index = RollQuality.Ladder.IndexOf(grade);
+                string color = Colors.GradeLetterColor(new double[] { 0, 30, 60, 90, 100 }[index]);
+                __result = "[<color=" + color + ">" + grade + "</color>] " + __result;
+                TooltipRecolor.MarkDirty();
+            }
+            catch (Exception ex) { Dbg.Log("description grade: " + ex.Message); }
+        }
+    }
+    [HarmonyPatch(typeof(TooltipItemManager), nameof(TooltipItemManager.GetUniqueDescription))]
+    internal static class Patch_FixedDescriptions
+    {
+        private static void Postfix(ItemDataUnpacked item, Il2CppSystem.Collections.Generic.List<string> __result)
+        {
+            if (!Prefs.EnableTooltips.Value || item == null || __result == null) return;
+            try
+            {
+                var entries = UniqueList.instance?.uniques;
+                if (entries == null || item.uniqueID >= entries.Count) return;
+                var mods = entries[item.uniqueID]?.mods;
+                if (mods == null) return;
+                for (int i = 0; i < __result.Count; i++)
+                {
+                    string text = __result[i];
+                    string stat = DisplayValuePick.StatWithoutRangeDetails(text);
+                    if (DisplayValuePick.HasGradeBracket(text) || !DisplayValuePick.IsSignedSingleValueStat(stat)) continue;
+                    UniqueItemMod match = null;
+                    int hits = 0;
+                    foreach (UniqueItemMod mod in mods)
+                    {
+                        if (mod == null || !mod.hideInTooltip) continue;
+                        var range = RollRanges.ForUnique(mod);
+                        if (!range.Valid || !DisplayValuePick.TryPick(stat, range.Min, range.Max, out _)) continue;
+                        match = mod; hits++;
+                    }
+                    if (hits != 1 || match == null || match.canRoll) continue;
+                    var fixedRange = RollRanges.ForUnique(match);
+                    if (fixedRange.Valid && fixedRange.Min == fixedRange.Max)
+                        __result[i] = InjectBracket(text, 1, 0, fixedRange.Min, fixedRange.Max);
+                }
+            }
+            catch (Exception ex) { Dbg.Log("fixed description grade: " + ex.Message); }
         }
     }
 }

@@ -39,8 +39,16 @@ public class TerribleTooltipsMod : MelonMod
         UnitBorder.OnLateUpdate();
     }
 
+    public override void OnDeinitializeMelon()
+    {
+        try { FilterRuleTooltip.ReleaseAll(); }
+        finally { TooltipRecolor.ReleaseLayoutContexts(); }
+    }
+
     public override void OnApplicationQuit()
     {
+        try { FilterRuleTooltip.ReleaseAll(); }
+        finally { TooltipRecolor.ReleaseLayoutContexts(); }
         Prefs.Save();
     }
 
@@ -56,6 +64,9 @@ public class TerribleTooltipsMod : MelonMod
         ok += TryPatch(typeof(AffixInjector.Patch_UniqueFormatter),   "unique/legendary grades");
         ok += TryPatch(typeof(AffixInjector.Patch_ImplicitFormatter), "implicit grades");
 
+        ok += TryPatch(typeof(AffixInjector.Patch_DescriptionFormatter), "unique description grades");
+
+        ok += TryPatch(typeof(AffixInjector.Patch_FixedDescriptions), "fixed description grades");
         // Tooltip text pipeline (stage 2: recolor)
         ok += TryPatch(typeof(TooltipRecolor.Patch_UpdateLayout),     "tooltip recolor");
 
