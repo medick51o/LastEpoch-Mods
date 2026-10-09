@@ -34,7 +34,7 @@ A six-level vision dial living inside the game's own settings screen: BLIND, HAR
 `medick_The_fogOFwar.dll` · [Nexus #31](https://www.nexusmods.com/lastepoch/mods/31)
 
 ### [A Terrible Button: The Nexus Button](./medick_TheNexusButton) — v0.1.0 · NEW
-One beautiful button that opens the game's own Nexus menu, cloned from EHG's THE NEXUS button and sitting right above the ACTIVITIES tab. Optional N hotkey (off by default), hide toggle, live position sliders. The game only opens the Nexus in Traveler's Rest for now.
+One beautiful button that opens the game's own travel menu (maps, Monolith timelines, Activities and Factions), cloned from EHG's THE NEXUS button and sitting right above the ACTIVITIES tab. A shortcut: fewer steps, quicker getting around. Optional N hotkey (off by default), hide toggle, live position sliders.
 `medick_A_Terrible_Button.dll` · Nexus page coming
 
 ---
