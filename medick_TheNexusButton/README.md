@@ -1,4 +1,4 @@
-# A Terrible Button: The Nexus Button — v0.1.0
+# A Terrible Button: The Nexus Button — v0.1.1
 
 *it's a button. a beautiful button.* A [MelonLoader](https://melonwiki.xyz/) mod for **Last Epoch**.
 
@@ -12,5 +12,10 @@ quicker getting around.
 - Follows the game's UI scale (tested 16:9 and 21:9)
 
 **Install:** MelonLoader 0.7.3, then drop `medick_A_Terrible_Button.dll` into `Last Epoch/Mods/`. Zip in `release/`.
+
+## Changelog
+
+- **0.1.1**: Fixed: the mod failed to load ("Duplicate type '<>O'") when it was the only Terrible mod installed.
+- **0.1.0**: First release.
 
 Built with the help of Claude (Anthropic).

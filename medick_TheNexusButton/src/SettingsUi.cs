@@ -49,7 +49,7 @@ internal static class SettingsUi
 
     static void SaveAndRefresh()
     {
-        NexusButtonMod.FollowCrest();
+        NexusButton.FollowCrest();
         Prefs.Save();
     }
 }

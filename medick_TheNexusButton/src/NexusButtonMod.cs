@@ -18,7 +18,7 @@ namespace medick_A_Terrible_Button
     {
         public const string Name         = "medick_A_Terrible_Button";
         public const string OfficialName = "A Terrible Button: The Nexus Button";
-        public const string Version      = "0.1.0";   // bump in lockstep with <Version> in the csproj
+        public const string Version      = "0.1.1";   // bump in lockstep with <Version> in the csproj
         public const string Author       = "medick";
     }
 
@@ -26,7 +26,19 @@ namespace medick_A_Terrible_Button
     // A click asks the game's own Nexus command to open the menu and logs
     // what happened; it never clicks a destination. Styling comes after the
     // probe tells us which path works and what the native button is made of.
+    // MelonLoader reads this class while it pulls MelonInfo, before the embedded
+    // CoreModule repair has run. Keep it free of Unity types (fields, signatures)
+    // or a lone install fails with "Duplicate type '<>O'". All real work lives in
+    // NexusButton below.
     public class NexusButtonMod : MelonMod
+    {
+        public override void OnInitializeMelon() => NexusButton.Initialize();
+        public override void OnSceneWasInitialized(int buildIndex, string sceneName) => NexusButton.SceneInitialized();
+        public override void OnUpdate() => NexusButton.Update();
+        public override void OnLateUpdate() => NexusButton.LateUpdate();
+    }
+
+    internal static class NexusButton
     {
         // Spot from Andrew's mock-up: centred on the left-panel crest, which at
         // 1920x1080 is 360px in from the left edge and 32px down from the top.
@@ -43,13 +55,13 @@ namespace medick_A_Terrible_Button
         static GameObject _canvas;
         static Action _onClick;   // Il2Cpp listeners must stay referenced or clicks go dead
 
-        public override void OnInitializeMelon()
+        internal static void Initialize()
         {
             Prefs.Init();
             MelonLogger.Msg($"{BuildInfo.OfficialName} v{BuildInfo.Version} ready");
         }
 
-        public override void OnSceneWasInitialized(int buildIndex, string sceneName)
+        internal static void SceneInitialized()
         {
             bool gameplay = IsGameplay(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
             try
@@ -123,7 +135,7 @@ namespace medick_A_Terrible_Button
 
         // Optional N hotkey (off by default). Never fires while chat or any text field
         // has focus, so typing an "n" can't open the Nexus.
-        public override void OnUpdate()
+        internal static void Update()
         {
             try
             {
@@ -148,7 +160,7 @@ namespace medick_A_Terrible_Button
             return false;
         }
 
-        public override void OnLateUpdate()
+        internal static void LateUpdate()
         {
             if (_canvas == null || !_canvas.activeSelf) return;
             if (!_native && !_nativeGaveUp && Time.unscaledTime >= _nextNativeTry)

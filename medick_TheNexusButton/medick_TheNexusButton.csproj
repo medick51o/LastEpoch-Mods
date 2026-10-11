@@ -7,7 +7,7 @@
     <RootNamespace>medick_A_Terrible_Button</RootNamespace>
     <Nullable>disable</Nullable>
     <!-- Bump in lockstep with BuildInfo.Version (DLL file metadata) -->
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
   </PropertyGroup>
 
   <PropertyGroup>

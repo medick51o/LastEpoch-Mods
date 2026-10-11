@@ -33,7 +33,7 @@ Extended zoom-out, live camera tuning, tilt lock, and a Rescue button that resto
 A six-level vision dial living inside the game's own settings screen: BLIND, HARD, LIMITED (69%), NORMAL, SCOUT, ORACLE. Slide left to go in blind. Slide right because we all know why you're really here.
 `medick_The_fogOFwar.dll` · [Nexus #31](https://www.nexusmods.com/lastepoch/mods/31)
 
-### [A Terrible Button: The Nexus Button](./medick_TheNexusButton) — v0.1.0 · NEW
+### [A Terrible Button: The Nexus Button](./medick_TheNexusButton) — v0.1.1 · NEW
 One beautiful button that opens the game's own travel menu (maps, Monolith timelines, Activities and Factions), cloned from EHG's THE NEXUS button and sitting right above the ACTIVITIES tab. A shortcut: fewer steps, quicker getting around. Optional N hotkey (off by default), hide toggle, live position sliders.
 `medick_A_Terrible_Button.dll` · Nexus page coming
 
