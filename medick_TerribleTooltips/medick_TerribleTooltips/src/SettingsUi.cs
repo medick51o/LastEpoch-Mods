@@ -53,7 +53,7 @@ internal static class SettingsUi
 
         NativeSettings.CreateToggle(settings, Cat, "TT - Rank Colors",
             "<color=#FF44FF>Tooltip: Rank Colors</color>",
-            "Colours the S/A/B/C/F grade letters by roll quality. F (gray) = bottom of the range, S (pink) = near perfect. Same tier, very different power — the grades tell you the truth. ('Show Grade Letters' below controls whether the letters appear at all.)",
+            "Colours roll-quality and optional affix-rarity letters. Show Grade Letters and Show Affix Rarity control visibility separately. S is the top grade, not necessarily an exact maximum.",
             Prefs.TooltipRankColors.Value,
             v => { Prefs.TooltipRankColors.Value = v; SaveAndRefresh(); });
 
@@ -75,12 +75,17 @@ internal static class SettingsUi
             Prefs.Style,
             i => { Prefs.Style.Value = (SignalStyle)i; SaveAndRefresh(reRender: true); });
 
-        NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Name Color",
+        NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Name Colour",
             "<color=#FF44FF>Affix Name Color</color>",
-            "GreaterAffix = only T6/T7 affix text is tinted (default). TierColor = restores the pre-3.1.0 coloured affix text, with each affix wearing its tier color. " +
-            "GameDefault = the game's own text color — only the Tier·Grade signal is colored.",
+            "GreaterAffix = only T6/T7 affix text is coloured (default). TierColor = every eligible affix line is coloured. " +
+            "GameDefault = the game's own text color, only the Tier·Grade signal is colored. Hidden or disabled source signals never colour text.",
             Prefs.NameColorMode,
             i => { Prefs.NameColorMode.Value = (AffixNameColorMode)i; SaveAndRefresh(reRender: true); });
+        NativeSettings.CreateToggle(settings, Cat, "TT - Affix Text Colour",
+            "<color=#FF44FF>Color Affixes by Tier</color>",
+            "Default ON: affix text wears its tier colour (the greater-affix tint in GreaterAffix mode). OFF: use visible roll-quality colours instead. A hidden or disabled source leaves the game colour unchanged.",
+            Prefs.ColorAffixesByTier.Value,
+            v => { Prefs.ColorAffixesByTier.Value = v; SaveAndRefresh(reRender: true); });
 
         NativeSettings.CreateToggle(settings, Cat, "TT - Show Signal",
             "<color=#FF44FF>Show Tier and Grade</color>",
@@ -102,9 +107,38 @@ internal static class SettingsUi
 
         NativeSettings.CreateToggle(settings, Cat, "TT - Grade Letters",
             "<color=#FF44FF>Show Grade Letters</color>",
-            "The S/A/B/C/F roll grade on each affix line (coloured by 'Tooltip: Rank Colors' above). Turn this off if you only want tiers — the letters are gone, no hard feelings.",
+            "The S/A/B/C/F roll grade on each affix line (coloured by 'Tooltip: Rank Colors' above). Turn this off to hide roll quality; affix rarity has its own switch. Leave both off if you only want tiers — the letters are gone, no hard feelings.",
             Prefs.ShowGradeLetters.Value,
             v => { Prefs.ShowGradeLetters.Value = v; SaveAndRefresh(reRender: true); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Affix Rarity",
+            "<color=#FF44FF>Show Affix Rarity</color>",
+            "How rare is the affix? How well did it roll? Two different questions, two different letters. Default OFF. Adds a rarity letter before the roll grade: C uncommon, B rare, A very rare, S extremely rare. Common affixes get no extra letter. With both switches on, 8SS means tier 8, extremely rare affix, and an S-grade roll. S is the top grade, not necessarily the exact maximum. Uses the game affix weight, not item rarity or an exact drop chance. Independent of Show Grade Letters; layout and colour options still apply.",
+            Prefs.ShowAffixRarity.Value,
+            v => { Prefs.ShowAffixRarity.Value = v; SaveAndRefresh(reRender: true); });
+        NativeSettings.CreateToggle(settings, Cat, "TT - Affix Rarity C",
+            "<color=#FF44FF>Affix Rarity: C - Uncommon</color>",
+            "Include C rarity letters. Default OFF; requires Show Affix Rarity. Roll grades stay unchanged.",
+            Prefs.ShowAffixRarityC.Value,
+            v => { Prefs.ShowAffixRarityC.Value = v; SaveAndRefresh(reRender: true); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Affix Rarity B",
+            "<color=#FF44FF>Affix Rarity: B - Rare</color>",
+            "Include B rarity letters. Default ON; requires Show Affix Rarity. Roll grades stay unchanged.",
+            Prefs.ShowAffixRarityB.Value,
+            v => { Prefs.ShowAffixRarityB.Value = v; SaveAndRefresh(reRender: true); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Affix Rarity A",
+            "<color=#FF44FF>Affix Rarity: A - Very Rare</color>",
+            "Include A rarity letters. Default ON; requires Show Affix Rarity. Roll grades stay unchanged.",
+            Prefs.ShowAffixRarityA.Value,
+            v => { Prefs.ShowAffixRarityA.Value = v; SaveAndRefresh(reRender: true); });
+
+        NativeSettings.CreateToggle(settings, Cat, "TT - Affix Rarity S",
+            "<color=#FF44FF>Affix Rarity: S - Extremely Rare</color>",
+            "Include S rarity letters. Default ON; requires Show Affix Rarity. Roll grades stay unchanged.",
+            Prefs.ShowAffixRarityS.Value,
+            v => { Prefs.ShowAffixRarityS.Value = v; SaveAndRefresh(reRender: true); });
 
         NativeSettings.CreateToggle(settings, Cat, "TT - Pin Ranges",
             "<color=#FF44FF>Always Show Ranges</color>",
@@ -154,7 +188,7 @@ internal static class SettingsUi
         NativeSettings.CreateEnumDropdown(settings, Cat, "TT - Rule Display",
             "<color=#FF44FF>Tooltip: Show Filter Rule #</color>",
             "Adds the matched loot filter rule number to the item tooltip on hover. " +
-            "Off = nothing. NumberOnly = 'Rule#69'. NumberAndName = 'Rule #69: Maxroll told me to pick this up blah blah'. " +
+            "Off hides the label. NumberOnly shows [69]; NumberAndName shows [69] followed by the rule name; NameOnly shows just the name. Uses the rule colour and emphasis, with gold as fallback. A matching HIDE rule shows no label. " +
             "Works alongside Fallen Star's Improved Tooltips.",
             Prefs.ShowFilterRuleNumber,
             i => { Prefs.ShowFilterRuleNumber.Value = (FilterRuleDisplay)i; SaveAndRefresh(); });

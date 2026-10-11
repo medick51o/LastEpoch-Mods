@@ -42,7 +42,7 @@
 
 namespace medick_Terrible_Tooltips;
 
-public static class TooltipRecolor
+public static partial class TooltipRecolor
 {
     private const string Dim = "#8a8478";   // separator/dim ink (family palette)
 
@@ -167,6 +167,7 @@ public static class TooltipRecolor
     public static void OnLateUpdate()
     {
         TooltipPerf.Tick();
+        PruneLayouts();
         DriveNativeRangeSwitch();
 
         // GLM BLOCKER 2026-09-10: master-off must restore marked text and release caches.
@@ -199,11 +200,11 @@ public static class TooltipRecolor
         // when a static inventory tooltip receives no more UpdateLayout calls.
         try
         {
-            if (Prefs.EnableTooltips.Value && HasActiveTooltip())
+            if (Prefs.EnableTooltips.Value && AnyLiveTooltip())
             {
                 ScanTrigger trigger = ShouldScan();
                 if (trigger != ScanTrigger.None)
-                    RunScan(s_lastTooltip, s_lastArgs, trigger);
+                    RunScan(trigger);
             }
         }
         catch { }
@@ -245,6 +246,7 @@ public static class TooltipRecolor
     private static void RestoreVanillaOnMasterOff()
     {
         int restored = 0;
+        var affected = new Dictionary<int, (UITooltipItem Ui, long Epoch)>();
         foreach (var kv in s_originals)
         {
             var (tmp, original) = kv.Value;
@@ -252,6 +254,7 @@ public static class TooltipRecolor
             {
                 if (tmp != null && (tmp.text ?? "").Contains(Marker))
                 {
+                    AddOriginalOwner(kv.Key, affected);
                     tmp.text = original;
                     restored++;
                 }
@@ -260,76 +263,133 @@ public static class TooltipRecolor
         }
 
         s_originals.Clear();
+        s_originalOwners.Clear();
         s_suppressedRanges.Clear();
         s_tierColorCache.Clear();
 
-        RelayoutTooltips();
+        ReplayOwners(affected);
         Dbg.Log($"master off — restored {restored} TMPs");
     }
 
     private static void ReRenderFromOriginals()
     {
-        bool changed = false;
+        var affected = new Dictionary<int, (UITooltipItem Ui, long Epoch)>();
 
         var dead = new List<int>();
         foreach (var kv in s_originals)
         {
             var (tmp, original) = kv.Value;
-            if (tmp == null || !tmp.gameObject.activeInHierarchy) { dead.Add(kv.Key); continue; }
+            if (tmp == null) { dead.Add(kv.Key); continue; }
+            if (OriginalMaySurviveHidden(kv.Key)) continue; // tooltipActive can be false while TMP stays active.
+            if (!tmp.gameObject.activeInHierarchy)
+            {
+                if (!OriginalMaySurviveHidden(kv.Key)) dead.Add(kv.Key);
+                continue; // Retain only; never write hidden content.
+            }
             // Only re-render TMPs still showing OUR composed output. A
             // pooled TMP repurposed for another item (vanilla text, or the
             // master toggled off and back) has no marker — drop it instead
             // of stamping a stale item's lines over it.
             try
             {
-                if (!(tmp.text ?? "").Contains(Marker)) { dead.Add(kv.Key); continue; }
+                if (!(tmp.text ?? "").Contains(Marker) || !OriginalIsCurrent(kv.Key, tmp)) { dead.Add(kv.Key); continue; }
                 tmp.text = HasBracket(original) ? Compose(original) : ComposeUnbracketed(original);
-                changed = true;
+                AddOriginalOwner(kv.Key, affected);
             }
             catch { }
         }
-        foreach (int k in dead) s_originals.Remove(k);
+        foreach (int k in dead) { s_originals.Remove(k); s_originalOwners.Remove(k); }
 
         // Line counts changed → let the game re-measure (lean law)
-        if (changed)
+        ReplayOwners(affected);
+    }
+
+    private static bool HasBracket(string text)
+        => s_kgGradeRegex.IsMatch(text) || s_kgGradeOnlyRegex.IsMatch(text);
+
+    // ── Regex patterns (exact — load-bearing) ─────────────────────────
+
+    // KG tier+grade bracket  "[<color=…>5</color><color=…>A</color>]"
+    // Group 1 = tier number  Group 2 = grade colour hex  Group 3 = grade letter
+    private static readonly Regex s_kgGradeRegex = new(
+        @"\[(?:<color=[^>]+>)?(\d+)(?:</color>)?<color=([^>]+)>([SABCF])</color>\]",
+        RegexOptions.Compiled);
+
+    // KG grade-only bracket (unique/set/implicit)  "[<color=…>A</color>]"
+    private static readonly Regex s_kgGradeOnlyRegex = new(
+        @"\[<color=([^>]+)>([SABCF])</color>\]",
+        RegexOptions.Compiled);
+
+    // ANY KG bracket, tiered or grade-only, in line order — hybrid lines
+    // stack several ("[F] [1S] +48 Armor"), and SPEC's "grade per stat
+    // (S·S)" needs every one. Group 1 = optional tier digits,
+    // Group 2 = grade colour, Group 3 = letter.
+    private static readonly Regex s_kgAnyBracketRegex = new(
+        @"\[(?:(?:<color=[^>]+>)?(\d+)(?:</color>)?)?<color=([^>]+)>([SABCF])</color>\]",
+        RegexOptions.Compiled);
+
+    // Matches the EHG tier number in a Tier line/TMP
+    private static readonly Regex s_tierRegex = new(
+        @"Tier:\s*(\d+)",
+        RegexOptions.Compiled);
+
+    // Strips ALL TMP <color=…> / </color> tags (TMP innermost-tag-wins:
+    // outer wrapping fails until inner tags are stripped)
+    private static readonly Regex s_colorTagRegex = new(
+        @"</?color[^>]*>",
+        RegexOptions.Compiled);
+
+    // Strips ONE OR MORE KG brackets from the START of a line — the `+`
+    // handles hybrid lines like "[F] [1S] +48 Armor" → "+48 Armor"
+    private static readonly Regex s_kgBracketStripRegex = new(
+        @"^(\[\d*[SABCF]\]\s*)+",
+        RegexOptions.Compiled);
+
+    // Strips KG's appended roll data  "[85.9%]"  or  "(0.923)"
+    private static readonly Regex s_kgExtraDataRegex = new(
+        @"\s*(?:\[\d+\.?\d*%?\]|\(\d+\.?\d*\))\s*$",
+        RegexOptions.Compiled);
+
+    // ── Patch ─────────────────────────────────────────────────────────
+
+    [HarmonyPatch(typeof(UITooltipItem), "UpdateLayout")]
+    internal static class Patch_UpdateLayout
+    {
+        private static void Prefix(UITooltipItem __instance, out long __state)
         {
-            RelayoutTooltips();
+            __state = 0;
+            if (s_relayouting) return;
+            try { __state = CaptureEpoch(__instance); } catch { }
+        }
+        private static void Postfix(UITooltipItem __instance, object[] __args, long __state)
+        {
+            if (s_relayouting || __state == 0) return;
+            try
+            {
+                // Capture OFF too, and fence a late completion across rebind.
+                if (!CaptureLayout(__instance, __state, __args)) return;
+                if (!Prefs.EnableTooltips.Value) return;
+                ScanTrigger trigger = ShouldScan();
+                if (trigger == ScanTrigger.None) return;
+                RunScan(trigger);
+            }
+            catch { }
         }
     }
-
-    // UpdateLayout needs its original positioning arguments — the postfix
-    // captures them (typed object[] via Harmony __args) and we replay them
-    // verbatim for the re-measure.
-    private static UITooltipItem s_lastTooltip;
-    private static object[]      s_lastArgs;
-    private static readonly Dictionary<int, (UITooltipItem ui, object[] args)> s_tooltips = new();
     private static float s_lastFullSceneTime = -1f;
 
-    private static bool HasActiveTooltip()
-    {
-        if (s_lastTooltip != null && s_lastTooltip.tooltipActive) return true;
-        foreach (var entry in s_tooltips.Values)
-            if (entry.ui != null && entry.ui.tooltipActive) return true;
-        return false;
-    }
-
-    private static void RememberTooltip(UITooltipItem ui, object[] args)
-    {
-        if (ui != null) s_tooltips[ui.GetInstanceID()] = (ui, args);
-    }
-
-    // The installed UITooltipItem bindings own content/compareContent and
+    // The tracked UITooltipItem bindings own content/compareContent and
     // blessing comparison panels. Serialized references do NOT prove ancestry:
-    // include detached panels explicitly, and retain other observed instances
-    // even when their UpdateLayout was rejected by the one-scan-per-frame gate.
+    // include detached panels explicitly. Only live bindings are scanned;
+    // retained hidden bindings keep their originals but contribute no TMPs.
     private static TextMeshProUGUI[] CollectTooltipTMPs()
     {
         var roots = new List<Transform>();
-        var dead = new List<int>();
-        foreach (var pair in s_tooltips)
+        var live = new List<UITooltipItem>();
+        foreach (var ui in s_layoutUis.Values)
         {
-            var ui = pair.Value.ui;
-            if (ui == null || !ui.tooltipActive) { dead.Add(pair.Key); continue; }
+            if (!LiveUi(ui)) continue;
+            live.Add(ui);
             AddRoot(ui.transform);
             AddRoot(ui.content?.transform);
             AddRoot(ui.compareContent?.transform);
@@ -337,15 +397,13 @@ public static class TooltipRecolor
             AddRoot(ui.blessingCompareContent?.transform);
             AddRoot(ui.resonanceContent?.transform);
         }
-        foreach (int id in dead) s_tooltips.Remove(id);
 
         // Bindings expose references, not the serialized prefab hierarchy.
         // Verify the actual affix anchors instead of assuming every panel is
         // parented as expected. A foreign/reparented anchor uses the bounded
-        // compatibility path below; never silently omit a comparison affix.
-        foreach (var entry in s_tooltips.Values)
+        // compatibility path in RunScan; never silently omit a comparison affix.
+        foreach (var ui in live)
         {
-            var ui = entry.ui;
             RequireTMP(ui.implicitText);
             RequireTMP(ui.compareImplicitText);
             RequireTMP(ui.blessingImplicitTMP);
@@ -406,102 +464,15 @@ public static class TooltipRecolor
         }
     }
 
-    private static void RelayoutTooltips()
-    {
-        foreach (var entry in s_tooltips.Values)
-            if (entry.ui != null && entry.ui.tooltipActive)
-                RequestRelayout(entry.ui, entry.args);
-    }
-
-    private static void RequestRelayout(UITooltipItem ui, object[] args)
-    {
-        try
-        {
-            if (ui == null || args == null || args.Length < 3) return;
-            s_relayouting = true;
-            try
-            {
-                ui.UpdateLayout((Vector3)args[0], (Vector2)args[1], args[2] as RectTransform);
-            }
-            finally { s_relayouting = false; }
-        }
-        catch { s_relayouting = false; }
-    }
-
-    private static bool HasBracket(string text)
-        => s_kgGradeRegex.IsMatch(text) || s_kgGradeOnlyRegex.IsMatch(text);
-
-    // ── Regex patterns (exact — load-bearing) ─────────────────────────
-
-    // KG tier+grade bracket  "[<color=…>5</color><color=…>A</color>]"
-    // Group 1 = tier number  Group 2 = grade colour hex  Group 3 = grade letter
-    private static readonly Regex s_kgGradeRegex = new(
-        @"\[(?:<color=[^>]+>)?(\d+)(?:</color>)?<color=([^>]+)>([SABCF])</color>\]",
-        RegexOptions.Compiled);
-
-    // KG grade-only bracket (unique/set/implicit)  "[<color=…>A</color>]"
-    private static readonly Regex s_kgGradeOnlyRegex = new(
-        @"\[<color=([^>]+)>([SABCF])</color>\]",
-        RegexOptions.Compiled);
-
-    // ANY KG bracket, tiered or grade-only, in line order — hybrid lines
-    // stack several ("[F] [1S] +48 Armor"), and SPEC's "grade per stat
-    // (S·S)" needs every one. Group 1 = optional tier digits,
-    // Group 2 = grade colour, Group 3 = letter.
-    private static readonly Regex s_kgAnyBracketRegex = new(
-        @"\[(?:(?:<color=[^>]+>)?(\d+)(?:</color>)?)?<color=([^>]+)>([SABCF])</color>\]",
-        RegexOptions.Compiled);
-
-    // Matches the EHG tier number in a Tier line/TMP
-    private static readonly Regex s_tierRegex = new(
-        @"Tier:\s*(\d+)",
-        RegexOptions.Compiled);
-
-    // Strips ALL TMP <color=…> / </color> tags (TMP innermost-tag-wins:
-    // outer wrapping fails until inner tags are stripped)
-    private static readonly Regex s_colorTagRegex = new(
-        @"</?color[^>]*>",
-        RegexOptions.Compiled);
-
-    // Strips ONE OR MORE KG brackets from the START of a line — the `+`
-    // handles hybrid lines like "[F] [1S] +48 Armor" → "+48 Armor"
-    private static readonly Regex s_kgBracketStripRegex = new(
-        @"^(\[\d*[SABCF]\]\s*)+",
-        RegexOptions.Compiled);
-
-    // Strips KG's appended roll data  "[85.9%]"  or  "(0.923)"
-    private static readonly Regex s_kgExtraDataRegex = new(
-        @"\s*(?:\[\d+\.?\d*%?\]|\(\d+\.?\d*\))\s*$",
-        RegexOptions.Compiled);
-
-    // ── Patch ─────────────────────────────────────────────────────────
-
-    [HarmonyPatch(typeof(UITooltipItem), "UpdateLayout")]
-    internal static class Patch_UpdateLayout
-    {
-        private static void Postfix(UITooltipItem __instance, object[] __args)
-        {
-            if (s_relayouting) return;                  // our own re-measure call
-            if (!Prefs.EnableTooltips.Value) return;
-            s_lastTooltip = __instance;                 // for the Alt-path re-measure
-            s_lastArgs    = __args;
-            RememberTooltip(__instance, __args);
-            ScanTrigger trigger = ShouldScan();
-            if (trigger == ScanTrigger.None) return;
-            RunScan(__instance, __args, trigger);
-        }
-    }
-
     // The scan + compose pass. Runs from the UpdateLayout postfix (gated)
     // and from the LateUpdate dirty catch-up.
-    private static void RunScan(UITooltipItem __instance, object[] __args, ScanTrigger trigger)
+    private static void RunScan(ScanTrigger trigger)
     {
         s_lastScanFrame = Time.frameCount;
         s_lastScanTime = Time.unscaledTime;
         if (TooltipPerf.Enabled) TooltipPerf.Scan(trigger);
         try
         {
-            RememberTooltip(__instance, __args);
             TextMeshProUGUI[] allTMPs;
             try
             {
@@ -531,6 +502,7 @@ public static class TooltipRecolor
             PruneOriginals();
 
             int composed = 0;
+            var affected = new Dictionary<int, (UITooltipItem Ui, long Epoch)>();
 
             // ── Pass 1: collect grade colour per parent instance ID so
             //    standalone Range-only TMPs (set/unique siblings) can
@@ -539,15 +511,12 @@ public static class TooltipRecolor
             foreach (TextMeshProUGUI tmp in allTMPs)
             {
                 if (tmp == null || !tmp.gameObject.activeInHierarchy) continue;
-                string t = tmp?.text;
+                string t = tmp.text;
                 if (t != null && t.Contains(Marker) && s_originals.TryGetValue(tmp.GetInstanceID(), out var saved))
                     t = saved.original; // later range rewrites still inherit a composed sibling's grade
                 if (string.IsNullOrEmpty(t)) continue;
-                Match gm = s_kgGradeRegex.Match(t);
-                bool  itg = gm.Success;
-                if (!itg) gm = s_kgGradeOnlyRegex.Match(t);
-                if (!gm.Success) continue;
-                string gc = itg ? gm.Groups[2].Value : gm.Groups[1].Value;
+                string gc = RollGradeColor(t);
+                if (gc == null) continue;
                 if (tmp.transform.parent != null)
                     parentGradeColor[tmp.transform.parent.GetInstanceID()] = gc;
             }
@@ -558,7 +527,7 @@ public static class TooltipRecolor
                 try
                 {
                     if (tmp == null || !tmp.gameObject.activeInHierarchy) continue;
-                    string text = tmp?.text;
+                    string text = tmp.text;
                     if (string.IsNullOrEmpty(text)) continue;
 
                     // Our own composed output — never re-ingest it.
@@ -575,7 +544,7 @@ public static class TooltipRecolor
                     // FilterRuleTooltip's lane — a user-named filter
                     // rule containing "Tier:"/"Range:" must not drag
                     // the 'requires' TMP into the composer.
-                    try { if (tmp.gameObject.name == "requires") continue; } catch { }
+                    try { if (tmp.gameObject.name == "requires" || tmp.gameObject.name == FilterRuleTooltip.RowName) continue; } catch { }
 
                     bool hasTier  = text.Contains("Tier:");
                     bool hasRange = text.Contains("Range:");
@@ -602,7 +571,7 @@ public static class TooltipRecolor
                     // standalone widgets and tinted whole-block blue.)
                     if (!hasKgGrade && multiLine)
                     {
-                        s_originals[tmp.GetInstanceID()] = (tmp, text);
+                        RecordOriginal(tmp, text, affected);
                         tmp.text = ComposeUnbracketed(text);
                         composed++;
                         continue;
@@ -638,7 +607,7 @@ public static class TooltipRecolor
                     // widget all it wants, there's nothing in it.
                     if (hasRange && !hasKgGrade && !hasTier)
                     {
-                        s_originals[tmp.GetInstanceID()] = (tmp, text);
+                        RecordOriginal(tmp, text, affected);
 
                         if (!DeepRange)
                         {
@@ -670,7 +639,7 @@ public static class TooltipRecolor
 
                     // Fresh EHG-written text (bracket present, no
                     // marker) = the original. Store it, then compose.
-                    s_originals[tmp.GetInstanceID()] = (tmp, text);
+                    RecordOriginal(tmp, text, affected);
                     tmp.text = Compose(text);
                     composed++;
                 }
@@ -685,7 +654,7 @@ public static class TooltipRecolor
             // ── Lean law: we shrank texts AFTER the game measured the
             //    essay — re-measure once so the blank rows collapse.
             if (composed > 0)
-                RelayoutTooltips();
+                ReplayOwners(affected);
         }
         catch (Exception ex)
         {
@@ -716,7 +685,7 @@ public static class TooltipRecolor
         foreach (TextMeshProUGUI tmp in allTMPs)
         {
             if (tmp == null || !tmp.gameObject.activeInHierarchy) continue;
-            string text = tmp?.text;
+            string text = tmp.text;
             if (string.IsNullOrEmpty(text)) continue;
             // A synthesized Tier chip or suppressed Range is NOT evidence of
             // an injected bracket. Inspect its saved source, not our marker.
@@ -725,7 +694,8 @@ public static class TooltipRecolor
                 if (!s_originals.TryGetValue(tmp.GetInstanceID(), out var saved)) continue;
                 text = saved.original;
             }
-            if (text.Contains(GroundLabels.Marker) || tmp.gameObject.name == "requires") continue;
+            if (text.Contains(GroundLabels.Marker) || tmp.gameObject.name == "requires" ||
+                tmp.gameObject.name == FilterRuleTooltip.RowName) continue;
             if (HasBracket(text))
             {
                 found = true;
@@ -757,9 +727,10 @@ public static class TooltipRecolor
         if (s_originals.Count == 0) return;
         var dead = new List<int>();
         foreach (var kv in s_originals)
-            if (kv.Value.tmp == null || !kv.Value.tmp.gameObject.activeInHierarchy)
+            if (kv.Value.tmp == null ||
+                (!kv.Value.tmp.gameObject.activeInHierarchy && !OriginalMaySurviveHidden(kv.Key)))
                 dead.Add(kv.Key);
-        foreach (int k in dead) s_originals.Remove(k);
+        foreach (int k in dead) { s_originals.Remove(k); s_originalOwners.Remove(k); }
     }
 
     private static void RetireStaleOriginals()
@@ -780,6 +751,7 @@ public static class TooltipRecolor
         foreach (int id in stale)
         {
             s_originals.Remove(id);
+            s_originalOwners.Remove(id);
             // Do not let the enforcement pass re-hide a future Range rewrite
             // after its restoration data was retired. The next scan recaptures it.
             s_suppressedRanges.Remove(id);
@@ -796,18 +768,12 @@ public static class TooltipRecolor
         bool deepTier  = DeepTier;
         bool deepRange = DeepRange;
 
-        // TMP-level first grade colour — Range lines in deep view wear it
-        // (v2 semantics).
-        Match firstG = s_kgGradeRegex.Match(original);
-        bool  firstTiered = firstG.Success;
-        if (!firstTiered) firstG = s_kgGradeOnlyRegex.Match(original);
-        string tmpGradeColor = firstG.Success
-            ? firstG.Groups[firstTiered ? 2 : 1].Value
-            : "#FFFFFF";
+        string tmpGradeColor = RollGradeColor(original) ?? "#FFFFFF";
 
         string[] lines = original.Split('\n');
         var outLines = new List<string>(lines.Length);
         bool sealedPending = false;
+        string lastRollHex = null;
         string lastTierHex = null;   // continuation lines of a multi-stat affix wear its first-line colour
         int lastTier = 0;
 
@@ -829,13 +795,14 @@ public static class TooltipRecolor
                 }
                 string tierHex = tier > 0 ? Colors.TierColor(tier) : null;
 
-                string clean = s_colorTagRegex.Replace(line, "");
-                clean = s_kgBracketStripRegex.Replace(clean, "");
+                // Remove only our signal; preserve native text colours when no override applies.
+                string clean = s_kgAnyBracketRegex.Replace(line, "");
                 clean = s_kgExtraDataRegex.Replace(clean, "");
                 clean = clean.Trim();
 
                 outLines.Add(ComposeCleanLine(clean, tier, tierHex, grades, sealedPending));
                 sealedPending = false;
+                lastRollHex = grades[grades.Count - 1].color;
                 lastTierHex   = tierHex;
                 lastTier      = tier;
                 continue;
@@ -883,23 +850,12 @@ public static class TooltipRecolor
             // affix reads as ONE thing. Flavor text on non-affix TMPs has
             // no bracket above it, so lastTierHex is null and it passes
             // through untouched, as before.
-            if (lastTierHex != null && line.Trim().Length > 0 &&
-                Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix)
+            string continuationHex = AffixTextColor(lastTierHex, lastRollHex, lastTier);
+            if (continuationHex != null && line.Trim().Length > 0)
             {
-                string continuation = s_colorTagRegex.Replace(line, "").Trim();
-                if (Prefs.TooltipTierColors.Value && (lastTier == 6 || lastTier == 7))
-                    continuation = $"<color={GreaterAffixHex()}>{continuation}</color>";
-                outLines.Add(continuation);
+                outLines.Add("<color=" + continuationHex + ">" + s_colorTagRegex.Replace(line, "").Trim() + "</color>");
                 continue;
             }
-            if (lastTierHex != null && line.Trim().Length > 0 &&
-                Prefs.NameColorMode.Value == AffixNameColorMode.TierColor &&
-                Prefs.TooltipTierColors.Value)
-            {
-                outLines.Add($"<color={lastTierHex}>{s_colorTagRegex.Replace(line, "").Trim()}</color>");
-                continue;
-            }
-
             // Everything else (flavor text) — untouched
             outLines.Add(line);
         }
@@ -973,12 +929,8 @@ public static class TooltipRecolor
             else
             {
                 string name = nameLines[i];
-                if (Prefs.NameColorMode.Value == AffixNameColorMode.TierColor &&
-                    Prefs.TooltipTierColors.Value && tierHex != null)
-                    name = $"<color={tierHex}>{name}</color>";
-                else if (Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix &&
-                         Prefs.TooltipTierColors.Value && (tier == 6 || tier == 7))
-                    name = $"<color={GreaterAffixHex()}>{name}</color>";
+                string hex = AffixTextColor(tierHex, null, tier);
+                if (hex != null) name = "<color=" + hex + ">" + name + "</color>";
                 outLines.Add(name);
             }
         }
@@ -1021,6 +973,30 @@ public static class TooltipRecolor
 
     // One affix, one line. Layout per Prefs.Layout; every part honors its
     // own kill-switch (TierColors / RankColors / ShowGradeLetters / name mode).
+    // Rarity precedes quality in a bracket group. Never let hidden rarity tint a roll.
+    private static string AffixTextColor(string tierHex, string rollHex, int tier = 0)
+    {
+        if (Prefs.NameColorMode.Value == AffixNameColorMode.GameDefault) return null;
+        if (Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix && tier != 6 && tier != 7) return null;
+        if (Prefs.ColorAffixesByTier.Value)
+        {
+            if (!Prefs.TooltipTierColors.Value) return null;
+            // v3.1.2 TierColor: untiered lines (implicits, uniques) wore their roll colour.
+            if (tier <= 0) return Prefs.NameColorMode.Value == AffixNameColorMode.TierColor ? rollHex : null;
+            return Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix ? GreaterAffixHex() : tierHex;
+        }
+        return Prefs.ShowGradeLetters.Value && Prefs.TooltipRankColors.Value ? rollHex : null;
+    }
+
+    private static string RollGradeColor(string text)
+    {
+        foreach (string line in text.Split((char)10))
+        {
+            var matches = s_kgAnyBracketRegex.Matches(line);
+            if (matches.Count > 0) return matches[matches.Count - 1].Groups[2].Value;
+        }
+        return null;
+    }
     private static string ComposeCleanLine(string cleanName, int tier,
         string tierHex, List<(string color, string letter)> grades, bool sealedAffix)
     {
@@ -1058,11 +1034,14 @@ public static class TooltipRecolor
         }
 
         string gradePart = null;
-        if (Prefs.ShowGradeLetters.Value && grades.Count > 0)
+        if (grades.Count > 0)
         {
             var letters = new List<string>(grades.Count);
-            foreach (var (color, letter) in grades)
+            for (int i = 0; i < grades.Count; i++)
             {
+                bool rarity = i < grades.Count - 1;
+                if (rarity ? !Prefs.IsAffixRarityVisible(grades[i].letter) : !Prefs.ShowGradeLetters.Value) continue;
+                var (color, letter) = grades[i];
                 if (tintRank)
                     letters.Add(badges
                         ? $"<mark={color}66><color={Ink}>{letter}</color></mark>"
@@ -1070,24 +1049,14 @@ public static class TooltipRecolor
                 else
                     letters.Add(letter);
             }
-            gradePart = string.Join(
+            gradePart = letters.Count == 0 ? null : string.Join(
                 badges && tintRank ? " " : $"<color={Dim}>·</color>", letters);
         }
 
-        // Name colour: tier colour by default (the WoW retina read);
-        // untiered (unique/set/implicit) names borrow the grade colour, as in v2.
+        // Text colour is independent of rarity and of letter visibility.
         string name = cleanName;
-        if (Prefs.NameColorMode.Value == AffixNameColorMode.TierColor && tintTier)
-        {
-            string nameHex = tierHex ?? (grades.Count > 0 ? grades[0].color : null);
-            if (nameHex != null)
-                name = $"<color={nameHex}>{cleanName}</color>";
-        }
-        else if (Prefs.NameColorMode.Value == AffixNameColorMode.GreaterAffix &&
-                 tintTier && (tier == 6 || tier == 7))
-        {
-            name = $"<color={GreaterAffixHex()}>{cleanName}</color>";
-        }
+        string nameHex = AffixTextColor(tierHex, grades.Count > 0 ? grades[grades.Count - 1].color : null, tier);
+        if (nameHex != null) name = "<color=" + nameHex + ">" + s_colorTagRegex.Replace(cleanName, "") + "</color>";
 
         // No signal means no unit links, divider, layout gap or sealed prefix.
         // Keep the name colour and the caller's ownership marker unchanged.

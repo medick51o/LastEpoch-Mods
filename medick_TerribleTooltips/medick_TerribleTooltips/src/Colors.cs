@@ -11,13 +11,13 @@
 //    T6  #FA9E3D (legendary gold)   T7+ #FF44FF (MYTHIC — D4 Ancestral pink,
 //    medick's signature: "I am a diablo 4 guy")
 //
-//  Grades:  F <50 · C <70 · B <80 · A <95 · S ≥95  (roll × 100)
+//  Grades:  F <30 · C <60 · B <90 · A <97 · S ≥97  (roll × 100)
 //  Gray F is a feature: "telling the player ya that roll sucks bro"
 //  greater-affix tint, ruled 2026-09-11, deliberately outside the palette:
 //    #C990FF
 //
 //  These hex values are canonical — marketing copy drifts get corrected
-//  TO this file, never the reverse. Thresholds inherited from KG.
+//  TO this file, never the reverse. Thresholds follow displayed roll quality.
 //  (v1's unused RollColor() band function was removed in the v2 audit.)
 // ================================================================
 
@@ -44,10 +44,10 @@ public static class Colors
     public static string GradeLetter(double roll)
         => roll switch
         {
-            < 50 => "F",
-            < 70 => "C",
-            < 80 => "B",
-            < 95 => "A",
+            < 30 => "F",
+            < 60 => "C",
+            < 90 => "B",
+            < 97 => "A",
             _    => "S",
         };
 
@@ -55,10 +55,10 @@ public static class Colors
     public static string GradeLetterColor(double roll)
         => roll switch
         {
-            < 50 => "#DADADA",  // F — gray
-            < 70 => "#77ACFF",  // C — blue
-            < 80 => "#A807FF",  // B — purple
-            < 95 => "#FA9E3D",  // A — gold
+            < 30 => "#DADADA",  // F — gray
+            < 60 => "#77ACFF",  // C — blue
+            < 90 => "#A807FF",  // B — purple
+            < 97 => "#FA9E3D",  // A — gold
             _    => "#FF44FF",  // S — MYTHIC
         };
 

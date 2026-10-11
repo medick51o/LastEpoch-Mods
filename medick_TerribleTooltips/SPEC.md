@@ -1,3 +1,5 @@
+> Historical v2/v3 design notes. See PR_DESCRIPTION.md for current roll grading, filter-rule labels and optional affix rarity.
+
 # SPEC — MedicK's Terrible Tooltips v2.0.0 (the legacy rebuild)
 
 *a tooltip mod* — **Terrible Tooltips**. The heart-and-soul mod: "the one I

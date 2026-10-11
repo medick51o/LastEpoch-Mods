@@ -12,8 +12,9 @@ public enum GroundLabelStyle
 public enum FilterRuleDisplay
 {
     Off,           // nothing shown
-    NumberOnly,    // "Rule#69"
-    NumberAndName  // "Rule #69: Maxroll told me to pick this up blah blah"
+    NumberOnly,    // [69]
+    NumberAndName, // [69] matched rule name
+    NameOnly      // matched rule name without its display number
 }
 
 public enum RuleNumberPosition
@@ -35,7 +36,7 @@ public enum AffixNameColorMode
 {
     TierColor,   // affix text wears its tier color (the WoW retina read)
     GameDefault, // the game's own text color; only the Tier·Grade signal is colored
-    GreaterAffix // only Tier 6/7 affix text wears the ruled greater-affix tint ← default
+    GreaterAffix // limit text colouring to tiers 6 and 7
 }
 
 public enum SignalStyle
@@ -78,6 +79,14 @@ internal static class Prefs
     public static MelonPreferences_Entry<bool> EnableTooltips;
     public static MelonPreferences_Entry<bool> TooltipTierColors;
     public static MelonPreferences_Entry<bool> TooltipRankColors;
+
+    public static MelonPreferences_Entry<bool> ColorAffixesByTier;
+    public static MelonPreferences_Entry<bool> ShowAffixRarity;
+    public static MelonPreferences_Entry<bool> ShowAffixRarityC;
+    public static MelonPreferences_Entry<bool> ShowAffixRarityB;
+    public static MelonPreferences_Entry<bool> ShowAffixRarityA;
+    public static MelonPreferences_Entry<bool> ShowAffixRarityS;
+
 
     // v3 clean line
     public static MelonPreferences_Entry<TooltipLayout>       Layout;
@@ -127,11 +136,23 @@ internal static class Prefs
         Style = Category.CreateEntry("SignalStyle", SignalStyle.PlainText,
             "Signal Style", "PlainText = colored text only (default); Badge = Tier/Grade as colored chips");
         NameColorMode = Category.CreateEntry("AffixNameColor", AffixNameColorMode.GreaterAffix,
-            "Affix Name Color", "GreaterAffix = only Tier 6/7 text wears the greater-affix tint (default); TierColor = text wears its tier color; GameDefault = game's own text color");
+            "Affix Name Color", "GreaterAffix = only Tier 6/7 text is coloured (default); TierColor = all eligible affix text is coloured; GameDefault = game's own text color");
+        ColorAffixesByTier = Category.CreateEntry("ColorAffixesByTier", true,
+            "Color Affixes by Tier", "ON (default): affix text uses the tier colour (GreaterAffix mode uses the greater-affix tint). OFF: use visible roll-quality colour instead. Hidden or disabled sources preserve game colour. Rarity is never used.");
         ShowSignal = Category.CreateEntry("ShowSignal", true,
             "Show Tier and Grade", "Show the tier/grade signal and its border on each affix line");
         ShowGradeLetters = Category.CreateEntry("ShowGradeLetters", true,
             "Show Grade Letters", "The S/A/B/C/F roll grade on each affix line");
+        ShowAffixRarity = Category.CreateEntry("ShowAffixRarity", false,
+            "Show Affix Rarity", "Optional affix rarity letter before the roll grade. Off by default; independent of Show Grade Letters.");
+        ShowAffixRarityC = Category.CreateEntry("ShowAffixRarityC", false,
+            "Affix Rarity: C - Uncommon", "Include C in the optional affix rarity signal. Requires Show Affix Rarity; roll quality is unchanged.");
+        ShowAffixRarityB = Category.CreateEntry("ShowAffixRarityB", true,
+            "Affix Rarity: B - Rare", "Include B in the optional affix rarity signal. Requires Show Affix Rarity; roll quality is unchanged.");
+        ShowAffixRarityA = Category.CreateEntry("ShowAffixRarityA", true,
+            "Affix Rarity: A - Very Rare", "Include A in the optional affix rarity signal. Requires Show Affix Rarity; roll quality is unchanged.");
+        ShowAffixRarityS = Category.CreateEntry("ShowAffixRarityS", true,
+            "Affix Rarity: S - Extremely Rare", "Include S in the optional affix rarity signal. Requires Show Affix Rarity; roll quality is unchanged.");
         AlwaysShowRanges = Category.CreateEntry("AlwaysShowRanges", false,
             "Always Show Ranges", "Pin EHG's 'Range: X to Y' lines permanently (default: hidden, hold Alt to peek)");
         AlwaysShowTierDetails = Category.CreateEntry("AlwaysShowTierDetails", false,
@@ -177,6 +198,16 @@ internal static class Prefs
         WarnOrphanedKeys();
     }
 
+    // Selection affects rarity only; roll-quality visibility has its own switch.
+    internal static bool IsAffixRarityVisible(string letter)
+        => ShowAffixRarity.Value && (letter switch
+        {
+            "C" => ShowAffixRarityC.Value,
+            "B" => ShowAffixRarityB.Value,
+            "A" => ShowAffixRarityA.Value,
+            "S" => ShowAffixRarityS.Value,
+            _ => false,
+        });
     public static void Save()
     {
         // printmsg: false — settings clicks must not spam the console;
@@ -205,7 +236,7 @@ internal static class Prefs
             var registered = new HashSet<string>(StringComparer.Ordinal)
             {
                 "EnableTooltips", "TooltipTierColors", "TooltipRankColors",
-                "TooltipLayout", "SignalStyle", "AffixNameColor", "ShowSignal", "ShowGradeLetters",
+                "TooltipLayout", "SignalStyle", "ColorAffixesByTier", "AffixNameColor", "ShowSignal", "ShowGradeLetters", "ShowAffixRarity", "ShowAffixRarityC", "ShowAffixRarityB", "ShowAffixRarityA", "ShowAffixRarityS",
                 "AlwaysShowRanges", "AlwaysShowTierDetails", "GroundLabelStyle",
                 "GroundLabelFilterOnly", "GroundLabelAltKey", "ShowFilterRuleNumber",
                 "LabelRulePosition", "DebugLog",

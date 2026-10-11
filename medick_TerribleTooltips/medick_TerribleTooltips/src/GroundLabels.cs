@@ -159,11 +159,10 @@ public static class GroundLabels
             if (!first) sb.Append(' ');
             first = false;
 
-            double roll        = Math.Round(affix.getRollFloat() * 100.0, 1);
             int    tier        = affix.DisplayTier;
             string tierColor   = Colors.TierColor(tier);
-            string letterColor = Colors.GradeLetterColor(roll);
-            string letter      = Colors.GradeLetter(roll);
+            // Same range-aware grade the tooltip shows for this affix.
+            var (letter, letterColor) = AffixInjector.GradeForAffix(affix, itemData);
 
             switch (style)
             {
